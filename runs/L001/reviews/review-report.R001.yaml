@@ -1,0 +1,34 @@
+review_id: L001-R001
+run_id: L001
+reviewed_doc: outputs/loop-protocol.candidate.v0.1.md
+status: FAIL
+
+blocking_findings:
+  - id: BF-001
+    severity: high
+    issue: 候选文档描述了目录，但没有定义文档状态生命周期和 registry 追踪规则，无法防止脏数据和“看起来像最新”的文件被误用。
+    required_change: 增加 draft/candidate/reviewed/approved/superseded/archived 状态规则，并声明只有 stable + registry current 才是权威。
+
+  - id: BF-002
+    severity: high
+    issue: 候选文档只说 subagent 做一件事，但没有定义任务卡字段、allowed_write、must_read、forbidden 和 write manifest，无法约束读写。
+    required_change: 增加任务卡最小字段和输出清单要求。
+
+  - id: BF-003
+    severity: medium
+    issue: 候选文档没有明确 promotion gate 与用户 gate 的区别，容易把评审通过误当作用户批准。
+    required_change: 增加 promotion gate，明确 PASS 仅表示可候选提升，不表示用户批准。
+
+non_blocking_suggestions:
+  - id: NBS-001
+    suggestion: 增加 context pack 说明，解释为什么该 loop 能降低单会话上下文压力。
+
+risk_assessment:
+  context_drift: medium
+  authority_conflict: high
+  dirty_data_risk: high
+  user_gate_needed: false
+
+verdict:
+  next_action: repair
+

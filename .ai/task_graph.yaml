@@ -1,0 +1,239 @@
+schema_version: 1
+tasks:
+  -
+    id: T-0001
+    title: Initial loop governance design
+    status: completed
+    created_at: "2026-07-06T15:12:38"
+  -
+    id: T-0002
+    title: Unified governance architecture Candidate v0.2.1
+    status: completed
+    created_at: "2026-07-06T16:54:41"
+    updated_at: "2026-07-06T17:10:25"
+    note: handoff generated
+  -
+    id: T-0003
+    title: Design Activation / Installation Plan
+    status: completed
+    created_at: "2026-07-06T18:40:47"
+    updated_at: "2026-07-06T18:48:30"
+    note: state synchronized after explicit user gate
+  -
+    id: T-0004
+    title: Placeholder Cleanup
+    status: completed
+    created_at: "2026-07-07T09:18:14"
+    updated_at: "2026-07-07T09:43:07"
+    note: placeholder cleanup completed and T-0005 started
+  -
+    id: T-0005
+    title: Design Installation Candidate
+    status: completed
+    created_at: "2026-07-07T09:43:07"
+    updated_at: "2026-07-07T13:55:36"
+    note: closeout rerun passed; ready for separate T-0006 gate
+  -
+    id: T-0006
+    title: Real Product Delivery Entry Design
+    status: completed
+    created_at: "2026-07-07T14:22:05"
+    updated_at: "2026-07-07T14:22:05"
+    note: first product discovery protocol / real-project application candidate design
+  -
+    id: T-0007
+    title: Real Product Discovery - Server After-Sales Smart Compute Service Tool
+    status: completed
+    created_at: "2026-07-07T15:39:31"
+    updated_at: "2026-07-07T16:47:44"
+    note: handoff generated
+  -
+    id: T-0008
+    title: Loop Engineering Method Repair And One-Person AI Team Workflow Design
+    status: completed
+    created_at: "2026-07-07T18:17:41+08:00"
+    updated_at: "2026-07-07T18:35:53"
+    note: handoff generated
+  -
+    id: T-0009
+    title: Loop Method Candidate Review And Repair Recommendation
+    status: completed
+    created_at: "2026-07-07T18:55:53+08:00"
+    updated_at: "2026-07-08T10:13:42+08:00"
+    note: review-only evidence generated; repair-only gate was approved for T-0010
+  -
+    id: T-0010
+    title: Method Candidate Repair
+    status: completed
+    created_at: "2026-07-08T10:13:42+08:00"
+    updated_at: "2026-07-08T11:04:29"
+    note: repair-only candidate update completed; handoff refreshed
+  -
+    id: T-0011
+    title: Method Repair Review Rerun
+    status: completed
+    created_at: "2026-07-08T11:12:18+08:00"
+    updated_at: "2026-07-08T11:43:35"
+    note: review-rerun completed; baseline_candidate recommended; handoff reframed around real software delivery goal
+  -
+    id: T-0012
+    title: Method Baseline Approval Decision
+    status: completed
+    created_at: "2026-07-08T12:04:52"
+    updated_at: "2026-07-08T12:21:48+08:00"
+    note: baseline approval recorded as reference-only; no installation, AGENTS.md change, or real-project application
+  -
+    id: T-0013
+    title: Method Operating Rules / Installation Design
+    status: completed
+    created_at: "2026-07-08T13:49:48+08:00"
+    updated_at: "2026-07-08T14:18:20+08:00"
+    note: operating-rules design package accepted as candidate evidence only; no installation, AGENTS.md change, runtime behavior change, or real-project application
+  -
+    id: T-0014
+    title: Method Operating Rules Installation Gate Preparation
+    status: completed
+    created_at: "2026-07-08T15:01:30+08:00"
+    updated_at: "2026-07-08T15:40:47+08:00"
+    note: user approved the T-0014 installation / rule-change gate package as basis for a later separate execution task; AGENTS.md proposed diff remains evidence only and was not applied
+  -
+    id: T-0015
+    title: Method Operating Rules Installation Execution
+    status: completed
+    created_at: "2026-07-08T16:25:11"
+    updated_at: "2026-07-08T16:40:19"
+    note: closeout completed; exact approved AGENTS.md operating-rules patch installed and validated
+  -
+    id: T-0016
+    title: Startup Rules Acceptance Smoke Test
+    status: completed
+    created_at: "2026-07-08T17:02:27+08:00"
+    updated_at: "2026-07-08T17:08:14+08:00"
+    note: closeout completed; startup rules smoke test passed with no AGENTS.md change, runtime/tool enablement, or real-project entry
+  -
+    id: T-0017
+    title: Real Project Delivery And Architecture Governance Design
+    status: completed
+    created_at: "2026-07-08T17:42:49"
+    updated_at: "2026-07-08T18:06:21"
+    note: closeout completed; candidate governance package ready for separate review-only gate
+  -
+    id: T-0018
+    title: Real Project Delivery And Architecture Governance Review
+    status: completed
+    created_at: "2026-07-08T18:23:46+08:00"
+    updated_at: "2026-07-08T18:57:08+08:00"
+    note: review completed; verdict repair required; recommend separate T-0019 enforcement architecture design gate
+  -
+    id: T-0019
+    title: Real Project Governance Enforcement Architecture Design
+    status: completed
+    created_at: "2026-07-08T19:22:46"
+    updated_at: "2026-07-08T19:45:13+08:00"
+    note: closeout completed; design candidate self-review passed; recommend separate T-0020 review-only gate
+  -
+    id: T-0020
+    title: Real Project Governance Enforcement Architecture Review
+    status: completed
+    created_at: "2026-07-08T20:12:27"
+    updated_at: "2026-07-08T20:57:53+08:00"
+    note: closeout completed; verdict PASS_FOR_BASELINE_CONSIDERATION; recommend separate T-0021 baseline consideration gate
+  -
+    id: T-0021
+    title: Real Project Governance Enforcement Architecture Baseline Consideration
+    status: completed
+    created_at: "2026-07-08T21:16:32+08:00"
+    updated_at: "2026-07-13T10:06:04"
+    note: baseline reference/candidate decision remains completed; handoff refreshed for later separate implementation-planning gate
+  -
+    id: T-0022
+    title: Real Project Governance Enforcement Architecture Implementation Planning
+    status: completed
+    created_at: "2026-07-13T10:11:48+08:00"
+    updated_at: "2026-07-13T10:23:04+08:00"
+    note: implementation-planning gate approved by user; planning evidence produced; no implementation, installation, runtime/tool enablement, AGENTS.md change, or real-project entry
+  -
+    id: T-0023
+    title: Real Project Governance Enforcement Architecture Prototype Implementation
+    status: completed
+    created_at: "2026-07-13T11:04:07+08:00"
+    updated_at: "2026-07-13T11:26:51+08:00"
+    note: lab-local prototype implementation completed and validated; no installation, runtime/tool enablement, AGENTS.md change, or real-project entry
+  -
+    id: T-0024
+    title: Real Project Test Review And Quality Assurance Governance Design
+    status: completed
+    created_at: "2026-07-13T11:43:35+08:00"
+    updated_at: "2026-07-13T12:05:34+08:00"
+    note: design evidence completed; recommends separate T-0025 review-only gate; no implementation, installation, runtime/tool enablement, AGENTS.md change, or real-project entry
+  -
+    id: T-0025
+    title: Real Project Test Review And Quality Assurance Governance Review
+    status: completed
+    created_at: "2026-07-13T13:04:01+08:00"
+    updated_at: "2026-07-13T13:22:26+08:00"
+    note: review completed with REPAIR_REQUIRED; recommends separate T-0026 repair-only gate; no baseline approval or implementation
+  -
+    id: T-0026
+    title: Real Project Test Review And Quality Assurance Governance Repair
+    status: completed
+    created_at: "2026-07-13T13:37:43+08:00"
+    updated_at: "2026-07-13T13:54:01+08:00"
+    note: repair completed for four T-0025 findings; no baseline approval, implementation, installation, or runtime/tool enablement
+  -
+    id: T-0027
+    title: Real Project Test Review And Quality Assurance Governance Review Rerun
+    status: completed
+    created_at: "2026-07-13T14:12:55+08:00"
+    updated_at: "2026-07-13T14:27:15+08:00"
+    note: review-rerun completed with PASS_FOR_BASELINE_CONSIDERATION; no baseline consideration, implementation, installation, or runtime/tool enablement
+  -
+    id: T-0028
+    title: Real Project Test Review And Quality Assurance Governance Baseline Consideration
+    status: completed
+    created_at: "2026-07-13T15:09:00+08:00"
+    updated_at: "2026-07-13T15:44:03"
+    note: handoff generated
+  -
+    id: T-0029
+    title: Project Governor Close Session And Handoff Generator Repair Planning
+    status: completed
+    created_at: "2026-07-13T17:07:42+08:00"
+    updated_at: "2026-07-13T18:02:00+08:00"
+    note: repair planning completed; recommends separate T-0030 implementation gate; no implementation, target modification, or agent-loop enablement
+  -
+    id: T-0030
+    title: Project Governor Close Session And Handoff Consistency Repair Implementation
+    status: completed
+    created_at: "2026-07-13T18:15:20+08:00"
+    updated_at: "2026-07-13T18:51:34+08:00"
+    note: implementation completed; closeout consistency repaired; historical mismatches exposed but not modified
+  -
+    id: T-0031
+    title: T-0030 Implementation Review And Activation Boundary Repair Planning
+    status: completed
+    created_at: "2026-07-14T09:01:37+08:00"
+    updated_at: "2026-07-14T09:36:44+08:00"
+    note: review and repair planning completed with REPAIR_REQUIRED; no implementation or activation
+  -
+    id: T-0032
+    title: Register T-0030 Repair Program And T-0031 Remediation Freeze
+    status: completed
+    created_at: "2026-07-14T10:44:49+08:00"
+    updated_at: "2026-07-14T13:53:14+08:00"
+    note: registration closeout completed under three approved gates; no downstream task created and T-0031 freeze remains active
+  -
+    id: T-0033
+    title: Establish Isolated Candidate And Restore Activation Boundary
+    status: completed
+    created_at: '2026-07-14T14:19:46+08:00'
+    updated_at: '2026-07-15T13:49:19.5386522+08:00'
+    note: isolated candidate created; exact pycache contamination recovered; 13 tests and activation-boundary checks passed; candidate remains not installed and not activated
+  -
+    id: T-0034
+    title: Project Continuity, Controller Hierarchy, Neutral Audit, And Loop Assurance Design
+    status: completed
+    created_at: '2026-07-15T14:17:09.8138976+08:00'
+    updated_at: '2026-07-17T14:53:39.9249307+08:00'
+    note: closeout executed under G-T-0034-CLOSEOUT-DECISION-AND-EXECUTION-V0-1; no user acceptance, project PASS, downstream work, installation, activation, or real-project entry
+edges: []

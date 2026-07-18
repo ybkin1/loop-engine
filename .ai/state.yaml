@@ -1,0 +1,43 @@
+schema_version: 1
+project_name: Codex 一人研发团队式 Loop 软件交付系统
+current_phase: S0-method-repair
+current_task_id: T-0034
+current_gate_id: null
+last_handoff_at: "2026-07-17T17:49:26"
+notes:
+  - Historical closeout repair executed on 2026-07-17 before T-0035 creation; T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, and T-0028 are reconciled to completed in task files and task_graph where applicable; validate_state.py and audit_handoff.py now pass with no historical mismatch allowlist required.
+  - T-0034 closeout executed under G-T-0034-CLOSEOUT-DECISION-AND-EXECUTION-V0-1 on 2026-07-17 after explicit approval and later exact execution request; T-0034 is completed, and this is not user acceptance, project PASS, installation, activation, downstream task/Gate creation, or real-project entry.
+  - The user explicitly approved G-T-0034-CLOSEOUT-DECISION-AND-EXECUTION-V0-1 on 2026-07-17; approval was first recorded as approved_not_started, and the later exact execution request subsequently authorized administrative closeout execution.
+  - Pending Gate G-T-0034-CLOSEOUT-DECISION-AND-EXECUTION-V0-1 was created on 2026-07-17 to request a user decision on later T-0034 closeout execution; at creation time closeout was not executed, and later execution still asserts no acceptance or project PASS.
+  - Execution of G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R3-RETRY1-V0-4 completed on 2026-07-17 with evidence-only verdict PASS for the frozen v0.4 repair slice and no findings; T-0034 remains active, no closeout or acceptance is authorized, and reviewer verdict is not user acceptance.
+  - The user explicitly approved G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R3-RETRY1-V0-4 on 2026-07-17; approval was recorded as approved_not_started, rereview remains unauthorized until a later exact execution request, and no rereview was executed.
+  - Exact execution request for G-T-0034-REPAIR-L0R3-RETRY1-P1-FINDINGS-V0-4 was received on 2026-07-17; bounded additive v0.4 repair completed for exactly T0034-L0R3-RETRY1-F001-HF003 and T0034-L0R3-RETRY1-F002-DEFAULTS, and execution stopped before independent rereview.
+  - The user explicitly approved G-T-0034-REPAIR-L0R3-RETRY1-P1-FINDINGS-V0-4 on 2026-07-17; approval was recorded as approved_not_started before the later exact execution request; no rereview, closeout, implementation, installation, activation, downstream task or Gate creation, or real-project entry occurred.
+  - Execution of G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3-RETRY-1 completed on 2026-07-17 with evidence-only verdict REPAIR_REQUIRED and two P1 findings; T-0034 remains active, no repair or closeout is authorized, and reviewer verdict is not user acceptance.
+  - The user explicitly approved G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3-RETRY-1 on 2026-07-17; approval was recorded as approved_not_started, review execution remains unauthorized, and a later exact execution request is required.
+  - Pending retry Gate G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3-RETRY-1 was created on 2026-07-17 for a genuinely fresh independent read-only rereview of the frozen additive v0.3 repair slice; Gate creation is not approval, rereview is not executed, and the next action is user approval or rejection.
+  - Execution of G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3 stopped on 2026-07-17 with evidence-only verdict BLOCKED because the active reviewer context was the same thread/controller that authored the repair; frozen preflight passed 11/11 and no content rereview or closeout occurred.
+  - The user explicitly approved G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3 on 2026-07-17; approval was recorded as approved_not_started, review execution remains unauthorized, and a later exact execution request is required.
+  - Pending Gate G-T-0034-FRESH-INDEPENDENT-REREVIEW-L0R2-V0-3 was created on 2026-07-17 for fresh independent read-only rereview of the frozen additive v0.3 repair slice; Gate creation is not approval and rereview remains unauthorized.
+  - Bounded repair under G-T-0034-REPAIR-L0R2-P1-FINDINGS-V0-3 completed on 2026-07-17 with additive v0.3 artifacts and execution evidence; execution stopped before independent rereview and T-0034 remains active.
+  - Exact execution request for G-T-0034-REPAIR-L0R2-P1-FINDINGS-V0-3 was received on 2026-07-17; bounded additive repair is in progress, while rereview, closeout, implementation, installation, activation, downstream tasks, and real-project entry remain unauthorized.
+  - The user explicitly approved G-T-0034-REPAIR-L0R2-P1-FINDINGS-V0-3 on 2026-07-17; approval was recorded as approved_not_started, all repair and rereview authorization flags remain false, and a later exact execution request is required.
+  - Pending repair Gate G-T-0034-REPAIR-L0R2-P1-FINDINGS-V0-3 was created for exactly T0034-L0R2-F001 and T0034-L0R2-F002; creation is not approval, repair remains unauthorized, and the next action is user approval or rejection.
+  - Fresh independent L0 read-only review G-T-0034-FRESH-INDEPENDENT-L0-READ-ONLY-REVIEW-V0-2 completed on 2026-07-16 with evidence-only verdict REPAIR_REQUIRED for two P1 findings; T-0034 remains active and no repair, closeout, implementation, installation, activation, or downstream action is authorized.
+  - Fresh independent L0 read-only review Gate G-T-0034-FRESH-INDEPENDENT-L0-READ-ONLY-REVIEW-V0-2 was first approved without starting review; a later separate exact user execution request authorized the bounded read-only review, which completed with evidence-only verdict REPAIR_REQUIRED.
+  - The approved T-0034 additive design repair executed on 2026-07-16 and produced the complete v0.2 repair/evidence set; execution stopped before independent review and T-0034 remains active.
+  - The user explicitly approved the corrected G-T-0034-REPAIR-DESIGN-COVERAGE-AND-ASSURANCE-GAPS on 2026-07-16; approval was recorded before the later separately requested repair execution.
+  -
+    Independent disk review returned REPAIR_REQUIRED; the resulting repair Gate was subsequently approved and executed, repair evidence became complete, and the later fresh independent rereview completed with two P1 findings: T0034-L0R2-F001 and T0034-L0R2-F002.
+  - T-0034 design gate is explicitly approved; phase 1 produced only the handoff writing standard and current main-controller handoff, while the overall task remains active.
+  - The current stable checkpoint has no active transaction or in-flight agent and is ready for a fresh L0 successor read-only equivalence probe.
+  - The 2026-07-15 discussion is consolidated under T-0034 evidence for continuity, controller hierarchy, neutral assurance, drift control, and downstream sequencing.
+  - T-0035 through T-0050 remain roadmap entries only and have not been created as tasks or gates.
+  - No candidate/global script, runtime, agent, automation, installation, activation, or real-project behavior changed in T-0034 registration.
+  - T-0033 is completed under the approved isolated-candidate gate and the separately approved pycache recovery gate.
+  - The isolated candidate exists with exactly nine approved files and only the scripts and tests subdirectories.
+  - The exact generated pyc and its empty __pycache__ directory were removed; the clean rerun passed all 13 tests.
+  - The candidate remains not installed and not activated; global Project Governor files, PATH, PYTHONPATH, startup behavior, and tool discovery remain unchanged.
+  - The original seven T-0033 evidence files remain byte-for-byte unchanged; commands.md and candidate records contain additive recovery results.
+  - T-0035 through T-0050 remain roadmap entries only and have not been created as tasks or gates.
+  - Historical task/task_graph mismatches for T-0002, T-0004, T-0005, T-0007, T-0009, and T-0028 have been repaired by the 2026-07-17 historical closeout repair; T-0028 is completed in both task file and task_graph.yaml.

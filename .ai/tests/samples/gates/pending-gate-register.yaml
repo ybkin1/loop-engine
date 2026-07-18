@@ -1,0 +1,10 @@
+schema_version: 1
+gates:
+  - id: G-SAMPLE-PENDING
+    task_id: T-SAMPLE
+    gate_type: prototype
+    status: pending
+    decision: pending
+    approval_required_from: user
+    evidence: .ai/tests/samples/gates/sample-gate-request.md
+    decision_packet: .ai/tests/samples/gates/sample-decision-packet.md

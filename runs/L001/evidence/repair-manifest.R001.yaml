@@ -1,0 +1,11 @@
+task_id: L001-X001
+role: repair
+read:
+  - ../../roles/repair-brief.md
+  - task-card.writer.md
+  - outputs/loop-protocol.candidate.v0.1.md
+  - reviews/review-report.R001.yaml
+written:
+  - repairs/loop-protocol.candidate.v0.2.md
+status: COMPLETE
+

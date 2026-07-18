@@ -1,0 +1,11 @@
+{
+  "checker_id": "run_governance_checks",
+  "passed": true,
+  "status": "passed",
+  "failed_check_ids": [],
+  "findings": [],
+  "metadata": {
+    "gates_path": ".ai\\tests\\samples\\gates\\approved-gate-register.yaml",
+    "gate_count": 1
+  }
+}

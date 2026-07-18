@@ -1,0 +1,19 @@
+{
+  "checker_id": "run_governance_checks",
+  "passed": false,
+  "status": "failed",
+  "failed_check_ids": [
+    "high-risk-gate-separation-check"
+  ],
+  "findings": [
+    {
+      "check_id": "high-risk-gate-separation-check",
+      "severity": "error",
+      "message": "G-SAMPLE-HIGH-RISK: `deployment` requires a separate gate"
+    }
+  ],
+  "metadata": {
+    "gates_path": ".ai\\tests\\samples\\gates\\high-risk-without-separate-gate.yaml",
+    "gate_count": 1
+  }
+}

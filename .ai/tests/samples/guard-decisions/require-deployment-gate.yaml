@@ -1,0 +1,4 @@
+action_family: deployment
+target_path: .ai/checkers/run_governance_checks.py
+gate_status: approved
+expected_decision: require_user_gate

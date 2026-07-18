@@ -1,0 +1,11 @@
+task_id: L001-W001
+role: writer
+read:
+  - ../../stable/user-origin.md
+  - ../../stable/current-loop-protocol.md
+  - ../../roles/writer-brief.md
+  - ../../templates/task-card.template.md
+written:
+  - outputs/loop-protocol.candidate.v0.1.md
+status: COMPLETE
+
