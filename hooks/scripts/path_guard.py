@@ -20,21 +20,27 @@ JSON 输出严格只含文档认可的键；任何内部异常一律 exit 0 并�
 """
 
 import json
+import logging
 import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(message)s')
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (  # noqa: E402
     DEFAULT_CONFIG,
     extract_target_path,
     is_governance_project,
+    is_path_safe,
     load_config,
     matches_protected,
     normalize_rel,
     project_root,
     read_stdin_json,
+    should_fail_closed,
 )
 
 EXIT_PASS = 0
@@ -72,6 +78,15 @@ def main():
         if not target:
             return EXIT_PASS  # 取不到路径时不臆断，放行
 
+        # 路径安全检查：目标明确在项目根外 → 阻断
+        if not is_path_safe(root, target):
+            logger.warning(
+                "BLOCKED: Target '%s' is outside the project root. "
+                "Writing outside the project boundary is not allowed.",
+                target,
+            )
+            return EXIT_BLOCK
+
         rel = normalize_rel(root, target)
         rule = matches_protected(rel, path_cfg.get("protected_paths", []))
         if rule is None:
@@ -79,19 +94,19 @@ def main():
 
         mode = path_cfg.get("decision", "ask")
         if mode == "deny":
-            print(
-                f"[path_guard] BLOCKED: {rel} 命中保护区规则 {rule}，"
+            logger.warning(
+                "BLOCKED: %s 命中保护区规则 %s，"
                 "当前为 deny 模式。请先取得对应 gate，再由用户临时调整 "
                 "config.yaml 的 path_guard.decision。",
-                file=sys.stderr,
+                rel, rule,
             )
             return EXIT_BLOCK
 
         emit_ask(rule, rel)
         return EXIT_PASS
-    except Exception as e:
-        # hook 自身故障不应瘫痪会话；记录后放行（ZCode 日志可见）
-        print(f"[path_guard] WARN: 内部异常（{e}），放行。", file=sys.stderr)
+    except Exception:
+        if should_fail_closed(root):
+            return EXIT_BLOCK
         return EXIT_PASS
 
 

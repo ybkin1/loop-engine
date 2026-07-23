@@ -1,11 +1,13 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: null
+current_task_id: T-0034
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: "2026-07-22T17:00:00+08:00"
+last_handoff_at: '2026-07-23T16:00:00+08:00'
 notes:
-  - "loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。"
-  - "Bash 命令拦截已启用（hooks.json matcher 增加 Bash）。"
-  - "T-0034: 强制 Loop 模式 + Bash 拦截 + 项目完善。"
+- loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。
+- Bash 命令拦截已启用。
+- T-0034: Loop Engine v2.0.0 逻辑完备版。30+模块，1,700+测试，11/11角色，垂直切片闭环。
+- HardConstraints 已接入 Hook（渐进迁移）。10项双角色审查问题全部修复。
+- ZCode Agent API 待接通（session_id/actor_id 需平台侧支持）。

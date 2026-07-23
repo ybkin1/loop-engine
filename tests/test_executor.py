@@ -23,9 +23,6 @@ from pathlib import Path
 
 import pytest
 
-# Ensure the parent directory is on sys.path so we can import loop_core
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from loop_core.state_machine import Phase, GateStatus
 from loop_core.router import LoopMode
 from loop_core.executor import (
@@ -85,7 +82,7 @@ class TestPhaseExecutorPlanPhase:
 
     def test_plan_phase_creates_correct_steps_full_mode(self):
         """plan_phase should create steps for all roles required by FULL mode phase."""
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         plan = executor.plan_phase(Phase.S2_ARCHITECTURE)
         expected_roles = PHASE_ROLES[Phase.S2_ARCHITECTURE]
         assert len(plan.steps) == len(expected_roles)
@@ -97,7 +94,7 @@ class TestPhaseExecutorPlanPhase:
 
     def test_plan_phase_lightweight_uses_lightweight_roles(self):
         """LIGHTWEIGHT mode should only use developer role for any phase."""
-        executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT)
+        executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT, fixture_mode=True)
         plan = executor.plan_phase(Phase.S4_IMPLEMENTATION)
         role_ids = [s.role_id for s in plan.steps]
         assert len(role_ids) == 1
@@ -105,7 +102,7 @@ class TestPhaseExecutorPlanPhase:
 
     def test_plan_phase_steps_have_required_fields(self):
         """Each RoleStep should have required_fields populated."""
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         plan = executor.plan_phase(Phase.S5_QUALITY)
         for step in plan.steps:
             assert len(step.required_fields) > 0
@@ -114,7 +111,7 @@ class TestPhaseExecutorPlanPhase:
 
     def test_plan_phase_all_steps_start_pending(self):
         """All steps should start with PENDING status."""
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         plan = executor.plan_phase(Phase.S1_REQUIREMENTS)
         for step in plan.steps:
             assert step.status == StepStatus.PENDING
@@ -125,7 +122,7 @@ class TestValidateStep:
 
     def test_validate_step_complete_output(self):
         """Full output with all required fields should be COMPLETE."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="test-role",
             required_fields=["verdict", "summary", "findings"],
@@ -142,7 +139,7 @@ class TestValidateStep:
 
     def test_validate_step_incomplete_missing_fields(self):
         """Output missing required fields should be INCOMPLETE."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="test-role",
             required_fields=["verdict", "summary", "findings"],
@@ -159,7 +156,7 @@ class TestValidateStep:
 
     def test_validate_step_blocked_verdict(self):
         """Output with BLOCKED verdict should return BLOCKED status."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="test-role",
             required_fields=["verdict", "summary"],
@@ -174,7 +171,7 @@ class TestValidateStep:
 
     def test_validate_step_empty_output(self):
         """Empty output dict should return FAILED."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="test-role",
             required_fields=["verdict", "summary"],
@@ -184,7 +181,7 @@ class TestValidateStep:
 
     def test_validate_step_none_output(self):
         """None output should return FAILED (handled by empty check)."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="test-role",
             required_fields=["verdict"],
@@ -199,7 +196,7 @@ class TestCanAdvance:
 
     def test_can_advance_all_complete(self):
         """When all steps are COMPLETE, can_advance returns True."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         plan = PhasePlan(
             phase=Phase.S4_IMPLEMENTATION,
             loop_mode=LoopMode.FULL,
@@ -214,7 +211,7 @@ class TestCanAdvance:
 
     def test_can_advance_blocked_role(self):
         """A BLOCKED step should prevent advancement."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         plan = PhasePlan(
             phase=Phase.S4_IMPLEMENTATION,
             loop_mode=LoopMode.FULL,
@@ -229,7 +226,7 @@ class TestCanAdvance:
 
     def test_can_advance_incomplete_role(self):
         """An INCOMPLETE step should prevent advancement."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         plan = PhasePlan(
             phase=Phase.S4_IMPLEMENTATION,
             loop_mode=LoopMode.FULL,
@@ -251,7 +248,7 @@ class TestExecuteRole:
 
     def test_execute_role_returns_rolestep_with_status(self):
         """execute_role should return a RoleStep with a valid status."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = executor.execute_role(
             role_id="quality-engineer",
             role_prompt="Test quality check",
@@ -270,7 +267,7 @@ class TestExecuteRole:
 
     def test_execute_role_simulates_output_for_missing_agent_script(self):
         """When no agent script exists, _simulate_role_output fills fields."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = executor.execute_role(
             role_id="security-engineer",
             role_prompt="Scan for vulnerabilities",
@@ -287,7 +284,7 @@ class TestRetryLogic:
 
     def test_retry_on_incomplete_then_complete(self, monkeypatch):
         """Step marked INCOMPLETE should retry up to max_retries."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="tester",
             status=StepStatus.RUNNING,
@@ -327,7 +324,7 @@ class TestRetryLogic:
 
     def test_blocked_role_does_not_retry(self, monkeypatch):
         """A step with BLOCKED verdict should not be retried."""
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         step = RoleStep(
             role_id="blocker",
             status=StepStatus.RUNNING,
@@ -364,7 +361,7 @@ class TestPersistState:
         """persist_state should create/update .ai/state.yaml."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_S0)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = PhasePlan(
                 phase=Phase.S1_REQUIREMENTS,
                 loop_mode=LoopMode.FULL,
@@ -384,7 +381,7 @@ class TestPersistState:
         """persist_state should create .ai/task_graph.yaml."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_S0)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             step1 = RoleStep(
                 role_id="developer",
                 status=StepStatus.COMPLETE,
@@ -411,7 +408,7 @@ class TestPersistState:
         """persist_state should update last_handoff_at timestamp."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_S0)
-            executor = PhaseExecutor()
+            executor = PhaseExecutor(fixture_mode=True)
             plan = PhasePlan(phase=Phase.S2_ARCHITECTURE, loop_mode=LoopMode.FULL)
             executor.persist_state(plan, project_root=root)
 
@@ -426,7 +423,7 @@ class TestExecutePhase:
         """Executing S0-init as the first phase should work."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp)  # No state.yaml yet (fresh project)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(
                 Phase.S0_INIT,
                 project_root=root,
@@ -440,7 +437,7 @@ class TestExecutePhase:
         """Jumping from S0-init to S4-implementation should be blocked."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_S0)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(
                 Phase.S4_IMPLEMENTATION,
                 project_root=root,
@@ -457,7 +454,7 @@ class TestExecutePhase:
         """S0-init to S1-requirements should work (valid transition)."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_S0)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(
                 Phase.S1_REQUIREMENTS,
                 project_root=root,
@@ -469,7 +466,7 @@ class TestExecutePhase:
         """After execute_phase, state files should be updated."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp)  # fresh project
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(
                 Phase.S0_INIT,
                 project_root=root,
@@ -488,7 +485,7 @@ class TestExecutePhase:
         """LIGHTWEIGHT mode should only run the developer role."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, STATE_LIGHTWEIGHT)
-            executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT)
+            executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT, fixture_mode=True)
             plan = executor.execute_phase(
                 Phase.S4_IMPLEMENTATION,
                 project_root=root,
@@ -503,7 +500,7 @@ class TestBlockedRolePreventsAdvance:
 
     def test_blocked_role_stops_phase(self, monkeypatch):
         """When a role returns BLOCKED, the phase should not advance."""
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         plan = PhasePlan(
             phase=Phase.S4_IMPLEMENTATION,
             loop_mode=LoopMode.FULL,
@@ -523,7 +520,7 @@ class TestParallelRoleScheduling:
 
     def test_all_roles_in_phase_are_launched(self):
         """All roles for a phase should be included in the plan steps."""
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         plan = executor.plan_phase(Phase.S4_IMPLEMENTATION)
         expected = PHASE_ROLES[Phase.S4_IMPLEMENTATION]
         launched = {s.role_id for s in plan.steps}
@@ -533,7 +530,7 @@ class TestParallelRoleScheduling:
         """execute_phase should produce a step for each role."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp)  # fresh
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(Phase.S0_INIT, project_root=root)
             expected_roles = set(PHASE_ROLES[Phase.S0_INIT])
             launched_roles = {s.role_id for s in plan.steps}
@@ -543,7 +540,7 @@ class TestParallelRoleScheduling:
         """Each role step should have its own status."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp)
-            executor = PhaseExecutor(mode=LoopMode.FULL)
+            executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
             plan = executor.execute_phase(Phase.S0_INIT, project_root=root)
             assert len(plan.steps) >= 1
             for step in plan.steps:
@@ -555,12 +552,12 @@ class TestPhaseExecutorModes:
     """Tests for phase list variations across modes."""
 
     def test_full_mode_has_all_phases(self):
-        executor = PhaseExecutor(mode=LoopMode.FULL)
+        executor = PhaseExecutor(mode=LoopMode.FULL, fixture_mode=True)
         phases = executor.get_phases()
         assert len(phases) == 12
 
     def test_standard_mode_has_core_phases(self):
-        executor = PhaseExecutor(mode=LoopMode.STANDARD)
+        executor = PhaseExecutor(mode=LoopMode.STANDARD, fixture_mode=True)
         phases = executor.get_phases()
         assert len(phases) == 6
         assert Phase.S0_INIT in phases
@@ -571,7 +568,7 @@ class TestPhaseExecutorModes:
         assert Phase.S6_DELIVERY in phases
 
     def test_lightweight_mode_has_minimal_phases(self):
-        executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT)
+        executor = PhaseExecutor(mode=LoopMode.LIGHTWEIGHT, fixture_mode=True)
         phases = executor.get_phases()
         assert len(phases) == 3
 
@@ -588,7 +585,7 @@ class TestFreezeInputs:
             f2 = root / "missing.txt"
             # f2 does not exist
 
-            executor = PhaseExecutor()
+            executor = PhaseExecutor(fixture_mode=True)
             hashes = executor._freeze_inputs([str(f1), str(f2)])
             assert len(hashes) == 2
             assert hashes[str(f1)] != "MISSING"
@@ -597,6 +594,6 @@ class TestFreezeInputs:
             assert len(hashes[str(f1)]) == 64
 
     def test_freeze_inputs_empty_list(self):
-        executor = PhaseExecutor()
+        executor = PhaseExecutor(fixture_mode=True)
         hashes = executor._freeze_inputs([])
         assert hashes == {}

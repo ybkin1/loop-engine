@@ -1911,3 +1911,157 @@ gates:
   - modify AGENTS.md, hooks/
   notes:
   - User explicitly directed to proceed. Gate approval recorded.
+
+- id: G-T-0034-IMPLEMENT
+  task_id: T-0034
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T14:35:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0034-IMPLEMENT
+  scope: implement P0-001 baseline code per approved design documents
+  allowed_paths:
+  - .ai/tasks/T-0034.md
+  - .ai/evidence/T-0034/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - .ai/KNOWN_ISSUES.md
+  - loop_core/runtime_controller.py
+  - loop_core/approval_record.py
+  - loop_core/agent_adapter.py
+  - loop_core/executor.py
+  - loop_core/router.py
+  - loop_core/state_machine.py
+  - loop_core/__init__.py
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/governor_lib.py
+  - .zcode/skills/loop-governance/config.yaml
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - hooks/scripts/hook_common.py
+  - tests/test_runtime_controller.py
+  - tests/test_approval_record.py
+  - tests/test_agent_adapter.py
+  - tests/test_executor.py
+  - loop_core/schemas/
+  allowed_actions:
+  - write implementation code in loop_core/ per design documents
+  - fix gate_guard.py deadlock bug (cross-validate current_gate_id against gates.yaml)
+  - expand decision_recording_exempt in config.yaml
+  - write unit tests for new modules
+  - modify executor.py to integrate Controller and AgentAdapter
+  - update validate_state.py to detect current_gate_id inconsistency
+  - run tests and validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - create .zcode/hooks.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat test passing as user approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0034/commands.md
+  - .ai/evidence/T-0034/implementation-report.v0.1.md
+  - .ai/evidence/T-0034/test-results.v0.1.md
+  exit_criteria:
+  - all new modules implemented per design documents
+  - gate_guard deadlock fixed and verified
+  - config.yaml exemption expanded
+  - all new tests passing + existing 132 tests not broken
+  - validate_state.py detects current_gate_id inconsistency
+  notes:
+  - This gate implements the code designed under G-T-0034-DESIGN.
+  - User explicitly approved this gate as "批准 G-T-0034-IMPLEMENT".
+  - Runtime behavior changes are limited to loop_core/ and hook scripts.
+  - No external systems, real projects, or production environments affected.
+- id: G-T-0034-DESIGN
+  task_id: T-0034
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T14:05:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0034-DESIGN
+  scope: design-only; produce P0-001 design documents for Runtime Controller + Approval
+    Record + Agent Adapter
+  allowed_paths:
+  - .ai/tasks/T-0034.md
+  - .ai/evidence/T-0034/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - .ai/KNOWN_ISSUES.md
+  - loop_core/runtime_controller.py
+  - loop_core/approval_record.py
+  - loop_core/agent_adapter.py
+  - loop_core/executor.py
+  - loop_core/router.py
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/continuity_auditor.py
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - tests/test_runtime_controller.py
+  - tests/test_approval_record.py
+  - tests/test_agent_adapter.py
+  - tests/test_executor.py
+  - loop_core/schemas/
+  allowed_actions:
+  - read all existing source files in loop_core/, hooks/scripts/, .zcode/tools/, tests/
+  - create .ai/tasks/T-0034.md
+  - create .ai/evidence/T-0034/ directory and design evidence files
+  - write design documents for Runtime Controller, Approval Record, Agent Adapter
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - write implementation code (reserved for G-T-0034-IMPLEMENT)
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - create .zcode/hooks.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat design completion as implementation approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0034/commands.md
+  - .ai/evidence/T-0034/design.runtime-controller.v0.1.md
+  - .ai/evidence/T-0034/design.approval-record.v0.1.md
+  - .ai/evidence/T-0034/design.agent-adapter.v0.1.md
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this design gate
+  - no implementation code, AGENTS.md modification, or runtime behavior change occurs
+  notes:
+  - This is the first gate of T-0034 (P0-001 baseline construction).
+  - Design documents are evidence only; they do not modify any running system.
+  - User explicitly approved this gate as "批准 G-T-0034-DESIGN".

@@ -141,6 +141,12 @@ def audit_handoff_model(root: Path, text: str) -> list[str]:
     except GovernanceError as exc:
         return [f"{exc.code}: {exc}"]
     task_id = current_task_id(root)
+    if task_id is None:
+        # An empty active-task slot is a valid blocked governance state, not a
+        # path to `.ai/tasks/None.md`. Report it structurally and stop the
+        # task-specific projection before attempting task file reads.
+        errors.append("NO_ACTIVE_TASK: state.current_task_id is null")
+        return errors
     status = task_status(root, task_id)
     state = load_yaml(root / ".ai" / "state.yaml")
     gate = _approved_gate(root, task_id)

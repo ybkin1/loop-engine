@@ -25,6 +25,7 @@ run_quality_gates.py — 质量门禁编排脚本。
 import argparse
 import json
 import os
+import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -195,8 +196,8 @@ def run_one_check(name: str, command: Optional[str], project_root: Path, timeout
         return {"exit_code": 0, "stdout": "", "stderr": "", "skipped": True}
     try:
         result = subprocess.run(
-            command,
-            shell=True,
+            shlex.split(command),
+            shell=False,
             capture_output=True,
             text=True,
             cwd=str(project_root),
