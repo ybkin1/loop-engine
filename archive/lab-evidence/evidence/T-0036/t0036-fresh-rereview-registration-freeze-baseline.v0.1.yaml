@@ -1,0 +1,57 @@
+schema: T0036FreshRereviewRegistrationFreeze/v1
+captured_at: '2026-07-20T15:57:27.8878569+08:00'
+purpose: registration-time drift reference only; future reviewer must recompute a new independent disk freeze
+candidate_root: candidates/T-0030-project-governor-repair
+candidate_file_count: 16
+candidate_directory_count: 2
+candidate_reparse_point_count: 0
+candidate_cache_or_compiled_artifact_count: 0
+candidate_files:
+  - {path: candidates/T-0030-project-governor-repair/BOUNDARY.md, sha256: 009E749624A28BE4D7994D6AE64AFDCA06E3EA1AC7E571138056996B56DAE980, size: 6827, mtime_ns: 1784531552502964500}
+  - {path: candidates/T-0030-project-governor-repair/NOT_ACTIVATED, sha256: 9BBB093D9C5E6129B1CE440575E9D289366FCDC7223C944532376D0C2E033EAE, size: 178, mtime_ns: 1784087348183686900}
+  - {path: candidates/T-0030-project-governor-repair/NOT_INSTALLED, sha256: CA19715176E4FD328515F5ECD36D1EB7B91AF7C70BC767C3F61EF9A52B2AB7E5, size: 187, mtime_ns: 1784087348182704400}
+  - {path: candidates/T-0030-project-governor-repair/PROVENANCE.yaml, sha256: C32D077B0D80F368872DA5A729110D58C4200D40EF8E42D91D7C78A2388CF39F, size: 12314, mtime_ns: 1784531808497949500}
+  - {path: candidates/T-0030-project-governor-repair/scripts/audit_handoff.py, sha256: 7B39A404CD62F34F8D9932DAA1BAF5C04AB9292ED164C46404F216891C9132C7, size: 1319, mtime_ns: 1784528061169364700}
+  - {path: candidates/T-0030-project-governor-repair/scripts/authority_records.py, sha256: C86E46645126B81E0BF69001493F6BE0593CBB64823AB012D09224556873CBB7, size: 4491, mtime_ns: 1784530894270574800}
+  - {path: candidates/T-0030-project-governor-repair/scripts/close_session.py, sha256: C9D51DDE316FE834A66DF9887DAE5CBA98F44148A6568F14B5FF75CCB701CDB9, size: 1333, mtime_ns: 1784528061163369000}
+  - {path: candidates/T-0030-project-governor-repair/scripts/continuity_auditor.py, sha256: F602700CF412D2D46AF94CF991B7A25D8A9AB6F51D7A1C4CE107DA8AA86BCB68, size: 11650, mtime_ns: 1784529925029728000}
+  - {path: candidates/T-0030-project-governor-repair/scripts/continuity_producer.py, sha256: 1E93F70AE7C8DABA33F7ED030972DFB02EB073AAF5A4054EADD90E9D931D1D17, size: 12144, mtime_ns: 1784527871745791700}
+  - {path: candidates/T-0030-project-governor-repair/scripts/evidence_manifest.py, sha256: 419CC01BE9BC4B9117C67CE75D13C6DD43860A27036ECCB0D31687E2C40EF7DD, size: 9129, mtime_ns: 1784527469828371400}
+  - {path: candidates/T-0030-project-governor-repair/scripts/governance_action.py, sha256: 4D2DA44D3FAA9A2D5FB35CA2E6BBA703E128D3DEE6A91B218FE08AA63F595206, size: 1662, mtime_ns: 1784527304992011100}
+  - {path: candidates/T-0030-project-governor-repair/scripts/governor_lib.py, sha256: A629651AF28E6D933A13CDC130BC4696933B12253006C8FE125DE921EA644B62, size: 12759, mtime_ns: 1784530852308118000}
+  - {path: candidates/T-0030-project-governor-repair/scripts/transaction_registry.py, sha256: 32A26DFC6C10FDB0DE87D5E97EF529B33580D7AB2EAF766D5F809855CEDD347C, size: 8154, mtime_ns: 1784527682788864200}
+  - {path: candidates/T-0030-project-governor-repair/scripts/validate_state.py, sha256: 829DDDA23E958BFCD4B91381E0F0377FBDB67597F057B160251DAABE9E94CD9D, size: 1869, mtime_ns: 1784528061175366600}
+  - {path: candidates/T-0030-project-governor-repair/scripts/validation_runner.py, sha256: 86A28722EC65DE172555A0C30DBCFF7F4F675F9766D543E8ACDEE61BD1899E46, size: 9802, mtime_ns: 1784531011772854200}
+  - {path: candidates/T-0030-project-governor-repair/tests/test_project_governor_consistency.py, sha256: BAAE16C83DFD1BC52ABB63C1B16617DF8F50121499C1492E4031136B40FA07F0, size: 66442, mtime_ns: 1784531360479058000}
+protected_subject_count: 33
+protected_exact_fingerprints_source: .ai/evidence/T-0036/t0036-repair-final-validation-manifest.v0.1.yaml#protected_post
+protected_zero_drift_source: .ai/evidence/T-0036/t0036-repair-protected-boundary-postcheck.v0.1.md
+protected_required_subjects_include:
+  - AGENTS.md
+  - candidates/T-0030-project-governor-repair/NOT_INSTALLED
+  - candidates/T-0030-project-governor-repair/NOT_ACTIVATED
+  - C:/Users/Administrator/.codex/skills/project-governor/
+  - .ai/PROJECT.md
+  - .ai/CONTRACTS.md
+  - .ai/evidence/T-0034/project-continuity-contract.v0.2.md
+  - .ai/evidence/T-0034/controller-data-flow-transaction-contracts.v0.2.md
+bound_evidence:
+  - {path: .ai/evidence/T-0036/t0036-repair-implementation-report.v0.1.md, sha256: 09F13370B632F4374B22E3E2CF12CFCCE4365AAC3E000EB4F7C9C8807C8ED066, size: 5223, mtime_ns: 1784532748158869900}
+  - {path: .ai/evidence/T-0036/t0036-repair-final-validation-manifest.v0.1.yaml, sha256: 36C90E2DBF03B97D5ADCFE932E82E32BC834234E17D0C7663F0965B925320ACD, size: 21659, mtime_ns: 1784532020603578500}
+  - {path: .ai/evidence/T-0036/t0036-repair-current-project-e2e.v0.2.md, sha256: 4D190A30028B943BE1C24E91D5FD825A6F468E61326F7EB94AC348230282DC6D, size: 1751, mtime_ns: 1784532660914335400}
+  - {path: .ai/evidence/T-0036/t0036-repair-protected-boundary-postcheck.v0.1.md, sha256: E1F2264C2ED4D738C08757DE9837E9E8BEBC17D13A16BFFB24D0C694CB0E5458, size: 1135, mtime_ns: 1784532660917333800}
+  - {path: .ai/evidence/T-0036/t0036-review-findings.v0.1.md, sha256: FDFF5BD279F341A743E1CCCF279A8D6755DC9A228372169EE451BF6492573DDE, size: 6950, mtime_ns: 1784390258078896800}
+live_structured_state:
+  project_continuity_yaml: absent
+  transaction_registry_yaml: absent
+global_projection_validation_before_registration: exit_0
+global_handoff_audit_before_registration: exit_0
+post_registration_expected_pending_stop:
+  validate_state_exit_code: 2
+  audit_handoff_exit_code: 2
+  pending_gate_id: G-T-0036-FRESH-INDEPENDENT-REREVIEW-ALL-FINDINGS-V0-1
+candidate_live_validation:
+  exit_code: 2
+  result: PROJECT_CONTINUITY_MISSING
+  interpretation: expected fail closed; not a complete production validation path
+t0037: absent

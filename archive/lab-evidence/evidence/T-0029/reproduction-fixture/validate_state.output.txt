@@ -1,0 +1,4 @@
+[project-governor] phase: S0-method-repair
+[project-governor] current_task_id: T-TEST
+[ok] state is usable
+EXIT_CODE=0

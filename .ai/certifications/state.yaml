@@ -1,0 +1,84 @@
+metadata:
+  version: 1.0.0
+  schema: certification_state/v1
+  created_at: '2026-07-22T00:00:00Z'
+  last_full_run: '2026-07-22T08:13:50.454369+00:00'
+  overall_pass: true
+roles:
+  main-thread:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Input Hash & Agent Isolation
+    last_score: 1.0
+    last_evidence_hash: 4268099ac65291b353970e7bd2f4b285b56dfa309a598b28935aa0da20e3f60e
+  product-manager:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Priority Distribution & AC Validation
+    last_score: 1.0
+    last_evidence_hash: 6aada08d5058551ac4c5d49867c23c4386b2405a3997beabed57feab95e18fec
+  project-manager:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: DAG & Task Coverage
+    last_score: 1.0
+    last_evidence_hash: ec349d808e62d822a37485542702a45003bfa9a6261616f836bb58bcd230a742
+  system-architect:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Dependency Analysis & Architecture Completeness
+    last_score: 1.0
+    last_evidence_hash: 343a924f523300917688f61044e557fcac341dafd25a6703bd545c2dc6cb8284
+  module-architect:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Interface Contract Validation
+    last_score: 1.0
+    last_evidence_hash: f8cb064e9839cc99345432405e381a06c61d34aea3a936f79b95d962aaa365aa
+  developer:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Contract-Implementation Consistency
+    last_score: 1.0
+    last_evidence_hash: 0462d41519c7262af5a7bece70cbc70a91eecddea1da4dcde3973ee6eb4beede
+  quality-engineer:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Threshold Comparison & Report Integrity
+    last_score: 1.0
+    last_evidence_hash: 8453accc5db58e36bfcc7d0874773c70dac10bb7dc37b8bf5158daa585cceccc
+  security-engineer:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Finding Evidence & CVE Severity
+    last_score: 1.0
+    last_evidence_hash: 407ae33a06582b8fcd4ee6536d787d56608c8860104eef820869205f971e69ba
+  independent-reviewer:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Code Review Verdict & Evidence
+    last_score: 1.0
+    last_evidence_hash: 57ec4ad79aee9d21e7aed9854e340842e941337b3d4eba538d95d42208d85d59
+  delivery-manager:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: Release GO/NOGO Decision
+    last_score: 1.0
+    last_evidence_hash: 4c747c2d00d24168db321709e9dde35c6b39af9065c7bf27515c6eea36f8b9e3
+  release-engineer:
+    state: CERTIFIED
+    consecutive_failures: 0
+    last_run: '2026-07-22T08:13:50.455369+00:00'
+    last_challenge: 8-Dimension Deployment Readiness
+    last_score: 1.0
+    last_evidence_hash: 1a4745eeec56d7925aebffe6bf31123bf1ac98303fbc95008701fe94e29e3ca2

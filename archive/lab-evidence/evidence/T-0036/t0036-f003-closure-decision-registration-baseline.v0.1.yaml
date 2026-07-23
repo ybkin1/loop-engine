@@ -1,0 +1,34 @@
+schema: T0036F003ClosureDecisionRegistrationBaseline/v1
+gate_id: G-T-0036-F003-CLOSURE-DECISION-V0-1
+captured_at: '2026-07-21T14:43:29.7884064+08:00'
+pending_gate_count_before: 0
+current_task_id: T-0036
+current_gate_id_before: null
+blocking_findings:
+  - T0036-F003
+latest_rereview_verdict: PASS
+latest_rereview_gate: G-T-0036-FRESH-INDEPENDENT-REREVIEW-F003-POST-COMPLETED-STATE-REPAIR-V0-1
+latest_rereview_evidence:
+  - .ai/evidence/T-0036/t0036-f003-post-completed-state-rereview-execution-report.v0.1.md
+  - .ai/evidence/T-0036/t0036-f003-post-completed-state-rereview-execution-protocol-results.v0.1.md
+  - .ai/evidence/T-0036/t0036-f003-post-completed-state-rereview-execution-handoff-results.v0.1.md
+protected_sources:
+  - path: .ai/PROJECT.md
+    sha256: 2B972BC990A74D6564DAFF2A0DF243042C8DA06F07B21D6570E3BDDA2D4D0554
+  - path: AGENTS.md
+    sha256: 7D9B688C8364E4E2AA79D6878376B19D1E98FBC850A8116E297C50AB18F391BA
+governance_projection_preimages:
+  - path: .ai/state.yaml
+    sha256: 4B58992BA4F070A3D0B5C6F194A7E5C809F85E156556F6B65BAF64608A324055
+  - path: .ai/HANDOFF.md
+    sha256: CF12A4806FADB0A18D7A2DD79BD6AF37F51BA23B48620D4D4BFB8D9712F3FB18
+  - path: .ai/tasks/T-0036.md
+    sha256: D798267B6C1590B8926EC201F30E561B2451869ED99766C5132B1B9501AC7A48
+  - path: .ai/gates.yaml
+    sha256: 8C0B6A7DC4713173C74B7871DF410E7ACF7112CD442A3FB3F2CCEA95416389D1
+  - path: .ai/task_graph.yaml
+    sha256: FDE09D9698AB32F98ED411C850EE497F7F1E01EA8C43F4FB695C3FCEDB2AEDE1
+gate_id_conflict_check: no historical match under .ai/
+candidate_or_runtime_write_before_registration: false
+installation_activation_runtime_enablement_before_registration: false
+downstream_task_or_gate_creation_before_registration: false

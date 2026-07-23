@@ -1,0 +1,31 @@
+schema: T0036F003CompletedStateRegressionReproducibilityExecutionPreflight/v1
+gate_id: G-T-0036-REPAIR-F003-COMPLETED-STATE-REGRESSION-REPRODUCIBILITY-V0-1
+task_id: T-0036
+execution_request: 执行已批准的 G-T-0036-REPAIR-F003-COMPLETED-STATE-REGRESSION-REPRODUCIBILITY-V0-1
+pre_execution_gate_status: approved
+pre_execution_gate_execution_status: approved_not_started
+pre_execution_current_gate_id: null
+pre_execution_task_status: active
+pre_execution_repair_authorized: false
+pre_execution_implementation_authorized: false
+pre_execution_independent_rereview_authorized: false
+baseline_source: .ai/evidence/T-0036/t0036-f003-repair-final-validation-manifest.v0.1.yaml
+target_baseline:
+  path: candidates/T-0030-project-governor-repair/tests/test_project_governor_consistency.py
+  sha256: FD896C3D4062938DCE0C6CA3C462DFE2BAA2DF626408D596AE6898E1C70856CB
+  size: 74828
+  mtime_ns: 1784543942703044700
+protected_subjects:
+  count: 33
+  mismatches_before_execution: 0
+candidate_inventory_before_execution:
+  files: 17
+  directories: 2
+  reparse_points: 0
+  cache_or_compiled_artifacts: 0
+live_project_continuity_yaml: absent
+live_transaction_registry_yaml: absent
+t0037: absent
+live_target_gate_execution_status_during_validation: approved_not_started
+fixture_authority: fixture_only
+fresh_independent_rereview_authorized: false

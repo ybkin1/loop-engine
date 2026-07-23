@@ -1,0 +1,11 @@
+schema_version: 1
+project_name: Loop Engine
+current_phase: S6-delivery
+current_task_id: null
+current_gate_id: null
+loop_mode: FULL
+last_handoff_at: "2026-07-22T17:00:00+08:00"
+notes:
+  - "loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。"
+  - "Bash 命令拦截已启用（hooks.json matcher 增加 Bash）。"
+  - "T-0034: 强制 Loop 模式 + Bash 拦截 + 项目完善。"

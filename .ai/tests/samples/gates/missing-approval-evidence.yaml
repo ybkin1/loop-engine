@@ -1,0 +1,18 @@
+schema_version: 1
+gates:
+  - id: G-T-0004-EXAMPLE-MISSING-EVIDENCE
+    task_id: T-0004
+    gate_type: user-approval
+    status: approved
+    decision: approved
+    evidence: .ai/evidence/T-0004/commands.md
+    high_risk_flags:
+      deployment: false
+      rollback: false
+      database: false
+      permission: false
+      secret: false
+      payment: false
+      production_data: false
+      migration: false
+      runtime_behavior: false

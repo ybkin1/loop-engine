@@ -1,0 +1,21 @@
+# Architecture Review Signoff — S6-delivery
+
+## Verdict: APPROVED
+
+Loop Engine v1.0.0 architecture has been reviewed against `docs/02-architecture.md`.
+
+## Reviewed Items
+
+- [x] Four-layer architecture (hooks → knowledge → tools → commands) is correctly implemented
+- [x] Loop Core is host-independent (no ZCode-specific imports in loop_core/)
+- [x] Host Adapter pattern is correctly abstracted (contracts.py)
+- [x] Role isolation via Agent tool is designed correctly (main-thread §2)
+- [x] Enforcement levels (STRONG/MEDIUM/ADVISORY) are honestly declared
+- [x] 12-phase state machine is complete and consistent
+
+## Limitations Accepted
+
+- Bash command interception cannot block file writes via shell redirects (ZCode architecture limitation, documented as MEDIUM enforcement)
+- Sub-agent cannot launch sub-sub-agents (ZCode architecture limitation, main-thread launches roles via chat session)
+
+**Signed:** system-architect, 2026-07-23

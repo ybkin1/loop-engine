@@ -1,0 +1,64 @@
+schema_version: 1
+artifact_id: unified-governance-architecture.v0.2.1
+family: unified-governance-architecture
+title: T-0002 Candidate v0.2.1
+version: v0.2.1
+task_id: T-0002
+status: installed
+candidate_status: candidate
+review_status: reviewed
+user_approved: true
+approved: true
+active: true
+installed: true
+path: .ai/evidence/T-0002/unified-governance-architecture.candidate.v0.2.1.md
+review_evidence: .ai/evidence/T-0002/unified-governance-architecture.review-report.v0.2.1.md
+approval_evidence: .ai/evidence/T-0002/unified-governance-architecture.approval.v0.2.1.md
+approval_source: explicit latest user gate in Codex session
+approved_at: "2026-07-06T17:44:53+08:00"
+activation_source: explicit activation-only user gate in Codex session
+activated_at: "2026-07-06T19:18:14+08:00"
+activation_evidence: .ai/evidence/T-0003/unified-governance-architecture.activation.v0.2.1.md
+installation_source: explicit installation user gate in Codex session
+installed_at: "2026-07-07T10:39:58+08:00"
+installation_evidence: .ai/evidence/T-0005/installation.execution.v0.1.md
+installation_target: C:\Users\Administrator\.codex\loop-engine-lab\AGENTS.md
+approved_scope:
+  - approval-record only
+  - may be used as a formal basis for later authorized steps
+  - no activation
+  - no installation
+activation_scope:
+  - governance reference only inside C:\Users\Administrator\.codex\loop-engine-lab .ai
+  - active does not imply installed
+  - no AGENTS.md installation or modification
+  - no skill/MCP/agent/automation/protocol enablement
+  - no real business project entry
+  - no deployment, rollback, database, permission, secret, payment, production data, or migration action
+  - no placeholder cleanup
+installation_scope:
+  - project-local AGENTS.md installation only
+  - install target C:\Users\Administrator\.codex\loop-engine-lab\AGENTS.md
+  - no skill/MCP/agent/automation/protocol enablement
+  - no real business project entry
+  - no deployment, rollback, database, permission, secret, payment, production data, or migration action
+forbidden_actions:
+  - further install or modify any AGENTS.md without a separate explicit user gate
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+notes:
+  - Original candidate evidence remains unchanged.
+  - Review report remains unchanged.
+  - Approved does not imply active or installed.
+  - approved_scope records the earlier approval-only gate; activation_scope records the later activation-only gate.
+  - Activation is reference-only and does not imply installation.
+  - Installation is limited to the project-local AGENTS.md target approved by G-T-0005-INSTALL-AGENTS-MD.
+  - Registry wording repaired under G-T-0005-REPAIR-REGISTRY-WORDING to avoid conflict with the approved project-local AGENTS.md installation.

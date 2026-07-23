@@ -1,0 +1,3 @@
+[ok] wrote C:\Users\Administrator\.codex\loop-engine-lab\.ai\evidence\T-0029\reproduction-fixture\.ai\HANDOFF.md
+[startup-prompt]
+Use $project-governor. Confirm the project root, read `.ai/state.yaml`, `.ai/HANDOFF.md`, and the current task file, run `validate_state.py`, resolve any pending gates with the user, then continue only inside the approved scope.

@@ -1,0 +1,38 @@
+schema: T0036F003CompletedStateRegressionReproducibilityRegistrationBaseline/v1
+captured_at: '2026-07-21T09:46:13.8907032+08:00'
+gate_id: G-T-0036-REPAIR-F003-COMPLETED-STATE-REGRESSION-REPRODUCIBILITY-V0-1
+task_id: T-0036
+current_phase: S0-method-repair
+pre_registration_current_gate_id: null
+pre_registration_pending_gate_count: 0
+blocking_findings:
+  - T0036-F003
+repair_authorized: false
+implementation_authorized: false
+independent_rereview_authorized: false
+installation_authorized: false
+activation_authorized: false
+f003_repair_execution_result: PASS_PENDING_FRESH_INDEPENDENT_REREVIEW
+fresh_independent_rereview_result: REPAIR_REQUIRED
+candidate_inventory:
+  files: 17
+  directories: 2
+  reparse_points: 0
+  cache_or_compiled_artifacts: 0
+live_project_continuity_yaml: absent
+live_transaction_registry_yaml: absent
+t0037: absent
+pre_registration_fingerprints:
+  - {path: .ai/state.yaml, sha256: C3EFA36314836271D62E293D3F6B2AB700B96C8BA749513788F18E813FE25430, size: 16963, mtime_ns: 1784596832892201600}
+  - {path: .ai/gates.yaml, sha256: 250E885614442AF77FA6BB6A5B5A33FFA8FDAC0214FD19665AF291CCFBAB0D38, size: 338425, mtime_ns: 1784596647445221600}
+  - {path: .ai/task_graph.yaml, sha256: D4BEA554ABC903E217F511B41F314C2BD54BD3617FF332A5A109996BE29E56EC, size: 11125, mtime_ns: 1784596647446224200}
+  - {path: .ai/tasks/T-0036.md, sha256: DB808637F7287D77D8822AD5F20B237D74C1D38E2DD26CD52F923AA0FFA0333B, size: 15899, mtime_ns: 1784596663943158200}
+  - {path: .ai/HANDOFF.md, sha256: 64B3B87E066AFE5308FFF1CD4C36AC530C2F8E88B06CA7DEF7DAB84205A2F793, size: 4636, mtime_ns: 1784596739627176000}
+  - {path: AGENTS.md, sha256: 7D9B688C8364E4E2AA79D6878376B19D1E98FBC850A8116E297C50AB18F391BA, size: 4105, mtime_ns: 1783499811804132500}
+  - {path: .ai/PROJECT.md, sha256: 2B972BC990A74D6564DAFF2A0DF243042C8DA06F07B21D6570E3BDDA2D4D0554, size: 1277, mtime_ns: 1783322181583779600}
+  - {path: .ai/CONTRACTS.md, sha256: EFACD6A8D962D03927975B8C583ADBBF2AC574404465C9F87B08CF1D1048E044, size: 2339, mtime_ns: 1783407407998349200}
+  - {path: candidates/T-0030-project-governor-repair/scripts/validation_runner.py, sha256: 3B30B031C79DA8748F8F198F9B2B1FABDB91114783952BE2250E1CD437DCF3A3, size: 18342, mtime_ns: 1784543588742456300}
+  - {path: candidates/T-0030-project-governor-repair/scripts/unittest_result_adapter.py, sha256: C57A5EB8567B0E6E07E9950138A1D0B134E48494A7F2A339DA580386085058AA, size: 3298, mtime_ns: 1784543942698039800}
+  - {path: candidates/T-0030-project-governor-repair/tests/test_project_governor_consistency.py, sha256: FD896C3D4062938DCE0C6CA3C462DFE2BAA2DF626408D596AE6898E1C70856CB, size: 74828, mtime_ns: 1784543942703044700}
+  - {path: candidates/T-0030-project-governor-repair/BOUNDARY.md, sha256: 409836AAAFD4C11C85523C373573297185B8B83C10612A95717B01316DA17F82, size: 8212, mtime_ns: 1784544522322144600}
+  - {path: candidates/T-0030-project-governor-repair/PROVENANCE.yaml, sha256: 3F9FBAABA429EB882C4BDBAB8839E102FCCB25BC76E3B950FD44CC37E9B76C35, size: 13686, mtime_ns: 1784544522324146700}

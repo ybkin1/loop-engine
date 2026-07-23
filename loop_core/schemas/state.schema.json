@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/state.schema.json",
+  "title": "Loop Project State",
+  "description": "Current state of a Loop-governed project. Host-independent.",
+  "type": "object",
+  "required": ["schema_version", "project_name", "current_phase"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "project_name": {
+      "type": "string",
+      "description": "Human-readable project name"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "S0-init", "S1-requirements", "S2-architecture", "S3-interface",
+        "S4-implementation", "S5-quality", "S6-delivery",
+        "S7-integration", "S8-functional-test", "S9-fix-optimize",
+        "S10-performance", "S11-maintenance"
+      ]
+    },
+    "current_task_id": {
+      "type": ["string", "null"],
+      "pattern": "^T-\\d{4}$"
+    },
+    "current_gate_id": {
+      "type": ["string", "null"],
+      "pattern": "^G-.*$"
+    },
+    "last_handoff_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "enforcement_level": {
+      "type": "string",
+      "enum": ["STRONG", "MEDIUM", "ADVISORY"],
+      "description": "Declared by host adapter at startup"
+    },
+    "loop_mode": {
+      "type": "string",
+      "enum": ["LIGHTWEIGHT", "STANDARD", "FULL"],
+      "description": "Current Loop mode as determined by router. FULL/STANDARD = hard enforcement active."
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

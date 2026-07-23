@@ -1,0 +1,58 @@
+schema: T0036RepairBaselineRevision/v2
+gate_id: G-T-0036-REPAIR-INDEPENDENT-REVIEW-FINDINGS-V0-1
+captured_at: '2026-07-20T12:15:30.0210698+08:00'
+project_root: 'C:\Users\Administrator\.codex\loop-engine-lab'
+base:
+  path: .ai/evidence/T-0036/t0036-repair-candidate-and-protected-baseline.v0.1.yaml
+  sha256: 6B0B7D1B449D59C2DB18510760463F3323ECCDA1DAA4B51D9F485F2BAC0F7688
+  subject_count: 39
+composition_policy: effective baseline is the immutable v0.1 subject set plus every protected_additions entry below; duplicate normalized paths are forbidden
+effective_subject_count: 43
+effective_protected_source_count: 33
+candidate_inventory:
+  inherited_from_v0_1: true
+  file_count: 10
+  directory_count: 2
+  reparse_point_count: 0
+  cache_or_compiled_artifact_count: 0
+protected_additions:
+  - path: .ai/PROJECT.md
+    role: canonical_project_goal_and_product_direction
+    access: read_only
+    sha256: 2B972BC990A74D6564DAFF2A0DF243042C8DA06F07B21D6570E3BDDA2D4D0554
+    size: 1277
+    mtime_ns: 1783322181583779600
+  - path: .ai/CONTRACTS.md
+    role: canonical_authority_lifecycle_and_evidence_boundaries
+    access: read_only
+    sha256: EFACD6A8D962D03927975B8C583ADBBF2AC574404465C9F87B08CF1D1048E044
+    size: 2339
+    mtime_ns: 1783407407998349200
+  - path: .ai/evidence/T-0034/project-continuity-contract.v0.2.md
+    role: PCC-2026-07-16-R1_normative_continuity_contract
+    access: read_only
+    sha256: EDCE58BBE0D74744AFB5803FD2CFDCBC361CA084F78DE9C83E77CAF961832766
+    size: 6593
+    mtime_ns: 1784182349542518100
+  - path: .ai/evidence/T-0034/controller-data-flow-transaction-contracts.v0.2.md
+    role: CDFT-2026-07-16-R1_normative_transaction_contract
+    access: read_only
+    sha256: F0C51B33142D991A1777ECD032F60CD978725D06D5F07206AD51B2EB3CDD9898
+    size: 7182
+    mtime_ns: 1784182448179537800
+forbidden_writes:
+  - .ai/PROJECT.md
+  - .ai/CONTRACTS.md
+  - .ai/evidence/T-0034/project-continuity-contract.v0.2.md
+  - .ai/evidence/T-0034/controller-data-flow-transaction-contracts.v0.2.md
+revision_projection_prewrite:
+  - {path: .ai/gates.yaml, sha256: 2FE54C90C580156A1D6E0B103041EA15D0E076BF311C6FF8637DEFE859F9256F, size: 302117, mtime_ns: 1784520057333237300}
+  - {path: .ai/state.yaml, sha256: 42B87B02793F9CD46D5A27BD67E71AA6FEB24862383299A632BF0DEE47CAF6BD, size: 11116, mtime_ns: 1784519688412062800}
+  - {path: .ai/task_graph.yaml, sha256: 51E38F9308722C3F4EECE5996598870AB1545F4EFCD2327AE137B0D9251EB528, size: 11093, mtime_ns: 1784519528850002300}
+  - {path: .ai/tasks/T-0036.md, sha256: 6D5538B5C4CBE48D3F294849056F51AF9E524117B8ECB45232ED95A6CB51F923, size: 6444, mtime_ns: 1784519605159179100}
+  - {path: .ai/HANDOFF.md, sha256: 75B0F2CBC47655E0CA0BEFE41080B5059FCEF91C5B80E3765C71A25460B208C3, size: 6099, mtime_ns: 1784519776049614100}
+assertions:
+  candidate_code_or_test_modified_by_revision: false
+  protected_additions_must_remain_byte_for_byte: true
+  live_structured_state_instances_created_by_revision: false
+  installation_or_activation_effect: false
