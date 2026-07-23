@@ -192,8 +192,29 @@ tasks:
     title: P0-001 Runtime Controller + Approval Record + Agent Adapter Baseline
     status: completed
     created_at: "2026-07-23T14:00:00+08:00"
-    updated_at: "2026-07-23T16:00:00+08:00"
-    note: Loop Engine v2.0.0 逻辑完备版; 24 agents; 30+ modules; 1700+ tests; 11/11 roles; vertical slice closed loop
+    updated_at: "2026-07-23T17:00:00+08:00"
+    note: Loop Engine v2.0.0 逻辑完备版; 24 agents; 30+ modules; 1700+ tests; 11/11 roles; vertical slice closed loop. Completed. Transitioned to T-0040.
+  -
+    id: T-0040
+    title: P0 消除模型自觉依赖 — EnforcementHub + Hook增强 + 角色隔离升级 + enforcement_level声明
+    status: active
+    created_at: "2026-07-23T17:00:00+08:00"
+    phase: S4-implementation
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/enforcement_hub.py
+      - hooks/scripts/role_isolation.py
+      - tests/test_enforcement_hub.py
+      - .ai/tasks/T-0040.md
+      - .ai/evidence/T-0040/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/HANDOFF-NEXT.md
+      - loop_core/hard_constraints.py
+      - loop_core/state_machine.py
+    note: 用户已批准最终交付计划。T-0040 是 P0 核心：创建 EnforcementHub 桥梁，让 Hook 层能自主执行治理检查，不再依赖主控自觉。
   -
     id: T-0028
     title: Fix Requirements P0 Gaps

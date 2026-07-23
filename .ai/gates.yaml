@@ -2065,3 +2065,58 @@ gates:
   - This is the first gate of T-0034 (P0-001 baseline construction).
   - Design documents are evidence only; they do not modify any running system.
   - User explicitly approved this gate as "批准 G-T-0034-DESIGN".
+- id: G-T-0040-IMPLEMENT
+  task_id: T-0040
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T17:05:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准最终交付计划
+  scope: implementation-only; create EnforcementHub, enhance role_isolation hook, add enforcement_level declaration
+  allowed_paths:
+  - loop_core/enforcement_hub.py
+  - hooks/scripts/role_isolation.py
+  - tests/test_enforcement_hub.py
+  - .ai/tasks/T-0040.md
+  - .ai/evidence/T-0040/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - loop_core/hard_constraints.py
+  - loop_core/state_machine.py
+  allowed_actions:
+  - create loop_core/enforcement_hub.py
+  - modify hooks/scripts/role_isolation.py for HARD blocking
+  - create tests/test_enforcement_hub.py
+  - update .ai/ governance files
+  - run tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0040/commands.md
+  - tests/test_enforcement_hub.py
+  exit_criteria:
+  - enforcement_hub.py created and tests pass
+  - role_isolation.py upgraded to HARD blocking
+  notes:
+  - User approved the comprehensive final delivery plan including T-0040 through T-0047.
+  - This gate authorizes implementation of T-0040 (EnforcementHub + Hook enhancement).
