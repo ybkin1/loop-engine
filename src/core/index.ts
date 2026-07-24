@@ -152,3 +152,53 @@ export type {
   AuthRequest,
   AuthResult,
 } from "./context_controller.js";
+
+// ── Phase Executor ────────────────────────────────────────────────────────────
+export {
+  StepStatus,
+  PhaseExecutor,
+  PHASE_ROLES,
+} from "./executor.js";
+export type {
+  RoleStep,
+  PhasePlan,
+  PhaseExecutionResult,
+  RoleStepResult,
+  ValidationResult,
+} from "./executor.js";
+
+// ── Context Loader ────────────────────────────────────────────────────────────
+export {
+  LoadLevel,
+  ContextLoader,
+} from "./context_loader.js";
+export type {
+  LoadedContext,
+  DocumentSection,
+  DocumentIndex,
+} from "./context_loader.js";
+
+// ── Execution Ledger ──────────────────────────────────────────────────────────
+export {
+  ExecutionStatus,
+  ExecutionLedger,
+} from "./execution_ledger.js";
+export type {
+  ExecutionRecord,
+  ExecutionIntegrity,
+  CrossValidation,
+} from "./execution_ledger.js";
+
+// ── Human Review Packet ──────────────────────────────────────────────────────
+export {
+  PacketType,
+  PacketBuilder,
+  toMarkdown,
+  toPlainText,
+} from "./human_review_packet.js";
+export type {
+  KeyChoice,
+  RiskItem,
+  DecisionRequired,
+  HumanReviewPacket,
+} from "./human_review_packet.js";

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdirSync, rmSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { initProject, loadState, checkGate, advanceGate } from "../src/core/state-machine.js";
 import { activateRole, completeRole } from "../src/core/role-engine.js";
 import { submitEvidence } from "../src/core/evidence.js";
@@ -8,6 +8,13 @@ import { createHandoff } from "../src/core/handoff.js";
 import { deriveEnforcementLevel, HOST_PRESETS, EnforcementLevel } from "../src/core/enforcement.js";
 import { routeIntent, defaultProfile, LoopMode } from "../src/core/router.js";
 import { runAllCertifications, buildCertStateAfterRun } from "../src/core/certification.js";
+import { ContextController, Action, Decision } from "../src/core/context_controller.js";
+import { EnforcementHub } from "../src/core/enforcement_hub.js";
+import { PhaseExecutor } from "../src/core/executor.js";
+import { ContextLoader, LoadLevel } from "../src/core/context_loader.js";
+import { ExecutionLedger, ExecutionStatus } from "../src/core/execution_ledger.js";
+import { PacketBuilder, PacketType, toMarkdown } from "../src/core/human_review_packet.js";
+import { createHostAdapter } from "../src/core/contracts.js";
 
 const TEST_ROOT = join(process.cwd(), ".test-integration-tmp");
 
@@ -225,5 +232,88 @@ describe("certification integration", () => {
     for (const [, rs] of Object.entries(state)) {
       expect(rs.state).toBe("CERTIFIED");
     }
+  });
+});
+
+// ── Phase A-C 新模块集成测试 ──────────────────────────
+
+describe('New modules integration', () => {
+  it('ContextController allows non-governance project', async () => {
+    // Use the temp root without .ai/
+    const controller = new ContextController();
+    const result = await controller.authorize({
+      action: Action.WRITE_FILE,
+      target_path: 'src/test.ts',
+      project_root: TEST_ROOT,
+    });
+    // Without .ai/state.yaml, should ALLOW
+    expect(result.decision).toBe(Decision.ALLOW);
+  });
+
+  it('EnforcementHub quickCheck works on non-governance project', async () => {
+    const hub = new EnforcementHub(TEST_ROOT);
+    try {
+      const decision = await hub.shouldAllowWrite('src/test.ts');
+      expect(decision.allowed).toBe(true);
+    } catch (error) {
+      // Expected: no state.yaml means non-governance project
+      expect(error).toBeDefined();
+    }
+  });
+
+  it('PhaseExecutor planPhase creates correct steps', () => {
+    const executor = new PhaseExecutor(TEST_ROOT);
+    const plan = executor.planPhase('requirements');
+    expect(plan.steps.length).toBeGreaterThan(0);
+    expect(plan.steps[0].role_id).toBe('R01');
+  });
+
+  it('ContextLoader loads minimal context', () => {
+    const loader = new ContextLoader();
+    const ctx = loader.loadRoleContext('R01', 0.1);
+    expect(ctx.level).toBe(LoadLevel.MINIMAL);
+    expect(ctx.system_prompt.length).toBeGreaterThan(0);
+  });
+
+  it('ExecutionLedger records and verifies', () => {
+    const ledgerPath = join(TEST_ROOT, '.ai', 'ledger', 'test_exec.jsonl');
+    mkdirSync(dirname(ledgerPath), { recursive: true });
+    const ledger = new ExecutionLedger(ledgerPath);
+    const entry = ledger.recordLaunch({
+      execution_id: 'exec-1', session_id: 'sess-1',
+      actor_id: 'agent-1', role_id: 'R06', task_id: 'task-1',
+      prompt_fingerprint: 'hash1', input_files_hash: 'hash2',
+      tool_constraints: [], tool_violations: [],
+    });
+    expect(entry.status).toBe(ExecutionStatus.LAUNCHED);
+    expect(ledger.length).toBe(1);
+    const integrity = ledger.verifyChain();
+    expect(integrity.valid).toBe(true);
+  });
+
+  it('PacketBuilder generates gate approval packet', () => {
+    const packet = PacketBuilder.fromPhaseCompletion({
+      phase: 'requirements',
+      taskId: 'task-1',
+      artifacts: ['docs/requirements.md'],
+    });
+    expect(packet.packet_type).toBe(PacketType.GATE_APPROVAL);
+    const md = toMarkdown(packet);
+    expect(md).toContain('requirements');
+  });
+
+  it('createHostAdapter returns correct adapter', () => {
+    const qoder = createHostAdapter('qoder');
+    expect(qoder.host_name).toBe('qoder');
+    const standalone = createHostAdapter('standalone');
+    expect(standalone.host_name).toBe('standalone');
+  });
+
+  it('EnforcementHub role isolation check', () => {
+    const hub = new EnforcementHub(TEST_ROOT);
+    const same = hub.checkRoleIsolation('R06', 'R06');
+    expect(same.allowed).toBe(false);
+    const diff = hub.checkRoleIsolation('R06', 'R09');
+    expect(diff.allowed).toBe(true);
   });
 });

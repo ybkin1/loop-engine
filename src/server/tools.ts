@@ -18,6 +18,12 @@ import type { RoleCertState } from "../core/certification.js";
 import { runQualityGates } from "../../scripts/quality-gates.js";
 import { runSecurityScan } from "../../scripts/security-scan.js";
 import { runEvidenceChain } from "../../scripts/evidence-chain.js";
+import { PhaseExecutor, PHASE_ROLES } from "../core/executor.js";
+import { ExecutionLedger } from "../core/execution_ledger.js";
+import { ContextLoader } from "../core/context_loader.js";
+import { EnforcementHub } from "../core/enforcement_hub.js";
+import { PacketBuilder, toMarkdown } from "../core/human_review_packet.js";
+import type { HumanReviewPacket } from "../core/human_review_packet.js";
 
 function resolveRoot(args: Record<string, unknown>): string {
   const raw = (args.project_root as string) || process.cwd();
@@ -52,6 +58,12 @@ export function registerTools(server: Server): void {
       { name: "loop_audit_log", description: "Append an entry to the chain-hashed audit ledger", inputSchema: { type: "object", properties: { project_root: { type: "string" }, event: { type: "string", description: "Event type (e.g. gate_advance, role_activate, veto, handoff)" }, actor: { type: "string", description: "Role or actor triggering the event" }, details: { type: "object", description: "Arbitrary structured details" } }, required: ["event", "actor"] } },
       { name: "loop_audit_verify", description: "Verify the integrity of the chain-hashed audit ledger", inputSchema: { type: "object", properties: { project_root: { type: "string" } } } },
       { name: "loop_host_status", description: "Report host integration capabilities and enforcement level", inputSchema: { type: "object", properties: {} } },
+      { name: "loop_execute_phase", description: "Execute a complete phase (requirements/architecture/planning/implementation/review/delivery)", inputSchema: { type: "object", properties: { project_root: { type: "string" }, phase_id: { type: "string", description: "Phase to execute" } }, required: ["phase_id"] } },
+      { name: "loop_execution_log", description: "Query execution ledger for a task or role", inputSchema: { type: "object", properties: { project_root: { type: "string" }, task_id: { type: "string" }, role_id: { type: "string" }, recent: { type: "number", description: "Number of recent entries (default: 10)" } } } },
+      { name: "loop_execution_verify", description: "Verify execution ledger chain integrity", inputSchema: { type: "object", properties: { project_root: { type: "string" } } } },
+      { name: "loop_governance_status", description: "Get full governance status summary (HEALTHY/DEGRADED/BLOCKED)", inputSchema: { type: "object", properties: { project_root: { type: "string" } } } },
+      { name: "loop_load_context", description: "Load progressive role context based on task complexity", inputSchema: { type: "object", properties: { role_id: { type: "string" }, complexity: { type: "number", description: "Task complexity 0.0-1.0" } }, required: ["role_id"] } },
+      { name: "loop_review_packet", description: "Generate a human-readable review packet for gate approval or veto escalation", inputSchema: { type: "object", properties: { project_root: { type: "string" }, packet_type: { type: "string", description: "GATE_APPROVAL | VETO_ESCALATION | CHANGE_REQUEST" }, phase: { type: "string", description: "Phase ID (for GATE_APPROVAL)" }, task_id: { type: "string" }, artifacts: { type: "array", items: { type: "string" } }, vetos: { type: "array", items: { type: "object" } }, description: { type: "string" } }, required: ["packet_type"] } },
     ],
   }));
 
@@ -303,6 +315,97 @@ export function registerTools(server: Server): void {
               "session-brief.js",
             ],
           }, null, 2));
+        }
+
+        case "loop_execute_phase": {
+          const phaseId = args!.phase_id as string;
+          const executor = new PhaseExecutor(root);
+          const result = await executor.executePhase(phaseId);
+          const summary = result.success
+            ? `Phase ${result.phase_id}: COMPLETED (${result.steps_completed}/${result.steps_total} steps, ${result.duration_ms}ms)`
+            : `Phase ${result.phase_id}: FAILED (${result.steps_failed} failed, ${result.errors.length} errors)`;
+          const details = result.errors.length > 0 ? `\nErrors:\n${result.errors.map(e => `  - ${e}`).join("\n")}` : "";
+          return textReply(summary + details);
+        }
+
+        case "loop_execution_log": {
+          const ledgerPath = join(root, ".ai", "ledger", "executions.jsonl");
+          const ledger = new ExecutionLedger(ledgerPath);
+          const taskId = args?.task_id as string | undefined;
+          const roleId = args?.role_id as string | undefined;
+          const recentN = (args?.recent as number) ?? 10;
+
+          let entries;
+          if (taskId) {
+            entries = ledger.findByTask(taskId);
+          } else if (roleId) {
+            entries = ledger.findByRole(roleId);
+          } else {
+            entries = ledger.recent(recentN);
+          }
+          return textReply(JSON.stringify(entries, null, 2));
+        }
+
+        case "loop_execution_verify": {
+          const ledgerPath = join(root, ".ai", "ledger", "executions.jsonl");
+          const ledger = new ExecutionLedger(ledgerPath);
+          const integrity = ledger.verifyChain();
+          if (integrity.valid) {
+            return textReply(`Execution ledger: INTEGRITY OK (${integrity.totalEntries} entries verified)`);
+          }
+          return textReply(
+            `Execution ledger: INTEGRITY FAILURE\n` +
+            `First invalid entry seq: ${integrity.firstInvalidSeq}\n` +
+            `Total entries: ${integrity.totalEntries}`
+          );
+        }
+
+        case "loop_governance_status": {
+          const hub = new EnforcementHub(root);
+          const status = await hub.getGovernanceStatus();
+          return textReply(JSON.stringify(status, null, 2));
+        }
+
+        case "loop_load_context": {
+          const roleId = args!.role_id as string;
+          const complexity = (args?.complexity as number) ?? 0.5;
+          const loader = new ContextLoader();
+          const loaded = loader.loadRoleContext(roleId, complexity);
+          const summary = `Role: ${loaded.role_id}\nLevel: ${loaded.level}\nTokens: ~${loaded.estimated_tokens}\nSections: ${loaded.loaded_sections.join(", ")}`;
+          return textReply(`${summary}\n\n--- System Prompt ---\n${loaded.system_prompt}`);
+        }
+
+        case "loop_review_packet": {
+          const packetType = args!.packet_type as string;
+          let packet: HumanReviewPacket;
+
+          switch (packetType) {
+            case "GATE_APPROVAL":
+              packet = PacketBuilder.fromPhaseCompletion({
+                phase: (args?.phase as string) ?? "unknown",
+                taskId: (args?.task_id as string) ?? "",
+                artifacts: (args?.artifacts as string[]) ?? [],
+              });
+              break;
+            case "VETO_ESCALATION":
+              packet = PacketBuilder.fromVetoEscalation({
+                vetos: (args?.vetos as Array<{ role_id: string; reason: string; severity: string }>) ?? [],
+                taskId: (args?.task_id as string) ?? "",
+              });
+              break;
+            case "CHANGE_REQUEST":
+              packet = PacketBuilder.fromChangeRequest({
+                description: (args?.description as string) ?? "",
+                impact: "",
+                affectedModules: [],
+              });
+              break;
+            default:
+              return textReply(`Unknown packet type: ${packetType}. Available: GATE_APPROVAL, VETO_ESCALATION, CHANGE_REQUEST`);
+          }
+
+          const markdown = toMarkdown(packet);
+          return textReply(markdown);
         }
 
         default:
