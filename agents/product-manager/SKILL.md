@@ -29,8 +29,55 @@ when_to_use: 项目启动用户提出需求后；需求变更时；项目经理�
 用户原始需求描述、用户角色定义（如有）、竞品参考（如有）。不需要技术栈/团队规模/代码库。
 
 ## 6. 输出产物
-scope_spec.json（机器可读）：用户目标、范围边界(MVP/post_mvp/out_of_scope)、用户画像、用户故事数组(id/as_a/i_want/so_that/priority/acceptance_criteria/depends_on)。
-user_stories.md（人可读）：优先级分组表、MVP标注、完整验收场景、故事间依赖。
+
+### 6.1 scope_spec.json（机器可读，强制格式）
+
+```json
+{
+  "role": "product-manager",
+  "verdict": "PASS | BLOCKED",
+  "project_goal": "用户一句话目标",
+  "scope_boundary": {
+    "mvp": ["P0 故事 ID 列表"],
+    "post_mvp": ["P1-P2 故事 ID 列表"],
+    "out_of_scope": ["明确不做的事项"]
+  },
+  "personas": [
+    {
+      "id": "persona-001",
+      "name": "用户画像名称",
+      "description": "简短描述"
+    }
+  ],
+  "user_stories": [
+    {
+      "id": "US-001",
+      "as_a": "角色",
+      "i_want": "行为",
+      "so_that": "目的",
+      "priority": "P0 | P1 | P2 | P3",
+      "acceptance_criteria": [
+        "Given ... When ... Then ..."
+      ],
+      "depends_on": ["US-000"]
+    }
+  ],
+  "priority_distribution": {
+    "P0_count": 0,
+    "P1_count": 0,
+    "P2_count": 0,
+    "P3_count": 0,
+    "P0_ratio": 0.0
+  },
+  "summary": "一句话总结本产出"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 6.2 user_stories.md（人可读）
+
+优先级分组表、MVP标注、完整验收场景、故事间依赖。
 
 ## 7. 质量标准
 - 每条故事必须有唯一ID、as_a、i_want、so_that、priority、至少一条AC(Given-When-Then)

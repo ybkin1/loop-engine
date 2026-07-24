@@ -29,8 +29,52 @@ when_to_use: 编码阶段接近完成但尚未交付时；质量工程师PASS后
 项目根目录、security_gates配置(config.yaml)、当前阶段代码、质量工程师报告(可选复用audit结果)、依赖清单文件。
 
 ## 6. 输出产物
-security_report.json（schema/时间戳/scans数组/每个含工具/状态/值和阈值/发现列表/overall/blocked_by/false_positives_reviewed）。
-security_summary.md（扫描项表格+阻断项文件路径+行号+代码证据）。
+
+### 6.1 security_report.json（机器可读，强制格式）
+
+```json
+{
+  "role": "security-engineer",
+  "verdict": "PASS | BLOCKED",
+  "schema": "security_report/v1",
+  "timestamp": "ISO8601",
+  "project": "项目名",
+  "scans": [
+    {
+      "tool": "npm audit | pip-audit | detect-secrets | trivy | 内置正则",
+      "tool_version": "x.y.z",
+      "status": "pass | fail",
+      "value": 0,
+      "threshold": 0,
+      "findings": [
+        {
+          "id": "SEC-001",
+          "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+          "type": "cve | hardcoded_secret | injection | misconfiguration | auth_bypass",
+          "title": "简短标题",
+          "file": "文件路径",
+          "line": 行号,
+          "code_evidence": "代码证据（前200字符）",
+          "developer_response": "开发者回应（如有）",
+          "false_positive": false
+        }
+      ],
+      "skipped": false,
+      "skip_reason": ""
+    }
+  ],
+  "overall": "PASS | BLOCKED",
+  "blocked_by": ["SEC-001"],
+  "false_positives_reviewed": 0,
+  "summary": "一句话总结安全扫描结果"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 6.2 security_summary.md（人可读）
+
+扫描项表格+阻断项文件路径+行号+代码证据。
 
 ## 7. 质量标准
 - 每个阻断发现必须包含文件路径+行号+代码证据(前200字符)

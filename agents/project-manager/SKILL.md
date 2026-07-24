@@ -31,7 +31,77 @@ when_to_use: 产品经理交付scope_spec.json后；任务需要排期和依赖�
 scope_spec.json、user_stories.md、技术选型文档（如有）、团队能力数据（如有）、.ai/state.yaml、quality_gates配置。
 
 ## 6. 输出产物
-task_graph.yaml（phases+任务节点+依赖边+maps_to_story+工时+角色）、risk_matrix.json（概率/影响/缓解/触发/负责人）、progress_report.md（总体状态/已完成/进行中/延期/阻塞项/风险变更/下期计划）。
+
+### 6.1 task_graph.yaml（机器可读，强制格式）
+
+task_graph.yaml 的等效 JSON Schema：
+
+```json
+{
+  "role": "project-manager",
+  "verdict": "PASS | BLOCKED",
+  "phases": [
+    {
+      "phase_id": "phase-1",
+      "name": "阶段名称",
+      "entry_criteria": ["准入条件"],
+      "exit_criteria": ["准出条件"],
+      "tasks": ["task-001"]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-001",
+      "title": "任务标题",
+      "maps_to_story": "US-001",
+      "depends_on": [],
+      "effort_hours": 8,
+      "role": "developer | quality-engineer | ...",
+      "phase": "phase-1"
+    }
+  ],
+  "coverage_check": {
+    "total_p0_stories": 0,
+    "covered_p0_stories": 0,
+    "uncovered_p0_stories": [],
+    "all_p0_covered": true
+  },
+  "topology_check": {
+    "has_cycle": false,
+    "cycle_path": []
+  },
+  "summary": "一句话总结本产出"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 6.2 risk_matrix.json（机器可读，强制格式）
+
+```json
+{
+  "role": "project-manager",
+  "verdict": "PASS | BLOCKED",
+  "risks": [
+    {
+      "id": "risk-001",
+      "description": "风险描述",
+      "probability": "low | medium | high",
+      "impact": "low | medium | high",
+      "mitigation": "缓解措施（非空）",
+      "trigger": "触发条件（非空）",
+      "owner": "负责人角色"
+    }
+  ],
+  "summary": "一句话总结风险概况"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 6.3 progress_report.md（人可读）
+
+总体状态/已完成/进行中/延期/阻塞项/风险变更/下期计划。
 
 ## 7. 质量标准
 - 每个任务有唯一id、title、maps_to_story（引用真实故事ID）、depends_on（可为空）、工时、角色、阶段

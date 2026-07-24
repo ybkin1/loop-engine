@@ -47,10 +47,50 @@ when_to_use: >
 
 ## 5. 输出产物
 
-**interface-contract.json**：schema 版本、模块名、exports 列表（每个含签名/幂等性/副作用/依赖）、
-data_structures 列表（字段/类型/可变性/约束）、module_dependencies。
+### 5.1 interface-contract.json（机器可读，强制格式）
 
-**contract-summary.md**：导出清单表、数据结构定义表、错误类型索引、依赖关系图、与架构文档对照。
+```json
+{
+  "role": "module-architect",
+  "verdict": "PASS | BLOCKED",
+  "schema": "interface-contract/v1",
+  "timestamp": "ISO8601",
+  "module_name": "模块名",
+  "module_responsibility": "职责一句话",
+  "exports": [
+    {
+      "name": "function_name",
+      "signature": {
+        "input": [
+          {"name": "param_name", "type": "具体类型", "constraints": "约束说明"}
+        ],
+        "output": {"type": "具体类型"},
+        "errors": [{"type": "错误类型", "condition": "触发条件"}]
+      },
+      "idempotency": "是 | 否 | 条件（附条件说明）",
+      "side_effects": ["副作用描述"],
+      "dependencies": ["依赖的其他 export 名称"]
+    }
+  ],
+  "data_structures": [
+    {
+      "name": "结构名",
+      "fields": [
+        {"name": "字段名", "type": "具体类型", "mutable": true, "constraints": "约束说明"}
+      ]
+    }
+  ],
+  "module_dependencies": ["依赖的外部模块名"],
+  "summary": "一句话总结本产出"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+**特别注意：任何 `type` 字段不得为 `object`、`any`、或模糊描述。必须为具体类型名或联合类型。**
+
+### 5.2 contract-summary.md（人可读）
+
+导出清单表、数据结构定义表、错误类型索引、依赖关系图、与架构文档对照。
 
 ## 6. 质量标准
 

@@ -32,8 +32,42 @@ when_to_use: 质量工程师和安全工程师均PASS后；交付经理要求上
 质量工程师报告(PASS)、安全工程师报告(PASS)、构建配置(Dockerfile/Makefile)、部署配置(CI/CD/k8s/Terraform)、环境变量清单(.env.example)、监控告警配置、回滚方案文档。
 
 ## 6. 输出产物
-release_report.json(schema/timestamp/target_environment/upstream_status/checks数组/每项含name/status/value/threshold/reason/evidence/overall/blocked_by)。
-release_checklist.md(签批区/交付物区/环境区/风险区/最终决策GO或NOGO)。
+
+### 6.1 release_report.json（机器可读，强制格式）
+
+```json
+{
+  "role": "release-engineer",
+  "verdict": "GO | NOGO",
+  "schema": "release_report/v1",
+  "timestamp": "ISO8601",
+  "target_environment": "staging | production",
+  "upstream_status": {
+    "quality": "PASS | BLOCKED | MISSING",
+    "security": "PASS | BLOCKED | MISSING"
+  },
+  "checks": [
+    {
+      "name": "build_reproducibility | deployment_automation | health_check | structured_logging | rollback_plan | monitoring_alerting | config_management | secrets_management",
+      "status": "PASS | BLOCKED | NA",
+      "value": "观察到的值",
+      "threshold": "要求的值",
+      "reason": "判定理由（如 NA 则说明原因）",
+      "evidence": "文件名+行号"
+    }
+  ],
+  "overall": "GO | NOGO",
+  "blocked_by": ["检查项名称列表"],
+  "summary": "一句话总结发布就绪状态"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+**overall 判定仅在所有 8 个检查维度通过且上游非 BLOCKED 时为 GO，否则强制 NOGO。**
+
+### 6.2 release_checklist.md（人可读）
+
+签批区/交付物区/环境区/风险区/最终决策 GO 或 NOGO。
 
 ## 7. 质量标准
 - 每个检查项evidence字段指向具体文件位置(文件名+行号)

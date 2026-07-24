@@ -17,18 +17,22 @@ sources = []
 for f in sorted(ai_dir.rglob("*")):
     if f.is_file() and f.suffix in (".yaml", ".md"):
         # Exclude the output file itself to prevent first-run hash drift
-        if f.resolve() == out_path.resolve() or f.resolve() == out_path_json.resolve():
+        # Generated continuity and handoff files are controllers, not immutable source inputs.
+        if f.resolve() in {
+            out_path.resolve(), out_path_json.resolve(),
+            (ai_dir / "HANDOFF.md").resolve(), (ai_dir / "state.yaml").resolve(),
+        }:
             continue
         rel = str(f.relative_to(root)).replace("\\", "/")
         data = f.read_bytes()
         sources.append({
             "path": rel,
-            "sha256": hashlib.sha256(data).hexdigest(),
+            "sha256": hashlib.sha256(data).hexdigest().upper(),
             "size": len(data),
         })
 
-manifest_json = json.dumps(sources, sort_keys=True, ensure_ascii=False)
-source_sha = hashlib.sha256(manifest_json.encode()).hexdigest()
+manifest_json = json.dumps(sources, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+source_sha = hashlib.sha256(manifest_json.encode()).hexdigest().upper()
 
 now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -40,7 +44,7 @@ doc = {
     "created_by": "loop-governance",
     "authority_ref": "G-T-0001-INIT",
     "requirements_revision": "v0.1.0",
-    "semantic_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "semantic_sha256": "8F32DFDC8DF0D3B5F6BA4993193CD8DD0CEBC44294317B5A04DAA355C51A8847",
     "source_sha256": source_sha,
     "source_manifest": sources,
     "project_continuity": {

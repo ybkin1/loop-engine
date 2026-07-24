@@ -43,10 +43,54 @@ when_to_use: >
 
 ## 5. 输出产物
 
-代码文件（每个对应接口契约中的一个或多个函数/类）+ 单元测试文件 + implementation_summary.md。
+### 5.1 implementation_summary.md（人可读，强制格式）
 
-implementation_summary.md 包含：实现的接口表、未实现的接口及原因、对契约的澄清请求、
-已知偏离及 ADR 编号。
+implementation_summary.md 的等效 JSON Schema（主控依赖此结构化字段验证实现完整性）：
+
+```json
+{
+  "role": "developer",
+  "verdict": "PASS | BLOCKED",
+  "implemented": [
+    {
+      "contract_export_id": "接口契约中的 export 名称",
+      "file_path": "实现文件绝对路径",
+      "functions": ["实现的函数名列表"],
+      "unit_test_file": "对应单元测试文件路径",
+      "unit_test_result": "PASS | FAIL"
+    }
+  ],
+  "unimplemented": [
+    {
+      "contract_export_id": "未实现的 export 名称",
+      "reason": "原因（如：依赖缺失 / 契约歧义 / 项目经理决策跳过）",
+      "decision_by": "决策者角色"
+    }
+  ],
+  "clarification_requests": [
+    {
+      "contract_export_id": "有歧义的 export 名称",
+      "ambiguity": "歧义描述"
+    }
+  ],
+  "known_deviations": [
+    {
+      "contract_export_id": "export 名称",
+      "deviation": "偏离描述",
+      "adr_ref": "ADR 编号"
+    }
+  ],
+  "lint_status": {"errors": 0, "warnings": 0},
+  "test_status": {"total": 0, "passed": 0, "failed": 0},
+  "summary": "一句话总结实现状态"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 5.2 代码产物
+
+代码文件（每个对应接口契约中的一个或多个函数/类）+ 单元测试文件。
 
 ## 6. 质量标准
 

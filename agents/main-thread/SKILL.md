@@ -501,3 +501,26 @@ main-thread: "好的，我帮你推测一下接口格式，你继续写代码"
       ├─ 如果全部通过 → 更新 retry_count，标记 PASS，继续后续流程
       └─ 如果仍有失败 → 回到步骤 2（累加 retry_count）
 ```
+
+---
+
+## §13 执行计划强制 Schema
+
+主控生成执行计划时，每个角色的 prompt 必须嵌入该角色合同 §6 的**完整 JSON Schema**。
+
+### 强制规则：
+
+1. 每个角色的 prompt 中必须以代码块嵌入其输出 JSON Schema
+2. 必须标注：**"以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。"**
+3. 主控验证时逐字段检查——缺字段即打回，不可放行
+
+### 常用角色 Schema 索引：
+
+| 角色 | 必填字段 | 参见 |
+|------|---------|------|
+| delivery-manager | verdict, findings, go_nogo, summary, signoffs_verified, deliverables_check | delivery-manager §6 |
+| release-engineer | verdict, findings, go_nogo, summary, upstream_status, overall, blocking_issues | release-engineer §6 |
+| product-manager | verdict, acceptance_checklist, product_goal_met, signoff, summary | product-manager §6 |
+| 其他角色 | 参见各自 SKILL.md §6 | |
+
+盲执行器只按 Schema 解析——不猜测、不补全、不宽容。

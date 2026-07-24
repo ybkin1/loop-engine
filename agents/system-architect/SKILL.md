@@ -50,11 +50,58 @@ madge/codegraph 配置（如有）、loop-governance config.yaml。
 
 ## 5. 输出产物
 
-**architecture.md**：架构概览、模块清单表、数据流图、依赖方向规则、技术约束和风险、
-演进路线、架构决策记录（ADR）。
+### 5.1 dependency_report.json（机器可读，强制格式）
 
-**dependency_report.json**（机器可读）：模块节点和边、循环依赖列表、边界违规列表、
-overall（PASS/BLOCKED）、所用工具版本。必须来自 `analyze_dependencies.py` 的实际执行。
+必须来自 `analyze_dependencies.py` 的实际执行。
+
+```json
+{
+  "role": "system-architect",
+  "verdict": "PASS | BLOCKED",
+  "schema": "dependency_report/v1",
+  "timestamp": "ISO8601",
+  "project": "项目名",
+  "modules": [
+    {
+      "name": "模块名",
+      "path": "文件系统路径",
+      "responsibility": "职责一句话"
+    }
+  ],
+  "dependency_graph": {
+    "edges": [
+      {"from": "模块A", "to": "模块B"}
+    ]
+  },
+  "cycles": [
+    {
+      "path": ["模块A", "模块B", "模块A"],
+      "severity": "low | medium | high"
+    }
+  ],
+  "boundary_violations": [
+    {
+      "from": "模块A",
+      "to": "模块B",
+      "rule_broken": "违反的规则原文",
+      "file": "违规文件路径",
+      "line": 行号
+    }
+  ],
+  "overall": "PASS | BLOCKED | PASS_WITH_DEBT",
+  "tool": {
+    "name": "madge | codegraph | analyze_dependencies.py",
+    "version": "x.y.z"
+  },
+  "summary": "一句话总结架构分析结果"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+### 5.2 architecture.md（人可读）
+
+架构概览、模块清单表、数据流图、依赖方向规则、技术约束和风险、演进路线、架构决策记录（ADR）。
 
 ## 6. 质量标准
 

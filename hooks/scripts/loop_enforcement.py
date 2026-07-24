@@ -416,6 +416,16 @@ def main():
             )
             return EXIT_BLOCK
 
+        # ── Agent/Skill 编排工具豁免 ──
+        # Agent/Skill/Task 工具不直接写入文件；子代理/技能的每次文件写入
+        # 都会被各自的 PreToolUse hook 独立拦截。
+        # 此处只需确认目标任务存在且活跃，放行编排层调用。
+        # 修复了原设计中 extract_target_path() 对非文件型工具返回 None
+        # 导致 is_in_task_scope(None, ...) 恒返回 False 的死锁问题。
+        tool_name = hook_input.get("tool_name", "")
+        if tool_name in ("Agent", "Skill", "Task") and target is None and not command:
+            return EXIT_PASS
+
         contract = load_task_contract(root, task_id)
         if contract is None:
             logger.warning(

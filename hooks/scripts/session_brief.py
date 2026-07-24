@@ -15,10 +15,14 @@ additionalContext 注入会话，使"启动检查"不依赖 AI 自觉阅读文�
 """
 
 import json
+import logging
 import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(message)s')
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (  # noqa: E402
@@ -102,8 +106,8 @@ def main():
         }
         sys.stdout.write(json.dumps(output, ensure_ascii=False))
     except Exception as e:
-        # 注入失败不阻断会话，只在 stderr 留痕
-        print(f"[session_brief] WARN: 摘要生成失败（{e}）。", file=sys.stderr)
+        # 注入失败不阻断会话，只在日志留痕
+        logger.warning("摘要生成失败（%s）。", e)
     return 0
 
 

@@ -73,18 +73,15 @@ class ProjectProfile:
         return RiskLevel.LOW
 
     def route(self) -> LoopMode:
-        """Determine which Loop mode to use."""
-        if self.user_forced_mode:
-            return self.user_forced_mode
-
+        """Determine Loop mode, never below the risk-required minimum."""
         risk = self.risk_level()
-        if risk == RiskLevel.CRITICAL:
-            return LoopMode.FULL
-        if risk == RiskLevel.HIGH:
-            return LoopMode.FULL
-        if risk == RiskLevel.MEDIUM:
-            return LoopMode.STANDARD
-        return LoopMode.LIGHTWEIGHT
+        minimum = LoopMode.FULL if risk in (RiskLevel.HIGH, RiskLevel.CRITICAL) else (
+            LoopMode.STANDARD if risk == RiskLevel.MEDIUM else LoopMode.LIGHTWEIGHT
+        )
+        if self.user_forced_mode is None:
+            return minimum
+        order = {LoopMode.LIGHTWEIGHT: 0, LoopMode.STANDARD: 1, LoopMode.FULL: 2}
+        return self.user_forced_mode if order[self.user_forced_mode] >= order[minimum] else minimum
 
 
 @dataclass

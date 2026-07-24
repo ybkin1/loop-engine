@@ -20,10 +20,14 @@ template_injector.py — ZCode SessionStart hook：根据当前阶段自动注�
 """
 
 import json
+import logging
 import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(message)s')
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (  # noqa: E402
@@ -172,7 +176,7 @@ def main():
         sys.stdout.write(json.dumps(output, ensure_ascii=False))
     except Exception as e:
         # 注入失败不阻断会话
-        print(f"[template_injector] WARN: 模板注入失败（{e}）。", file=sys.stderr)
+        logger.warning("模板注入失败（%s）。", e)
 
     return 0
 

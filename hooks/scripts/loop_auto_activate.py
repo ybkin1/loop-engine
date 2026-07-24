@@ -14,10 +14,14 @@ based on objective risk factors, not AI self-discipline.
 Exit: always 0 (fail-open — activation failure should not block the session).
 """
 import json
+import logging
 import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(message)s')
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (

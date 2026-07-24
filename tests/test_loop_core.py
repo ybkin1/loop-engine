@@ -313,18 +313,18 @@ class TestLoopRouting:
         # Full mode should include all 12 phases
         assert len(result.recommended_phases) == 12
 
-    def test_user_forced_mode_overrides_risk(self):
-        """User-forced mode should take priority over risk calculation."""
+    def test_user_forced_mode_cannot_downgrade_risk(self):
+        """User-forced mode cannot lower the minimum required risk mode."""
         profile = ProjectProfile(
             description="Critical payment system",
             has_payments=True,
             has_security_requirements=True,
             user_forced_mode=LoopMode.LIGHTWEIGHT,
         )
-        # Risk would be CRITICAL but user forces LIGHTWEIGHT
+        # Critical risk must remain FULL even when LIGHTWEIGHT is requested.
         assert profile.risk_level() == RiskLevel.CRITICAL
         result = route_intent(profile)
-        assert result.mode == LoopMode.LIGHTWEIGHT
+        assert result.mode == LoopMode.FULL
 
     def test_route_result_has_reason(self):
         """Every RouteResult should include a non-empty reason string."""

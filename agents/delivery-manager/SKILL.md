@@ -33,7 +33,54 @@ when_to_use: 所有开发阶段完成后；所有上游角色签批完毕后；�
 quality_report.json(PASS)、安全审计报告(PASS)、架构评审结论(APPROVED)、产品验收签批、部署文档、回滚方案、运维交接文档、监控告警配置、发布说明、配置变更清单、数据库迁移脚本(如有)。
 
 ## 6. 输出产物
-release_decision.json（signoffs_verified数组+deliverables_check完整性检查+blocking_issues+decision GO/NOGO+release_window）+release_checklist.md（签批/交付物/环境/风险/最终决策逐项勾叉清单）。
+
+### 6.1 release_decision.json（机器可读，强制格式）
+
+```json
+{
+  "role": "delivery-manager",
+  "verdict": "GO | NOGO",
+  "signoffs_verified": [
+    {
+      "role": "quality-engineer | security-engineer | system-architect | product-manager",
+      "report_path": "签批文件路径",
+      "overall": "PASS | APPROVED",
+      "evidence_path": "证据文件路径",
+      "verified": true
+    }
+  ],
+  "deliverables_check": [
+    {
+      "item": "交付物名称",
+      "complete": true,
+      "path": "文件路径",
+      "notes": "备注"
+    }
+  ],
+  "blocking_issues": [
+    {
+      "issue": "阻塞问题描述",
+      "responsible_role": "责任角色",
+      "missing_item": "缺失的内容",
+      "completion_criteria": "完成标准"
+    }
+  ],
+  "decision": "GO | NOGO",
+  "release_window": {
+    "start": "ISO8601",
+    "end": "ISO8601"
+  },
+  "rollback_time_estimate_minutes": 0,
+  "summary": "一句话总结发布决策"
+}
+```
+
+**以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+**decision 只能是 GO 或 NOGO 两个值。不存在 CONDITIONAL_GO。**
+
+### 6.2 release_checklist.md（人可读）
+
+签批/交付物/环境/风险/最终决策逐项勾叉清单。
 
 ## 7. 质量标准
 - decision只能是GO或NOGO两个值。不存在CONDITIONAL_GO。
