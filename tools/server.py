@@ -149,9 +149,107 @@ TOOLS = {
                 "event": {"type": "string"},
                 "actor": {"type": "string"},
                 "details": {"type": "object"},
-                "verify": {"type": "boolean", "description": "true=验证完整性, false=追加条目"}
+                "verify": {"type": "boolean"}
             },
             "required": ["event", "actor"]
+        }
+    },
+    # v3.5 — remaining governance tools
+    "loop_route_intent": {
+        "description": "分析用户意图，推荐 Loop 模式和变更类型",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string", "description": "用户意图描述"},
+                "is_existing": {"type": "boolean"}
+            },
+            "required": ["description"]
+        }
+    },
+    "loop_constraint_check": {
+        "description": "运行全部 8 项硬约束检查 (C1-C8)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "target_path": {"type": "string"},
+                "current_phase": {"type": "string"},
+                "target_phase": {"type": "string"}
+            }
+        }
+    },
+    "loop_execute_phase": {
+        "description": "执行一个完整的 Loop 阶段",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "phase_id": {"type": "string"}
+            },
+            "required": ["phase_id"]
+        }
+    },
+    "loop_execution_log": {
+        "description": "查询执行账本记录",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "task_id": {"type": "string"},
+                "role_id": {"type": "string"},
+                "recent": {"type": "number"}
+            }
+        }
+    },
+    "loop_veto_escalate": {
+        "description": "分析否决并确定升级级别",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "vetos": {"type": "array", "items": {"type": "object"}},
+                "generate_summary": {"type": "boolean"}
+            },
+            "required": ["vetos"]
+        }
+    },
+    "loop_evidence_submit": {
+        "description": "提交证据并绑定内容哈希",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "evidence_id": {"type": "string"},
+                "type": {"type": "string"},
+                "content": {"type": "string"},
+                "role_id": {"type": "string"},
+                "ttl_seconds": {"type": "number"}
+            },
+            "required": ["evidence_id", "type", "content"]
+        }
+    },
+    "loop_handoff": {
+        "description": "创建角色间交接记录",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "from_role": {"type": "string"},
+                "to_role": {"type": "string"},
+                "context_summary": {"type": "string"},
+                "artifacts": {"type": "array", "items": {"type": "object"}}
+            },
+            "required": ["from_role", "to_role", "context_summary"]
+        }
+    },
+    "loop_load_context": {
+        "description": "根据任务复杂度加载渐进式角色上下文",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "role_id": {"type": "string"},
+                "complexity": {"type": "number"}
+            },
+            "required": ["role_id"]
         }
     }
 }
@@ -236,6 +334,34 @@ def _dispatch(tool_name: str, args: dict) -> dict:
             details=args.get("details"),
             verify=args.get("verify", False),
         )
+    # v3.5
+    elif tool_name == "loop_route_intent":
+        from tool_route_intent import run
+        return run(args.get("description", ""), is_existing=args.get("is_existing", False))
+    elif tool_name == "loop_constraint_check":
+        from tool_constraint_check import run
+        return run(project_root, target_path=args.get("target_path"),
+                   current_phase=args.get("current_phase"), target_phase=args.get("target_phase"))
+    elif tool_name == "loop_execute_phase":
+        from tool_execute_phase import run
+        return run(args["phase_id"], project_root)
+    elif tool_name == "loop_execution_log":
+        from tool_execution_log import run
+        return run(project_root, task_id=args.get("task_id"), role_id=args.get("role_id"), recent=args.get("recent", 10))
+    elif tool_name == "loop_veto_escalate":
+        from tool_veto_escalate import run
+        return run(args.get("vetos", []), generate_summary=args.get("generate_summary", False))
+    elif tool_name == "loop_evidence_submit":
+        from tool_evidence_submit import run
+        return run(args["evidence_id"], args["type"], args["content"], project_root,
+                   role_id=args.get("role_id"), ttl_seconds=args.get("ttl_seconds"))
+    elif tool_name == "loop_handoff":
+        from tool_handoff import run
+        return run(args["from_role"], args["to_role"], args["context_summary"],
+                   project_root, artifacts=args.get("artifacts", []))
+    elif tool_name == "loop_load_context":
+        from tool_load_context import run
+        return run(args["role_id"], complexity=args.get("complexity", 0.5))
 
     return {"error": f"unhandled tool: {tool_name}"}
 
