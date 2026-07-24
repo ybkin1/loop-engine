@@ -1,4 +1,4 @@
-# Quality Gates
+﻿# Quality Gates
 
 ## Required Gates
 

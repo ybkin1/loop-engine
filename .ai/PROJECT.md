@@ -1,16 +1,16 @@
-# Codex 一人研发团队式 Loop 软件交付系统
+# Qoder 一人研发团队式 Loop 软件交付系统
 
 ## One Sentence
 
-帮助无代码能力、无项目管理背景的用户，借助 Codex 以 Loop 工程方式，从粗略需求推进到真实可用、可部署、可验收、可持续迭代的软件产品交付。
+帮助无代码能力、无项目管理背景的用户，借助 Qoder 以 Loop 工程方式，从粗略需求推进到真实可用、可部署、可验收、可持续迭代的软件产品交付。
 
 ## User Outcome
 
-用户只负责目标、关键取舍和 gate 批准；Codex 负责澄清需求、立项、设计、拆任务、执行、评审、修订、验证、交付和交接。
+用户只负责目标、关键取舍和 gate 批准；Qoder 负责澄清需求、立项、设计、拆任务、执行、评审、修订、验证、交付和交接。
 
 ## MVP
 
-先完成 no-write 设计阶段：形成 Loop 工程工作模式、规范架构、Required Reading Policy、Session Contract、任务卡、评审报告和 AGENTS.md 入口规则的候选设计。
+先完成 no-write 设计阶段：形成 Loop 工程工作模式、规范架构、Required Reading Policy、Session Contract、任务卡、评审报告和 Skill 入口规则的候选设计。
 
 ## Success Criteria
 

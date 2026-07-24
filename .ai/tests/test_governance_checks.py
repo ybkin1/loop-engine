@@ -3,6 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 
+import jsonschema
 import yaml
 
 
@@ -23,18 +24,22 @@ def load_yaml(path):
 
 
 class GovernanceCheckerTests(unittest.TestCase):
-    def test_approved_gate_register_passes(self):
+    def test_approved_gate_register_passes_and_matches_result_schema(self):
         result = validate_gate_register(
             SAMPLES / "gates" / "approved-gate-register.yaml",
             project_root=PROJECT_ROOT,
         )
+
         self.assertTrue(result["passed"], json.dumps(result, indent=2))
+        schema = load_yaml(AI_ROOT / "schemas" / "checker-result.schema.yaml")
+        jsonschema.validate(result, schema)
 
     def test_pending_gate_fails_closed(self):
         result = validate_gate_register(
             SAMPLES / "gates" / "pending-gate-register.yaml",
             project_root=PROJECT_ROOT,
         )
+
         self.assertFalse(result["passed"])
         self.assertIn("pending-gate-check", result["failed_check_ids"])
 
@@ -43,6 +48,7 @@ class GovernanceCheckerTests(unittest.TestCase):
             SAMPLES / "gates" / "missing-approval-evidence.yaml",
             project_root=PROJECT_ROOT,
         )
+
         self.assertFalse(result["passed"])
         self.assertIn("approval-evidence-check", result["failed_check_ids"])
 
@@ -51,6 +57,7 @@ class GovernanceCheckerTests(unittest.TestCase):
             gates_path=SAMPLES / "gates" / "high-risk-without-separate-gate.yaml",
             project_root=PROJECT_ROOT,
         )
+
         self.assertFalse(result["passed"])
         self.assertIn("high-risk-gate-separation-check", result["failed_check_ids"])
 
@@ -63,6 +70,7 @@ class PolicyGuardTests(unittest.TestCase):
             gate_status="approved",
             allowed_action_classes=["lab_local_prototype_implementation"],
         )
+
         self.assertEqual("allow", decision["decision"])
 
     def test_pending_gate_allows_decision_recording_only(self):
@@ -72,6 +80,7 @@ class PolicyGuardTests(unittest.TestCase):
             gate_status="pending",
             allowed_action_classes=[],
         )
+
         self.assertEqual("allow_decision_recording_only", decision["decision"])
 
     def test_sensitive_actions_require_separate_user_gate(self):
@@ -84,6 +93,17 @@ class PolicyGuardTests(unittest.TestCase):
                     allowed_action_classes=["lab_local_prototype_implementation"],
                 )
                 self.assertEqual("require_user_gate", decision["decision"])
+
+    def test_guard_decision_matches_schema(self):
+        decision = decide_action(
+            action_family="database",
+            target_path=".ai/tests/samples/example.db",
+            gate_status="approved",
+            allowed_action_classes=["lab_local_prototype_implementation"],
+        )
+
+        schema = load_yaml(AI_ROOT / "guards" / "guard_decision.schema.yaml")
+        jsonschema.validate(decision, schema)
 
 
 if __name__ == "__main__":

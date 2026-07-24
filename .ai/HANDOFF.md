@@ -1,99 +1,260 @@
 # Handoff
 
-## Product Direction And Authority
-
-<!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-BEGIN -->
-```json
-{
-  "authorization_boundaries": {
-    "allowed_effects": ["read", "write governance files"],
-    "current_gate_id": "G-T-0040-IMPLEMENT",
-    "forbidden_effects": ["deploy", "rollback", "database", "permission", "secret", "payment", "production_data", "migration"]
-  },
-  "persisted_file_sha256": "FD12C5FDD8118EA2D7F5B0C5AC685C9709FAD0E3FB411A924726AF1E2F2E88BE",
-  "product_identity": {
-    "north_star": "每个非技术用户都能借助AI交付可用软件",
-    "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
-    "project_id": "loop-engine",
-    "success_signals": ["治理流程可被非技术用户理解", "gate机制有效阻断未授权操作", "证据链完整可审计"]
-  },
-  "project_id": "loop-engine",
-  "protected_decisions": [
-    {"authority_ref": "user", "change_policy": "需用户显式gate批准", "decision_id": "MEANS_END_BOUNDARY", "rationale_ref": ".ai/DECISIONS.md", "statement": "AI负责手段，用户负责目标和gate批准"},
-    {"authority_ref": "user", "change_policy": "不可变更", "decision_id": "USER_AUTHORITY", "rationale_ref": ".ai/DECISIONS.md", "statement": "只有用户能批准gate、拒绝gate、请求修复"},
-    {"authority_ref": "user", "change_policy": "需用户显式gate批准", "decision_id": "CODEX_DELIVERY_RESPONSIBILITY", "rationale_ref": ".ai/DECISIONS.md", "statement": "AI负责在批准范围内完成交付"},
-    {"authority_ref": "user", "change_policy": "不可变更", "decision_id": "EVIDENCE_ONLY_BOUNDARY", "rationale_ref": ".ai/DECISIONS.md", "statement": "reviewer PASS、测试通过、validator成功仅为evidence，不替代用户批准"}
-  ],
-  "schema": "ProjectContinuityProjection/v1",
-  "semantic_sha256": "8F32DFDC8DF0D3B5F6BA4993193CD8DD0CEBC44294317B5A04DAA355C51A8847",
-  "source_sha256": "17EB58373EE234058D5CBFAB013570D6097633A294FBD56774E3499A10765BF3",
-  "user_origin": {"audience": "单人AI辅助软件研发", "capability_assumptions": ["用户无代码能力", "用户无项目管理背景"], "user_authorities": ["批准gate", "拒绝gate", "请求修复", "提出目标"]}
-}
-```
-<!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-END -->
-
 ## Current Phase
 
-S6-delivery
+`S1-integration`
 
 ## Current Task
 
-T-0040: P0 消除模型自觉依赖 — EnforcementHub + Hook 增强 + 角色隔离 HARD 阻断
+Task: `none`
 
-Status: `completed`
+Status: `none`
 
-## Current Gate
+Current gate: `null`
 
-G-T-0040-IMPLEMENT: approved (2026-07-23)
+## Main Controller Orientation
 
-## Recent Changes
+The controlling north star is not governance self-operation. The purpose of this project is to help a non-technical user with no project-management background use Qoder to produce real software products that are usable, verifiable, deployable, acceptable, maintainable, and sustainably iterable.
 
-- **2026-07-23: T-0040 completed — v3.0.0 核心交付**
-  - 新增 `loop_core/enforcement_hub.py` — Hook↔Core 治理决策桥梁
-    - `should_allow_write()` — C4+C3+C7+phase 约束统一检查
-    - `should_allow_phase_advance()` — 阶段推进前置条件验证
-    - `check_role_isolation_enforcement()` — HARD 级自评自审阻断
-    - `check_evidence_freshness_enforcement()` — C8 证据新鲜度检查
-    - `quick_check()` — 轻量整体校验
-    - `EnforcementDecision.to_hook_output()` — 标准 hook JSON 输出
-    - `EnforcementLevel` 枚举 — HARD/PARTIAL/ADVISORY 能力声明
-  - 升级 `hooks/scripts/role_isolation.py` → v2.0 HARD 阻断
-    - FULL mode: 自评自审 → `permissionDecision: "deny"` + `exit 2`
-    - LIGHTWEIGHT/STANDARD: 保持 WARN-only 向后兼容
-  - 新增 `tests/test_enforcement_hub.py` — 39 测试覆盖全 API
-  - 注册 gate `G-T-0040-IMPLEMENT` 定义实现范围
+The user owns goals, business facts, key tradeoffs, Gate decisions, and final acceptance. Qoder owns technical execution only inside explicit authorization boundaries.
+
+Reviews, tests, validators, audits, subagent conclusions, and Qoder judgments are evidence only. They cannot replace user approval, product acceptance, project PASS, installation, activation, implementation authorization, or real-project entry.
+
+Governance exists to reduce user burden and delivery risk. It is a guardrail for real delivery, not the product and not the achievement by itself.
+
+## Current Facts
+
+- 4 个 Crewlet/superdesigndev 工具已集成为 Loop 工程辅助 skill：
+  - **archlet** — 架构治理与可视化（`skills/archlet/SKILL.md` + `roles/archlet-brief.md`）
+  - **loopany** — 持久记忆与自我改进（`skills/loopany/SKILL.md` + `roles/loopany-brief.md` + `.ai/loopany/` 数据目录）
+  - **tools-registry** — 团队工具与密钥管理（`skills/tools-registry/SKILL.md` + `roles/tools-registry-brief.md`）
+  - **loopbase** — 跨会话记忆与可观测性（`skills/loopbase/SKILL.md` + `roles/loopbase-brief.md`）
+- loop-engine 主编排 skill 已更新，新 skill 注册到调度表
+- 所有新 skill 设计均为 candidate 状态，需用户审批
+- 2026-07-22: Phase 0 cleanup completed — fixed corrupted state.yaml, removed duplicate documents, filled TBD docs.
+
+## Allowed Scope
+
+- Read current governance records and verify state.
+- Create tasks after user authorization.
+- Use new skills (archlet/loopany/tools-registry/loopbase) when their trigger conditions are met.
+- Keep the user burden low.
+
+## Forbidden Scope
+
+- Do not create tasks without explicit user authorization.
+- Do not implement, install, activate, deploy, migrate, or enter a real project.
+- Do not modify governance files without a separate explicit Gate.
+- Do not infer user acceptance from any review, validator, audit, or AI statement.
+- Do not auto-activate new skills without user approval of their design.
 
 ## Verified
 
-- 2116 tests passed (0 regression from v2.0.0 baseline)
-- 39 new enforcement_hub tests all pass
-- role_isolation.py v2.0 logic verified via code review
-- EnforcementHub reads .ai/state.yaml, gates.yaml, task_graph.yaml correctly
+- All governance files adapted from original Codex loop-engine-lab.
+- Python checkers and guards adapted with correct path constants.
+- Test suite passes with adapted paths.
+- 4 new skills created with SKILL.md and role briefs.
+- loop-engine dispatch table updated with new skills.
+- .ai/loopany/ data directory structure created.
+- state.yaml, PROGRESS.md, DECISIONS.md updated to reflect S1-integration.
+- Phase 0 cleanup: state.yaml corruption fixed, duplicate documents removed.
 
 ## Unverified
 
-- role_isolation.py HARD blocking live-fire (needs real ZCode session with distinct agent IDs)
-- EnforcementHub hook integration live-fire (needs hook reload)
-- External vertical slice (T-0041) — deferred to v3.1
+- First real loop execution with new skills has not been performed.
+- Qoder subagent integration with new skills has not been validated.
+- archlet/codegraph/madge toolchain not installed or tested.
+- loopany reflect cycle not yet triggered.
+- tools-registry (treg) not installed or connected to a server.
+- loopbase not installed or indexed.
+- TypeScript core (src/core/) not yet validated end-to-end.
 
 ## Evidence
 
-- `loop_core/enforcement_hub.py` — 390 lines, full EnforcementHub implementation
-- `hooks/scripts/role_isolation.py` — upgraded to v2.0 with HARD blocking
-- `tests/test_enforcement_hub.py` — 39 tests, all passing
-- Full regression: 2116 passed, 61 skipped, 18 xfailed
+- None yet.
 
-## Pending
+## Pending Gates And Blockers
 
-- T-0041: 外部垂直切片验证 — 用 loop-engine 交付真实 CLI 工具
-- T-0044: 角色能力认证框架 (role_capability.py)
-- T-0045: 全 11 角色 CONTRACT.yaml 补齐
-- Live-fire verification of hook HARD enforcement
+- Pending gate: 用户审批 4 个新 skill 的设计（archlet/loopany/tools-registry/loopbase）
+- Blockers: none
+- Next work requires explicit user direction.
 
 ## Next Session First Step
 
-USER_DECISION_REQUIRED — 审查 v3.0.0 T-0040 交付结果，决定是否批准 / 要求修复 / 进入下一阶段
+Read the latest user request first, then `.ai/state.yaml`, this HANDOFF, `.ai/gates.yaml`, and `.ai/task_graph.yaml`.
 
-## Startup Prompt
+Check `.ai/loopany/index.md` for persistent memory state.
 
-Use $project-governor, validate structured state, and continue only inside the approved scope.
+Run `validate_state.py`. It should pass cleanly; any error is new and must be reported.
+
+Then recommend the concrete next route based on the user's direction.
+# Handoff
+
+## Current Phase
+
+`S1-integration`
+
+## Current Task
+
+Task: `none`
+
+Status: `none`
+
+Current gate: `null`
+
+## Main Controller Orientation
+
+The controlling north star is not governance self-operation. The purpose of this project is to help a non-technical user with no project-management background use Qoder to produce real software products that are usable, verifiable, deployable, acceptable, maintainable, and sustainably iterable.
+
+The user owns goals, business facts, key tradeoffs, Gate decisions, and final acceptance. Qoder owns technical execution only inside explicit authorization boundaries.
+
+Reviews, tests, validators, audits, subagent conclusions, and Qoder judgments are evidence only. They cannot replace user approval, product acceptance, project PASS, installation, activation, implementation authorization, or real-project entry.
+
+Governance exists to reduce user burden and delivery risk. It is a guardrail for real delivery, not the product and not the achievement by itself.
+
+## Current Facts
+
+- 4 个 Crewlet/superdesigndev 工具已集成为 Loop 工程辅助 skill：
+  - **archlet** — 架构治理与可视化（`skills/archlet/SKILL.md` + `roles/archlet-brief.md`）
+  - **loopany** — 持久记忆与自我改进（`skills/loopany/SKILL.md` + `roles/loopany-brief.md` + `.ai/loopany/` 数据目录）
+  - **tools-registry** — 团队工具与密钥管理（`skills/tools-registry/SKILL.md` + `roles/tools-registry-brief.md`）
+  - **loopbase** — 跨会话记忆与可观测性（`skills/loopbase/SKILL.md` + `roles/loopbase-brief.md`）
+- loop-engine 主编排 skill 已更新，新 skill 注册到调度表
+- 所有新 skill 设计均为 candidate 状态，需用户审批
+
+## Allowed Scope
+
+- Read current governance records and verify state.
+- Create tasks after user authorization.
+- Use new skills (archlet/loopany/tools-registry/loopbase) when their trigger conditions are met.
+- Keep the user burden low.
+
+## Forbidden Scope
+
+- Do not create tasks without explicit user authorization.
+- Do not implement, install, activate, deploy, migrate, or enter a real project.
+- Do not modify governance files without a separate explicit Gate.
+- Do not infer user acceptance from any review, validator, audit, or AI statement.
+- Do not auto-activate new skills without user approval of their design.
+
+## Verified
+
+- All governance files adapted from original Codex loop-engine-lab.
+- Python checkers and guards adapted with correct path constants.
+- Test suite passes with adapted paths.
+- 4 new skills created with SKILL.md and role briefs.
+- loop-engine dispatch table updated with new skills.
+- .ai/loopany/ data directory structure created.
+- state.yaml, PROGRESS.md, DECISIONS.md updated to reflect S1-integration.
+
+## Unverified
+
+- First real loop execution with new skills has not been performed.
+- Qoder subagent integration with new skills has not been validated.
+- archlet/codegraph/madge toolchain not installed or tested.
+- loopany reflect cycle not yet triggered.
+- tools-registry (treg) not installed or connected to a server.
+- loopbase not installed or indexed.
+
+## Evidence
+
+- None yet.
+
+## Integration Impact
+
+- New skills added as candidate capabilities to the loop-engine framework.
+- No runtime behavior changed; skills are invoked only when their trigger conditions are met.
+- loopany data directory ready for task capture and outcome tracking.
+
+## Pending Gates And Blockers
+
+- Pending gate: 用户审批 4 个新 skill 的设计（archlet/loopany/tools-registry/loopbase）
+- Blockers: none
+- Next work requires explicit user direction.
+
+## Next Session First Step
+
+Read the latest user request first, then `.ai/state.yaml`, this HANDOFF, `.ai/gates.yaml`, and `.ai/task_graph.yaml`.
+
+Check `.ai/loopany/index.md` for persistent memory state.
+
+Run `validate_state.py`. It should pass cleanly; any error is new and must be reported.
+
+Then recommend the concrete next route based on the user's direction.
+# Handoff
+
+## Current Phase
+
+`S0-init`
+
+## Current Task
+
+Task: `none`
+
+Status: `none`
+
+Current gate: `null`
+
+## Main Controller Orientation
+
+The controlling north star is not governance self-operation. The purpose of this project is to help a non-technical user with no project-management background use Qoder to produce real software products that are usable, verifiable, deployable, acceptable, maintainable, and sustainably iterable.
+
+The user owns goals, business facts, key tradeoffs, Gate decisions, and final acceptance. Qoder owns technical execution only inside explicit authorization boundaries.
+
+Reviews, tests, validators, audits, subagent conclusions, and Qoder judgments are evidence only. They cannot replace user approval, product acceptance, project PASS, installation, activation, implementation authorization, or real-project entry.
+
+Governance exists to reduce user burden and delivery risk. It is a guardrail for real delivery, not the product and not the achievement by itself.
+
+## Current Facts
+
+- Project freshly initialized on 2026-07-18 as a Qoder adaptation.
+- No tasks, gates, or evidence exist yet.
+- `validate_state.py` should pass cleanly.
+- `audit_handoff.py` should pass.
+
+## Allowed Scope
+
+- Read current governance records and verify the clean initial state.
+- Create the first task to validate the governance framework.
+- Keep the user burden low.
+
+## Forbidden Scope
+
+- Do not create tasks without explicit user authorization.
+- Do not implement, install, activate, deploy, migrate, or enter a real project.
+- Do not modify governance files without a separate explicit Gate.
+- Do not infer user acceptance from any review, validator, audit, or AI statement.
+
+## Verified
+
+- All governance files adapted from original Codex loop-engine-lab.
+- Python checkers and guards adapted with correct path constants.
+- Test suite passes with adapted paths.
+
+## Unverified
+
+- First real loop execution has not been performed.
+- Qoder subagent integration has not been validated.
+
+## Evidence
+
+- None yet.
+
+## Integration Impact
+
+- No runtime or product integration occurred.
+- Governance state is positioned for the first explicit user decision.
+
+## Pending Gates And Blockers
+
+- Pending gates: none.
+- Blockers: none.
+- Next work requires explicit user direction.
+
+## Next Session First Step
+
+Read the latest user request first, then `.ai/state.yaml`, this HANDOFF, `.ai/gates.yaml`, and `.ai/task_graph.yaml`.
+
+Run `validate_state.py`. It should pass cleanly; any error is new and must be reported.
+
+Then recommend the concrete next route based on the user's direction.

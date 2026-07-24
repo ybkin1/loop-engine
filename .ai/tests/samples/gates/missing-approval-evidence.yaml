@@ -1,18 +1,13 @@
 schema_version: 1
 gates:
-  - id: G-T-0004-EXAMPLE-MISSING-EVIDENCE
-    task_id: T-0004
-    gate_type: user-approval
+  - id: G-SAMPLE-MISSING-APPROVAL
+    task_id: T-SAMPLE
+    gate_type: prototype
     status: approved
     decision: approved
-    evidence: .ai/evidence/T-0004/commands.md
-    high_risk_flags:
-      deployment: false
-      rollback: false
-      database: false
-      permission: false
-      secret: false
-      payment: false
-      production_data: false
-      migration: false
-      runtime_behavior: false
+    approval_required_from: user
+    approval_actor: user
+    approval_source: explicit_user_message
+    approval_text: "批准 G-SAMPLE-MISSING-APPROVAL"
+    evidence: .ai/tests/samples/gates/sample-gate-request.md
+    decision_packet: .ai/tests/samples/gates/sample-decision-packet.md

@@ -1,18 +1,10 @@
 schema_version: 1
 gates:
-  - id: G-T-0003-EXAMPLE-PENDING
-    task_id: T-0003
-    gate_type: user-approval
+  - id: G-SAMPLE-PENDING
+    task_id: T-SAMPLE
+    gate_type: prototype
     status: pending
     decision: pending
-    evidence: .ai/evidence/T-0003/commands.md
-    high_risk_flags:
-      deployment: false
-      rollback: false
-      database: false
-      permission: false
-      secret: false
-      payment: false
-      production_data: false
-      migration: false
-      runtime_behavior: false
+    approval_required_from: user
+    evidence: .ai/tests/samples/gates/sample-gate-request.md
+    decision_packet: .ai/tests/samples/gates/sample-decision-packet.md

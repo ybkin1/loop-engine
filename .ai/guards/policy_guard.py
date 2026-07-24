@@ -19,6 +19,7 @@ LAB_LOCAL_PREFIXES = (
     ".ai/policies/",
     ".ai/schemas/",
     ".ai/tests/",
+    ".ai/evidence/T-0023/",
 )
 
 

@@ -57,5 +57,4 @@ properties:
         scope_source_gate_id:
           type: string
       additionalProperties: true
-    additionalProperties: false
 additionalProperties: false

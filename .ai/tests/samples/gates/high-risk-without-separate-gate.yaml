@@ -1,15 +1,17 @@
 schema_version: 1
 gates:
-  - id: G-T-0005-EXAMPLE-HIGH-RISK-NO-SEPARATE-GATE
-    task_id: T-0005
-    gate_type: user-approval
+  - id: G-SAMPLE-HIGH-RISK
+    task_id: T-SAMPLE
+    gate_type: prototype
     status: approved
     decision: approved
-    evidence: .ai/evidence/T-0005/commands.md
-    approval_text: "批准 G-T-0005-EXAMPLE-HIGH-RISK-NO-SEPARATE-GATE"
-    approval_evidence: .ai/evidence/T-0005/approval.record.v0.1.md
+    approval_required_from: user
     approval_actor: user
     approval_source: explicit_user_message
+    approval_text: "批准 G-SAMPLE-HIGH-RISK"
+    approval_evidence: .ai/tests/samples/gates/sample-approval.md
+    evidence: .ai/tests/samples/gates/sample-gate-request.md
+    decision_packet: .ai/tests/samples/gates/sample-decision-packet.md
     high_risk_flags:
       deployment: true
       rollback: false

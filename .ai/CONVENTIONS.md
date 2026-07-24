@@ -1,33 +1,33 @@
+﻿# Conventions
+
+## Code Style Snapshot
+
+- TypeScript: ES2022 + Node16 modules, strict mode
+- Python: PEP 8, type hints preferred, PyYAML for YAML handling
+- File naming: kebab-case for files, PascalCase for classes, camelCase for functions
+- Error handling: Custom `LoopError` class with `code` + `message` + `detail` + `recoverable`
+- YAML I/O: Atomic write (write to .tmp then rename) to prevent corruption
+- Path safety: All paths validated against traversal attacks, no `..` allowed in project root
+- Test framework: vitest for TypeScript, pytest for Python
+- No hardcoded secrets, no `any` types, no `console.log` in production code
+
+## Project Commands
+
+- Install: `npm install` (installs @modelcontextprotocol/sdk, yaml, commander)
+- Build: `npm run build` (tsc → dist/)
+- Test: `npm test` (vitest run)
+- Dev: `npm run dev` (tsc --watch)
+- Start: `npm start` (node dist/server/index.js)
+- Python tests: `cd .ai && python -m pytest tests/`
+- Python checks: `python .ai/checkers/run_governance_checks.py --gates --project-root .`
 # Conventions
 
-## 命名
+## Code Style Snapshot
 
-- 任务 ID：`T-XXXX`（四位数字）
-- Gate ID：`G-T-XXXX-...`
-- 阶段：`S0` ~ `S11`
-- 角色 ID：kebab-case（`main-thread`, `quality-engineer`）
+- TBD
 
-## 文件组织
+## Project Commands
 
-- `.ai/` — 治理数据（state, gates, tasks, evidence）
-- `.zcode/` — ZCode 运行时（tools, skills）
-- `loop_core/` — 宿主无关协议
-- `loop_engine/` — Python 核心库 + 适配器
-
-## 代码风格
-
-- Python：PEP 8, ruff lint
-- YAML：2 空格缩进，`schema_version: 1`
-- Markdown：`##` 章节，中文内容
-
-## 证据规则
-
-- 每个 task 必须有 `commands.md`
-- 证据只可 supersede，不可删除
-- SHA256 绑定输入版本
-
-## Gate 规则
-
-- pending gate = 全停信号（gate_guard exit 2）
-- 批准 ≠ 执行（需要精确执行请求）
-- 用户批准不可替代（reviewer PASS 只是 evidence）
+- Install: TBD
+- Test: TBD
+- Run: TBD

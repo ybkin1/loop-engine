@@ -36,20 +36,12 @@ def _finding(check_id, message, gate_id=None):
     return {"check_id": check_id, "severity": "error", "message": message}
 
 
-def _warning(check_id, message, gate_id=None):
-    if gate_id:
-        message = f"{gate_id}: {message}"
-    return {"check_id": check_id, "severity": "warning", "message": message}
-
-
 def _result(checker_id, findings, metadata):
-    # Only errors block; warnings are reported but do not cause failure.
-    errors = [item for item in findings if item.get("severity") == "error"]
-    failed_ids = sorted({item["check_id"] for item in errors})
+    failed_ids = sorted({item["check_id"] for item in findings})
     return {
         "checker_id": checker_id,
-        "passed": not errors,
-        "status": "passed" if not errors else "failed",
+        "passed": not findings,
+        "status": "passed" if not findings else "failed",
         "failed_check_ids": failed_ids,
         "findings": findings,
         "metadata": metadata,
@@ -97,18 +89,18 @@ def validate_gate_register(gates_path, project_root=None):
 
         if status == "approved":
             if not gate.get("approval_text") or not gate.get("approval_evidence"):
-                findings.append(_warning("approval-evidence-check", "approved gate lacks approval text or evidence", gate_id))
+                findings.append(_finding("approval-evidence-check", "approved gate lacks approval text or evidence", gate_id))
             for field, expected in APPROVAL_FIELDS.items():
                 if gate.get(field) != expected:
-                    findings.append(_warning("approval-evidence-check", f"`{field}` should be `{expected}`", gate_id))
+                    findings.append(_finding("approval-evidence-check", f"`{field}` must be `{expected}`", gate_id))
             approval_evidence = gate.get("approval_evidence")
             if approval_evidence and not _resolve(project_root, approval_evidence).exists():
-                findings.append(_warning("approval-evidence-check", "approval evidence file is missing", gate_id))
+                findings.append(_finding("approval-evidence-check", "approval evidence file is missing", gate_id))
 
         high_risk_flags = gate.get("high_risk_flags") or {}
         for flag in HIGH_RISK_FLAGS:
             if high_risk_flags.get(flag) is True and not _approved_gate_has_separate_high_risk_gate(gate, flag):
-                findings.append(_warning("high-risk-gate-separation-check", f"`{flag}` is true; verify a separate gate or explicit scope covers this risk", gate_id))
+                findings.append(_finding("high-risk-gate-separation-check", f"`{flag}` requires a separate gate", gate_id))
 
     return _result(
         "validate_gate_register",

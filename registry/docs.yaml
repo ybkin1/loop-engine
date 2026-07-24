@@ -1,0 +1,11 @@
+schema_version: 1
+documents:
+  - doc_id: user-origin
+    path: stable/user-origin.md
+    status: approved
+    role: source
+
+  - doc_id: current-loop-protocol
+    path: stable/current-loop-protocol.md
+    status: candidate
+    role: protocol-entry
