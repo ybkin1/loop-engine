@@ -726,6 +726,28 @@ def _extract_risk_factors(desc_lower: str) -> dict[str, bool]:
     return factors
 
 
+# Negation patterns — if these appear near a keyword, don't set the flag
+_NEGATION_PATTERNS: list[str] = [
+    r'\b(?:remove|delete|drop|eliminate|get rid of|ditch)\s+(?:the\s+)?',
+    r"\b(?:don't|do not|won't|will not)\s+(?:need|use|have|want)\s+(?:a\s+)?(?:the\s+)?",
+    r'\b(?:without|no)\s+(?:a\s+)?(?:the\s+)?',
+    r'\bnot\s+(?:using|needing|having)\s+(?:a\s+)?(?:the\s+)?',
+]
+
+
+def _is_negated(desc_lower: str, kw: str) -> bool:
+    """Check if a keyword match is likely negated in context.
+    
+    Example: "I want to remove the database" → "database" is negated.
+    """
+    for pat in _NEGATION_PATTERNS:
+        # Build a pattern that checks if negation appears before the keyword
+        full_pat = pat + re.escape(kw)
+        if re.search(full_pat, desc_lower):
+            return True
+    return False
+
+
 def _set_if_match(
     factors: dict[str, bool],
     key: str,
@@ -733,23 +755,22 @@ def _set_if_match(
     keywords: list[str],
 ) -> None:
     """Set factors[key] = True if any keyword is found in desc_lower.
-
-    Uses word-boundary matching (``\\b``) only for very short keywords
-    (<= 3 chars) that are prone to false positives (e.g. "orm" inside
-    "formatting").  Longer keywords are matched as substrings, which is
-    safe because they rarely produce false positives and also match
-    plural/derived forms (e.g. "deploy" matches "deployments").
-    Multi-word phrases are always matched as substrings.
+    
+    v3.2: Checks negation context before setting flag.
     """
     for kw in keywords:
         if " " in kw or "/" in kw or "-" in kw or len(kw) > 3:
             # Multi-word phrase or longer word — safe as substring
             if kw in desc_lower:
+                if _is_negated(desc_lower, kw):
+                    continue  # Skip negated match
                 factors[key] = True
                 return
         else:
             # Short single word — word-boundary regex match
             if re.search(r'\b' + re.escape(kw) + r'\b', desc_lower):
+                if _is_negated(desc_lower, kw):
+                    continue  # Skip negated match
                 factors[key] = True
                 return
 

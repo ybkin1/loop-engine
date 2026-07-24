@@ -115,6 +115,36 @@ class TestChangeTypeEdgeCases:
         assert _detect_change_type("FIX THE BUG") == ChangeType.BUG_FIX
 
 
+class TestNegationDetection:
+    """v3.2: negation keywords should NOT trigger risk factors."""
+
+    def test_remove_database_not_triggered(self):
+        from loop_core.intent_router import _extract_risk_factors
+        factors = _extract_risk_factors("i want to remove the database")
+        assert factors["has_database"] is False, "Negation 'remove the database' should not set has_database"
+
+    def test_delete_auth_not_triggered(self):
+        from loop_core.intent_router import _extract_risk_factors
+        factors = _extract_risk_factors("delete the authentication module")
+        assert factors["has_auth_permissions"] is False
+
+    def test_without_database_not_triggered(self):
+        from loop_core.intent_router import _extract_risk_factors
+        factors = _extract_risk_factors("build an app without database")
+        assert factors["has_database"] is False
+
+    def test_want_database_still_triggered(self):
+        from loop_core.intent_router import _extract_risk_factors
+        factors = _extract_risk_factors("i want to add a database for user data")
+        assert factors["has_database"] is True, "Non-negated database should still trigger"
+
+    def test_no_payment_still_triggered_by_other(self):
+        from loop_core.intent_router import _extract_risk_factors
+        factors = _extract_risk_factors("no payment needed but need user authentication")
+        assert factors["has_payments"] is False
+        assert factors["has_auth_permissions"] is True
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # 2. Reentry Validation
 # ══════════════════════════════════════════════════════════════════════════
