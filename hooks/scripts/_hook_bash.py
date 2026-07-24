@@ -24,7 +24,7 @@ _WRITE_CMDS: frozenset[str] = frozenset({
 _GIT_WRITE: frozenset[str] = frozenset({
     "add", "commit", "push", "merge", "rebase", "reset", "rm", "mv",
     "checkout", "switch", "restore", "revert", "cherry-pick",
-    "fetch", "pull", "clone", "branch", "tag", "stash", "clean", "gc",
+    "fetch", "pull", "clone", "clean", "gc", "stash",
     "filter-branch", "am", "apply", "bisect", "config", "submodule",
     "notes", "worktree",
 })
@@ -34,7 +34,9 @@ _GIT_RO: frozenset[str] = frozenset({
     "ls-files", "ls-tree", "ls-remote", "rev-parse", "rev-list",
     "describe", "name-rev", "shortlog", "reflog", "help", "version",
     "whatchanged", "cherry", "archive", "cat-file", "check-ignore",
-    "check-ref-format", "branch", "tag",
+    "check-ref-format",
+    # branch/tag: readonly when listed without destructive flags
+    # Handled in is_write_command via context check
 })
 
 _RO_CMDS: frozenset[str] = frozenset({
@@ -99,8 +101,17 @@ def is_write_command(word: str, full_cmd: str = "") -> bool:
         return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*[oO]', full_cmd))
     if word == 'git' and full_cmd:
         m = re.search(r'\bgit\s+([a-z][a-z-]*)', full_cmd)
-        if m: return m.group(1) in _GIT_WRITE
-        return False
+        if m:
+            sub = m.group(1)
+            # Special cases checked BEFORE set lookups
+            if sub == 'stash' and re.search(r'\bstash\s+(list|show)\b', full_cmd):
+                return False  # stash list/show = readonly
+            if sub in ('branch', 'tag') and not re.search(r'\s-[dD]\b', full_cmd):
+                return False  # branch/tag listing = readonly
+            # Set-based checks
+            if sub in _GIT_WRITE: return True
+            if sub in _GIT_RO: return False
+            return True  # Unknown → conservative
     if word in ('sed', 'perl', 'awk'):
         return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*i', full_cmd))
     if word == 'tar':

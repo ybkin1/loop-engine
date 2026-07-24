@@ -654,17 +654,8 @@ class TestReadonlyClassify(unittest.TestCase):
     def test_git_rev_parse_readonly(self):
         self.assertTrue(is_readonly_command("git rev-parse HEAD"))
 
-    @unittest.expectedFailure
     def test_git_blame_readonly(self):
-        """git blame file.txt → 已知 Bug：带参数的 git blame 不会被归类为只读。
-
-        is_readonly_command 中的 git 子命令正则：
-        r'git\\s+([a-z][a-z-]*(?:\\s+[a-z][a-z-]*)?)'
-        将 "blame file" 整体捕获为子命令，导致与只读列表中的 "blame"
-        不匹配（"blame file" != "blame"，且 "blame" 不以 "blame file " 开头）。
-
-        这影响了所有带参数的 git 只读子命令的识别。
-        """
+        """git blame file.txt → v3.5.1: now correctly classified as readonly (blame in _GIT_RO)."""
         self.assertTrue(is_readonly_command("git blame file.txt"))
 
     def test_git_stash_list_readonly(self):
@@ -1375,11 +1366,9 @@ class TestBypassMatrix(unittest.TestCase):
 
     # ── 16. 未识别命令（fail-closed） ──────────────────────────────────
 
-    def test_unrecognized_git_subcmd_has_write_false(self):
-        """未知 git 子命令（如 git foobar）→ has_write_operations 返回 False
-        （不在写入模式列表中，也不在只读列表中 → 靠 ContextController fail-closed 决策）"""
-        # "git foobar" 不在任何已知写入或只读 pattern 中
-        self.assertFalse(has_write_operations("git foobar"))
+    def test_unrecognized_git_subcmd_has_write_true(self):
+        """v3.5.1: 未知 git 子命令 → has_write_operations 返回 True（保守：可能是自定义写入别名）"""
+        self.assertTrue(has_write_operations("git foobar"))
 
     def test_unrecognized_git_subcmd_not_readonly(self):
         """未知 git 子命令 → is_readonly_command 返回 False（保守）"""
