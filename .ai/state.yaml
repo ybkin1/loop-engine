@@ -1,0 +1,44 @@
+﻿schema_version: 1
+project_name: "Qoder 一人研发团队式 Loop 软件交付系统"
+current_phase: S1-integration
+current_task_id: null
+current_gate_id: null
+last_handoff_at: "2026-07-22T00:00:00"
+integrated_skills:
+  - archlet       # 架构治理与可视化
+  - loopany       # 持久记忆与自我改进
+  - tools-registry # 团队工具与密钥管理
+  - loopbase      # 跨会话记忆与可观测性
+notes:
+  - Project initialized on 2026-07-18 as a Qoder adaptation of the original Codex loop-engine-lab.
+  - 2026-07-20: Integrated 4 Crewlet/superdesigndev skills (archlet, loopany, tools-registry, loopbase).
+  - loopany data directory created at .ai/loopany/.
+  - All new skills registered in loop-engine dispatch table.
+  - 2026-07-22: Phase 0 cleanup — fixed corrupted state.yaml, removed duplicate documents.
+schema_version: 1
+project_name: Qoder 一人研发团队式 Loop 软件交付系统
+current_phase: S1-integration
+current_task_id: null
+current_gate_id: null
+last_handoff_at: "2026-07-20T00:00:00"
+integrated_skills:
+  - archlet       # 架构治理与可视化
+  - loopany       # 持久记忆与自我改进
+  - tools-registry # 团队工具与密钥管理
+  - loopbase      # 跨会话记忆与可观测性
+notes:
+  - Project initialized on 2026-07-18 as a Qoder adaptation of the original Codex loop-engine-lab.
+  - 2026-07-20: Integrated 4 Crewlet/superdesigndev skills (archlet, loopany, tools-registry, loopbase).
+  - loopany data directory created at .ai/loopany/.
+  - All new skills registered in loop-engine dispatch table.
+  - No tasks or gates have been created yet.
+schema_version: 1
+project_name: Qoder 涓€浜虹爺鍙戝洟闃熷紡 Loop 杞欢浜や粯绯荤粺
+current_phase: S0-init
+current_task_id: null
+current_gate_id: null
+last_handoff_at: "2026-07-18T00:00:00"
+notes:
+  - Project initialized on 2026-07-18 as a Qoder adaptation of the original Codex loop-engine-lab.
+  - No tasks or gates have been created yet.
+  - validate_state.py and audit_handoff.py should pass cleanly.

@@ -1,0 +1,37 @@
+schema_version: 1
+gates:
+  - id: G-SAMPLE-APPROVED
+    task_id: T-SAMPLE
+    gate_type: real-project-governance-enforcement-architecture-prototype-implementation
+    status: approved
+    decision: approved
+    approval_required_from: user
+    approval_actor: user
+    approval_source: explicit_user_message
+    approval_text: "批准 G-SAMPLE-APPROVED"
+    approval_evidence: .ai/tests/samples/gates/sample-approval.md
+    evidence: .ai/tests/samples/gates/sample-gate-request.md
+    decision_packet: .ai/tests/samples/gates/sample-decision-packet.md
+    allowed_action_classes:
+      - lab_local_prototype_implementation
+    allowed_tools:
+      - shell_command
+      - apply_patch
+    allowed_paths:
+      - .ai/checkers/
+      - .ai/guards/
+      - .ai/policies/
+      - .ai/schemas/
+      - .ai/tests/
+      - .ai/evidence/T-0023/
+    scope_source_gate_id: G-T-0023-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-PROTOTYPE-IMPLEMENTATION
+    high_risk_flags:
+      deployment: false
+      rollback: false
+      database: false
+      permission: false
+      secret: false
+      payment: false
+      production_data: false
+      migration: false
+      runtime_behavior: false

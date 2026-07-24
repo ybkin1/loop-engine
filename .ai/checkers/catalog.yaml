@@ -1,0 +1,30 @@
+schema_version: 1
+checkers:
+  - id: governance-state-check
+    stage: startup
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: pending-gate-check
+    stage: gate
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: required-artifact-presence-check
+    stage: gate
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: approval-evidence-check
+    stage: gate
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: high-risk-gate-separation-check
+    stage: gate
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: evidence-lock-check
+    stage: evidence
+    blocking_level: error
+    unavailable_policy: fail_closed
+  - id: tool-entry-authorization-check
+    stage: policy-simulation
+    blocking_level: error
+    unavailable_policy: fail_closed

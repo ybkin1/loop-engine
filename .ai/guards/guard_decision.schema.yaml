@@ -1,0 +1,35 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Policy Guard Decision
+type: object
+required:
+  - decision
+  - action_family
+  - target_path
+  - reason
+  - required_gate_classes
+  - matched_policy_ids
+properties:
+  decision:
+    type: string
+    enum:
+      - allow
+      - deny
+      - require_user_gate
+      - require_repair
+      - require_checker
+      - allow_decision_recording_only
+  action_family:
+    type: string
+  target_path:
+    type: string
+  reason:
+    type: string
+  required_gate_classes:
+    type: array
+    items:
+      type: string
+  matched_policy_ids:
+    type: array
+    items:
+      type: string
+additionalProperties: false
