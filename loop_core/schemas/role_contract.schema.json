@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/role_contract.schema.json",
+  "title": "Loop Role Contract",
+  "description": "A 12-field contract defining a Loop engineering role.",
+  "type": "object",
+  "required": ["role_id", "identity", "fixed_stance", "scope", "prohibitions"],
+  "properties": {
+    "role_id": { "type": "string" },
+    "identity": {
+      "type": "object",
+      "required": ["title", "experience"],
+      "properties": {
+        "title": { "type": "string" },
+        "experience": { "type": "string" }
+      }
+    },
+    "fixed_stance": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Non-negotiable positions this role holds"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "allowed": { "type": "array", "items": { "type": "string" } },
+        "forbidden": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "prohibitions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Required input artifacts before this role can start"
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "format": { "type": "string" },
+          "schema_ref": { "type": "string" }
+        }
+      }
+    },
+    "quality_standards": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "veto_powers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conditions under which this role can issue a BLOCKED verdict"
+    },
+    "evidence_required": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "handoff_protocol": {
+      "type": "object",
+      "properties": {
+        "upstream_acceptance": { "type": "array", "items": { "type": "string" } },
+        "downstream_delivery": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "conflict_resolution": { "type": "string" },
+    "workflow": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

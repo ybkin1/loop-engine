@@ -1,0 +1,73 @@
+{
+  "vertical_slice": {
+    "name": "Simple Task Manager — Loop Governance Validation",
+    "version": "1.0.0",
+    "description": "A complete vertical slice validating Loop's governance system end-to-end using a mini web application project."
+  },
+  "required_phases": ["S1", "S2", "S4", "S5", "S6"],
+  "phase_mapping": {
+    "S1": "S1-requirements",
+    "S2": "S2-architecture",
+    "S4": "S4-implementation",
+    "S5": "S5-quality",
+    "S6": "S6-delivery"
+  },
+  "required_roles": [
+    "product-manager",
+    "system-architect",
+    "developer",
+    "quality-engineer",
+    "security-engineer",
+    "independent-reviewer",
+    "delivery-manager"
+  ],
+  "seeded_defects": {
+    "count": 3,
+    "defects": [
+      {
+        "id": "VS-SEC-001",
+        "title": "SQL Injection via f-string in task search",
+        "type": "security",
+        "expected_detector": "security-engineer",
+        "severity": "critical"
+      },
+      {
+        "id": "VS-QUAL-001",
+        "title": "Missing input validation on user/task creation",
+        "type": "quality",
+        "expected_detector": "quality-engineer",
+        "severity": "high"
+      },
+      {
+        "id": "VS-ARCH-001",
+        "title": "Circular dependency between auth_module and task_module",
+        "type": "architecture",
+        "expected_detector": "system-architect",
+        "severity": "high"
+      }
+    ]
+  },
+  "expected_detection_rate": "100%",
+  "expected_blocks": [
+    "S5-quality-gate-defects-found"
+  ],
+  "expected_repairs": 1,
+  "expected_final_decision": "GO",
+  "evidence_chain": {
+    "root": "S1-requirements/gate-approval.md",
+    "links": [
+      "S1-requirements/gate-approval.md -> S2-architecture/gate-approval.md",
+      "S2-architecture/gate-approval.md -> S5-quality/quality_report.json",
+      "S5-quality/quality_report.json -> S6-delivery/delivery_decision.json"
+    ]
+  },
+  "governance_checks": {
+    "phase_gates_approved": true,
+    "all_roles_participated": true,
+    "defects_detected_by_correct_roles": true,
+    "delivery_blocked_with_unresolved_defects": true,
+    "regression_passes_after_repair": true,
+    "human_review_packet_readable": true,
+    "evidence_chain_intact": true
+  }
+}

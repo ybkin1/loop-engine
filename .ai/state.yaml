@@ -1,0 +1,12 @@
+schema_version: 1
+project_name: Loop Engine
+current_phase: S6-delivery
+current_task_id: T-0042
+current_gate_id: null
+loop_mode: FULL
+last_handoff_at: '2026-07-23T17:00:00+08:00'
+notes:
+- loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。
+- T-0040: v3.0.0 消除模型自觉依赖。EnforcementHub + role_isolation HARD阻断。已完成。
+- T-0041: 外部垂直切片验证。loop-demo-todo CLI 工具完整 S1-S6 闭环。已完成。
+- 当前：S6-delivery 最终交付，执行 git commit。

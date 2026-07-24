@@ -1,0 +1,50 @@
+# Evidence Chain — 证据链结构定义
+# evidence_chain.py 读取此文件确定验证链路。
+# 每个节点定义：name（唯一标识）、file（通配符或精确路径）、upstream（依赖的上游节点名列表）
+
+chain:
+  - name: requirements
+    file: ".ai/evidence/phase-01/scope_spec.json"
+    upstream: []
+    required: true
+
+  - name: architecture
+    file: ".ai/evidence/phase-02/architecture.md"
+    upstream: [requirements]
+    required: true
+
+  - name: interface_contract
+    file: ".ai/evidence/phase-03/interface-contract.json"
+    upstream: [architecture]
+    required: true
+
+  - name: source_code
+    file: "src/"                       # 目录 → SHA256 递归计算整个源码树
+    upstream: [interface_contract]
+    required: true
+    type: directory
+
+  - name: quality_report
+    file: ".ai/evidence/quality/quality_report.json"
+    upstream: [source_code]
+    required: true
+
+  - name: security_report
+    file: ".ai/evidence/security/security_report.json"
+    upstream: [source_code]
+    required: false                     # 可选——小型项目可无独立安全报告
+
+  - name: review_report
+    file: ".ai/evidence/review/review_report.json"
+    upstream: [source_code, architecture]
+    required: false
+
+  - name: human_review
+    file: ".ai/evidence/*/human-review-packet.md"
+    upstream: [quality_report, security_report]
+    required: false                     # 开发中阶段可能尚无
+
+# 验证规则
+verify:
+  strict_mode: false    # true: 任一 required 节点缺失 → BLOCKED
+  max_stale_hours: 24   # 上游 hash 匹配但 timestamp 超过此时间的 → WARN

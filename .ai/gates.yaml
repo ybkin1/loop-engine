@@ -1,0 +1,2122 @@
+schema_version: 1
+gates:
+- id: G-T-0002-APPROVE-V0.2.1
+  task_id: T-0002
+  gate_type: user-approval
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-06T17:44:53+08:00'
+  evidence: .ai/evidence/T-0002/unified-governance-architecture.approval.v0.2.1.md
+  registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
+  scope: approval-record only; approved as later formal basis only
+  active: false
+  installed: false
+  notes:
+  - Candidate and review report originals remain unchanged.
+  - No activation, installation, deployment, or real-project application occurred.
+- id: G-T-0003-SYNC-STATE
+  task_id: T-0003
+  gate_type: state-sync
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-06T18:48:30+08:00'
+  evidence: .ai/evidence/T-0003/activation-installation-plan.review-background.v0.1.md
+  scope: synchronize T-0003 task state only
+  allowed_actions:
+  - set state current_task_id to T-0003
+  - add T-0003 to task_graph.yaml
+  - record this T-0003 creation/sync gate
+  - update PROGRESS.md
+  - update HANDOFF.md
+  - run validate_state.py
+  active: false
+  installed: false
+  forbidden_actions:
+  - mark any artifact active
+  - mark any artifact installed
+  - install or modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - This gate synchronizes governance state only.
+  - It does not activate or install unified-governance-architecture.v0.2.1.
+- id: G-T-0003-ACTIVATE-V0.2.1
+  task_id: T-0003
+  gate_type: user-activation
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-06T19:18:14+08:00'
+  evidence: .ai/evidence/T-0003/unified-governance-architecture.activation.v0.2.1.md
+  registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
+  scope: activation-only; governance reference inside C:\Users\Administrator\.codex\loop-engine-lab
+    .ai
+  allowed_actions:
+  - set unified-governance-architecture.v0.2.1 active to true
+  - keep installed false
+  - record activation-only gate evidence
+  - update registry, gates, PROGRESS, DECISIONS, and HANDOFF
+  - run validate_state.py
+  active: true
+  installed: false
+  forbidden_actions:
+  - mark any artifact installed
+  - install or modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - placeholder cleanup
+  notes:
+  - This gate activates unified-governance-architecture.v0.2.1 as a governance/process
+    reference only.
+  - It does not install any runtime, startup, tool, protocol, or real-project behavior.
+- id: G-T-0004-PLACEHOLDER-CLEANUP
+  task_id: T-0004
+  gate_type: user-cleanup
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T09:18:14+08:00'
+  evidence: .ai/evidence/T-0004/commands.md
+  scope: placeholder cleanup for .ai governance memory only
+  allowed_actions:
+  - create T-0004 task file
+  - create T-0004 evidence directory and commands evidence
+  - set state current_task_id to T-0004
+  - add T-0004 to task_graph.yaml
+  - update .ai/CONTRACTS.md
+  - update .ai/ACCEPTANCE.md
+  - update .ai/KNOWN_ISSUES.md
+  - update PROGRESS.md and HANDOFF.md
+  - run validate_state.py
+  active: true
+  installed: false
+  forbidden_actions:
+  - mark any artifact installed
+  - install or modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - This gate is limited to placeholder cleanup in approved .ai governance memory
+    files.
+  - It keeps unified-governance-architecture.v0.2.1 installed false.
+- id: G-T-0005-DESIGN-INSTALLATION-CANDIDATE
+  task_id: T-0005
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T09:43:07+08:00'
+  evidence: .ai/evidence/T-0005/commands.md
+  artifact: .ai/evidence/T-0005/installation-candidate.v0.1.md
+  scope: installation candidate design only
+  allowed_actions:
+  - read current .ai governance context
+  - create T-0005 task file
+  - create T-0005 evidence directory and evidence files
+  - set state current_task_id to T-0005
+  - add T-0005 to task_graph.yaml
+  - output and record installation candidate design
+  - update PROGRESS.md and HANDOFF.md
+  - run validate_state.py
+  active: true
+  installed: false
+  forbidden_actions:
+  - mark any artifact installed
+  - install or modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - This gate authorizes candidate design only.
+  - It keeps unified-governance-architecture.v0.2.1 installed false.
+- id: G-T-0005-REPAIR-CANDIDATE-MEMORY
+  task_id: T-0005
+  gate_type: user-repair
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T10:23:23+08:00'
+  evidence: .ai/evidence/T-0005/commands.md
+  artifact: .ai/evidence/T-0005/installation-candidate.v0.1.md
+  scope: repair installation candidate and stale memory only
+  allowed_actions:
+  - repair changed-path audit in installation-candidate.v0.1.md
+  - repair expected diff in installation-candidate.v0.1.md
+  - update CONTRACTS.md stale T-0005 candidate wording
+  - update KNOWN_ISSUES.md stale T-0005 candidate wording
+  - update necessary T-0005 evidence
+  - update PROGRESS.md
+  - update HANDOFF.md
+  - update gates.yaml
+  - run validate_state.py
+  active: true
+  installed: false
+  forbidden_actions:
+  - mark any artifact installed
+  - install or modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - task_graph cleanup
+  notes:
+  - This gate repairs candidate and memory consistency only.
+  - It keeps unified-governance-architecture.v0.2.1 installed false.
+- id: G-T-0005-INSTALL-AGENTS-MD
+  task_id: T-0005
+  gate_type: user-installation
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T10:39:58+08:00'
+  evidence: .ai/evidence/T-0005/installation.execution.v0.1.md
+  candidate: .ai/evidence/T-0005/installation-candidate.v0.1.md
+  registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
+  scope: install project-local AGENTS.md only
+  allowed_paths:
+  - AGENTS.md
+  - .ai/evidence/T-0005/installation.changed-path.baseline.csv
+  - .ai/evidence/T-0005/installation.execution.v0.1.md
+  - .ai/evidence/T-0005/commands.md
+  - .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create AGENTS.md only if it does not already exist
+  - write content exactly matching installation candidate Proposed Installed Content
+  - record changed-path baseline and audit
+  - set unified-governance-architecture.v0.2.1 installed to true for project-local
+    AGENTS.md installation
+  - update installation evidence, registry, gates, PROGRESS, and HANDOFF
+  - run validate_state.py
+  active: true
+  installed: true
+  forbidden_actions:
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - Target AGENTS.md did not exist before installation.
+  - This gate installs only the project-local AGENTS.md startup instruction file.
+- id: G-T-0005-REPAIR-REGISTRY-WORDING
+  task_id: T-0005
+  gate_type: user-repair
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T11:06:51+08:00'
+  evidence: .ai/evidence/T-0005/commands.md
+  registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
+  scope: repair registry forbidden_actions wording only
+  allowed_actions:
+  - repair AGENTS.md wording conflict in artifact registry forbidden_actions
+  - update necessary T-0005 evidence
+  - update PROGRESS.md
+  - update HANDOFF.md
+  - update gates.yaml
+  - run validate_state.py
+  - run audit_handoff.py
+  active: true
+  installed: true
+  forbidden_actions:
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - This repair resolves wording conflict after the approved project-local AGENTS.md
+    installation.
+  - It does not modify AGENTS.md or expand the installed scope.
+- id: G-T-0005-CLOSEOUT-REVIEW
+  task_id: T-0005
+  gate_type: user-closeout-review
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T11:44:36+08:00'
+  evidence: .ai/evidence/T-0005/closeout-review.v0.1.md
+  scope: closeout review only; decide whether T-0005 can complete and whether T-0006
+    is ready
+  review_result: FAIL_BLOCKED_BY_STALE_MEMORY
+  allowed_actions:
+  - read AGENTS.md and current .ai governance context
+  - read T-0005 task, gates, evidence, artifact registry, and stable project memory
+  - run validate_state.py
+  - run audit_handoff.py
+  - create .ai/evidence/T-0005/closeout-review.v0.1.md
+  - update .ai/evidence/T-0005/commands.md
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - update .ai/gates.yaml
+  - mark T-0005 completed in .ai/task_graph.yaml only if review passes
+  active: true
+  installed: true
+  forbidden_actions:
+  - modify AGENTS.md
+  - create T-0006
+  - enter real business project
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - historical task_graph cleanup without separate gate
+  notes:
+  - Installed AGENTS.md consistency passed.
+  - Overall T-0005 closeout did not pass because CONTRACTS.md and KNOWN_ISSUES.md
+    still contain stale pre-installation statements.
+  - T-0005 was not marked completed.
+  - At this failed review point, immediate T-0006 entry was not recommended until
+    a narrow stale-memory repair gate was approved and closeout passed.
+- id: G-T-0005-REPAIR-STALE-MEMORY
+  task_id: T-0005
+  gate_type: user-repair
+  artifact_id: unified-governance-architecture.v0.2.1
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T13:40:12+08:00'
+  evidence: .ai/evidence/T-0005/commands.md
+  scope: repair stale installation-state wording in CONTRACTS.md and KNOWN_ISSUES.md
+    only
+  repair_result: completed
+  allowed_actions:
+  - update .ai/CONTRACTS.md
+  - update .ai/KNOWN_ISSUES.md
+  - record this repair gate in .ai/gates.yaml
+  - update .ai/evidence/T-0005/commands.md stale-memory repair section
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  - run audit_handoff.py
+  active: true
+  installed: true
+  forbidden_actions:
+  - modify AGENTS.md
+  - create T-0006
+  - enter real business project
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - historical task_graph cleanup
+  - mark T-0005 completed
+  notes:
+  - CONTRACTS.md now records installed true only for this project's local AGENTS.md
+    startup instruction file.
+  - KNOWN_ISSUES.md no longer claims no installation gate exists or that installed
+    must remain false.
+  - This repair did not pass closeout by itself at the time; it was later superseded
+    by G-T-0005-CLOSEOUT-REVIEW-RERUN.
+  - T-0006 was not created by this gate.
+- id: G-T-0005-CLOSEOUT-REVIEW-RERUN
+  task_id: T-0005
+  gate_type: user-closeout-review-rerun
+  artifact_id: unified-governance-architecture.v0.2.1
+  source_gate_id: G-T-0005-CLOSEOUT-REVIEW
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T13:55:36+08:00'
+  evidence: .ai/evidence/T-0005/closeout-review.rerun.v0.1.md
+  scope: rerun T-0005 closeout review after stale-memory repair; mark T-0005 completed
+    if review passes
+  review_result: PASS
+  allowed_actions:
+  - rerun T-0005 closeout review
+  - review repaired CONTRACTS.md and KNOWN_ISSUES.md
+  - review AGENTS.md, artifact registry, gates, commands evidence, PROGRESS.md, HANDOFF.md,
+    and task_graph.yaml
+  - record closeout rerun evidence
+  - update .ai/evidence/T-0005/commands.md
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - update .ai/task_graph.yaml
+  - mark T-0005 completed if review passes
+  active: true
+  installed: true
+  forbidden_actions:
+  - modify AGENTS.md
+  - create T-0006
+  - enter real business project
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - Closeout rerun passed after stale-memory repair.
+  - T-0005 was marked completed in task_graph.yaml.
+  - T-0006 was not created.
+- id: G-T-0006-DESIGN-REAL-PRODUCT-ENTRY
+  task_id: T-0006
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T14:22:05+08:00'
+  evidence: .ai/evidence/T-0006/commands.md
+  artifact: .ai/evidence/T-0006/real-product-delivery-entry-design.v0.1.md
+  scope: real product delivery entry design only
+  allowed_actions:
+  - create T-0006 task and evidence
+  - update .ai/state.yaml
+  - update .ai/task_graph.yaml
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - produce T-0006 design content
+  - run validate_state.py
+  - run audit_handoff.py
+  active: true
+  installed: true
+  forbidden_actions:
+  - enter real business project
+  - create or modify real business project files
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - T-0006 designs the first product discovery protocol / real-project application
+    candidate.
+  - This gate does not approve applying the protocol to a real business project.
+  - active/installed fields preserve the already installed governance artifact state;
+    they do not mark T-0006 as approved or installed beyond candidate design.
+- id: G-T-0006-REPAIR-CANDIDATE-AND-MEMORY
+  task_id: T-0006
+  gate_type: user-repair
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T14:55:17+08:00'
+  evidence: .ai/evidence/T-0006/commands.md
+  artifact: .ai/evidence/T-0006/real-product-delivery-entry-design.v0.1.md
+  scope: repair T-0006 candidate and stale memory only
+  allowed_actions:
+  - update .ai/evidence/T-0006/real-product-delivery-entry-design.v0.1.md Required
+    Artifacts list
+  - update .ai/CONTRACTS.md stale T-0005/T-0006 wording
+  - update .ai/KNOWN_ISSUES.md stale T-0005/T-0006 wording
+  - update .ai/DECISIONS.md current decision state
+  - update .ai/evidence/T-0006/commands.md
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  - run audit_handoff.py
+  active: true
+  installed: true
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - create or modify real business project files
+  - create T-0007
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - mark T-0006 approved or active beyond candidate design
+  notes:
+  - This gate repairs T-0006 candidate and stale memory only.
+  - It does not approve real-project discovery, implementation, deployment, or high-risk
+    action.
+  - active/installed fields preserve the already installed governance artifact state;
+    they do not mark T-0006 as approved or installed beyond candidate design.
+- id: G-T-0007-REAL-PRODUCT-DISCOVERY
+  task_id: T-0007
+  gate_type: user-discovery-approval
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T15:39:31+08:00'
+  evidence: .ai/evidence/T-0007/commands.md
+  scope: discovery only for product idea "做一个服务器售后团队的智算服务工具(测试)" under current governance
+    project
+  target_project_root: null
+  allowed_paths:
+  - .ai/tasks/T-0007.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  - .ai/evidence/T-0007/commands.md
+  - .ai/evidence/T-0007/product-intent.v0.1.md
+  - .ai/evidence/T-0007/discovery-q-and-a.v0.1.md
+  - .ai/evidence/T-0007/product-brief.v0.1.md
+  - .ai/evidence/T-0007/acceptance-criteria.v0.1.md
+  - .ai/evidence/T-0007/technical-approach.candidate.v0.1.md
+  - .ai/evidence/T-0007/implementation-plan.candidate.v0.1.md
+  - .ai/evidence/T-0007/next-gate-recommendation.v0.1.md
+  allowed_actions:
+  - create T-0007 discovery task under the current governance project
+  - update governance state, task graph, gate register, progress, and handoff for
+    T-0007
+  - write T-0007 discovery evidence documents
+  - run validate_state.py
+  - run read-only verification commands
+  active: true
+  installed: true
+  forbidden_actions:
+  - create or modify real business project files
+  - create a product project
+  - build
+  - implementation
+  - deploy
+  - rollback
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  notes:
+  - This gate approves discovery only in C:\Users\Administrator\.codex\loop-engine-lab.
+  - Target project root is not provided.
+  - Technical approach and implementation plan remain candidates only.
+- id: G-T-0008-METHOD-REPAIR-DESIGN
+  task_id: T-0008
+  gate_type: user-method-repair-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T18:17:41+08:00'
+  evidence: .ai/evidence/T-0008/commands.md
+  scope: Loop engineering method repair candidate design only for one-person AI-assisted
+    software delivery
+  reference_depth_benchmark: C:\Users\Administrator\Documents\trae_projects\yb\harness\.codex\tasks\tk-20260614-001-agentic-backend-orchestration-design\artifacts
+  allowed_paths:
+  - .ai/tasks/T-0008.md
+  - .ai/evidence/T-0008/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create .ai/tasks/T-0008.md
+  - create .ai/evidence/T-0008/
+  - write Loop engineering method repair candidate design documents
+  - update .ai/state.yaml
+  - update .ai/task_graph.yaml
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  - read the Harness artifacts directory only as a design-depth benchmark when necessary
+  forbidden_actions:
+  - create a real product project
+  - enter a real business project root
+  - write real business project code
+  - build
+  - implement
+  - deploy
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - change global or project runtime behavior
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - treat reviewer PASS, validator success, tests, or AI recommendation as user approval
+  notes:
+  - The user explicitly approved this gate.
+  - The Harness artifacts directory may be read only as a depth benchmark.
+  - This gate produces candidate design only and does not install, enable, or modify
+    operating rules.
+- id: G-T-0009-METHOD-CANDIDATE-REVIEW
+  task_id: T-0009
+  gate_type: user-review-only
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-07T18:55:53+08:00'
+  evidence: .ai/evidence/T-0009/commands.md
+  scope: review-only and repair-recommendation-only for T-0008 Loop engineering method
+    candidate
+  reference_depth_benchmark: C:\Users\Administrator\Documents\trae_projects\yb\harness\.codex\tasks\tk-20260614-001-agentic-backend-orchestration-design\artifacts
+  allowed_paths:
+  - .ai/tasks/T-0009.md
+  - .ai/evidence/T-0009/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create .ai/tasks/T-0009.md
+  - create .ai/evidence/T-0009/
+  - read .ai/evidence/T-0008/ candidate method documents
+  - read the Harness artifacts directory only as a design-depth benchmark
+  - review T-0008 from project manager, product manager, domain analyst, architect,
+    backend/API, frontend/UX, QA/test, security, DevOps/SRE, governance/audit, and
+    handoff/context roles
+  - identify P0/P1/P2/P3 findings
+  - write T-0009 review evidence and repair recommendations
+  - update .ai/state.yaml
+  - update .ai/task_graph.yaml
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - continue T-0007 concrete product sample
+  - modify Harness artifacts
+  - create a real product project
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - build
+  - implement
+  - deploy
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - change global or project runtime behavior
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - treat reviewer PASS, validator success, tests, or AI recommendation as user approval
+  - treat T-0008 candidate method as baseline-approved, installed, or active operating
+    rules
+  - repair T-0008 artifacts
+  notes:
+  - The user explicitly approved this gate.
+  - This gate authorizes review and repair recommendations only.
+  - It does not approve baseline, repair, installation, AGENTS.md changes, real-project
+    entry, or runtime behavior changes.
+- id: G-T-0010-METHOD-CANDIDATE-REPAIR
+  task_id: T-0010
+  gate_type: repair-only / candidate-update-only
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-08T10:13:42+08:00'
+  evidence: .ai/evidence/T-0010/commands.md
+  scope: repair T-0008 candidate method based on T-0009 findings; all outputs remain
+    candidate-only
+  reference_depth_benchmark: C:\Users\Administrator\Documents\trae_projects\yb\harness\.codex\tasks\tk-20260614-001-agentic-backend-orchestration-design\artifacts
+  allowed_paths:
+  - .ai/tasks/T-0010.md
+  - .ai/evidence/T-0010/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create .ai/tasks/T-0010.md
+  - create .ai/evidence/T-0010/
+  - read .ai/evidence/T-0008/
+  - read .ai/evidence/T-0009/
+  - read the Harness artifacts directory only as a design-depth benchmark if needed
+  - repair T-0008 candidate method based on T-0009 findings while keeping outputs
+    candidate-only
+  - write T-0010 repair evidence package
+  - update .ai/state.yaml
+  - update .ai/task_graph.yaml
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - continue T-0007 concrete product sample
+  - modify Harness artifacts
+  - create a real product project
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - build
+  - implement
+  - deploy
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - change global or project runtime behavior
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - treat validator success, reviewer PASS, tests, or AI recommendations as user approval
+  - treat T-0010 repair as baseline approval
+  - treat the repaired candidate method as installed or active operating rules
+  notes:
+  - The user explicitly approved this gate in the T-0010 startup request.
+  - This gate authorizes repair-only candidate evidence.
+  - It does not approve baseline, installation, AGENTS.md changes, real-project entry,
+    or runtime behavior changes.
+- id: G-T-0011-METHOD-REPAIR-REVIEW-RERUN
+  task_id: T-0011
+  gate_type: review-rerun / baseline-readiness-review-only
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-08T11:12:18+08:00'
+  evidence: .ai/evidence/T-0011/commands.md
+  scope: review T-0010 repaired candidate package for baseline_candidate readiness
+    only
+  reference_depth_benchmark: C:\Users\Administrator\Documents\trae_projects\yb\harness\.codex\tasks\tk-20260614-001-agentic-backend-orchestration-design\artifacts
+  allowed_paths:
+  - .ai/tasks/T-0011.md
+  - .ai/evidence/T-0011/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create .ai/tasks/T-0011.md
+  - create .ai/evidence/T-0011/
+  - read .ai/evidence/T-0008/
+  - read .ai/evidence/T-0009/
+  - read .ai/evidence/T-0010/
+  - read the Harness artifacts directory only as a design-depth benchmark if needed
+  - review T-0010 repaired candidate package from approved roles
+  - verify T-0009 P1 repairs
+  - assess major T-0009 P2 repairs or deferrals
+  - recommend whether the repaired candidate can enter baseline_candidate
+  - update .ai/state.yaml
+  - update .ai/task_graph.yaml
+  - update .ai/gates.yaml
+  - update .ai/PROGRESS.md
+  - update .ai/HANDOFF.md
+  - run validate_state.py
+  review_result: PASS_RECOMMENDED_FOR_BASELINE_CANDIDATE
+  lifecycle_transition_recommendation: repaired -> baseline_candidate
+  forbidden_actions:
+  - continue T-0007 concrete product sample
+  - modify Harness artifacts
+  - create a real product project
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - build
+  - implement
+  - deploy
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - change global or project runtime behavior
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - treat validator success, reviewer PASS, tests, or AI recommendations as user approval
+  - treat T-0011 review PASS as baseline approval
+  - treat the repaired candidate method as installed or active operating rules
+  - create baseline approval, installation, AGENTS.md update, or real-project application
+    gate
+  notes:
+  - The user explicitly approved this gate in the T-0011 startup request.
+  - This gate authorizes review-rerun and baseline-readiness review only.
+  - It recommends a separate baseline approval gate next.
+  - It does not approve baseline, installation, AGENTS.md changes, real-project entry,
+    or runtime behavior changes.
+- id: G-T-0012-METHOD-BASELINE-APPROVAL
+  task_id: T-0012
+  gate_type: baseline-approval-only
+  requested_lifecycle_transition:
+    artifact_id: loop-engineering-method.repaired-candidate
+    from: baseline_candidate
+    to: baseline_approved
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T12:06:08+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T12:21:48+08:00'
+  approval_text: 批准 G-T-0012-METHOD-BASELINE-APPROVAL
+  evidence: .ai/evidence/T-0012/gate-request.G-T-0012-METHOD-BASELINE-APPROVAL.v0.1.md
+  decision_packet: .ai/evidence/T-0012/user-decision-packet.baseline-approval.v0.1.md
+  approval_evidence: .ai/evidence/T-0012/baseline-approval.record.v0.1.md
+  scope: decide whether to baseline-approve the T-0010 repaired Loop engineering method
+    candidate after T-0011 review-rerun
+  baseline_approval_result: baseline_approved_reference_only
+  allowed_paths:
+  - .ai/tasks/T-0012.md
+  - .ai/evidence/T-0012/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - read .ai/evidence/T-0008/
+  - read .ai/evidence/T-0009/
+  - read .ai/evidence/T-0010/
+  - read .ai/evidence/T-0011/
+  - present the baseline approval decision package to the user
+  - if explicitly approved by the user, record baseline approval in .ai governance
+    records only
+  - if explicitly rejected by the user, record rejection and next repair direction
+    if provided
+  - if the user requests repairs, record the repair request and recommend a separate
+    repair gate
+  - run validate_state.py
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate as approval
+  - install or enable the repaired method
+  - modify AGENTS.md
+  - create a real product project
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - build
+  - implement
+  - deploy
+  - roll back
+  - install or enable skill/MCP/agent/automation/protocol
+  - change global or project runtime behavior
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - treat validator success, reviewer PASS, tests, or AI recommendations as user approval
+  - treat baseline approval, if later granted, as installation or real-project application
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0012/commands.md
+  - .ai/evidence/T-0012/gate-request.G-T-0012-METHOD-BASELINE-APPROVAL.v0.1.md
+  - .ai/evidence/T-0012/user-decision-packet.baseline-approval.v0.1.md
+  validation_required:
+  - validate_state.py must block while this gate is pending
+  - after an explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests another repair path
+  - the decision is recorded in .ai governance records
+  notes:
+  - The user explicitly approved this gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - This gate baseline-approves the repaired method as a reference only.
+  - It does not install or enable the method.
+  - It does not modify AGENTS.md or apply anything to a real project.
+- id: G-T-0013-METHOD-OPERATING-RULES-DESIGN
+  task_id: T-0013
+  gate_type: installation-operating-rules-design-only
+  requested_lifecycle_transition:
+    artifact_id: loop-engineering-method.operating-rules-design
+    from: null
+    to: candidate
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T13:49:48+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T14:18:20+08:00'
+  approval_text: 批准 G-T-0013-METHOD-OPERATING-RULES-DESIGN
+  evidence: .ai/evidence/T-0013/gate-request.G-T-0013-METHOD-OPERATING-RULES-DESIGN.v0.1.md
+  decision_packet: .ai/evidence/T-0013/user-decision-packet.method-operating-rules-design.v0.1.md
+  design_candidate: .ai/evidence/T-0013/operating-rules-design.candidate.v0.1.md
+  approval_evidence: .ai/evidence/T-0013/operating-rules-design.approval.record.v0.1.md
+  scope: decide whether to accept the T-0013 operating-rules design package as a candidate
+    for later separately gated installation/rule-change work
+  design_approval_result: operating_rules_design_candidate_accepted
+  allowed_paths:
+  - .ai/tasks/T-0013.md
+  - .ai/evidence/T-0013/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - read AGENTS.md and current .ai governance context
+  - read T-0008, T-0009, T-0010, T-0011, and T-0012 method evidence
+  - create T-0013 task and evidence
+  - create a candidate operating-rules design package
+  - create an AGENTS.md candidate change draft as evidence only
+  - create a user decision packet
+  - create read-only subagent review evidence
+  - record this gate as pending
+  - update .ai state, task graph, gates, PROGRESS, and HANDOFF for the pending user
+    decision
+  - run validate_state.py and stop on the pending gate
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate as approval
+  - install or enable the repaired Loop engineering method
+  - modify AGENTS.md
+  - change global or project runtime behavior
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - implement
+  - build
+  - deploy
+  - release
+  - roll back
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat reviewer PASS, validator success, tests, AI recommendation, T-0011 review,
+    or T-0012 baseline approval as installation, activation, runtime behavior, or
+    real-project application approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0013/commands.md
+  - .ai/evidence/T-0013/gate-request.G-T-0013-METHOD-OPERATING-RULES-DESIGN.v0.1.md
+  - .ai/evidence/T-0013/user-decision-packet.method-operating-rules-design.v0.1.md
+  - .ai/evidence/T-0013/operating-rules-design.candidate.v0.1.md
+  - .ai/evidence/T-0013/lifecycle-boundary-review.v0.1.md
+  - .ai/evidence/T-0013/risk-and-forbidden-scope-review.v0.1.md
+  validation_required:
+  - validate_state.py must report the pending gate blocker after gate registration
+  - validate_state.py must pass after explicit user approval is recorded
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this design gate
+  - no installation, runtime behavior change, AGENTS.md modification, or real-project
+    application occurs during T-0013
+  notes:
+  - The user explicitly approved this gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - This gate accepts the T-0013 design package as candidate evidence only.
+  - It does not install or enable the method.
+  - It does not modify AGENTS.md or change runtime behavior.
+  - It does not authorize real-project application or production/high-risk action.
+- id: G-T-0014-METHOD-OPERATING-RULES-INSTALLATION
+  task_id: T-0014
+  gate_type: installation-rule-change-gate-preparation
+  requested_lifecycle_transition:
+    artifact_id: loop-engineering-method.operating-rules
+    from: baseline_approved_reference_only
+    to: pending_installation_decision
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T15:01:30+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T15:40:47+08:00'
+  approval_text: 批准 G-T-0014-METHOD-OPERATING-RULES-INSTALLATION
+  evidence: .ai/evidence/T-0014/gate-request.G-T-0014-METHOD-OPERATING-RULES-INSTALLATION.v0.1.md
+  decision_packet: .ai/evidence/T-0014/user-decision-packet.method-operating-rules-installation.v0.1.md
+  proposed_diff: .ai/evidence/T-0014/agents-md.proposed-diff.v0.1.patch
+  changed_path_baseline: .ai/evidence/T-0014/changed-path-baseline.v0.1.md
+  approval_evidence: .ai/evidence/T-0014/method-operating-rules-installation.approval.record.v0.1.md
+  scope: decide whether the exact prepared AGENTS.md operating-rules package may be
+    used by a later separate execution task
+  allowed_paths:
+  - .ai/tasks/T-0014.md
+  - .ai/evidence/T-0014/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  proposed_future_target_paths:
+  - AGENTS.md
+  allowed_actions:
+  - read AGENTS.md and current .ai governance context
+  - read T-0013 operating-rules design evidence
+  - create T-0014 task and evidence records
+  - create the user decision packet
+  - create the proposed AGENTS.md unified diff as evidence only
+  - record exact target file list and changed-path baseline
+  - prepare rollback, recovery, validation, risk, lifecycle, startup verification,
+    and failure recovery plans
+  - use subagents for read-only review only
+  - record this gate as pending
+  - update .ai state, task graph, gates, PROGRESS, and HANDOFF for the pending user
+    decision
+  - run validate_state.py and stop on the pending gate
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - set this gate to approved during T-0014
+  - treat this pending gate as approval
+  - modify AGENTS.md
+  - apply the proposed diff
+  - install or enable the repaired Loop engineering method
+  - change global or project runtime behavior
+  - enter a real business project root
+  - create or modify real business project files
+  - write business project code
+  - implement
+  - build
+  - deploy
+  - release
+  - roll back
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat reviewer PASS, validator success, tests, AI recommendation, subagent review,
+    T-0012 baseline approval, or T-0013 design approval as installation or runtime
+    authorization
+  high_risk_flags_for_t0014_preparation:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  high_risk_flags_if_future_installation_is_executed:
+    deployment: false
+    rollback: true
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0014/commands.md
+  - .ai/evidence/T-0014/gate-request.G-T-0014-METHOD-OPERATING-RULES-INSTALLATION.v0.1.md
+  - .ai/evidence/T-0014/user-decision-packet.method-operating-rules-installation.v0.1.md
+  - .ai/evidence/T-0014/agents-md.proposed-diff.v0.1.patch
+  - .ai/evidence/T-0014/changed-path-baseline.v0.1.md
+  - .ai/evidence/T-0014/rollback-recovery-plan.v0.1.md
+  - .ai/evidence/T-0014/validation-plan.v0.1.md
+  - .ai/evidence/T-0014/installation-risk-review.v0.1.md
+  - .ai/evidence/T-0014/lifecycle-boundary-review.v0.1.md
+  - .ai/evidence/T-0014/startup-behavior-verification-plan.v0.1.md
+  - .ai/evidence/T-0014/failure-recovery-steps.v0.1.md
+  - .ai/evidence/T-0014/subagent-review-summary.v0.1.md
+  - .ai/evidence/T-0014/method-operating-rules-installation.approval.record.v0.1.md
+  validation_required:
+  - validate_state.py must pass before T-0014 records the new pending gate
+  - validate_state.py must report the pending gate blocker after gate registration
+  - AGENTS.md hash must remain equal to the changed-path baseline during T-0014
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair
+  - no installation, runtime behavior change, AGENTS.md modification, or real-project
+    application occurs during T-0014
+  notes:
+  - T-0014 prepares the installation / rule-change gate only.
+  - The user explicitly approved this gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - Approval accepts the T-0014 package as the exact basis for a later separate execution
+    task.
+  - The proposed AGENTS.md diff is evidence only and has not been applied.
+  - T-0014 did not modify AGENTS.md, install or enable the repaired method, or change
+    runtime behavior.
+  - Recommended execution should be handled in a separate T-0015 or new phase.
+- id: G-T-0015-METHOD-OPERATING-RULES-EXECUTION
+  task_id: T-0015
+  gate_type: installation-rule-change-execution
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T16:26:02+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T16:35:40+08:00'
+  approval_text: 批准 G-T-0015-METHOD-OPERATING-RULES-EXECUTION
+  evidence: .ai/evidence/T-0015/gate-request.G-T-0015-METHOD-OPERATING-RULES-EXECUTION.v0.1.md
+  approval_evidence: .ai/evidence/T-0015/method-operating-rules-execution.approval.record.v0.1.md
+  executed_at: '2026-07-08T16:36:51+08:00'
+  execution_result: .ai/evidence/T-0015/execution-result.v0.1.md
+  startup_rule_verification: .ai/evidence/T-0015/startup-rule-verification.v0.1.md
+  validation_result: .ai/evidence/T-0015/validation-result.v0.1.md
+  target_pre_sha256: DE7270D5793EFDBAC0B0EC4CCF8BD4A5ADEA721029F9940408585BA6D0B69C87
+  target_post_sha256: 7D9B688C8364E4E2AA79D6878376B19D1E98FBC850A8116E297C50AB18F391BA
+  source_approval: G-T-0014-METHOD-OPERATING-RULES-INSTALLATION
+  approved_patch: .ai/evidence/T-0014/agents-md.proposed-diff.v0.1.patch
+  changed_path_baseline: .ai/evidence/T-0015/changed-path-baseline.v0.1.md
+  rollback_boundary: .ai/evidence/T-0015/rollback-boundary.v0.1.md
+  scope: apply the exact approved T-0014 AGENTS.md operating-rules diff only after
+    explicit T-0015 user approval
+  allowed_paths:
+  - AGENTS.md
+  - .ai/tasks/T-0015.md
+  - .ai/evidence/T-0015/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - record T-0015 startup validation and baseline evidence
+  - present this execution gate as pending
+  - if explicitly approved, apply the exact approved T-0014 patch to AGENTS.md
+  - record execution result, validation evidence, and rollback notes
+  - update governance records only as needed for T-0015 closeout
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - modify AGENTS.md while this gate is pending
+  - alter the approved T-0014 diff
+  - modify files outside the approved T-0015 paths
+  - install or enable skill, MCP, external agent runtime, automation, protocol service,
+    or tool behavior
+  - enter, create, or modify a real business project
+  - build, deploy, release, roll back, or touch database, permission, secret, payment,
+    production-data, or migration resources
+  - treat reviewer PASS, validator success, tests, AI recommendation, or T-0014 approval
+    as this execution approval
+  high_risk_flags:
+    deployment: false
+    rollback: true
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - This is the required separate execution gate for T-0015.
+  - T-0014 approval is package approval only.
+  - AGENTS.md baseline and patch dry-run passed before this gate was recorded.
+  - The user explicitly approved this gate.
+  - The exact approved T-0014 patch was applied to AGENTS.md.
+  - No external runtime, tool behavior, real-project, deployment, rollback, database,
+    permission, secret, payment, production-data, or migration action occurred.
+- id: G-T-0016-STARTUP-RULES-ACCEPTANCE-SMOKE-TEST
+  task_id: T-0016
+  gate_type: post-installation-startup-rules-verification
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T17:02:27+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T17:02:27+08:00'
+  approval_text: 批准 G-T-0016-STARTUP-RULES-ACCEPTANCE-SMOKE-TEST
+  evidence: .ai/evidence/T-0016/gate-approval.G-T-0016-STARTUP-RULES-ACCEPTANCE-SMOKE-TEST.v0.1.md
+  startup_validation: .ai/evidence/T-0016/startup-validation.v0.1.md
+  acceptance_report: .ai/evidence/T-0016/startup-routing-acceptance-report.v0.1.md
+  validation_closeout: .ai/evidence/T-0016/validation-and-closeout.v0.1.md
+  scope: verify installed project-local AGENTS.md startup and operating rules in a
+    fresh governed session only
+  allowed_paths:
+  - .ai/tasks/T-0016.md
+  - .ai/evidence/T-0016/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  verified_target_path: AGENTS.md
+  expected_agents_sha256: 7D9B688C8364E4E2AA79D6878376B19D1E98FBC850A8116E297C50AB18F391BA
+  allowed_actions:
+  - create T-0016 verification task and evidence
+  - record startup validation evidence
+  - verify AGENTS.md presence, installed content, and SHA256
+  - verify startup-routing expectations for simple Q&A, governed work, pending gates,
+    and real-project / high-risk boundaries
+  - update necessary .ai governance records for T-0016
+  - run validate_state.py
+  - run close_session.py
+  - run audit_handoff.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - alter T-0015 execution evidence
+  - enter, create, or modify a real business project
+  - write business code
+  - implement, build, deploy, release, or roll back
+  - install or enable skill, MCP, external agent runtime, automation, protocol service,
+    or tool behavior
+  - change global or project runtime behavior
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat validator success, reviewer PASS, tests, or AI recommendation as user approval
+  - start real-product delivery without a later separate explicit gate
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  notes:
+  - The user explicitly approved this verification-only gate.
+  - This gate does not authorize AGENTS.md changes, runtime/tool enablement, real-project
+    entry, implementation, build, deployment, rollback, or high-risk action.
+  - T-0016 verified the installed startup-routing rules as acceptance smoke-test evidence
+    only.
+- id: G-T-0017-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-DESIGN
+  task_id: T-0017
+  gate_type: real-project-delivery-architecture-governance-design
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T17:43:23+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T17:51:29+08:00'
+  approval_text: 批准 G-T-0017-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-DESIGN
+  evidence: .ai/evidence/T-0017/gate-request.G-T-0017-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-DESIGN.v0.1.md
+  decision_packet: .ai/evidence/T-0017/user-decision-packet.real-project-delivery-architecture-governance-design.v0.1.md
+  startup_validation: .ai/evidence/T-0017/startup-validation.v0.1.md
+  approval_evidence: .ai/evidence/T-0017/real-project-delivery-architecture-governance-design.approval.record.v0.1.md
+  scope: design-only candidate governance architecture for real software project delivery;
+    no real-project entry or implementation
+  allowed_paths:
+  - .ai/tasks/T-0017.md
+  - .ai/evidence/T-0017/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - read prior method evidence from T-0001, T-0002, T-0006, T-0008, T-0010, T-0011,
+    and T-0016
+  - produce candidate design artifacts for real-project delivery and architecture
+    governance
+  - define real-project entry, discovery, domain model, PRD, architecture baseline,
+    detailed design, implementation readiness, review, quality, evidence, and handoff
+    protocols
+  - use subagents for bounded read-only review or audit only
+  - update T-0017 governance records and evidence
+  - run validate_state.py, close_session.py, and audit_handoff.py
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate as approval
+  - enter, create, or modify a real business project
+  - write business code
+  - implement
+  - build
+  - deploy
+  - release
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill, MCP, external agent runtime, automation, protocol service,
+    or tool behavior
+  - change global or project runtime behavior
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat validator success, reviewer PASS, tests, AI recommendation, or subagent
+    conclusions as user approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0017/commands.md
+  - .ai/evidence/T-0017/startup-validation.v0.1.md
+  - .ai/evidence/T-0017/gate-request.G-T-0017-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-DESIGN.v0.1.md
+  - .ai/evidence/T-0017/user-decision-packet.real-project-delivery-architecture-governance-design.v0.1.md
+  validation_required:
+  - validate_state.py must report the pending gate blocker after gate registration
+  - after an explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  notes:
+  - The user explicitly approved this design-only candidate gate.
+  - The latest user request asked to read the document and dispatch subagents; read-only
+    explorers were dispatched as sidecar analysis only.
+  - Subagent conclusions are evidence only and cannot approve this gate or expand
+    scope.
+  - This approval does not authorize real-project entry, implementation, AGENTS.md
+    change, runtime/tool enablement, deployment, rollback, database, permission, secret,
+    payment, production-data, or migration action.
+- id: G-T-0018-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-REVIEW
+  task_id: T-0018
+  gate_type: real-project-delivery-architecture-governance-review
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T18:23:46+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T18:41:55+08:00'
+  approval_text: 批准 G-T-0018-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-REVIEW
+  evidence: .ai/evidence/T-0018/gate-request.G-T-0018-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-REVIEW.v0.1.md
+  decision_packet: .ai/evidence/T-0018/user-decision-packet.real-project-delivery-architecture-governance-review.v0.1.md
+  startup_validation: .ai/evidence/T-0018/startup-validation.v0.1.md
+  approval_evidence: .ai/evidence/T-0018/real-project-delivery-architecture-governance-review.approval.record.v0.1.md
+  scope: review-only assessment of the T-0017 real-project delivery and architecture
+    governance candidate package
+  allowed_paths:
+  - .ai/tasks/T-0018.md
+  - .ai/evidence/T-0018/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_read_paths:
+  - .ai/evidence/T-0017/
+  - .ai/tasks/T-0017.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions_after_approval:
+  - read current .ai governance context
+  - read T-0017 candidate package evidence
+  - review lifecycle and gate consistency
+  - review real-project entry isolation
+  - review product discovery usefulness
+  - review domain model and PRD completeness
+  - review architecture baseline quality
+  - review detailed design package depth
+  - review implementation readiness boundaries
+  - review review and quality gates
+  - review traceability and evidence schema
+  - review security, data, deployment, and high-risk boundaries
+  - review handoff and context hygiene
+  - review residual risks from T-0017
+  - review whether Markdown-only rules are sufficient
+  - identify controls that rely on AI self-discipline
+  - recommend whether later MCP, skill, wrapper, policy guard, or tool-entry restriction
+    design is needed
+  - create T-0018 review evidence and next-gate recommendation
+  - update T-0018 governance records and handoff
+  - run validate_state.py, close_session.py, and audit_handoff.py
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate as approval
+  - perform the T-0018 review before explicit user approval
+  - repair T-0017 artifacts without a later separate repair gate
+  - enter, create, or modify a real business project
+  - write business code
+  - implement
+  - build
+  - deploy
+  - release
+  - roll back
+  - modify AGENTS.md
+  - install or enable skill, MCP, external agent runtime, automation, protocol service,
+    policy guard, wrapper, or tool behavior
+  - change global or project runtime behavior
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat reviewer PASS, validator success, tests, AI recommendation, or subagent
+    conclusions as user approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0018/commands.md
+  - .ai/evidence/T-0018/startup-validation.v0.1.md
+  - .ai/evidence/T-0018/gate-request.G-T-0018-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-REVIEW.v0.1.md
+  - .ai/evidence/T-0018/user-decision-packet.real-project-delivery-architecture-governance-review.v0.1.md
+  - .ai/evidence/T-0018/review-scope.v0.1.md
+  - .ai/evidence/T-0018/package-coverage-review.v0.1.md
+  - .ai/evidence/T-0018/lifecycle-and-gate-review.v0.1.md
+  - .ai/evidence/T-0018/real-project-boundary-review.v0.1.md
+  - .ai/evidence/T-0018/architecture-and-design-depth-review.v0.1.md
+  - .ai/evidence/T-0018/enforcement-gap-review.v0.1.md
+  - .ai/evidence/T-0018/role-review-findings.v0.1.md
+  - .ai/evidence/T-0018/residual-risk-register.v0.1.md
+  - .ai/evidence/T-0018/review-summary.v0.1.md
+  - .ai/evidence/T-0018/next-gate-recommendation.v0.1.md
+  validation_required:
+  - validate_state.py must pass before this gate is recorded
+  - validate_state.py must report the pending gate blocker after this gate is recorded
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no review work, real-project entry, implementation, installation, AGENTS.md change,
+    runtime/tool enablement, deployment, rollback, database, permission, secret, payment,
+    production-data, or migration action occurs while this gate is pending
+  notes:
+  - The user explicitly approved this review-only gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - This gate does not authorize repair, implementation, real-project entry, AGENTS.md
+    modification, runtime/tool enablement, deployment, rollback, or high-risk action.
+- id: G-T-0019-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-DESIGN
+  task_id: T-0019
+  gate_type: real-project-governance-enforcement-architecture-design
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T19:23:10+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T19:31:57+08:00'
+  approval_text: 批准 G-T-0019-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-DESIGN
+  evidence: .ai/evidence/T-0019/gate-request.G-T-0019-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-DESIGN.v0.1.md
+  decision_packet: .ai/evidence/T-0019/user-decision-packet.real-project-governance-enforcement-architecture-design.v0.1.md
+  startup_validation: .ai/evidence/T-0019/startup-validation.v0.1.md
+  approval_evidence: .ai/evidence/T-0019/real-project-governance-enforcement-architecture-design.approval.record.v0.1.md
+  scope: design-only repair task for real-project governance enforcement architecture;
+    no implementation or enablement
+  source_finding: FIND-T0018-P1-001
+  allowed_paths:
+  - .ai/tasks/T-0019.md
+  - .ai/evidence/T-0019/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_read_paths:
+  - .ai/evidence/T-0018/
+  - .ai/tasks/T-0018.md
+  - .ai/evidence/T-0017/
+  - .ai/tasks/T-0017.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions_after_approval:
+  - read current .ai governance context
+  - read T-0018 review evidence and relevant T-0017 candidate package evidence
+  - produce candidate enforcement architecture artifacts
+  - design a machine-readable gate register for lifecycle stages
+  - define mandatory checker catalog and blocking semantics
+  - define how validate_state.py or later scripts detect missing evidence, pending
+    checks, forbidden scope, and stale handoff
+  - define policy guard / wrapper behavior for real-project entry and high-risk actions
+  - define tool-entry restrictions for deployment, rollback, database, permission,
+    secret, payment, production-data, migration, AGENTS.md, skill, MCP, automation,
+    protocol, runtime, and tool behavior changes
+  - define unavailable-checker failure modes
+  - define evidence paths and closeout/audit behavior
+  - distinguish AI self-discipline, script checks, MCP/skill guardrails, wrappers,
+    and true tool-entry enforcement
+  - define phased adoption from design-only to later possible implementation gate
+  - update T-0019 governance records and evidence
+  - run validate_state.py, close_session.py, and audit_handoff.py as appropriate after
+    approval
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate as approval
+  - perform T-0019 enforcement architecture design before explicit user approval
+  - install or enable any skill, MCP, policy guard, wrapper, automation, protocol,
+    runtime, or tool behavior
+  - modify AGENTS.md
+  - enter, create, or modify a real business project
+  - write business code
+  - implement
+  - build
+  - deploy
+  - release
+  - roll back
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat T-0018 review, validator success, tests, AI recommendation, or subagent
+    conclusions as user approval
+  - promote T-0017 or T-0019 to baseline, active, installed, or real-project-applicable
+    state
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0019/commands.md
+  - .ai/evidence/T-0019/startup-validation.v0.1.md
+  - .ai/evidence/T-0019/gate-request.G-T-0019-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-DESIGN.v0.1.md
+  - .ai/evidence/T-0019/user-decision-packet.real-project-governance-enforcement-architecture-design.v0.1.md
+  candidate_evidence_after_approval:
+  - .ai/evidence/T-0019/enforcement-architecture.candidate.v0.1.md
+  - .ai/evidence/T-0019/machine-readable-gate-register-schema.candidate.v0.1.md
+  - .ai/evidence/T-0019/checker-catalog-and-blocking-semantics.candidate.v0.1.md
+  - .ai/evidence/T-0019/policy-guard-and-wrapper-design.candidate.v0.1.md
+  - .ai/evidence/T-0019/tool-entry-restriction-model.candidate.v0.1.md
+  - .ai/evidence/T-0019/evidence-and-audit-enforcement-design.candidate.v0.1.md
+  - .ai/evidence/T-0019/failure-mode-and-recovery-design.candidate.v0.1.md
+  - .ai/evidence/T-0019/t0017-repair-coverage-map.v0.1.md
+  - .ai/evidence/T-0019/next-gate-recommendation.v0.1.md
+  validation_required:
+  - validate_state.py must pass before this gate is recorded
+  - validate_state.py must report the pending gate blocker after this gate is recorded
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no enforcement architecture design work, implementation, real-project entry, installation,
+    AGENTS.md change, runtime/tool enablement, deployment, rollback, database, permission,
+    secret, payment, production-data, or migration action occurs while this gate is
+    pending
+  notes:
+  - The user explicitly approved this design/repair gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - It was created in response to the T-0018 recommendation.
+  - It does not authorize implementation, installation, real-project entry, AGENTS.md
+    modification, runtime/tool enablement, deployment, rollback, or high-risk action.
+- id: G-T-0020-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-REVIEW
+  task_id: T-0020
+  gate_type: real-project-governance-enforcement-architecture-review
+  status: approved
+  decision: approved
+  requested_at: '2026-07-08T20:13:27+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-08T20:25:31+08:00'
+  approval_text: 批准 G-T-0020-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-REVIEW
+  evidence: .ai/evidence/T-0020/gate-request.G-T-0020-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-REVIEW.v0.1.md
+  decision_packet: .ai/evidence/T-0020/user-decision-packet.real-project-governance-enforcement-architecture-review.v0.1.md
+  startup_validation: .ai/evidence/T-0020/startup-validation.v0.1.md
+  approval_evidence: .ai/evidence/T-0020/real-project-governance-enforcement-architecture-review.approval.record.v0.1.md
+  scope: review-only assessment of the T-0019 enforcement architecture candidate package
+  source_task_id: T-0019
+  source_finding: FIND-T0018-P1-001
+  allowed_paths:
+  - .ai/tasks/T-0020.md
+  - .ai/evidence/T-0020/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_read_paths:
+  - .ai/evidence/T-0019/
+  - .ai/tasks/T-0019.md
+  - .ai/evidence/T-0018/
+  - .ai/tasks/T-0018.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/PROGRESS.md
+  - .ai/HANDOFF.md
+  allowed_actions_after_approval:
+  - read current .ai governance context
+  - read listed T-0019 primary review target evidence
+  - read listed T-0018 supporting review target evidence
+  - review whether T-0019 sufficiently repairs FIND-T0018-P1-001
+  - review distinctions among AI self-discipline, script checks, MCP or skill guardrails,
+    wrappers or policy guards, and true tool-entry enforcement
+  - review machine-readable gate register schema coverage
+  - review checker catalog and blocking semantics
+  - review policy guard and wrapper design
+  - review tool-entry restriction model
+  - review evidence and audit enforcement design
+  - review failure mode and recovery design
+  - identify residual reliance on AI self-discipline, verbal rules, or unverifiable
+    process
+  - recommend whether later baseline consideration may proceed
+  - create T-0020 review evidence and next-gate recommendation
+  - update T-0020 governance records and evidence
+  - run validate_state.py, close_session.py, and audit_handoff.py after approval and
+    review work as appropriate
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - treat this pending gate or the user request prompt as approval
+  - perform T-0020 review work before explicit user approval
+  - implement any checker
+  - install or enable MCP, skill, policy guard, wrapper, automation, protocol, runtime,
+    or tool behavior
+  - modify AGENTS.md
+  - enter, create, or modify a real business project
+  - write business code
+  - build
+  - deploy
+  - release
+  - roll back
+  - change databases, permissions, secrets, payment systems, production data, or migrations
+  - treat validator success, reviewer PASS, AI recommendation, or subagent conclusions
+    as user approval
+  - promote T-0019 to baseline, active, installed, or real-project-applicable state
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0020/commands.md
+  - .ai/evidence/T-0020/startup-validation.v0.1.md
+  - .ai/evidence/T-0020/gate-request.G-T-0020-REAL-PROJECT-GOVERNANCE-ENFORCEMENT-ARCHITECTURE-REVIEW.v0.1.md
+  - .ai/evidence/T-0020/user-decision-packet.real-project-governance-enforcement-architecture-review.v0.1.md
+  review_evidence_after_approval:
+  - .ai/evidence/T-0020/review-scope.v0.1.md
+  - .ai/evidence/T-0020/t0019-package-coverage-review.v0.1.md
+  - .ai/evidence/T-0020/enforcement-architecture-review.v0.1.md
+  - .ai/evidence/T-0020/gate-register-schema-review.v0.1.md
+  - .ai/evidence/T-0020/checker-and-blocking-semantics-review.v0.1.md
+  - .ai/evidence/T-0020/policy-guard-and-wrapper-review.v0.1.md
+  - .ai/evidence/T-0020/tool-entry-restriction-review.v0.1.md
+  - .ai/evidence/T-0020/evidence-and-audit-enforcement-review.v0.1.md
+  - .ai/evidence/T-0020/failure-mode-and-recovery-review.v0.1.md
+  - .ai/evidence/T-0020/t0018-repair-coverage-verdict.v0.1.md
+  - .ai/evidence/T-0020/residual-risk-register.v0.1.md
+  - .ai/evidence/T-0020/review-summary.v0.1.md
+  - .ai/evidence/T-0020/next-gate-recommendation.v0.1.md
+  allowed_review_conclusions:
+  - PASS_FOR_BASELINE_CONSIDERATION
+  - REPAIR_REQUIRED
+  - BLOCKED_BY_SCOPE_OR_MISSING_EVIDENCE
+  validation_required:
+  - validate_state.py must pass before this gate is recorded
+  - validate_state.py must report the pending gate blocker after this gate is recorded
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no review body, implementation, real-project entry, installation, AGENTS.md change,
+    runtime/tool enablement, deployment, rollback, database, permission, secret, payment,
+    production-data, or migration action occurs while this gate is pending
+  notes:
+  - The user explicitly approved this review-only gate.
+  - Approval is recorded as explicit user approval, not AI approval.
+  - This gate does not authorize implementation, installation, real-project entry,
+    AGENTS.md modification, runtime/tool enablement, deployment, rollback, or high-risk
+    action.
+- id: G-INSTALL-LOOP-GOVERNANCE-RUNTIME-V1
+  task_id: T-0021
+  gate_type: installation
+  status: approved
+  decision: approved
+  execution_status: completed
+  recorded_at: '2026-07-21T00:00:00+08:00'
+  approval_text: 批准 G-INSTALL-LOOP-GOVERNANCE-RUNTIME-V1
+  approval_actor: user
+  approval_source: explicit_user_message
+  evidence: candidates/governance-runtime-v1/gate-request.md
+  scope: install loop-governance skill package and three governance hooks into project
+    .zcode/
+  allowed_actions:
+  - backup .zcode/config.json to .zcode/config.json.bak-governance-v1
+  - copy candidates/governance-runtime-v1/payload/.zcode into project root
+  - run hook test suite and validate_state.py for verification
+  - update .ai/HANDOFF.md and T-0021 records
+  forbidden_actions:
+  - modify .ai/ governance records beyond T-0021 registration and evidence
+  - modify stable/, registry/, AGENTS.md
+  - delete or archive .zcode/tools/hooks/block_on_pending_gate.py or .bat
+  - enable any additional skill/MCP/agent/automation
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+    actions
+  active: false
+  installed: false
+  notes:
+  - Gate registered and decision recorded together; user approval already given explicitly.
+  - Approval is not execution: install starts only after an exact user execution request.
+  - Old .zcode/config.json used an invalid hooks schema; old hook never ran.
+  - Executed 2026-07-21 after exact user execution request; 15 hook tests passed;
+    validate_state.py ok.
+  - Live-fire verification (new-session injection, block, ask) pending user in a fresh
+    session.
+- id: G-T-0022-REQUIREMENTS-DESIGN
+  task_id: T-0022
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T14:15:00+08:00'
+  approval_text: 批准 G-T-0022-REQUIREMENTS-DESIGN
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: design-only; write docs/01-requirements.md for Loop Engine plugin
+  allowed_actions:
+  - read AGENTS.md, .ai/PROJECT.md, .ai/DECISIONS.md, README.md, .zcode-plugin/plugin.json
+  - create docs/01-requirements.md
+  - create T-0022 task and evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/PROGRESS.md, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify code files outside docs/
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - First task of the merged loop-engine project (S0-init).
+  - This gate authorizes requirements writing only.
+  - Requires explicit user approval before execution.
+- id: G-T-0023-ARCHITECTURE-DESIGN
+  task_id: T-0023
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T14:30:00+08:00'
+  approval_text: 批准 G-T-0023-ARCHITECTURE-DESIGN
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: design-only; write docs/02-architecture.md for Loop Engine plugin
+  allowed_actions:
+  - read docs/01-requirements.md, .zcode-plugin/plugin.json, hooks/hooks.json, skills/loop-governance/,
+    tools/
+  - create docs/02-architecture.md
+  - create T-0023 task and evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/PROGRESS.md, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify code files outside docs/
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - Second task of the merged loop-engine project.
+  - Input: docs/01-requirements.md (需求规格).
+  - This gate authorizes architecture design only.
+  - Requires explicit user approval before execution.
+- id: G-T-0024-INTERFACE-DESIGN
+  task_id: T-0024
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T14:45:00+08:00'
+  approval_text: G-T-0024-INTERFACE-DESIGN
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: design-only; write docs/03-interface-contract.md for Loop Engine plugin
+  allowed_actions:
+  - read docs/01-requirements.md, docs/02-architecture.md, hooks/, tools/, skills/,
+    commands/
+  - create docs/03-interface-contract.md
+  - create T-0024 task and evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify code files outside docs/
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - Third task of the merged loop-engine project.
+  - Input: docs/02-architecture.md (架构设计).
+  - Defines precise JSON schemas for Hook/MCP/Command/Skill interfaces.
+  - Requires explicit user approval before execution.
+- id: G-T-0025-IMPLEMENTATION
+  task_id: T-0025
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T15:05:00+08:00'
+  approval_text: 批准 G-T-0025-IMPLEMENTATION
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: implementation; fix and complete all code layers
+  allowed_actions:
+  - modify tools/tool_*.py (fix hardcoded paths)
+  - modify scripts/install.py (fix tool copy source)
+  - modify tests/*.py (fix broken imports and paths)
+  - create src/loop_engine/__init__.py and core modules
+  - create scripts/cost_tracker.py, scripts/evidence_chain.py
+  - create skills/loop-governance/examples/, templates/
+  - clean up corrupted files in .zcode/
+  - create T-0025 evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py and tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify hooks/ (hook logic is complete)
+  - modify skills/loop-governance/SKILL.md, config.yaml, chain.yaml
+  - install or enable additional skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - First implementation task. Fixes P0 blocking issues (broken MCP tools, install.py,
+    tests).
+  - Implements P1 missing core library and scripts.
+  - No AGENTS.md, hook logic, or governance config changes.
+  - Requires explicit user approval before execution.
+- id: G-T-0026-QUALITY-GATES
+  task_id: T-0026
+  gate_type: user-quality
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T15:25:00+08:00'
+  approval_text: 批准 G-T-0026-QUALITY-GATES
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: quality assurance; run lint/test/coverage/security/typecheck/build gates
+  allowed_actions:
+  - run ruff check, pytest, pip-audit, mypy
+  - fix lint/style issues in project code
+  - create quality report
+  - modify non-hook, non-governance Python files for quality fixes
+  - create T-0026 evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify hooks/ (gate_guard.py, path_guard.py, session_brief.py, hook_common.py)
+  - modify skills/loop-governance/SKILL.md, config.yaml, chain.yaml
+  - install or enable additional skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - Pre-delivery quality phase.
+  - Runs all six quality gates per config.yaml quality_gates spec.
+  - Requires explicit user approval before execution.
+- id: G-T-0027-DELIVERY
+  task_id: T-0027
+  gate_type: user-delivery
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T15:40:00+08:00'
+  approval_text: 批准 G-T-0027-DELIVERY
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: delivery preparation; update README, create delivery docs, final audit
+  allowed_actions:
+  - modify README.md
+  - create docs/06-delivery.md
+  - read all project files for audit
+  - create T-0027 evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify hooks/, tools/, src/ code
+  - install or enable additional skill/MCP/agent/automation/protocol
+  - deploy, rollback, database, permission, secret, payment, production-data, migration
+  notes:
+  - Final phase S6-delivery. Lightweight: README update + delivery doc + audit.
+  - Requires explicit user approval before execution.
+- id: G-T-0028-REQUIREMENTS-REPAIR
+  task_id: T-0028
+  gate_type: user-repair
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T16:05:00+08:00'
+  approval_text: 可以，开始
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: repair docs/01-requirements.md to cover 11 roles, 12 phases, role certification
+  allowed_actions:
+  - modify docs/01-requirements.md
+  - create T-0028 task and evidence
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md, hooks/, tools/, src/
+  - install or enable skill/MCP/agent/automation/protocol
+  notes:
+  - Triggered by independent reviewer finding 3 P0 gaps.
+  - User explicitly approved the repair direction.
+- id: G-T-0029-EXECUTION-HARDENING
+  task_id: T-0029
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-22T16:20:00+08:00'
+  approval_text: 开始做
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: harden execution layer
+  allowed_actions:
+  - rewrite agents/main-thread/SKILL.md
+  - modify .zcode/tools/validate_state.py
+  - modify agents/independent-reviewer/SKILL.md
+  - create scripts/task_contract.py
+  - create T-0029 evidence
+  - run validate_state.py and tests
+  forbidden_actions:
+  - modify AGENTS.md, hooks/
+  notes:
+  - User explicitly directed to proceed. Gate approval recorded.
+
+- id: G-T-0034-IMPLEMENT
+  task_id: T-0034
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T14:35:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0034-IMPLEMENT
+  scope: implement P0-001 baseline code per approved design documents
+  allowed_paths:
+  - .ai/tasks/T-0034.md
+  - .ai/evidence/T-0034/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - .ai/KNOWN_ISSUES.md
+  - loop_core/runtime_controller.py
+  - loop_core/approval_record.py
+  - loop_core/agent_adapter.py
+  - loop_core/executor.py
+  - loop_core/router.py
+  - loop_core/state_machine.py
+  - loop_core/__init__.py
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/governor_lib.py
+  - .zcode/skills/loop-governance/config.yaml
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - hooks/scripts/hook_common.py
+  - tests/test_runtime_controller.py
+  - tests/test_approval_record.py
+  - tests/test_agent_adapter.py
+  - tests/test_executor.py
+  - loop_core/schemas/
+  allowed_actions:
+  - write implementation code in loop_core/ per design documents
+  - fix gate_guard.py deadlock bug (cross-validate current_gate_id against gates.yaml)
+  - expand decision_recording_exempt in config.yaml
+  - write unit tests for new modules
+  - modify executor.py to integrate Controller and AgentAdapter
+  - update validate_state.py to detect current_gate_id inconsistency
+  - run tests and validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - create .zcode/hooks.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat test passing as user approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0034/commands.md
+  - .ai/evidence/T-0034/implementation-report.v0.1.md
+  - .ai/evidence/T-0034/test-results.v0.1.md
+  exit_criteria:
+  - all new modules implemented per design documents
+  - gate_guard deadlock fixed and verified
+  - config.yaml exemption expanded
+  - all new tests passing + existing 132 tests not broken
+  - validate_state.py detects current_gate_id inconsistency
+  notes:
+  - This gate implements the code designed under G-T-0034-DESIGN.
+  - User explicitly approved this gate as "批准 G-T-0034-IMPLEMENT".
+  - Runtime behavior changes are limited to loop_core/ and hook scripts.
+  - No external systems, real projects, or production environments affected.
+- id: G-T-0034-DESIGN
+  task_id: T-0034
+  gate_type: user-design
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T14:05:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0034-DESIGN
+  scope: design-only; produce P0-001 design documents for Runtime Controller + Approval
+    Record + Agent Adapter
+  allowed_paths:
+  - .ai/tasks/T-0034.md
+  - .ai/evidence/T-0034/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - .ai/KNOWN_ISSUES.md
+  - loop_core/runtime_controller.py
+  - loop_core/approval_record.py
+  - loop_core/agent_adapter.py
+  - loop_core/executor.py
+  - loop_core/router.py
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/continuity_auditor.py
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - tests/test_runtime_controller.py
+  - tests/test_approval_record.py
+  - tests/test_agent_adapter.py
+  - tests/test_executor.py
+  - loop_core/schemas/
+  allowed_actions:
+  - read all existing source files in loop_core/, hooks/scripts/, .zcode/tools/, tests/
+  - create .ai/tasks/T-0034.md
+  - create .ai/evidence/T-0034/ directory and design evidence files
+  - write design documents for Runtime Controller, Approval Record, Agent Adapter
+  - update .ai/state.yaml, .ai/task_graph.yaml, .ai/gates.yaml, .ai/HANDOFF.md
+  - run validate_state.py
+  forbidden_actions:
+  - write implementation code (reserved for G-T-0034-IMPLEMENT)
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - create .zcode/hooks.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat design completion as implementation approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0034/commands.md
+  - .ai/evidence/T-0034/design.runtime-controller.v0.1.md
+  - .ai/evidence/T-0034/design.approval-record.v0.1.md
+  - .ai/evidence/T-0034/design.agent-adapter.v0.1.md
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this design gate
+  - no implementation code, AGENTS.md modification, or runtime behavior change occurs
+  notes:
+  - This is the first gate of T-0034 (P0-001 baseline construction).
+  - Design documents are evidence only; they do not modify any running system.
+  - User explicitly approved this gate as "批准 G-T-0034-DESIGN".
+- id: G-T-0040-IMPLEMENT
+  task_id: T-0040
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  recorded_at: '2026-07-23T17:05:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准最终交付计划
+  scope: implementation-only; create EnforcementHub, enhance role_isolation hook, add enforcement_level declaration
+  allowed_paths:
+  - loop_core/enforcement_hub.py
+  - hooks/scripts/role_isolation.py
+  - tests/test_enforcement_hub.py
+  - .ai/tasks/T-0040.md
+  - .ai/evidence/T-0040/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - loop_core/hard_constraints.py
+  - loop_core/state_machine.py
+  allowed_actions:
+  - create loop_core/enforcement_hub.py
+  - modify hooks/scripts/role_isolation.py for HARD blocking
+  - create tests/test_enforcement_hub.py
+  - update .ai/ governance files
+  - run tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0040/commands.md
+  - tests/test_enforcement_hub.py
+  exit_criteria:
+  - enforcement_hub.py created and tests pass
+  - role_isolation.py upgraded to HARD blocking
+  notes:
+  - User approved the comprehensive final delivery plan including T-0040 through T-0047.
+  - This gate authorizes implementation of T-0040 (EnforcementHub + Hook enhancement).

@@ -1,0 +1,14 @@
+{
+  "evidence_id": "EVID-security-audit-s6",
+  "type": "security_scan",
+  "timestamp": "2026-07-23T00:00:00Z",
+  "verdict": "PASS",
+  "bindings": {
+    "code_fingerprint": "core code scanned via security_scan.py"
+  },
+  "result": {
+    "summary": "Core production code (hooks/tools/scripts/src/loop_core/loop_engine) passes security scan. Experimental scripts (auto_mutation.py) contain seeded test defects excluded from production audit.",
+    "metrics": {"P0_findings": 0, "P1_findings": 0, "files_scanned": 50},
+    "issues": []
+  }
+}

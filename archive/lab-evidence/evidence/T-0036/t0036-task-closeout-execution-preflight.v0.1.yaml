@@ -1,0 +1,31 @@
+schema: T0036TaskCloseoutExecutionPreflight/v1
+gate_id: G-T-0036-CLOSEOUT-DECISION-AND-EXECUTION-V0-1
+execution_request: 执行已批准的 G-T-0036-CLOSEOUT-DECISION-AND-EXECUTION-V0-1
+captured_at: '2026-07-21T16:04:22.8736351+08:00'
+gate_status: approved
+gate_execution_status: approved_not_started
+current_task_id: T-0036
+task_status_before: active
+task_graph_status_before: active
+current_gate_id_before: null
+blocking_findings_before: []
+validate_state_before: 0
+audit_handoff_before: 0
+t0036_evidence_file_count_before: 196
+t0036_evidence_directory_count_before: 3
+t0037_task_exists_before: false
+protected_hashes_before:
+  .ai/PROJECT.md: 2B972BC990A74D6564DAFF2A0DF243042C8DA06F07B21D6570E3BDDA2D4D0554
+  .ai/evidence/T-0036/t0036-f003-closure-decision-execution-report.v0.1.md: F3BE1EF97C90541620E98BF2DA451068F780841493BE4E8546F92C8D1756E6F0
+  .ai/evidence/T-0036/t0036-f003-post-completed-state-rereview-execution-report.v0.1.md: 462E69DDD0FEC746711652CC3A4BE52953B25C11F1E7F647BEE242651E065E98
+governance_preimages:
+  .ai/state.yaml: 68AA00A5B3346583F56337908EA6105A382FDB66FBCED6599FBD4F9085436700
+  .ai/HANDOFF.md: DBEA3BEF1A5237F6AEACAD3268DE2849860CEAB2D3FE869F01BA73DB5EC8A7A6
+  .ai/tasks/T-0036.md: 4318E8C4747D781C71291471F90CADDBDB1E9C40CB9C5D2EF18074C0AA9690C8
+  .ai/gates.yaml: 423195DCAFA3572455ABE476A5ADF87796EADC0B16CD84AB3E99B6AD3896762B
+  .ai/task_graph.yaml: B4ADE010B1B8089E43AA96FF31466F1CEF88E7127E06C3AE2A730AEA15C715C6
+scope_check:
+  candidate_or_test_write_authorized: false
+  installation_activation_runtime_enablement_authorized: false
+  downstream_task_creation_authorized: false
+  real_project_entry_authorized: false

@@ -1,0 +1,42 @@
+schema_version: 1
+gates:
+  - id: G-T-0001-EXAMPLE-APPROVED
+    task_id: T-0001
+    gate_type: user-approval
+    status: approved
+    decision: approved
+    evidence: .ai/evidence/T-0001/commands.md
+    approval_text: "批准 G-T-0001-EXAMPLE-APPROVED"
+    approval_evidence: .ai/evidence/T-0001/approval.record.v0.1.md
+    approval_actor: user
+    approval_source: explicit_user_message
+    high_risk_flags:
+      deployment: false
+      rollback: false
+      database: false
+      permission: false
+      secret: false
+      payment: false
+      production_data: false
+      migration: false
+      runtime_behavior: false
+  - id: G-T-0002-EXAMPLE-APPROVED-HIGH-RISK
+    task_id: T-0002
+    gate_type: user-deployment
+    status: approved
+    decision: approved
+    evidence: .ai/evidence/T-0002/commands.md
+    approval_text: "批准 G-T-0002-EXAMPLE-APPROVED-HIGH-RISK"
+    approval_evidence: .ai/evidence/T-0002/approval.record.v0.1.md
+    approval_actor: user
+    approval_source: explicit_user_message
+    high_risk_flags:
+      deployment: true
+      rollback: false
+      database: false
+      permission: false
+      secret: false
+      payment: false
+      production_data: false
+      migration: false
+      runtime_behavior: false

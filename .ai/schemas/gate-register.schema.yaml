@@ -1,0 +1,61 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Governance Gate Register
+type: object
+required:
+  - schema_version
+  - gates
+properties:
+  schema_version:
+    type: integer
+  gates:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - task_id
+        - gate_type
+        - status
+        - decision
+        - evidence
+      properties:
+        id:
+          type: string
+          pattern: "^G-"
+        task_id:
+          type: string
+          pattern: "^T-"
+        gate_type:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - approved
+            - rejected
+            - blocked
+        decision:
+          type: string
+        evidence:
+          type: string
+        approval_text:
+          type: string
+        approval_evidence:
+          type: string
+        allowed_action_classes:
+          type: array
+          items:
+            type: string
+        allowed_tools:
+          type: array
+          items:
+            type: string
+        allowed_paths:
+          type: array
+          items:
+            type: string
+        scope_source_gate_id:
+          type: string
+      additionalProperties: true
+    additionalProperties: false
+additionalProperties: false

@@ -1,0 +1,28 @@
+schema: T0036TaskCloseoutRegistrationBaseline/v1
+gate_id: G-T-0036-CLOSEOUT-DECISION-AND-EXECUTION-V0-1
+captured_at: '2026-07-21T15:42:03.1013450+08:00'
+pending_gate_count_before: 0
+current_task_id: T-0036
+current_task_status_before: active
+task_graph_status_before: active
+current_gate_id_before: null
+blocking_findings_before: []
+f003_disposition: CLOSED
+latest_rereview_verdict: PASS
+evidence_scope: .ai/evidence/T-0036/
+gate_id_conflict_check: no historical match under repository
+protected_sources:
+  .ai/PROJECT.md: 2B972BC990A74D6564DAFF2A0DF243042C8DA06F07B21D6570E3BDDA2D4D0554
+  AGENTS.md: 7D9B688C8364E4E2AA79D6878376B19D1E98FBC850A8116E297C50AB18F391BA
+governance_projection_preimages:
+  .ai/state.yaml: 26AA8DAF0BF534184A9AD738E1AAAD2ADFD90A420D70461C797E152E72F5464E
+  .ai/HANDOFF.md: 31211CEDFA1FA5031A02C989BDB4AE96889414E0099A70660BB9BF42E741394F
+  .ai/tasks/T-0036.md: 2C147F14C48C1A0AE4296C705E2D5FF4409178E414711D29F8C2BC63FD28EA90
+  .ai/gates.yaml: A92187B219CA72FBEC6F749D13FB918042DC88A2ABC34E8CBAAA13C704CF7E2E
+  .ai/task_graph.yaml: 5B96CC55CB98DE2BDE2196FEB5A265678736FC5674756A74FA976458746FA050
+evidence_preimages:
+  .ai/evidence/T-0036/t0036-f003-closure-decision-execution-report.v0.1.md: F3BE1EF97C90541620E98BF2DA451068F780841493BE4E8546F92C8D1756E6F0
+  .ai/evidence/T-0036/t0036-f003-post-completed-state-rereview-execution-report.v0.1.md: 462E69DDD0FEC746711652CC3A4BE52953B25C11F1E7F647BEE242651E065E98
+candidate_or_runtime_write_before_registration: false
+installation_activation_runtime_enablement_before_registration: false
+downstream_task_or_gate_creation_before_registration: false

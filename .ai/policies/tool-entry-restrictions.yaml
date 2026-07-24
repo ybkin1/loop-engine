@@ -1,0 +1,35 @@
+schema_version: 1
+policies:
+  - id: deployment-requires-separate-gate
+    action_family: deployment
+    required_gate_class: deployment
+  - id: rollback-requires-separate-gate
+    action_family: rollback
+    required_gate_class: rollback
+  - id: database-requires-separate-gate
+    action_family: database
+    required_gate_class: database
+  - id: permission-requires-separate-gate
+    action_family: permission
+    required_gate_class: permission
+  - id: secret-requires-separate-gate
+    action_family: secret
+    required_gate_class: secret
+  - id: payment-requires-separate-gate
+    action_family: payment
+    required_gate_class: payment
+  - id: production-data-requires-separate-gate
+    action_family: production_data
+    required_gate_class: production_data
+  - id: migration-requires-separate-gate
+    action_family: migration
+    required_gate_class: migration
+  - id: agents-md-change-requires-rule-change-gate
+    action_family: agents_md_change
+    required_gate_class: agents_md_change
+  - id: runtime-tool-enable-requires-enable-gate
+    action_family: runtime_tool_enablement
+    required_gate_class: runtime_tool_enablement
+  - id: real-project-entry-requires-entry-gate
+    action_family: real_project_entry
+    required_gate_class: real_project_entry

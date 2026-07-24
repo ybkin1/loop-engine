@@ -1,0 +1,29 @@
+schema: T0036F003FreshRereviewRegistrationBaseline/v1
+captured_at: '2026-07-20T20:24:03.9181694+08:00'
+gate_id: G-T-0036-FRESH-INDEPENDENT-REREVIEW-F003-CONTROLLED-TEST-RESULT-PROTOCOL-V0-1
+task_id: T-0036
+current_phase: S0-method-repair
+current_task_id: T-0036
+current_gate_id: null
+pending_gate_count: 0
+blocking_findings:
+  - T0036-F003
+repair_authorized: false
+implementation_authorized: false
+independent_rereview_authorized: false
+installation_authorized: false
+activation_authorized: false
+installation_eligibility: BLOCKED
+f003_repair_execution_result: PASS_PENDING_FRESH_INDEPENDENT_REREVIEW
+f003_repair_execution_completed: true
+fresh_independent_rereview_result: REPAIR_REQUIRED
+fresh_independent_rereview_completed: true
+candidate_inventory:
+  files: 17
+  directories: 2
+  reparse_points: 0
+  cache_or_compiled_artifacts: 0
+protected_subjects_unchanged: 33
+live_project_continuity_yaml: absent
+live_transaction_registry_yaml: absent
+t0037: absent

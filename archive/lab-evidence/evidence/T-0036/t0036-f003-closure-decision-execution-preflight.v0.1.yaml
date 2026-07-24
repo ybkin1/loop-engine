@@ -1,0 +1,28 @@
+schema: T0036F003ClosureDecisionExecutionPreflight/v1
+gate_id: G-T-0036-F003-CLOSURE-DECISION-V0-1
+execution_action_id: T0036-F003-CLOSURE-DECISION-EXECUTE-20260721
+captured_at: '2026-07-21T15:14:17.4922237+08:00'
+exact_execution_request: 执行已批准的 G-T-0036-F003-CLOSURE-DECISION-V0-1
+gate_status_before: approved
+gate_execution_status_before: approved_not_started
+pending_gate_count_before: 0
+current_task_id: T-0036
+task_status_before: active
+current_gate_id_before: null
+blocking_findings_before:
+  - T0036-F003
+latest_rereview_verdict: PASS
+latest_rereview_gate: G-T-0036-FRESH-INDEPENDENT-REREVIEW-F003-POST-COMPLETED-STATE-REPAIR-V0-1
+latest_rereview_evidence_hashes:
+  report: 462E69DDD0FEC746711652CC3A4BE52953B25C11F1E7F647BEE242651E065E98
+  protocol: 114B6AD67FC53D8026FD37C3B9E287BA3EB9E9F38DECC1D15407A1070FD71F18
+  handoff: F2DDD2A3E38DF389DDF154D816F1A5A0C44F1AF3708D11DEADCF3FA33B06863E
+governance_projection_preimages:
+  state: 781B1727AE1D66D0D04BA7DB613D75B831418ABE013B61682475BAD8429302A9
+  handoff: A6DB7699317B1B6096707DB1A6A88D1981C4F3994A68C0D5BFD8500DFD1AA426
+  task: 26381DF0AB3EB53D53A0A8D558DA9FAA131427CCBCCCB92DF4B74614580AA5CE
+  gates: 42A51BCF5F1E5F5393308B3B26B4BD0935BA4F4C6B27CEF5F4E19BB839C60D2E
+  task_graph: A71BAACBA43B31A47D82FBBB96F7F2AA312EAFCE0EBF1CE39F1F450D3E564C64
+candidate_or_runtime_write_before_execution: false
+installation_activation_runtime_enablement_before_execution: false
+downstream_task_or_real_project_entry_before_execution: false

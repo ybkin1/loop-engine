@@ -1,0 +1,23 @@
+{
+  "name": "loop-governance",
+  "version": "1.0.0",
+  "description": "Loop 工程治理 —— 把 AI 编码变成可交付、可验证、可维护的软件工程。提供角色协作、质量门禁、证据链和 Gate 状态机。",
+  "author": { "name": "Loop Engineering" },
+  "license": "MIT",
+  "keywords": ["governance", "quality", "code-review", "testing", "ci-cd", "evidence-chain"],
+  "homepage": "https://github.com/user/loop-plugin",
+  "skills": "./skills",
+  "hooks": "./hooks/hooks.json",
+  "commands": "./commands",
+  "mcpServers": {
+    "loop-tools": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["${ZCODE_PLUGIN_ROOT}/tools/server.py"],
+      "env": {
+        "LOOP_PLUGIN_ROOT": "${ZCODE_PLUGIN_ROOT}",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

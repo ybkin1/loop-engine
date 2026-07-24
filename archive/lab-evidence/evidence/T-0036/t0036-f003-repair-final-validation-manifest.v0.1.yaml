@@ -1,0 +1,52 @@
+schema: T0036F003RepairFinalValidation/v1
+gate_id: G-T-0036-REPAIR-F003-CONTROLLED-TEST-RESULT-PROTOCOL-V0-1
+task_id: T-0036
+completed_at: '2026-07-20T18:49:27.3917473+08:00'
+executor_result: PASS_PENDING_FRESH_INDEPENDENT_REREVIEW
+protocol: UnittestResultEnvelope/v1
+stdout_is_test_authority: false
+structured_run:
+  exact_argv:
+    - C:/Python312/python.exe
+    - -B
+    - scripts/unittest_result_adapter.py
+    - tests/test_project_governor_consistency.py
+  run_nonce: T0036-F003-FINAL-20260720
+  exit_code: 0
+  tests_run: 64
+  unique_discovered_test_ids: 64
+  failures: 0
+  errors: 0
+  skips: 0
+  unexpected_successes: 0
+  successful: true
+  envelope_result_sha256: 959B68653F2435C760529878A906F165FA90521749015787A44EF43E571D67F6
+  stdout_sha256: E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855
+  stdout_bytes: 0
+  stderr_sha256: 629BB344B1ACBC6386FBF53E7EF46311FFCADA3262430BCF515CFEAB4A5FD0AE
+  stderr_bytes: 25096
+final_changed_subjects:
+  - {path: candidates/T-0030-project-governor-repair/BOUNDARY.md, sha256: 409836AAAFD4C11C85523C373573297185B8B83C10612A95717B01316DA17F82, size: 8212, mtime_ns: 1784544522322144600}
+  - {path: candidates/T-0030-project-governor-repair/PROVENANCE.yaml, sha256: 3F9FBAABA429EB882C4BDBAB8839E102FCCB25BC76E3B950FD44CC37E9B76C35, size: 13686, mtime_ns: 1784544522324146700}
+  - {path: candidates/T-0030-project-governor-repair/scripts/validation_runner.py, sha256: 3B30B031C79DA8748F8F198F9B2B1FABDB91114783952BE2250E1CD437DCF3A3, size: 18342, mtime_ns: 1784543588742456300}
+  - {path: candidates/T-0030-project-governor-repair/scripts/unittest_result_adapter.py, sha256: C57A5EB8567B0E6E07E9950138A1D0B134E48494A7F2A339DA580386085058AA, size: 3298, mtime_ns: 1784543942698039800}
+  - {path: candidates/T-0030-project-governor-repair/tests/test_project_governor_consistency.py, sha256: FD896C3D4062938DCE0C6CA3C462DFE2BAA2DF626408D596AE6898E1C70856CB, size: 74828, mtime_ns: 1784543942703044700}
+candidate_inventory:
+  files: 17
+  directories: 2
+  reparse_points: 0
+  cache_or_compiled_artifacts: 0
+protected_postcheck:
+  repair_final_subjects_matched: 33
+  mismatches: 0
+  not_installed_sha256: CA19715176E4FD328515F5ECD36D1EB7B91AF7C70BC767C3F61EF9A52B2AB7E5
+  not_activated_sha256: 9BBB093D9C5E6129B1CE440575E9D289366FCDC7223C944532376D0C2E033EAE
+  global_close_session_sha256: 28D562B5BB1B80F28589E25DCE355472F058D39C2F94680E309BAB36AEED19D4
+  global_audit_handoff_sha256: 92DFA111C209CEE7283B1451E947C4E94EB5067A34A8AC9EC97674A78CB12545
+live_project_continuity_yaml: absent
+live_transaction_registry_yaml: absent
+t0037: absent
+installation_performed: false
+activation_performed: false
+runtime_tool_enablement_performed: false
+fresh_independent_rereview_performed: false

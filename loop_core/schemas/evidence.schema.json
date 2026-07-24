@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/evidence.schema.json",
+  "title": "Loop Evidence Record",
+  "description": "A structured, traceable, reproducible evidence record for quality gates.",
+  "type": "object",
+  "required": ["evidence_id", "type", "timestamp", "verdict"],
+  "properties": {
+    "evidence_id": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["test", "lint", "typecheck", "coverage", "audit", "build", "review", "security_scan"]
+    },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "BLOCKED", "WARN", "ERROR"]
+    },
+    "bindings": {
+      "type": "object",
+      "description": "What this evidence is bound to",
+      "properties": {
+        "requirement_version": { "type": "string" },
+        "architecture_version": { "type": "string" },
+        "code_fingerprint": { "type": "string", "description": "SHA256 of source tree" },
+        "test_version": { "type": "string" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "How this evidence was produced",
+      "properties": {
+        "command": { "type": "string" },
+        "args": { "type": "array", "items": { "type": "string" } },
+        "exit_code": { "type": "integer" },
+        "environment_hash": { "type": "string", "description": "SHA256 of env fingerprint" }
+      }
+    },
+    "result": {
+      "type": "object",
+      "description": "Structured result data",
+      "properties": {
+        "summary": { "type": "string" },
+        "metrics": { "type": "object" },
+        "issues": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "properties": {
+        "is_stale": { "type": "boolean" },
+        "stale_reason": { "type": "string" },
+        "stale_since": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
