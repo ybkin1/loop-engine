@@ -110,8 +110,14 @@ class PhaseExecutor:
         7. Gate approved → advance phase
     """
 
-    def __init__(self, mode: LoopMode = LoopMode.FULL):
+    def __init__(
+        self,
+        mode: LoopMode = LoopMode.FULL,
+        *,
+        fixture_mode: bool = False,
+    ):
         self.mode = mode
+        self.fixture_mode = fixture_mode
 
     def get_phases(self) -> list[Phase]:
         """Get the list of phases for the current mode."""
@@ -369,8 +375,11 @@ class PhaseExecutor:
         """
         agent_script = Path("agents") / role_id / "run.py"
         if not agent_script.exists():
-            # Fallback: simulate output for agents without a real script
-            return self._simulate_role_output(role_id, output_path)
+            if self.fixture_mode:
+                return self._simulate_role_output(role_id, output_path)
+            raise RuntimeError(
+                f"REAL_AGENT_UNAVAILABLE: no executable role agent for {role_id}"
+            )
 
         payload = json.dumps({
             "role_id": role_id,
@@ -488,29 +497,16 @@ class PhaseExecutor:
         project_root: Path,
         role_prompts: dict[str, str] | None = None,
         input_files: list[str] | None = None,
+        reentry: bool = False,
     ) -> PhasePlan:
         """Execute a complete Loop phase end-to-end.
 
-        Flow:
-        1. Read current state from .ai/state.yaml
-        2. Validate phase transition is allowed
-        3. Check previous gate is approved and no blockers exist
-        4. Freeze input file hashes
-        5. Build execution plan for the phase
-        6. Launch all roles (parallel where possible, serial where needed)
-        7. Validate each role output; retry incomplete up to max_retries
-        8. If any role is BLOCKED, mark phase BLOCKED
-        9. If all roles PASS, mark phase COMPLETE
-        10. Persist state and task graph back to files
-
         Args:
-            phase: The phase to execute
-            project_root: Project root directory (must contain .ai/)
-            role_prompts: Optional dict of role_id -> prompt string
-            input_files: Optional list of input file paths
-
-        Returns:
-            PhasePlan with execution results
+            phase: The phase to execute.
+            project_root: Project root directory (must contain .ai/).
+            role_prompts: Optional dict of role_id -> prompt string.
+            input_files: Optional list of input file paths.
+            reentry: True if this is a re-entry into an existing project (v3.1).
         """
         state = self._read_state(project_root)
 
@@ -524,7 +520,7 @@ class PhaseExecutor:
         else:
             current_phase = None
 
-        if current_phase is not None:
+        if current_phase is not None and not reentry:
             transition = can_transition_phase(current_phase, phase)
             if not transition.allowed:
                 plan = PhasePlan(
@@ -551,7 +547,7 @@ class PhaseExecutor:
             for t in state.get("tasks", [])
         )
 
-        entry = can_enter_phase(phase, prev_gate_status, has_blockers)
+        entry = can_enter_phase(phase, prev_gate_status, has_blockers, reentry=reentry)
         if not entry.allowed:
             plan = PhasePlan(
                 phase=phase,

@@ -1,6 +1,6 @@
 # 06 — 交付清单
 
-> Loop Engine v1.0.0 | 交付日期: 2026-07-22 | 阶段: S6-delivery
+> Loop Engine v3.0.0 | 交付日期: 2026-07-24 | 阶段: S6-delivery
 
 ---
 
@@ -111,7 +111,7 @@
 | `tests/test_quality_gates.py` | 11 | ✅ 全部通过 |
 | `tests/lab/test_project_governor_consistency.py` | 64 | ✅ 63 passed, 1 skipped |
 
-**总计: 193 tests, 191 passed, 1 skipped, 1 lab fixture skipped**
+**总计: 2116 tests, 2116 passed, 61 skipped, 18 xfailed**
 
 ## 3. 已知限制
 
@@ -124,7 +124,7 @@
 
 | 检查项 | 状态 |
 |--------|------|
-| plugin.json 合法 | ✅ |
+| plugin.json 合法（`.zcode-plugin/plugin.json`） | ✅ |
 | hooks.json 合法 | ✅ |
 | Lint 通过（核心代码） | ✅ |
 | 测试通过 | ✅ 191/193 |

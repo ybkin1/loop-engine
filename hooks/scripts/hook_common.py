@@ -391,320 +391,158 @@ def is_path_safe(root: Path, target) -> bool:
         return True
 
 
-# ── Bash 只读命令判断 ────────────────────────────────────────────────
+
+# ── Shell Tokenizer ────────────────────────────────────────────────────
+# v3.1: Replaces blind regex matching with proper quote/escape-aware
+# command extraction. Eliminates false positives like \binstall\b
+# matching URL paths and echo arguments.
 
 
-# 只读 Git 子命令（不修改仓库或工作区）
-_READONLY_GIT_SUBCOMMANDS = frozenset({
-    "status", "log", "diff", "show", "branch", "tag",
-    "stash list", "stash show",
-    "rev-parse", "rev-list",
-    "ls-files", "ls-tree", "ls-remote",
-    "config --list", "config --get", "config --get-regexp",
-    "remote -v", "remote show",
-    "describe", "name-rev", "shortlog",
-    "blame", "grep", "archive",
-    "reflog", "reflog show",
-    "cherry",
-    "bisect log", "bisect visualize",
-    "submodule status", "submodule summary",
-    "worktree list",
-    "notes show", "notes list",
-    "cat-file", "check-ignore", "check-ref-format",
-    "cherry-pick --continue --dry-run",
-    "help", "version",
-    "whatchanged",
+def shell_tokenize(command: str) -> list[str]:
+    """Extract actual command words from a shell command string.
+
+    Handles quotes, escapes, command separators, sudo prefixes,
+    variable assignments, and path prefixes.
+    """
+    if not command or not isinstance(command, str):
+        return []
+    commands: list[str] = []
+    i, n = 0, len(command)
+    current_word: list[str] = []
+    in_sq, in_dq = False, False
+    is_first = True
+    while i < n:
+        ch = command[i]
+        if ch == "'" and not in_dq:
+            in_sq = not in_sq; i += 1; continue
+        if ch == '"' and not in_sq:
+            in_dq = not in_dq; i += 1; continue
+        if in_sq or in_dq:
+            i += 1; continue
+        if ch == '\\' and i + 1 < n:
+            i += 2; continue
+        if ch in (';', '|', '&'):
+            _flush_cmd(current_word, commands, is_first)
+            current_word = []; is_first = True
+            if ch == '&' and i + 1 < n and command[i + 1] == '&': i += 1
+            if ch == '|' and i + 1 < n and command[i + 1] == '|': i += 1
+            i += 1; continue
+        if ch in (' ', '\t', '\n'):
+            if current_word and is_first:
+                _flush_cmd(current_word, commands, is_first); is_first = False
+            elif current_word: current_word = []
+            i += 1; continue
+        current_word.append(ch); i += 1
+    _flush_cmd(current_word, commands, is_first)
+    return commands
+
+
+def _flush_cmd(buf: list[str], cmds: list[str], is_first: bool) -> None:
+    if not buf: return
+    word = ''.join(buf); buf.clear()
+    if not word or not is_first: return
+    if '/' in word: word = word.rsplit('/', 1)[-1]
+    if '=' in word and word.split('=', 1)[0].isidentifier(): return
+    if word in ('sudo', 'exec', 'command', 'nohup', 'time', 'nice', 'env'): return
+    cmds.append(word)
+
+
+# ── Write Command Detection ────────────────────────────────────────────
+
+_WRITE_CMDS: frozenset[str] = frozenset({
+    "tee", "cp", "mv", "mkdir", "touch", "rm", "chmod", "chown",
+    "dd", "install", "ln", "patch", "rsync", "scp",
+    "tar", "unzip", "gunzip", "bunzip2", "openssl",
+    "pip", "pip3", "npm", "yarn", "pnpm", "apt-get", "apt", "yum", "dnf",
+    "brew", "choco", "cargo", "go", "curl", "wget",
+    "sed", "perl", "awk", "git",
 })
 
-# 写入性 Git 子命令（黑名单，优先安全）
-_WRITE_GIT_SUBCOMMANDS = frozenset({
-    "push", "commit", "merge", "rebase", "reset", "rm", "mv",
-    "checkout", "switch", "restore",
-    "stash push", "stash pop", "stash apply", "stash drop",
-    "stash clear", "stash save",
-    "branch -d", "branch -D", "branch -m", "branch -M",
-    "tag -d", "tag -s",
-    "add", "clean", "gc", "prune", "reflog delete",
-    "filter-branch", "filter-repo",
-    "bisect start", "bisect good", "bisect bad", "bisect reset",
-    "submodule add", "submodule update", "submodule deinit",
-    "notes add", "notes append", "notes edit", "notes remove",
-    "notes copy", "notes merge",
-    "config --add", "config --set", "config --unset",
-    "config --replace-all", "config --remove-section",
-    "config --rename-section",
-    "cherry-pick", "revert", "am", "apply",
-    "clone", "fetch", "pull", "bundle",
-    "replace", "update-index", "update-ref", "write-tree",
-    "commit-tree", "mktag", "mktree", "commit-graph",
+_GIT_WRITE: frozenset[str] = frozenset({
+    "add", "commit", "push", "merge", "rebase", "reset", "rm", "mv",
+    "checkout", "switch", "restore", "revert", "cherry-pick",
+    "fetch", "pull", "clone", "branch", "tag", "stash", "clean", "gc",
+    "filter-branch", "am", "apply", "bisect", "config", "submodule",
+    "notes", "worktree",
 })
+
+_RO_CMDS: frozenset[str] = frozenset({
+    "ls", "cat", "head", "tail", "less", "more", "file",
+    "find", "grep", "egrep", "fgrep", "rg", "ag", "ack",
+    "echo", "printf", "pwd", "whoami", "id", "hostname",
+    "uname", "date", "env", "printenv", "which", "where",
+    "type", "command", "stat", "du", "df", "wc", "sort",
+    "uniq", "diff", "cmp", "cut", "tr", "od", "xxd", "strings",
+    "readelf", "objdump",
+    # NOTE: "git" intentionally NOT in _RO_CMDS — write/read is determined
+    # by the git subcommand, checked in is_write_command()
+})
+
+_GIT_RO: frozenset[str] = frozenset({
+    "status", "log", "diff", "show", "blame", "grep",
+    "ls-files", "ls-tree", "ls-remote", "rev-parse", "rev-list",
+    "describe", "name-rev", "shortlog", "reflog", "help", "version",
+    "whatchanged", "cherry", "archive", "cat-file", "check-ignore",
+    "check-ref-format", "branch", "tag",
+})
+
+
+def is_write_command(word: str, full_cmd: str = "") -> bool:
+    if not word or word in _RO_CMDS: return False
+    if word not in _WRITE_CMDS: return False
+    if word in ('curl', 'wget'):
+        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*[oO]', full_cmd))
+    if word == 'git' and full_cmd:
+        m = re.search(r'\bgit\s+([a-z][a-z-]*)', full_cmd)
+        if m:
+            sub = m.group(1)
+            if sub in _GIT_WRITE:
+                return True
+            return False  # Unknown/other git subcommands → not write
+        return False
+    if word in ('sed', 'perl', 'awk'):
+        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*i', full_cmd))
+    if word == 'tar':
+        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*x', full_cmd))
+    if word == 'openssl':
+        return bool(full_cmd and 'enc' in full_cmd)
+    if word in ('pip', 'pip3', 'npm', 'yarn', 'pnpm', 'apt-get', 'apt', 'yum', 'dnf', 'brew', 'choco', 'cargo', 'go'):
+        return bool(full_cmd and re.search(r'\b(install|add|remove|uninstall|update|upgrade|build|publish)\b', full_cmd)) if full_cmd else True
+    return True
 
 
 def has_write_operations(command: str) -> bool:
-    """检查命令是否包含文件写入操作。
-
-    检查：重定向(>、>>)、tee、cp、mv、mkdir、touch、rm、chmod、chown、
-    以及 git 写入性子命令。
-    安全优先：只要是识别为写入操作就返回 True。
-    """
-    if not command or not isinstance(command, str):
-        return True  # 无法确定 → 安全优先，视为有写入
-
-    # 重定向运算符（含 append、stderr 合并等）
-    # 匹配 >>, >, 2>, 1>, &>, 但不匹配 <- 或 <<
-    if re.search(r'(?:^|\s|[;|&])(?:>>|[12]?>|&>)\s*[^\s;|&<]', command):
-        return True
-
-    # heredoc 写入（cat <<EOF > file 或 cat > file <<EOF）
-    if re.search(r'<<\s*\w+', command):
-        return True
-
-    # 显式写入命令（用词边界确保不匹配子字符串）
-    write_commands = [
-        r'\btee\b', r'\bcp\b', r'\bmv\b', r'\bmkdir\b',
-        r'\btouch\b', r'\brm\b', r'\bchmod\b', r'\bchown\b',
-        r'\bdd\b',            # dd 可写入文件
-        r'\binstall\b',       # install 可复制文件
-        r'\bln\b',            # ln 创建链接（修改文件系统）
-        r'\bsed\s.*-i',       # sed -i 原地修改
-        r'\bgit\s+add\b',
-        r'\bgit\s+commit\b',
-        r'\bgit\s+push\b',
-        r'\bgit\s+merge\b',
-        r'\bgit\s+rebase\b',
-        r'\bgit\s+reset\b',
-        r'\bgit\s+checkout\b',
-        r'\bgit\s+switch\b',
-        r'\bgit\s+restore\b',
-        r'\bgit\s+revert\b',
-        r'\bgit\s+cherry-pick\b',
-        r'\bgit\s+fetch\b',
-        r'\bgit\s+pull\b',
-        r'\bgit\s+clone\b',
-        r'\bgit\s+branch\s+.*-[dDmM]',
-        r'\bgit\s+submodule\s+(add|update|deinit)',
-        r'\bgit\s+clean\b',
-        r'\bgit\s+gc\b',
-        r'\bgit\s+filter-branch\b',
-        r'\bgit\s+stash\s+(?!list|show)',  # stash push/pop/apply/drop etc.
-        r'\bgit\s+tag\s+.*-[ds]',           # tag -d / tag -s
-        r'\bgit\s+am\b',
-        r'\bgit\s+apply\b',
-        r'\bgit\s+bisect\s+(?!log|visualize)',  # bisect start/good/bad/reset
-        r'\bgit\s+config\s+.*-(?:unset|add|set|replace|rename)',
-        r'\bgit\s+notes\s+(?!show|list)',   # notes add/append/edit/remove/copy/merge
-    ]
-    for pat in write_commands:
-        if re.search(pat, command):
-            return True
-
-    # find -delete（修改文件系统）
-    if re.search(r'\bfind\b', command) and '-delete' in command:
-        return True
-
+    """Check if command contains file write operations (v3.1 tokenizer-based)."""
+    if not command or not isinstance(command, str): return True
+    if re.search(r'(?:^|\s|[;|&])(?:>>|[12]?>|&>)\s*[^\s;|&<]', command): return True
+    if re.search(r'<<\s*\w+', command): return True
+    if re.search(r'\bfind\b', command) and '-delete' in command: return True
+    for w in shell_tokenize(command):
+        if is_write_command(w, command): return True
     return False
 
 
 def is_readonly_command(command: str) -> bool:
-    """判断 Bash 命令是否为只读操作（不修改文件系统）。
-
-    优先级：先检查是否包含写入操作（安全优先），再匹配只读模式。
-
-    只读命令包括：
-    - 测试运行器：pytest, python -m pytest, python test_*.py, nosetests, tox
-    - 版本控制只读：git status, git log, git diff, git show
-    - 文件查看：ls, cat, head, tail, less, more, find（不含 -delete）
-    - 代码检查只读：python -m flake8, python -m mypy, python -m ruff check
-    - Python 脚本执行（不包含重定向/tee 等写入操作）：python script.py
-    - 构建只读：python -m build --check, npm --dry-run
-    - 包管理只读：pip list, pip show, pip freeze, pip check
-    - 环境信息：which, type, echo, printf, pwd, whoami, id, uname, date, env
-
-    注意：如果命令中包含写入操作符（>、>>、2>、&>、tee、cp、mv），
-    即使命令以"只读"开头，也返回 False。
-    """
-    if not command or not isinstance(command, str):
-        return False
-
-    cmd_stripped = command.strip()
-    if not cmd_stripped:
-        return False
-
-    # ── 优先级 1：安全优先，先检查写入操作 ──
-    if has_write_operations(cmd_stripped):
-        return False
-
-    # ── 优先级 1.5：python -c / python -m 可能执行任意代码 ──
-    # python -c "..." 可以执行任意 Python 代码 → 不是只读
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-c\b', cmd_stripped):
-        return False
-
-    # python -m module：检查模块名是否包含写操作关键词
-    m_match = re.search(
-        r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-m\s+(\S+)',
-        cmd_stripped,
-    )
-    if m_match:
-        module = m_match.group(1).lower().rstrip(";")
-        # build --check 是只读的（仅校验元数据），已在下方优先级2显式放行
-        _WRITE_MODULE_KEYWORDS = frozenset({
-            "pip", "install", "uninstall", "upload", "deploy",
-            "compile", "migrate", "generate", "init", "create", "update",
-            "setup", "wheel", "twine", "publish", "venv", "virtualenv",
-            "ensurepip", "easy_install",
-        })
-        for kw in _WRITE_MODULE_KEYWORDS:
-            if kw in module:
-                return False
-        # build 只有带 --check 是只读的，其余视为写操作
-        if module == "build" and "--check" not in cmd_stripped:
-            return False
-
-    # ── 优先级 2：匹配只读模式 ──
-
-    # 测试运行器
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+(?:-m\s+)?)?pytest\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])nosetests\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+(?:-m\s+)?)?tox\b', cmd_stripped):
-        # tox can do writes, but without redirections/tee it's readonly from hook's perspective
-        return True
-    # python test_*.py / python -m unittest
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+(?:-m\s+)?)?unittest\b', cmd_stripped):
-        return True
-
-    # 代码检查（lint / type-check / static analysis）
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?flake8\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?mypy\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?ruff\s+check\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?pylint\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?bandit\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?isort\s+--check\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?black\s+--check\b', cmd_stripped):
-        return True
-
-    # 构建只读
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?build\s.*--check\b', cmd_stripped):
-        # python -m build --check: don't actually build, just check metadata
-        return True
-    if re.search(r'(?:^|[\s;|&])npm\s+.*--dry-run\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])yarn\s+.*--dry-run\b', cmd_stripped):
-        return True
-
-    # 包管理只读
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?pip\s+(list|show|freeze|check|search|config\s+list)\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])npm\s+(list|view|info|search|outdated|audit|ls|why)\b', cmd_stripped):
-        return True
-
-    # Git 只读子命令
-    if re.search(r'(?:^|[\s;|&])git\s+', cmd_stripped):
-        # 检查是否是只读 git 子命令
-        git_match = re.match(r'(?:^|[\s;|&])git\s+([a-z][a-z-]*(?:\s+[a-z][a-z-]*)?)', cmd_stripped)
-        if git_match:
-            subcmd = git_match.group(1).strip()
-            # 黑名单优先：写入性 git 操作 → 不是只读
-            for write_cmd in _WRITE_GIT_SUBCOMMANDS:
-                if subcmd == write_cmd or subcmd.startswith(write_cmd + " "):
-                    return False
-                if write_cmd.startswith(subcmd + " ") and " " in write_cmd:
-                    # subcmd is prefix of a write command → check more context
-                    pass
-            # 白名单：只读 git 操作
-            for ro_cmd in _READONLY_GIT_SUBCOMMANDS:
-                if subcmd == ro_cmd or ro_cmd.startswith(subcmd + " "):
-                    return True
-            # 未知 git 子命令 → 保守，不视为只读
-            return False
-
-    # 文件查看命令
-    if re.search(r'(?:^|[\s;|&])(?:ls|dir|vdir)\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])cat\b(?!.*[>])', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])head\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])tail\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])less\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])more\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])file\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])find\b(?!.*-delete\b)', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:grep|egrep|fgrep|rg|ag|ack)\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])stat\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])du\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])df\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])wc\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])sort\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])uniq\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])diff\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])cmp\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])cut\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])tr\b(?!.*[>])', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])od\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])xxd\b(?!.*[>])', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])strings\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])readelf\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])objdump\b', cmd_stripped):
-        return True
-
-    # 环境信息命令
-    if re.search(r'(?:^|[\s;|&])(?:which|where|type|command)\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])(?:pwd|whoami|id|hostname|uname|date|env|printenv)\b', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])echo\b(?!.*[>])', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])printf\b(?!.*[>])', cmd_stripped):
-        return True
-
-    # 一般 Python 脚本执行（不含重定向/写入操作）
-    # 模式: python script.py [args...]
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+([^\s;|&<>\'"]+\.py)\b', cmd_stripped):
-        return True
-
-    # 通用可执行脚本（./script.sh, bash script.sh 等 — 无写入操作时视为只读）
-    if re.search(r'(?:^|[\s;|&])(?:bash|sh|zsh|dash|fish)\s+', cmd_stripped):
-        return True
-    if re.search(r'(?:^|[\s;|&])\./(\w[\w./-]*)', cmd_stripped):
-        return True
-
-    # node script.js (无写入操作时)
-    if re.search(r'(?:^|[\s;|&])node\s+', cmd_stripped):
-        return True
-
-    # 无法归类 → 保守放行（P0-F 命令绕过矩阵记录此为已知限制）
+    """Check if Bash command is read-only (v3.1 tokenizer-based)."""
+    if not command or not isinstance(command, str): return False
+    cmd = command.strip()
+    if not cmd: return False
+    if has_write_operations(cmd): return False
+    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-c\b', cmd): return False
+    m = re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-m\s+(\S+)', cmd)
+    if m:
+        mod = m.group(1).lower().rstrip(";")
+        if any(kw in mod for kw in ("pip","install","uninstall","upload","deploy","compile","migrate","generate","init","create","update","setup","wheel","twine","publish","venv","virtualenv","ensurepip","easy_install")): return False
+        if mod == "build" and "--check" not in cmd: return False
+    # Known readonly patterns (from old implementation)
+    if re.search(r'(?:^|[\s;|&])npm\s+.*--dry-run\b', cmd): return True
+    if re.search(r'(?:^|[\s;|&])yarn\s+.*--dry-run\b', cmd): return True
+    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?build\s.*--check\b', cmd): return True
+    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+(?:-m\s+)?)?pytest\b', cmd): return True
+    for w in shell_tokenize(cmd):
+        if is_write_command(w, cmd): return False
     return True
 
-
-# ── HardConstraints Integration Helpers ─────────────────────────────────
 
 
 def load_tasks_for_context(root: Path) -> list[dict]:

@@ -2,12 +2,12 @@
 ZCode Host Adapter — Concrete implementation of HostAdapter for ZCode.
 
 Bridges Loop Core's host-independent protocol to ZCode's actual capabilities:
-- MEDIUM enforcement (hooks intercept Write/Edit, but Bash commands are not intercepted)
+- STRONG enforcement (PreToolUse hooks intercept Write/Edit/Bash/ApplyPatch/Agent)
 - Agent isolation via ZCode's Agent tool
 - State/gate/task management via .ai/ YAML files
 - Evidence freezing via SHA256 hashing
 
-Declares: ENFORCEMENT_LEVEL = MEDIUM (honest: can intercept writes, cannot intercept shell commands)
+Declares: ENFORCEMENT_LEVEL = STRONG (hooks.json has PreToolUse interception for Write+Edit+Bash+ApplyPatch+Agent)
 """
 from __future__ import annotations
 
@@ -57,8 +57,8 @@ class ZCodeAdapter(HostAdapter):
     @property
     def capabilities(self) -> HostCapabilities:
         return HostCapabilities(
-            can_intercept_writes=True,       # gate_guard + path_guard hooks
-            can_intercept_commands=False,     # Bash not intercepted by default
+            can_intercept_writes=True,       # PreToolUse hooks intercept Write/Edit
+            can_intercept_commands=True,      # PreToolUse hooks intercept Bash (hooks.json matcher includes "Bash")
             can_isolate_agents=True,          # Agent tool = fresh context
             can_enforce_exit_codes=True,      # exit 2 = deny in hooks
             has_hooks_api=True,               # hooks.json + events schema
@@ -66,10 +66,9 @@ class ZCodeAdapter(HostAdapter):
 
     @property
     def enforcement_level(self) -> EnforcementLevel:
-        # ZCode can intercept writes (hooks) and has Agent isolation,
-        # but cannot intercept arbitrary Bash commands.
+        # ZCode's PreToolUse hooks intercept Write/Edit/Bash/ApplyPatch/Agent.
         # Per enforcement.py: STRONG requires write + command + exit_code enforcement.
-        # ZCode is MEDIUM because command interception is missing.
+        # ZCode qualifies for STRONG because hooks.json matcher includes all operation types.
         return self.capabilities.enforcement_level()
 
     # ── File System ──

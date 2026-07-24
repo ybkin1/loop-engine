@@ -4,7 +4,7 @@ ZCode 插件。把 AI 编码变成具备完整软件工程纪律的可交付系�
 
 ## 版本
 
-**v1.0.0** — 2026-07-22
+**v3.0.0** — 2026-07-24
 
 ## 安装
 
@@ -39,13 +39,18 @@ python scripts/uninstall.py --project-root /path/to/your/project
 ```
 loop-engine/
 ├── .zcode-plugin/          ← ZCode 插件清单
-├── hooks/                  ← ZCode 执行层 hook（3 个）
+├── hooks/                  ← ZCode 执行层 hook（6 个）
 │   ├── hooks.json
 │   └── scripts/
-│       ├── session_brief.py    ← SessionStart 治理摘要注入
-│       ├── gate_guard.py       ← PreToolUse pending gate 阻断
-│       ├── path_guard.py       ← PreToolUse 保护区确认
-│       └── hook_common.py      ← 共享工具库
+│       ├── loop_auto_activate.py  ← SessionStart Loop 自动激活
+│       ├── template_injector.py   ← SessionStart 模板注入
+│       ├── session_brief.py       ← SessionStart 治理摘要
+│       ├── loop_enforcement.py    ← PreToolUse 写入拦截
+│       ├── gate_guard.py          ← PreToolUse gate 阻断
+│       ├── ledger_guard.py        ← PreToolUse 账本保护
+│       ├── role_isolation.py      ← PreToolUse 角色隔离 (v2.0 HARD)
+│       ├── path_guard.py          ← PreToolUse 路径保护
+│       └── hook_common.py         ← 共享工具库
 ├── skills/                 ← 治理技能（LLM 知识层）
 │   └── loop-governance/
 │       ├── SKILL.md            ← 治理启动器
@@ -62,17 +67,25 @@ loop-engine/
 │   ├── loop-validate.md
 │   ├── loop-verify-chain.md
 │   └── loop-cost.md
-├── src/loop_engine/        ← Python 核心库
-│   ├── __init__.py
-│   ├── constants.py
-│   └── exceptions.py
+├── loop_core/               ← Python 核心引擎
+│   ├── state_machine.py         ← 阶段状态机 + gate 逻辑
+│   ├── hard_constraints.py      ← 8 项硬约束（C1-C8）
+│   ├── enforcement_hub.py       ← Hook↔Core 治理决策桥 (v3.0)
+│   ├── intent_router.py         ← 意图识别与 Loop 路由
+│   ├── executor.py              ← 阶段/角色执行引擎
+│   ├── router.py                ← 项目分级路由
+│   ├── agent_adapter.py         ← Agent 适配器
+│   ├── approval_record.py       ← 批准记录
+│   └── ...                      ← 等 20+ 模块
 ├── scripts/                ← 独立工具脚本
 │   ├── install.py
 │   ├── uninstall.py
 │   ├── cost_tracker.py
 │   ├── evidence_chain.py
 │   └── gen_continuity.py
-├── tests/                  ← 测试套件（114 条）
+├── tests/                  ← 测试套件（2116 条）
+├── demo/                   ← 垂直切片验证项目 (v3.0)
+│   └── loop-demo-todo/         ← 完整 S1-S6 闭环 CLI 工具
 ├── docs/                   ← 设计文档
 │   ├── 00-project-charter.md
 │   ├── 01-requirements.md
@@ -95,7 +108,7 @@ loop-engine/
 
 | 层 | 组件 | 功能 |
 |----|------|------|
-| **执行层** | 3 个 Hook | SessionStart 摘要、gate 阻断、路径保护 |
+| **执行层** | 6 个 Hook | 写入拦截、gate 阻断、角色隔离(HARD)、路径保护、账本保护、自动激活 |
 | **知识层** | Skill + 11 Agent | 治理启动、角色协作、状态机 |
 | **工具层** | 7 个 MCP 工具 | 质量门禁、安全扫描、依赖分析、契约验证、证据链、成本报告 |
 | **命令层** | 3 个 Slash 命令 | 状态校验、证据链验证、成本报告 |
