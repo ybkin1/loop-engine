@@ -165,6 +165,119 @@ ROLE_CHALLENGES: dict[str, CapabilityChallenge] = {
             "verdict = BLOCKED (because P0 defects exist)",
         ],
     ),
+    # v3.3 — expanded to all 11 roles (Qoder certification.ts pattern)
+    "main-thread": CapabilityChallenge(
+        challenge_id="CHALLENGE-MAIN-001",
+        role_id="main-thread",
+        description="主控线程能力挑战：角色隔离与否决链",
+        required_tools=[],
+        required_inputs=["task_file.json"],
+        seeded_defects=[
+            {"id": "SD-010", "type": "self_review", "description": "developer==reviewer agent_id"},
+        ],
+        pass_conditions=[
+            "Detected self-review violation (developer==reviewer)",
+            "BLOCKED verdict not overwritten",
+            "All role outputs have verdict field",
+        ],
+    ),
+    "product-manager": CapabilityChallenge(
+        challenge_id="CHALLENGE-PM-001",
+        role_id="product-manager",
+        description="产品经理能力挑战：优先级分布与验收标准",
+        required_tools=[],
+        required_inputs=["user_stories.json"],
+        seeded_defects=[
+            {"id": "SD-011", "type": "p0_exceeds_30pct", "description": "P0 超过 30%"},
+            {"id": "SD-012", "type": "technical_keyword", "description": "需求含技术关键词"},
+        ],
+        pass_conditions=[
+            "P0 <= 30% of total stories",
+            "P3 >= 10% of total stories",
+            "All stories have Given-When-Then AC",
+            "No technical keywords in requirements",
+        ],
+    ),
+    "project-manager": CapabilityChallenge(
+        challenge_id="CHALLENGE-PJ-001",
+        role_id="project-manager",
+        description="项目经理能力挑战：DAG 与任务覆盖",
+        required_tools=[],
+        required_inputs=["task_graph.json"],
+        seeded_defects=[
+            {"id": "SD-013", "type": "dag_cycle", "description": "任务图存在循环依赖"},
+            {"id": "SD-014", "type": "p0_uncovered", "description": "P0 故事未覆盖"},
+        ],
+        pass_conditions=[
+            "No cycles in task dependency graph",
+            "All P0 stories covered by at least one task",
+            "All task IDs unique",
+            "All dependencies reference valid tasks",
+        ],
+    ),
+    "system-architect": CapabilityChallenge(
+        challenge_id="CHALLENGE-SA-001",
+        role_id="system-architect",
+        description="系统架构师能力挑战：依赖分析与文档完整性",
+        required_tools=["madge"],
+        required_inputs=["architecture.md", "dependency_graph.json"],
+        seeded_defects=[
+            {"id": "SD-015", "type": "circular_dep", "description": "domain↔infrastructure 循环依赖"},
+        ],
+        pass_conditions=[
+            "Circular dependency detected in dependency graph",
+            "Architecture doc has all 7 required sections",
+            "Each tech choice has verifiable rationale",
+        ],
+    ),
+    "module-architect": CapabilityChallenge(
+        challenge_id="CHALLENGE-MA-001",
+        role_id="module-architect",
+        description="模块架构师能力挑战：接口契约完整性",
+        required_tools=["validate_contract.py"],
+        required_inputs=["interface-contract.json"],
+        seeded_defects=[
+            {"id": "SD-016", "type": "ambiguous_type", "description": "函数返回类型为 any/object"},
+            {"id": "SD-017", "type": "missing_idempotency", "description": "有副作用的函数未声明幂等性"},
+        ],
+        pass_conditions=[
+            "No ambiguous types (object/any/unknown)",
+            "All exports have input/output/error types",
+            "All functions with side effects declare idempotency",
+            "Schema field is 'interface-contract/v1'",
+        ],
+    ),
+    "delivery-manager": CapabilityChallenge(
+        challenge_id="CHALLENGE-DM-001",
+        role_id="delivery-manager",
+        description="交付经理能力挑战：GO/NOGO 决策",
+        required_tools=[],
+        required_inputs=["release_checklist.json"],
+        seeded_defects=[
+            {"id": "SD-018", "type": "missing_rollback", "description": "缺回滚方案但标记 GO"},
+        ],
+        pass_conditions=[
+            "GO only when all signoffs PASS + all deliverables complete",
+            "NOGO when any deliverable incomplete",
+            "NOGO includes blocking_issues list",
+            "Decision is only GO or NOGO (no CONDITIONAL_GO)",
+        ],
+    ),
+    "release-engineer": CapabilityChallenge(
+        challenge_id="CHALLENGE-RE-001",
+        role_id="release-engineer",
+        description="发布工程师能力挑战：8 维度部署就绪检查",
+        required_tools=[],
+        required_inputs=["release_report.json"],
+        seeded_defects=[
+            {"id": "SD-019", "type": "missing_health_check", "description": "缺健康检查端点"},
+        ],
+        pass_conditions=[
+            "All 8 dimensions checked: build/deploy/health/logging/rollback/monitoring/config/secrets",
+            "Each check has evidence (file + line)",
+            "Overall PASS only when all 8 dimensions pass + upstream PASS",
+        ],
+    ),
 }
 
 
