@@ -92,13 +92,66 @@ TOOLS = {
         }
     },
     "cost_report": {
-        "description": "生成 token 成本报告——按角色/阶段聚合",
+        "description": "生成 token 成本报告",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_root": {"type": "string"}},
+            "required": ["project_root"]
+        }
+    },
+    # v3.4 — governance tools
+    "loop_certify_role": {
+        "description": "运行角色能力认证挑战，验证角色是否胜任",
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project_root": {"type": "string"}
+                "project_root": {"type": "string"},
+                "role_id": {"type": "string", "description": "角色ID 或 'all'"}
             },
-            "required": ["project_root"]
+            "required": ["role_id"]
+        }
+    },
+    "loop_governance_status": {
+        "description": "获取项目治理健康状态摘要 (HEALTHY/DEGRADED/BLOCKED)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_root": {"type": "string"}}
+        }
+    },
+    "loop_state": {
+        "description": "查询当前项目状态（阶段/任务/gate）",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_root": {"type": "string"}}
+        }
+    },
+    "loop_review_packet": {
+        "description": "生成人可读的 gate 审批包或否决升级包",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "packet_type": {"type": "string", "description": "GATE_APPROVAL | VETO_ESCALATION | CHANGE_REQUEST"},
+                "phase": {"type": "string"},
+                "task_id": {"type": "string"},
+                "vetos": {"type": "array", "items": {"type": "object"}},
+                "description": {"type": "string"}
+            },
+            "required": ["packet_type"]
+        }
+    },
+    "loop_audit_log": {
+        "description": "追加或验证链式哈希审计日志",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "event": {"type": "string"},
+                "actor": {"type": "string"},
+                "details": {"type": "object"},
+                "verify": {"type": "boolean", "description": "true=验证完整性, false=追加条目"}
+            },
+            "required": ["event", "actor"]
         }
     }
 }
@@ -157,6 +210,32 @@ def _dispatch(tool_name: str, args: dict) -> dict:
     elif tool_name == "cost_report":
         from tool_cost_tracker import run_report
         return run_report(project_root)
+    # v3.4 — governance tools
+    elif tool_name == "loop_certify_role":
+        from tool_certify_role import run
+        return run(args["role_id"], project_root)
+    elif tool_name == "loop_governance_status":
+        from tool_governance_status import run
+        return run(project_root)
+    elif tool_name == "loop_state":
+        from tool_state import run
+        return run(project_root)
+    elif tool_name == "loop_review_packet":
+        from tool_review_packet import run
+        return run(
+            args["packet_type"], project_root,
+            phase=args.get("phase", "unknown"),
+            task_id=args.get("task_id", ""),
+            vetos=args.get("vetos", []),
+            description=args.get("description", ""),
+        )
+    elif tool_name == "loop_audit_log":
+        from tool_audit_log import run
+        return run(
+            args["event"], args["actor"], project_root,
+            details=args.get("details"),
+            verify=args.get("verify", False),
+        )
 
     return {"error": f"unhandled tool: {tool_name}"}
 
