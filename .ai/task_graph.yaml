@@ -197,7 +197,7 @@ tasks:
   -
     id: T-0040
     title: P0 消除模型自觉依赖 — EnforcementHub + Hook增强 + 角色隔离升级 + enforcement_level声明
-    status: active
+    status: completed
     created_at: "2026-07-23T17:00:00+08:00"
     phase: S4-implementation
     loop_mode: FULL
@@ -236,4 +236,118 @@ tasks:
     created_at: "2026-07-22T16:30:00+08:00"
     updated_at: "2026-07-22T16:40:00+08:00"
     note: "loop_core/ created: 6 JSON schemas, state_machine, router, enforcement, contracts"
-edges: []
+  -
+    id: T-0041
+    title: 外部垂直切片验证 — 用 Loop 工程交付真实 CLI 工具
+    status: completed
+    created_at: "2026-07-23T18:00:00+08:00"
+    note: "垂直切片证据已记录（2026-07-24）：23 tests pass, S0→S6 governance trail complete"
+  -
+    id: T-0042
+    title: Loop 工程优化 — 变更迭代支持 + 3缺陷修复
+    status: completed
+    created_at: "2026-07-23"
+    note: "v3.1.0 已实现：REENTRY_TRANSITIONS + ProjectStatus + validate_reentry + shell tokenizer + hook拆分 + 5缺陷修复。证据记录于 2026-07-24。"
+  -
+    id: T-0043
+    title: 角色能力认证体系 — v3.2
+    status: completed
+    created_at: "2026-07-23"
+    note: "代码已全部实现（role_capability.py 486行 + 23测试）"
+  -
+    id: T-0044
+    title: Qoder 借鉴点移植 + hook 拆分 — v3.3
+    status: completed
+    created_at: "2026-07-23"
+    note: "6/7 items complete; atomic write in executor.py fixed in T-0048"
+  -
+    id: T-0046
+    title: Governance State Reconciliation and Delivery Integrity
+    status: in_progress
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0046.md
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/HANDOFF-NEXT.md
+      - .ai/project_continuity.yaml
+      - .ai/version-manifest.yaml
+      - .ai/evidence/T-0046/
+      - .zcode/tools/validate_state.py
+      - .zcode/tools/governor_lib.py
+      - .zcode/tools/continuity_auditor.py
+      - .zcode/tools/audit_handoff.py
+      - .gitignore
+      - README.md
+      - pyproject.toml
+      - docs/06-delivery.md
+      - loop_core/__init__.py
+      - src/loop_engine/__init__.py
+      - .zcode-plugin/plugin.json
+      - agents/main-thread/
+      - agents/test-engineer/
+      - tests/test_version_consistency.py
+      - tests/test_governance_consistency.py
+    note: "用户批准 G-T-0046-RECONCILIATION-IMPLEMENT；治理恢复执行中。"
+  -
+    id: T-0047
+    title: Governance Critical Path Hardening — Core Fail-Closed + role_isolation Tests + Negative Path Coverage
+    status: in_progress
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/enforcement_hub.py
+      - hooks/scripts/role_isolation.py
+      - tests/test_enforcement_hub.py
+      - tests/test_role_isolation.py
+      - tests/test_hooks.py
+      - tests/test_gate_guard_lifecycle.py
+      - .ai/tasks/T-0047.md
+      - .ai/evidence/T-0047/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "深度审计发现3项实质性风险（Core层fail-open, role_isolation零测试+fail-open, 负面路径测试不足），用户批准修复。"
+  -
+    id: T-0048
+    title: Finalize — Atomic Write + Hook Split Completion + Status Marking + Vertical Slice
+    status: in_progress
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/executor.py
+      - hooks/scripts/
+      - demo/loop-demo-todo/
+      - .ai/tasks/
+      - .ai/evidence/T-0048/
+      - .ai/evidence/T-0041/
+      - .ai/evidence/T-0042/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - CHANGELOG.md
+      - tests/
+    note: "收尾修复：executor原子写入 + hook拆分补全 + T-0043/T-0044标记完成 + T-0041垂直切片证据 + T-0042证据+CHANGELOG"
+edges:
+    - from: T-0040
+      to: T-0041
+    - from: T-0040
+      to: T-0042
+    - from: T-0040
+      to: T-0043
+    - from: T-0040
+      to: T-0044
+    - from: T-0044
+      to: T-0046
+    - from: T-0046
+      to: T-0047
+    - from: T-0047
+      to: T-0048

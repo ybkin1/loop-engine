@@ -2069,6 +2069,7 @@ gates:
   task_id: T-0040
   gate_type: user-implementation
   status: approved
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-23T17:05:00+08:00'
   requested_by: ai
@@ -2097,7 +2098,7 @@ gates:
   - run tests
   forbidden_actions:
   - modify AGENTS.md
-  - modify .zcode/config.json
+  - modify .zcode.config.json
   - install or enable skill/MCP/agent/automation/protocol
   - enter real business project
   - deploy / rollback / database / permission / secret / payment / production_data / migration
@@ -2120,3 +2121,182 @@ gates:
   notes:
   - User approved the comprehensive final delivery plan including T-0040 through T-0047.
   - This gate authorizes implementation of T-0040 (EnforcementHub + Hook enhancement).
+- id: G-T-0046-RECONCILIATION-IMPLEMENT
+  task_id: T-0046
+  gate_type: user-implementation
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-24T00:00:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0046-RECONCILIATION-IMPLEMENT
+  scope: governance reconciliation, delivery integrity, version consistency, role completeness, and cache hygiene
+  allowed_paths:
+  - .ai/tasks/T-0046.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/HANDOFF-NEXT.md
+  - .ai/project_continuity.yaml
+  - .ai/version-manifest.yaml
+  - .ai/evidence/T-0046/
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/governor_lib.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/audit_handoff.py
+  - .gitignore
+  - README.md
+  - pyproject.toml
+  - docs/06-delivery.md
+  - loop_core/__init__.py
+  - src/loop_engine/__init__.py
+  - .zcode-plugin/plugin.json
+  - agents/main-thread/
+  - agents/test-engineer/
+  - tests/test_version_consistency.py
+  - tests/test_governance_consistency.py
+  - hooks/scripts/gate_guard.py
+  - tests/test_gate_guard_lifecycle.py
+  allowed_actions:
+  - update governance projections and validators
+  - add consistency tests and evidence
+  - complete role contract artifacts
+  - add project-level cache ignore rules
+  - run validation and tests
+  forbidden_actions:
+  - modify historical evidence source files
+  - delete historical tasks, gates, or handoffs
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  approval_evidence: .ai/evidence/T-0046/approval.md
+  execution_evidence: .ai/evidence/T-0046/commands.md
+  evidence_required:
+  - .ai/evidence/T-0046/approval.md
+  - .ai/evidence/T-0046/commands.md
+  exit_criteria:
+  - current governance state is deterministic and traceable
+  - continuity and handoff checks pass
+  - version and role consistency checks pass
+  - tracked cache is removed from the repository index
+- id: G-T-0047-HARDENING
+  task_id: T-0047
+  gate_type: user-implementation
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-24T00:00:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 — 修复三项审计发现（Core fail-open, role_isolation fail-open, 负面路径测试不足）
+  scope: harden governance critical path — Core layer fail-closed, role_isolation tests + fail-closed, negative path test coverage
+  allowed_paths:
+  - loop_core/enforcement_hub.py
+  - hooks/scripts/role_isolation.py
+  - tests/test_enforcement_hub.py
+  - tests/test_role_isolation.py
+  - tests/test_hooks.py
+  - tests/test_gate_guard_lifecycle.py
+  - .ai/tasks/T-0047.md
+  - .ai/evidence/T-0047/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - modify loop_core/enforcement_hub.py to fail-closed on corrupted/missing governance files
+  - modify hooks/scripts/role_isolation.py to fail-closed on state read error
+  - create tests/test_role_isolation.py
+  - extend test_enforcement_hub.py with corruption/negative path tests
+  - extend test_hooks.py and test_gate_guard_lifecycle.py with negative path tests
+  - update governance records
+  - run tests and validate_state.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify historical evidence source files
+  - delete historical tasks, gates, or handoffs
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  approval_evidence: .ai/evidence/T-0047/approval.md
+  execution_evidence: .ai/evidence/T-0047/commands.md
+  evidence_required:
+  - .ai/evidence/T-0047/commands.md
+  - tests/test_role_isolation.py
+  exit_criteria:
+  - enforcement_hub fails closed on corrupted/missing governance YAML
+  - role_isolation.py has tests and fails closed on error
+  - ">=20 new negative path tests pass"
+  - all existing tests continue to pass (no regression)
+- id: G-T-0048-FINALIZE
+  task_id: T-0048
+  gate_type: user-implementation
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-24T00:00:00+08:00'
+  requested_by: ai
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 — 收尾修复所有剩余缺口
+  approval_evidence: .ai/evidence/T-0048/approval.md
+  execution_evidence: .ai/evidence/T-0048/commands.md
+  scope: finalize all remaining gaps — executor atomic write, hook split completion, status marking, vertical slice evidence
+  allowed_paths:
+  - loop_core/executor.py
+  - hooks/scripts/
+  - demo/loop-demo-todo/
+  - .ai/tasks/
+  - .ai/evidence/T-0048/
+  - .ai/evidence/T-0041/
+  - .ai/evidence/T-0042/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - CHANGELOG.md
+  - tests/
+  allowed_actions:
+  - modify loop_core/executor.py for atomic write
+  - create hook split modules
+  - mark T-0043/T-0044 completed
+  - create T-0041 evidence
+  - create T-0042 evidence and CHANGELOG
+  - update governance records
+  - run tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0048/approval.md
+  - .ai/evidence/T-0048/commands.md

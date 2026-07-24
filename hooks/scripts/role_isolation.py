@@ -129,12 +129,16 @@ def main():
     if not role_cfg.get("enabled", True):
         return EXIT_PASS
 
-    # Get current state
+    # Get current state — FAIL CLOSED on error
     try:
         state = load_state(root)
         task_id = state.get("current_task_id")
-    except Exception:
-        task_id = None
+    except Exception as e:
+        emit_deny(
+            f"无法读取治理状态（{e}）。按 fail-closed 策略阻断角色隔离检查；"
+            "请先修复 .ai/state.yaml。"
+        )
+        return EXIT_BLOCK
 
     if not task_id:
         return EXIT_PASS

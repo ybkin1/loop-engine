@@ -687,3 +687,54 @@ def auto_sync_to_plugin_cache(project_root_path: Path) -> bool:
         )
 
     return synced
+
+
+# ── v3.3 Module split: re-export from specialized modules ─────────────
+# The functions above remain for backward compatibility. New code should
+# import directly from the specialized modules:
+#   _hook_bash.py  — Bash command tokenization and analysis
+#   _hook_state.py — Governance state file reading
+#   _hook_path.py  — Path extraction, normalization, validation
+#   _hook_config.py — Configuration loading and fail-closed policy
+#   _hook_sync.py  — Plugin cache synchronization
+
+try:
+    from _hook_state import (  # noqa: E402, F401
+        load_state as _load_state_v2,
+        pending_gates as _pending_gates_v2,
+        load_tasks_for_context as _load_tasks_v2,
+        load_gates_for_context as _load_gates_v2,
+        load_phase_gates_for_context as _load_phase_gates_v2,
+    )
+    _SPLIT_STATE_AVAILABLE = True
+except ImportError:
+    _SPLIT_STATE_AVAILABLE = False
+
+try:
+    from _hook_path import (  # noqa: E402, F401
+        extract_target_path as _extract_target_path_v2,
+        normalize_rel as _normalize_rel_v2,
+        matches_protected as _matches_protected_v2,
+        is_path_safe as _is_path_safe_v2,
+    )
+    _SPLIT_PATH_AVAILABLE = True
+except ImportError:
+    _SPLIT_PATH_AVAILABLE = False
+
+try:
+    from _hook_config import (  # noqa: E402, F401
+        DEFAULT_CONFIG as _DEFAULT_CONFIG_V2,
+        load_config as _load_config_v2,
+        should_fail_closed as _should_fail_closed_v2,
+    )
+    _SPLIT_CONFIG_AVAILABLE = True
+except ImportError:
+    _SPLIT_CONFIG_AVAILABLE = False
+
+try:
+    from _hook_sync import (  # noqa: E402, F401
+        auto_sync_to_plugin_cache as _auto_sync_v2,
+    )
+    _SPLIT_SYNC_AVAILABLE = True
+except ImportError:
+    _SPLIT_SYNC_AVAILABLE = False

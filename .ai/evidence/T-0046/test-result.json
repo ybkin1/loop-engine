@@ -1,0 +1,41 @@
+{
+  "task_id": "T-0046",
+  "timestamp": "2026-07-24",
+  "validators": {
+    "validate_state.py": {
+      "exit_code": 0,
+      "status": "pass"
+    },
+    "audit_handoff.py": {
+      "exit_code": 0,
+      "status": "pass_with_legacy_warnings"
+    },
+    "validate_gate_register.py": {
+      "exit_code": 1,
+      "status": "legacy_issues"
+    },
+    "run_governance_checks.py": {
+      "exit_code": 1,
+      "status": "legacy_issues"
+    }
+  },
+  "pytest_new_tests": {
+    "total": 30,
+    "passed": 30,
+    "failed": 0,
+    "exit_code": 0
+  },
+  "pytest_full_suite": {
+    "total": 2335,
+    "passed": 2249,
+    "failed": 8,
+    "skipped": 61,
+    "xfailed": 16,
+    "xpassed": 1,
+    "exit_code": 1,
+    "failure_breakdown": {
+      "intentional_behavior_change": 1,
+      "pre_existing_windows_encoding": 7
+    }
+  }
+}

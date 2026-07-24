@@ -250,7 +250,8 @@ class PhaseExecutor:
             return state
 
     def _write_state(self, project_root: Path, plan: PhasePlan) -> None:
-        """Write current phase and mode back to .ai/state.yaml."""
+        """Write current phase and mode back to .ai/state.yaml (atomic write)."""
+        import os
         state_path = project_root / ".ai" / "state.yaml"
         state_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -271,7 +272,10 @@ class PhaseExecutor:
         if existing.get("current_task_id"):
             lines.append(f"current_task_id: {existing['current_task_id']}")
 
-        state_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        # Atomic write: .tmp + os.replace() (v3.3 — from Qoder state-machine.ts)
+        tmp_path = project_root / ".ai" / "state.yaml.tmp"
+        tmp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        os.replace(str(tmp_path), str(state_path))
 
     def _write_task_graph(self, project_root: Path, plan: PhasePlan) -> None:
         """Write phase execution summary to .ai/task_graph.yaml."""

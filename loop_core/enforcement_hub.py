@@ -37,6 +37,13 @@ from loop_core.state_machine import (
 
 logger = logging.getLogger(__name__)
 
+# ── Sentinel values for corrupted governance state ─────────────────────
+# When governance YAML files are missing or unparseable, the system MUST
+# FAIL CLOSED — not silently return empty defaults that bypass all checks.
+# These sentinels propagate through the read methods and are detected by
+# _governance_state_healthy() before any enforcement decision is made.
+_CORRUPT_SENTINEL = object()  # single shared sentinel for all three files
+
 
 class EnforcementLevel(str, Enum):
     """What level of enforcement this adapter/host provides."""
@@ -111,6 +118,38 @@ class EnforcementHub:
         self._state_cache: dict[str, Any] | None = None
         self._gates_cache: list[dict] | None = None
         self._tasks_cache: list[dict] | None = None
+        self._state_error: str | None = None
+        self._gates_error: str | None = None
+        self._tasks_error: str | None = None
+
+    @property
+    def _governance_state_healthy(self) -> bool:
+        """True iff governance state is intact OR project is not governed at all.
+
+        If .ai/ directory doesn't exist, this is not a governance project
+        and enforcement is skipped (healthy).  If .ai/ exists but any core
+        YAML file is missing or unparseable, FAIL CLOSED.
+        """
+        ai_dir = self._root / ".ai"
+        if not ai_dir.is_dir():
+            return True  # Not a governance project — nothing to enforce
+
+        # Force read to populate error flags
+        self._read_state()
+        self._read_gates()
+        self._read_tasks()
+        return not (self._state_error or self._gates_error or self._tasks_error)
+
+    def _governance_error_reason(self) -> str:
+        """Human-readable summary of governance file errors."""
+        parts = []
+        if self._state_error:
+            parts.append(f"state.yaml: {self._state_error}")
+        if self._gates_error:
+            parts.append(f"gates.yaml: {self._gates_error}")
+        if self._tasks_error:
+            parts.append(f"task_graph.yaml: {self._tasks_error}")
+        return "; ".join(parts) if parts else "unknown governance error"
 
     @property
     def root(self) -> Path:
@@ -121,17 +160,17 @@ class EnforcementHub:
             return self._state_cache
         sp = self._root / ".ai" / "state.yaml"
         if not sp.exists():
-            return {}
+            self._state_error = "file not found"
+            self._state_cache = {}
+            return self._state_cache
         try:
             import yaml
             with open(sp, "r", encoding="utf-8") as f:
                 self._state_cache = yaml.safe_load(f) or {}
-        except Exception:
+            self._state_error = None
+        except Exception as e:
+            self._state_error = f"parse error: {e}"
             self._state_cache = {}
-            for line in sp.read_text(encoding="utf-8").splitlines():
-                if ":" in line and not line.strip().startswith("#"):
-                    k, _, v = line.partition(":")
-                    self._state_cache[k.strip()] = v.strip().strip('"').strip("'")
         return self._state_cache
 
     def _read_gates(self) -> list[dict]:
@@ -139,6 +178,7 @@ class EnforcementHub:
             return self._gates_cache
         gp = self._root / ".ai" / "gates.yaml"
         if not gp.exists():
+            self._gates_error = "file not found"
             self._gates_cache = []
             return self._gates_cache
         try:
@@ -146,7 +186,9 @@ class EnforcementHub:
             with open(gp, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._gates_cache = data.get("gates", []) or []
-        except Exception:
+            self._gates_error = None
+        except Exception as e:
+            self._gates_error = f"parse error: {e}"
             self._gates_cache = []
         return self._gates_cache
 
@@ -155,6 +197,7 @@ class EnforcementHub:
             return self._tasks_cache
         tp = self._root / ".ai" / "task_graph.yaml"
         if not tp.exists():
+            self._tasks_error = "file not found"
             self._tasks_cache = []
             return self._tasks_cache
         try:
@@ -162,7 +205,9 @@ class EnforcementHub:
             with open(tp, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._tasks_cache = data.get("tasks", []) or []
-        except Exception:
+            self._tasks_error = None
+        except Exception as e:
+            self._tasks_error = f"parse error: {e}"
             self._tasks_cache = []
         return self._tasks_cache
 
@@ -329,7 +374,19 @@ class EnforcementHub:
 
     def should_allow_write(self, target_path: str,
                            allowed_paths: list[str] | None = None) -> EnforcementDecision:
-        """Check whether a file write should be allowed (C4+C3+C7+phase)."""
+        """Check whether a file write should be allowed (C4+C3+C7+phase).
+
+        FAILS CLOSED: if any governance file (.ai/state.yaml, .ai/gates.yaml,
+        .ai/task_graph.yaml) is missing or unparseable, all writes are denied.
+        """
+        # ── Fail-closed: governance state integrity check ──────────────
+        if not self._governance_state_healthy:
+            return EnforcementDecision(
+                allowed=False,
+                reason=f"Governance state corrupted — FAIL CLOSED: {self._governance_error_reason()}",
+                blocker_count=1,
+            )
+        # ── Normal enforcement ─────────────────────────────────────────
         ctx = self._build_context(target_path=target_path, allowed_paths=allowed_paths or [])
         result = self._hc.check_all(ctx)
         violations = list(result.violations)
@@ -356,7 +413,19 @@ class EnforcementHub:
                                    violations=violations)
 
     def should_allow_phase_advance(self, target_phase: Phase | str) -> EnforcementDecision:
-        """Check whether advancing to a new phase should be allowed."""
+        """Check whether advancing to a new phase should be allowed.
+
+        FAILS CLOSED: if any governance file is missing or unparseable,
+        phase advance is denied.
+        """
+        # ── Fail-closed: governance state integrity check ──────────────
+        if not self._governance_state_healthy:
+            return EnforcementDecision(
+                allowed=False,
+                reason=f"Governance state corrupted — FAIL CLOSED: {self._governance_error_reason()}",
+                blocker_count=1,
+            )
+        # ── Normal enforcement ─────────────────────────────────────────
         if isinstance(target_phase, str):
             try:
                 target_phase = Phase(target_phase)
@@ -453,8 +522,21 @@ class EnforcementHub:
 
 
 def quick_check(project_root: Path | str) -> EnforcementDecision:
-    """Quick check — are we clear to operate?"""
+    """Quick check — are we clear to operate?
+
+    FAILS CLOSED: if any governance file is missing or unparseable,
+    operation is denied.
+    """
     hub = EnforcementHub(project_root)
+
+    # ── Fail-closed: governance state integrity check ──────────────────
+    if not hub._governance_state_healthy:
+        return EnforcementDecision(
+            allowed=False,
+            reason=f"Governance state corrupted — FAIL CLOSED: {hub._governance_error_reason()}",
+            blocker_count=1,
+        )
+    # ── Normal checks ──────────────────────────────────────────────────
     violations: list[ConstraintViolation] = []
     for g in hub._read_gates():
         if isinstance(g, dict) and g.get("status") == "blocked":

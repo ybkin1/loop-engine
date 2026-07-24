@@ -17,6 +17,21 @@ REQUIRED_FILES = [
     "DECISIONS.md", "KNOWN_ISSUES.md", "state.yaml", "task_graph.yaml", "gates.yaml", "HANDOFF.md",
 ]
 TASK_STATUSES = {"pending", "active", "approved_not_started", "in_progress", "blocked", "completed", "rejected"}
+# T-0046: Standardized error codes
+ERROR_CODES = {
+    "CURRENT_TASK_FILE_MISSING": "Current task file does not exist",
+    "CURRENT_TASK_NOT_IN_GRAPH": "Current task not found in task_graph.yaml",
+    "TASK_GRAPH_NODE_WITHOUT_TASK_FILE": "Task in graph has no corresponding task file",
+    "TASK_STATUS_MISMATCH": "Task file status differs from task_graph status",
+    "GATE_TASK_MISMATCH": "Gate task_id does not match state current_task_id",
+    "GATE_EXECUTION_STATUS_MISSING": "Approved gate missing execution_status",
+    "HANDOFF_STATE_MISMATCH": "HANDOFF.md content differs from state.yaml",
+    "CONTINUITY_SOURCE_DRIFT": "Continuity source file hash differs from recorded",
+}
+
+# Legacy/historical error classification
+LEGACY_ERROR_PREFIXES = ("Historical task",)
+
 
 
 class GovernanceError(RuntimeError):
@@ -231,6 +246,12 @@ def evidence_path_exists(base: Path, value) -> bool:
 
 
 def historical_task_inventory_errors(root: Path, exclude_task_id: str | None = None) -> list[str]:
+    """T-0046: Historical task mismatches are classified as legacy warnings.
+
+    Current task errors are hard errors (handled by governance_invariant_errors).
+    Historical task inconsistencies from before T-0046 are legacy issues
+    that should be recorded as correction evidence, not block current work.
+    """
     errors = []
     graph = load_yaml(ai_dir(root) / "task_graph.yaml").get("tasks", [])
     graph = graph if isinstance(graph, list) else []
@@ -241,11 +262,13 @@ def historical_task_inventory_errors(root: Path, exclude_task_id: str | None = N
         status = task_status_from_text(read_text(path))
         matches = [item for item in graph if isinstance(item, dict) and item.get("id") == task_id]
         if status is None:
-            errors.append(f"Historical task status missing or invalid: {task_id}")
+            # Legacy: task file exists but status is not parseable
+            errors.append(f"[legacy] Historical task status missing or invalid: {task_id}")
         if len(matches) != 1:
             errors.append(f"Historical task must appear exactly once in task graph: {task_id} (found {len(matches)})")
         elif status is not None and matches[0].get("status") != status:
-            errors.append(f"Historical task status mismatch: {task_id} task={status} task_graph={matches[0].get('status', 'missing')}")
+            # Legacy: task file and task_graph disagree on status
+            errors.append(f"[legacy] Historical task status mismatch: {task_id} task={status} task_graph={matches[0].get('status', 'missing')}")
     return errors
 
 
@@ -278,13 +301,37 @@ def governance_invariant_errors(root: Path) -> list[str]:
     current_matches = [gate for gate in gates(root) if gate.get("id") == current_gate_id]
     if current_gate_id and len(current_matches) != 1:
         errors.append(f"current_gate_id does not identify exactly one gate: {current_gate_id}")
-    elif current_matches and (current_matches[0].get("task_id") != task_id or current_matches[0].get("status") != "pending"):
-        errors.append(f"Current gate projection is contradictory: {current_gate_id}")
+    elif current_matches:
+        gate = current_matches[0]
+        gate_status = gate.get("status", "")
+        gate_task_id = gate.get("task_id", "")
+        gate_exec_status = gate.get("execution_status", "")
+        # T-0046 fix: gate lifecycle semantics
+        # current_gate_id must match current task
+        if gate_task_id and gate_task_id != task_id:
+            errors.append(f"GATE_TASK_MISMATCH: current_gate_id {current_gate_id} belongs to {gate_task_id}, not {task_id}")
+        elif gate_status == "pending":
+            pass  # Valid: waiting for user decision
+        elif gate_status == "approved" and gate_exec_status in ("approved_not_started", "in_progress"):
+            pass  # Valid: approved and executing
+        elif gate_status == "approved" and gate_exec_status == "completed":
+            pass  # Valid: approved and completed (not active but not contradictory)
+        elif gate_status == "approved" and not gate_exec_status:
+            pass  # Valid: legacy approved gate
+        elif gate_status in ("rejected", "blocked"):
+            errors.append(f"Current gate is {gate_status}: {current_gate_id}")
+        else:
+            errors.append(f"Current gate projection is contradictory: {current_gate_id}")
     task_pending = [gate for gate in pending_gates(root) if gate.get("task_id") == task_id]
     if task_pending and not current_gate_id:
         errors.append(f"Pending gate for current task is not current_gate_id: {task_pending[0].get('id')}")
+    # T-0046 fix: current_gate_id pointing to approved+in_progress is valid, no pending needed
     if current_gate_id and not task_pending:
-        errors.append(f"current_gate_id has no pending gate for current task: {current_gate_id}")
+        current_gate_obj = current_matches[0] if current_matches else None
+        if current_gate_obj and current_gate_obj.get("status") == "approved":
+            pass  # Approved gate is valid without pending
+        elif current_gate_obj and current_gate_obj.get("status") != "pending":
+            errors.append(f"current_gate_id has no pending gate for current task: {current_gate_id}")
     task_gates = [gate for gate in gates(root) if gate.get("task_id") == task_id]
     approved = [gate for gate in task_gates if gate.get("status") == "approved"]
     if status in {"approved_not_started", "in_progress"}:

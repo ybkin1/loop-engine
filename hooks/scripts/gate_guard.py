@@ -3,13 +3,16 @@
 """
 gate_guard.py — ZCode PreToolUse hook：pending gate 存在时阻断写入操作。
 
-语义（与 .ai 治理契约一致）：
+语义（与 .ai 治理契约一致，T-0046 修复 Gate 生命周期）：
 - 非治理项目（无 .ai/state.yaml）→ 一律放行（exit 0）。
-- 存在 status == "pending" 的 gate，或 state.yaml 的 current_gate_id 非空
-  → 阻断（exit 2），stderr 输出需要用户决策的 gate 列表。
-- 例外：对 .ai/gates.yaml 本身的写入放行——这是"决策记录豁免"：
-  注册 pending gate 和记录用户决策都必须能写 gates.yaml，
-  否则用户批准之后 AI 反而无法落盘，形成死锁（见 references/decision-rules.md）。
+- 存在 status == "pending" 的 gate → 阻断（exit 2）。
+- current_gate_id 指向 approved+in_progress/approved_not_started → 放行（在 scope 内）。
+- current_gate_id 指向 approved+completed → 不作为当前执行 gate，放行。
+- current_gate_id 指向 rejected/blocked → 阻断。
+- current_gate_id 指向不存在的 gate → fail-closed 阻断。
+- current_gate_id 属于其他 task → fail-closed 阻断。
+- current_gate_id 非空本身不能直接等同于 pending。
+- 例外：对 .ai/gates.yaml 本身的写入放行——这是"决策记录豁免"。
 - 状态文件损坏时按 config.yaml 的 fail_on_state_error 决定（默认 closed = 阻断）。
 
 退出码：0 = 放行；2 = 阻断（ZCode 对 PreToolUse 的 deny 语义）。
@@ -50,6 +53,70 @@ EXIT_PASS = 0
 EXIT_BLOCK = 2
 
 
+def _load_gate_data(root):
+    """Load full gate data from gates.yaml for lifecycle checks."""
+    gates_path = root / ".ai" / "gates.yaml"
+    if not gates_path.exists():
+        return []
+    try:
+        import yaml as _yaml
+        with open(gates_path, "r", encoding="utf-8") as f:
+            data = _yaml.safe_load(f) or {}
+        return data.get("gates", []) if isinstance(data.get("gates"), list) else []
+    except Exception:
+        return []
+
+
+def _check_gate_lifecycle(root, current_gate_id, state):
+    """Check gate lifecycle for current_gate_id.
+
+    Returns:
+        "allow" — gate is approved and execution is in progress or not started
+        "block_pending" — gate is actually pending (needs user decision)
+        "block_rejected" — gate is rejected or blocked
+        "block_missing" — gate referenced by state but not in register (fail-closed)
+        "block_task_mismatch" — gate belongs to a different task (fail-closed)
+        "skip" — gate is approved+completed, not active
+        "allow_legacy" — approved with no execution_status (legacy gate)
+    """
+    gate_id_str = str(current_gate_id)
+    gate_list = _load_gate_data(root)
+
+    gate_data = None
+    for g in gate_list:
+        if isinstance(g, dict) and str(g.get("id")) == gate_id_str:
+            gate_data = g
+            break
+
+    if gate_data is None:
+        return "block_missing"
+
+    status = gate_data.get("status", "")
+    exec_status = gate_data.get("execution_status", "")
+    gate_task_id = str(gate_data.get("task_id", ""))
+    state_task_id = str(state.get("current_task_id", ""))
+
+    # Fail-closed: gate belongs to a different task
+    if gate_task_id and state_task_id and gate_task_id != state_task_id:
+        return "block_task_mismatch"
+
+    if status == "pending":
+        return "block_pending"
+    elif status == "approved":
+        if exec_status == "completed":
+            return "skip"
+        elif exec_status in ("approved_not_started", "in_progress"):
+            return "allow"
+        else:
+            # Approved but no execution_status → legacy gate, allow
+            return "allow_legacy"
+    elif status in ("rejected", "blocked"):
+        return "block_rejected"
+    else:
+        # Unknown status → fail-closed
+        return "block_missing"
+
+
 def main():
     hook_input = read_stdin_json()
     root = project_root(hook_input)
@@ -85,9 +152,60 @@ def main():
         logger.warning("状态不可读（%s），按 fail-open 放行。", e)
         return EXIT_PASS
 
+    # ── Gate lifecycle check (T-0046 fix) ──
+    # current_gate_id alone does NOT mean "pending".
+    # Must cross-reference gates.yaml to determine actual gate status.
     current_gate_id = state.get("current_gate_id")
-    if current_gate_id and str(current_gate_id) not in pending:
-        pending.append(str(current_gate_id))
+    if current_gate_id:
+        gate_id_str = str(current_gate_id)
+        lifecycle = _check_gate_lifecycle(root, gate_id_str, state)
+
+        if lifecycle == "block_missing":
+            logger.warning(
+                "BLOCKED: current_gate_id '%s' 在 gates.yaml 中不存在。"
+                "治理状态漂移，请先修复 gate register。",
+                gate_id_str,
+            )
+            return EXIT_BLOCK
+
+        elif lifecycle == "block_task_mismatch":
+            gate_data = next(
+                (g for g in _load_gate_data(root) if str(g.get("id")) == gate_id_str), None
+            )
+            gate_task = gate_data.get("task_id", "?") if gate_data else "?"
+            state_task = state.get("current_task_id", "?")
+            logger.warning(
+                "BLOCKED: current_gate_id '%s' 属于 task '%s'，但当前 task 是 '%s'。",
+                gate_id_str, gate_task, state_task,
+            )
+            return EXIT_BLOCK
+
+        elif lifecycle == "block_rejected":
+            logger.warning(
+                "BLOCKED: current_gate_id '%s' 状态为 rejected/blocked。"
+                "在用户明确处理之前，禁止写入操作。",
+                gate_id_str,
+            )
+            return EXIT_BLOCK
+
+        elif lifecycle == "block_pending":
+            # Actually pending — needs user decision
+            if gate_id_str not in pending:
+                pending.append(gate_id_str)
+
+        elif lifecycle in ("allow", "allow_legacy"):
+            # Approved + in_progress/approved_not_started → allow within scope
+            logger.debug(
+                "Gate '%s' is approved; allowing execution within scope.",
+                gate_id_str,
+            )
+
+        elif lifecycle == "skip":
+            # Approved + completed → not active execution gate
+            logger.debug(
+                "Gate '%s' is approved+completed; not treated as active.",
+                gate_id_str,
+            )
 
     if pending:
         logger.warning(
@@ -99,8 +217,6 @@ def main():
         return EXIT_BLOCK
 
     # ── HardConstraints: C7 Blocker Check ──
-    # 委托给 HardConstraints.check_c7_blockers() 检测 blocked gates/tasks。
-    # HardConstraints 不可用时（ImportError），静默跳过（不阻断已有逻辑）。
     if _HARD_CONSTRAINTS_AVAILABLE:
         try:
             hc = _HardConstraints()
@@ -129,13 +245,11 @@ def main():
                     len(c7_violations),
                 )
         except Exception as e:
-            # C7 检查异常：按 hooks.fail_closed_on_error 配置决定阻断或放行
             if should_fail_closed(root):
                 return EXIT_BLOCK
             logger.warning(
                 "[warn] HardConstraints C7 检查异常，fail-open 放行：%s", e
             )
-            # 不阻断 —— 回退到已有的 pending gate 检查结果
 
     return EXIT_PASS
 

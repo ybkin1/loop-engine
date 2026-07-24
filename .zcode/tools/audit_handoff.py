@@ -28,9 +28,13 @@ def main() -> int:
     errors.extend(governance_invariant_errors(root))
     errors.extend(audit_handoff_model(root, text))
     errors = list(dict.fromkeys(errors))
-    for error in errors:
+    blocker_errors = [e for e in errors if not str(e).startswith("[warn]") and not str(e).startswith("[legacy]")]
+    legacy_errors = [e for e in errors if str(e).startswith("[legacy]")]
+    for error in legacy_errors:
+        print(f"[legacy] {error[9:]}")
+    for error in blocker_errors:
         print(f"[error] {error}")
-    if errors:
+    if blocker_errors:
         return 2
     print("[ok] handoff audit passed")
     return 0

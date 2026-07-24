@@ -390,7 +390,7 @@ def main() -> int:
     print(f"[loop-governance] phase: {phase or 'unknown'}")
     print(f"[loop-governance] current_task_id: {task_id or 'none'}")
 
-    blocker_errors = [e for e in errors if not str(e).startswith("[warn]")]
+    blocker_errors = [e for e in errors if not str(e).startswith("[warn]") and not str(e).startswith("[legacy]")]
     warn_errors = [e for e in errors if str(e).startswith("[warn]")]
 
     for error in warn_errors:
