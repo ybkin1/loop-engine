@@ -534,6 +534,8 @@ class GateGuardHardConstraintsIntegration(unittest.TestCase):
             shutil.copy(str(SCRIPTS / "gate_guard.py"), str(hook_copy))
             # Also need hook_common.py
             shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
+
+            shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
             env = dict(os.environ)
             env["ZCODE_PROJECT_DIR"] = str(root)
             payload = json.dumps(_write_input(str(root / "src" / "main.py")))
@@ -579,6 +581,8 @@ class RegressionConsistencyTest(unittest.TestCase):
         hook_copy = tmp_dir / "loop_enforcement.py"
         shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
         shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
+
+        shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
         env = dict(os.environ)
         env["ZCODE_PROJECT_DIR"] = str(root)
         payload = json.dumps(hook_input or {})
@@ -672,6 +676,8 @@ class GracefulDegradationTest(unittest.TestCase):
         hook_copy = tmp_dir / "loop_enforcement.py"
         shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
         shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
+
+        shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
         env = dict(os.environ)
         env["ZCODE_PROJECT_DIR"] = str(root)
         payload = json.dumps(hook_input or {})
@@ -719,6 +725,8 @@ class GracefulDegradationTest(unittest.TestCase):
             hook_copy = tmp_dir / "loop_enforcement.py"
             shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
             shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
+
+            shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
             env = dict(os.environ)
             env["ZCODE_PROJECT_DIR"] = str(root)
             payload = json.dumps(_write_input(str(root / "docs" / "readme.md")))
