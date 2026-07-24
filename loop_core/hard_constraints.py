@@ -175,13 +175,18 @@ class HardConstraints:
         )
 
         # C4: Path scope check (only when a write target is provided)
+        # v3.3: Aggregate allowed_paths from task definitions (Qoder pattern)
         target_path = context.get("target_path")
         if target_path is not None:
+            all_allowed = list(context.get("allowed_paths", []))
+            # Also collect from active task definitions
+            for task in context.get("tasks", []):
+                if isinstance(task, dict) and task.get("status") in ("active", "in_progress"):
+                    task_paths = task.get("allowed_paths", [])
+                    if isinstance(task_paths, list):
+                        all_allowed.extend(task_paths)
             all_violations.extend(
-                self.check_c4_path_scope(
-                    target_path,
-                    context.get("allowed_paths", []),
-                )
+                self.check_c4_path_scope(target_path, all_allowed)
             )
 
         # C5: Verification check

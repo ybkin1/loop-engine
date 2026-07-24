@@ -537,3 +537,164 @@ def _check_single_constraint(
 
     # Unknown constraint — warn but don't block
     return True
+
+
+# ── Atomic YAML I/O (v3.3 — from Qoder state-machine.ts) ──────────────
+
+
+def atomic_write_state(root: str | Path, state: dict) -> None:
+    """Write state atomically using .tmp + rename to prevent corruption."""
+    import os
+    from pathlib import Path as _Path
+    root_p = _Path(root)
+    state_path = root_p / ".ai" / "state.yaml"
+    tmp_path = root_p / ".ai" / "state.yaml.tmp"
+    import yaml
+    tmp_path.write_text(yaml.dump(state, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+    os.replace(str(tmp_path), str(state_path))
+
+
+# ── Gate Condition Evaluation (v3.3 — from Qoder state-machine.ts) ────
+
+
+@dataclass
+class GateCondition:
+    """A single condition that must be met for a gate to pass."""
+    condition_id: str
+    type: str  # "role_required" | "evidence_required" | "phase_required" | "manual_approval"
+    description: str
+    params: dict = field(default_factory=dict)
+
+
+def evaluate_condition(
+    condition: GateCondition,
+    completed_roles: list[str],
+    active_role: str | None = None,
+    evidence_dir: str | Path | None = None,
+    phases: list[dict] | None = None,
+) -> bool:
+    """Evaluate a single gate condition against current project state.
+
+    Supports 4 condition types (from Qoder state-machine.ts):
+    - role_required: check if a role is completed or active
+    - evidence_required: check if evidence of given type exists
+    - phase_required: check if a phase is completed
+    - manual_approval: always returns False (needs human)
+    """
+    if condition.type == "role_required":
+        role_id = condition.params.get("role_id", "")
+        required_status = condition.params.get("status", "completed")
+        if required_status == "completed":
+            return role_id in (completed_roles or [])
+        return active_role == role_id
+
+    if condition.type == "evidence_required":
+        evidence_type = condition.params.get("evidence_type", "")
+        if not evidence_dir:
+            return False
+        from pathlib import Path as _Path
+        ev_dir = _Path(evidence_dir)
+        if not ev_dir.exists():
+            return False
+        import json
+        for f in ev_dir.rglob("*.json"):
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+                if data.get("type") == evidence_type:
+                    return True
+            except (json.JSONDecodeError, OSError):
+                continue
+        return False
+
+    if condition.type == "phase_required":
+        phase_id = condition.params.get("phase_id", "")
+        if not phases:
+            return False
+        return any(p.get("phase_id") == phase_id and p.get("status") == "completed"
+                   for p in phases)
+
+    if condition.type == "manual_approval":
+        return False  # Always requires explicit human action
+
+    return False
+
+
+# ── Project Initialization (v3.3 — from Qoder state-machine.ts) ───────
+
+
+def init_project(root: str | Path, project_name: str) -> dict:
+    """Initialize a new Loop-governed project in one step.
+
+    Creates .ai/state.yaml and .ai/gates.yaml with default 6-phase setup.
+    """
+    from pathlib import Path as _Path
+    from datetime import datetime as _dt, timezone as _tz
+    import json
+
+    root_p = _Path(root)
+    ai_dir = root_p / ".ai"
+    ai_dir.mkdir(parents=True, exist_ok=True)
+    (ai_dir / "evidence").mkdir(exist_ok=True)
+
+    now = _dt.now(_tz.utc).isoformat()
+
+    # Default 6 phases
+    phases = [
+        {"phase_id": "S1-requirements", "status": "active", "entered_at": now},
+        {"phase_id": "S2-architecture", "status": "pending"},
+        {"phase_id": "S3-interface", "status": "pending"},
+        {"phase_id": "S4-implementation", "status": "pending"},
+        {"phase_id": "S5-quality", "status": "pending"},
+        {"phase_id": "S6-delivery", "status": "pending"},
+    ]
+
+    state = {
+        "schema_version": 1,
+        "project_name": project_name,
+        "current_phase": "S1-requirements",
+        "current_task_id": None,
+        "current_gate_id": "gate-requirements",
+        "loop_mode": "FULL",
+        "completed_roles": [],
+        "phases": phases,
+        "last_handoff_at": now,
+    }
+
+    # Default gates per phase
+    gate_defs = [
+        {"gate_id": "gate-requirements", "phase": "S1-requirements",
+         "conditions": [
+             {"condition_id": "req-baselined", "type": "role_required", "description": "需求已基线化", "params": {"role_id": "product-manager", "status": "completed"}},
+         ], "status": "pending"},
+        {"gate_id": "gate-architecture", "phase": "S2-architecture",
+         "conditions": [
+             {"condition_id": "arch-complete", "type": "role_required", "description": "架构设计完成", "params": {"role_id": "system-architect", "status": "completed"}},
+         ], "status": "pending"},
+        {"gate_id": "gate-implementation", "phase": "S4-implementation",
+         "conditions": [
+             {"condition_id": "code-complete", "type": "role_required", "description": "实现完成", "params": {"role_id": "developer", "status": "completed"}},
+             {"condition_id": "tests-pass", "type": "evidence_required", "description": "测试通过", "params": {"evidence_type": "test_result"}},
+         ], "status": "pending"},
+        {"gate_id": "gate-quality", "phase": "S5-quality",
+         "conditions": [
+             {"condition_id": "qa-pass", "type": "role_required", "description": "质量通过", "params": {"role_id": "quality-engineer", "status": "completed"}},
+             {"condition_id": "security-pass", "type": "role_required", "description": "安全通过", "params": {"role_id": "security-engineer", "status": "completed"}},
+         ], "status": "pending"},
+        {"gate_id": "gate-delivery", "phase": "S6-delivery",
+         "conditions": [
+             {"condition_id": "delivery-ready", "type": "role_required", "description": "交付就绪", "params": {"role_id": "delivery-manager", "status": "completed"}},
+             {"condition_id": "human-approval", "type": "manual_approval", "description": "用户验收通过", "params": {}},
+         ], "status": "pending"},
+    ]
+
+    gates = {"schema_version": 1, "gates": gate_defs}
+
+    atomic_write_state(root_p, state)
+    import yaml
+    gates_path = ai_dir / "gates.yaml"
+    tmp_path = ai_dir / "gates.yaml.tmp"
+    tmp_path.write_text(yaml.dump(gates, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+    import os
+    os.replace(str(tmp_path), str(gates_path))
+
+    return state
