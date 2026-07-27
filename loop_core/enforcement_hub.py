@@ -31,7 +31,9 @@ from loop_core.state_machine import (
     can_enter_phase,
     can_transition_phase,
     check_phase_constraints,
+    check_role_isolation,
     check_self_review,
+    phase_needs_user_gate,
     resolve_gate_status,
 )
 # Unified EnforcementLevel (v3.5) — single source of truth in enforcement.py
@@ -241,6 +243,72 @@ class EnforcementHub:
     def _get_approved_gate_ids(self) -> set[str]:
         return {g["id"] for g in self._read_gates()
                 if isinstance(g, dict) and g.get("status") == "approved" and g.get("id")}
+
+    def _has_approved_user_gate(self, phase: Phase) -> bool:
+        """Return whether the target phase has an explicit user-approved gate.
+
+        Cross-validates two independent evidence sources:
+        1. Heuristic: gate_type/approval_actor/approval_source fields in gates.yaml
+        2. Structural: state.yaml current_gate_id points to an approved user gate
+           matching this phase.
+        """
+        phase_value = phase.value.lower()
+        phase_slug = phase_value.split("-", 1)[-1] if "-" in phase_value else phase_value
+
+        # ── Evidence source 1: heuristic gate scan ──
+        heuristic_match = False
+        for gate in self._read_gates():
+            if not isinstance(gate, dict) or gate.get("status") != "approved":
+                continue
+            gate_phase = str(gate.get("phase", "")).lower()
+            gate_type = str(gate.get("gate_type", "")).lower()
+            approval_actor = str(gate.get("approval_actor", "")).lower()
+            approval_source = str(gate.get("approval_source", "")).lower()
+            phase_matches = (
+                gate_phase in {phase_value, phase_slug}
+                or phase_slug in gate_type
+                or phase_value in gate_type
+            )
+            explicit_user = (
+                approval_actor == "user"
+                or approval_source == "explicit_user_message"
+                or gate_type.startswith("user-")
+            )
+            if phase_matches and explicit_user:
+                heuristic_match = True
+                break
+
+        # ── Evidence source 2: cross-reference with state.yaml ──
+        state = self._read_state()
+        current_gate_id = state.get("current_gate_id")
+        current_gate_id = None if current_gate_id in (None, "", "null") else current_gate_id
+        structural_match = False
+        if current_gate_id:
+            cgi = str(current_gate_id)
+            for gate in self._read_gates():
+                if not isinstance(gate, dict) or gate.get("status") != "approved":
+                    continue
+                if str(gate.get("id", "")) != cgi:
+                    continue
+                gate_type = str(gate.get("gate_type", "")).lower()
+                gate_phase = str(gate.get("phase", "")).lower()
+                approval_actor = str(gate.get("approval_actor", "")).lower()
+                approval_source = str(gate.get("approval_source", "")).lower()
+                phase_matches = (
+                    gate_phase in {phase_value, phase_slug}
+                    or phase_slug in gate_type
+                    or phase_value in gate_type
+                )
+                explicit_user = (
+                    approval_actor == "user"
+                    or approval_source == "explicit_user_message"
+                    or gate_type.startswith("user-")
+                )
+                if phase_matches and explicit_user:
+                    structural_match = True
+                break
+
+        return heuristic_match and structural_match
 
     @staticmethod
     def _get_roles_for_phase(phase: Phase | None) -> list[str]:
@@ -461,8 +529,15 @@ class EnforcementHub:
         ctx = self._build_context(target_phase=target_phase)
         # Check compile evidence from quality results
         compile_ok = ctx.get("quality_results", {}).get("compile", "") == "PASS"
+
+        # Determine whether user gate is required and satisfied for this phase
+        user_gate_approved = None  # None = not applicable
+        if phase_needs_user_gate(target_phase):
+            user_gate_approved = self._has_approved_user_gate(target_phase)
+
         pc = check_phase_constraints(target_phase, approved, task_has_active=ha,
-                                      compile_passed=compile_ok)
+                                      compile_passed=compile_ok,
+                                      user_gate_approved=user_gate_approved)
         if not pc.allowed:
             for err in pc.errors:
                 violations.append(ConstraintViolation(

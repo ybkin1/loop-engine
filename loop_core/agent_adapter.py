@@ -124,6 +124,69 @@ class AgentUnavailableError(RuntimeError):
         self.host = host
 
 
+@dataclass(frozen=True)
+class DelegationRequest:
+    """受限子代理委派请求；默认不允许角色代理继续委派。"""
+
+    parent_execution_id: str
+    parent_role_id: str
+    task_id: str
+    phase: str
+    gate_id: str
+    child_role_id: str
+    allowed_paths: tuple[str, ...]
+    allowed_tools: tuple[str, ...] = ()
+    depth: int = 1
+    max_depth: int = 1
+    delegation_allowed: bool = False
+    read_only: bool = True
+    budget_seconds: int = 300
+
+    def validate(self) -> tuple[bool, str]:
+        if not self.parent_execution_id or not self.task_id or not self.phase or not self.gate_id:
+            return False, "DELEGATION_CONTEXT_REQUIRED"
+        if not self.child_role_id or not self.allowed_paths:
+            return False, "DELEGATION_SCOPE_REQUIRED"
+        if self.depth > 1 and not self.delegation_allowed:
+            return False, "DELEGATION_NOT_ALLOWED"
+        if self.depth < 1 or self.max_depth < self.depth:
+            return False, "DELEGATION_DEPTH_INVALID"
+        if self.budget_seconds <= 0:
+            return False, "DELEGATION_BUDGET_INVALID"
+        if self.child_role_id == "independent-reviewer" and self.parent_role_id == "developer":
+            return False, "REVIEWER_MUST_NOT_BE_DEVELOPER_CHILD"
+        return True, "AUTHORIZED"
+
+
+@dataclass(frozen=True)
+class AgentCapabilityProbe:
+    """宿主能力探针结果；配置存在不等于递归能力已验证。"""
+
+    host: str
+    configured: bool
+    agent_tool_visible: bool
+    recursive_launch: bool | None
+    governed_recursive_launch: bool | None
+    status: str
+    detail: str = ""
+
+
+def probe_agent_capability(*, host: str = "zcode", configured: bool = True,
+                           agent_tool_visible: bool = False) -> AgentCapabilityProbe:
+    """Return a conservative capability result without launching an Agent.
+
+    ZCode's public adapter is currently a prepare/collect bridge, so recursive
+    execution remains unverified until a host live-fire probe is run.
+    """
+    if not configured:
+        return AgentCapabilityProbe(host, False, False, None, None, "NOT_CONFIGURED")
+    if not agent_tool_visible:
+        return AgentCapabilityProbe(host, True, False, None, None, "CAPABILITY_UNAVAILABLE",
+                                    "Agent tool visibility was not provided by the host")
+    return AgentCapabilityProbe(host, True, True, None, None, "NOT_VERIFIED",
+                                "Recursive launch requires an isolated host probe")
+
+
 # ═══════════════════════════════════════════════════════════════════════
 # Abstract Interface
 # ═══════════════════════════════════════════════════════════════════════

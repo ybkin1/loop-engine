@@ -251,6 +251,66 @@ TOOLS = {
             },
             "required": ["role_id"]
         }
+    },
+    # v3.6 — canonical runtime controller entry points
+    "loop_onboard_project": {
+        "description": "幂等接入项目并初始化 Loop 运行时（不创建活动任务）",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "intent": {"type": "string"},
+                "idempotency_key": {"type": "string"}
+            },
+            "required": ["project_root"]
+        }
+    },
+    "loop_propose_work_package": {
+        "description": "创建工作包提案并等待用户批准",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "task_id": {"type": "string"},
+                "gate_id": {"type": "string"},
+                "title": {"type": "string"},
+                "allowed_paths": {"type": "array", "items": {"type": "string"}},
+                "non_goals": {"type": "array", "items": {"type": "string"}},
+                "risk_flags": {"type": "object"}
+            },
+            "required": ["project_root", "task_id", "gate_id", "title", "allowed_paths"]
+        }
+    },
+    "loop_approve_and_execute": {
+        "description": "记录用户批准并原子启动执行能力",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "gate_id": {"type": "string"},
+                "approval": {"type": "string"},
+                "user_actor_id": {"type": "string"},
+                "idempotency_key": {"type": "string"}
+            },
+            "required": ["project_root", "gate_id", "approval"]
+        }
+    },
+    "loop_resume_execution": {
+        "description": "使用任务和执行上下文恢复已批准执行",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "actor_id": {"type": "string"},
+                "role_id": {"type": "string"},
+                "caller_class": {"type": "string"},
+                "task_id": {"type": "string"},
+                "execution_id": {"type": "string"},
+                "session_id": {"type": "string"},
+                "capability_id": {"type": "string"}
+            },
+            "required": ["project_root", "actor_id", "role_id", "caller_class", "task_id", "execution_id"]
+        }
     }
 }
 
@@ -362,6 +422,36 @@ def _dispatch(tool_name: str, args: dict) -> dict:
     elif tool_name == "loop_load_context":
         from tool_load_context import run
         return run(args["role_id"], complexity=args.get("complexity", 0.5))
+    # v3.6 — canonical runtime controller
+    elif tool_name in {"loop_onboard_project", "loop_propose_work_package", "loop_approve_and_execute", "loop_resume_execution"}:
+        from loop_core.runtime_controller import ExecutionContext, RuntimeController
+        controller = RuntimeController(project_root)
+        try:
+            if tool_name == "loop_onboard_project":
+                snapshot = controller.onboard_project(
+                    args.get("intent", ""), idempotency_key=args.get("idempotency_key")
+                )
+            elif tool_name == "loop_propose_work_package":
+                snapshot = controller.create_work_package_proposal(
+                    args["task_id"], args["gate_id"], args["title"], args["allowed_paths"],
+                    non_goals=args.get("non_goals"), risk_flags=args.get("risk_flags"),
+                )
+            elif tool_name == "loop_approve_and_execute":
+                snapshot = controller.approve_and_execute(
+                    args["gate_id"], approval=args["approval"],
+                    user_actor_id=args.get("user_actor_id", "user"),
+                    idempotency_key=args.get("idempotency_key"),
+                )
+            else:
+                snapshot = controller.resume_execution(ExecutionContext(
+                    actor_id=args["actor_id"], role_id=args["role_id"],
+                    caller_class=args["caller_class"], task_id=args["task_id"],
+                    execution_id=args["execution_id"], session_id=args.get("session_id"),
+                    capability_id=args.get("capability_id"),
+                ))
+            return {"ok": True, **snapshot.__dict__}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     return {"error": f"unhandled tool: {tool_name}"}
 

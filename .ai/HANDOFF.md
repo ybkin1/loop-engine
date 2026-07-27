@@ -1,9 +1,90 @@
 # Handoff
 
+> **权威层级**: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md
+> HANDOFF 是连续性辅助信息，不得重新定义状态。所有状态以机器可读文件为准。
+
 ## Product Direction And Authority
 
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-BEGIN -->
-
+```json
+{
+  "authorization_boundaries": {
+    "allowed_effects": [
+      "read",
+      "write governance files"
+    ],
+    "current_gate_id": null,
+    "forbidden_effects": [
+      "deploy",
+      "rollback",
+      "database",
+      "permission",
+      "secret",
+      "payment",
+      "production_data",
+      "migration"
+    ]
+  },
+  "persisted_file_sha256": "0D2770473D03BE9F2566EC8FF0C30262BD6C2B37DFCB1920D8203DA08D33D30D",
+  "product_identity": {
+    "north_star": "每个非技术用户都能借助AI交付可用软件",
+    "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
+    "project_id": "loop-engine",
+    "success_signals": [
+      "治理流程可被非技术用户理解",
+      "gate机制有效阻断未授权操作",
+      "证据链完整可审计"
+    ]
+  },
+  "project_id": "loop-engine",
+  "protected_decisions": [
+    {
+      "authority_ref": "user",
+      "change_policy": "需用户显式gate批准",
+      "decision_id": "MEANS_END_BOUNDARY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "AI负责手段，用户负责目标和gate批准"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "不可变更",
+      "decision_id": "USER_AUTHORITY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "只有用户能批准gate、拒绝gate、请求修复"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "需用户显式gate批准",
+      "decision_id": "CODEX_DELIVERY_RESPONSIBILITY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "AI负责在批准范围内完成交付"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "不可变更",
+      "decision_id": "EVIDENCE_ONLY_BOUNDARY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "reviewer PASS、测试通过、validator成功仅为evidence，不替代用户批准"
+    }
+  ],
+  "schema": "ProjectContinuityProjection/v1",
+  "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
+  "source_sha256": "3DEAB75E885138A6B8D049F9E569214E9A9DA098FDDA8395B5DE654794423271",
+  "user_origin": {
+    "audience": "单人AI辅助软件研发",
+    "capability_assumptions": [
+      "用户无代码能力",
+      "用户无项目管理背景"
+    ],
+    "user_authorities": [
+      "批准gate",
+      "拒绝gate",
+      "请求修复",
+      "提出目标"
+    ]
+  }
+}
+```
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-END -->
 
 ## Current Phase
@@ -12,160 +93,59 @@ S6-delivery
 
 ## Current Task
 
-T-0050: Mid-Priority Fixes — Gate Lifecycle Unification + hook_common Completion + task_contract Fix
+T-0052
 
 Status: `in_progress`
 
 ## Current Gate
 
-G-T-0050-MIDFIX: approved+in_progress (2026-07-24)
+pending_gate_status: none (no pending decision required)
+active_gate: G-T-0052-COMPREHENSIVE-REMEDIATION
+active_gate_status: approved / in_progress
 
-## Recent Changes
-
-- **2026-07-24: T-0048 — 收尾修复**
-  - executor.py 原子写入（.tmp + os.replace）
-  - Hook 拆分补全：_hook_state.py, _hook_path.py, _hook_config.py, _hook_sync.py
-  - T-0043（角色能力认证）→ completed
-  - T-0044（Qoder 借鉴点移植）→ completed
-  - T-0041 垂直切片证据：23 tests pass, S0→S6 governance trail documented
-
-- **2026-07-24: T-0047 — 治理关键路径硬化**
-  - 修复 Core 层 fail-open → fail-closed（enforcement_hub.py）
-    - `_read_state()`, `_read_gates()`, `_read_tasks()` 损坏/缺失时记录错误
-    - `should_allow_write()`, `should_allow_phase_advance()`, `quick_check()` 检测后 FAIL CLOSED
-  - 修复 role_isolation.py fail-open → fail-closed + 新增 8 个测试
-    - state.yaml 损坏 → exit 2（原是 exit 0 静默通过）
-    - `tests/test_role_isolation.py`：正常路径 + self-review 阻断 + corruption 路径全覆盖
-  - 新增 12 个 enforcement_hub 负面路径测试（corruption/missing/healthy 回归守卫）
-  - 总计新增 20 个测试，全部通过
-
-- **2026-07-24: T-0040 — approved → completed**
-  - 用户审查 v3.0.0 交付结果后批准
-  - 状态从 active 更新为 completed
-
-- **2026-07-23: T-0040 completed — v3.0.0 核心交付**
-  - 新增 `loop_core/enforcement_hub.py` — Hook↔Core 治理决策桥梁
-    - `should_allow_write()` — C4+C3+C7+phase 约束统一检查
-    - `should_allow_phase_advance()` — 阶段推进前置条件验证
-    - `check_role_isolation_enforcement()` — HARD 级自评自审阻断
-    - `check_evidence_freshness_enforcement()` — C8 证据新鲜度检查
-    - `quick_check()` — 轻量整体校验
-    - `EnforcementDecision.to_hook_output()` — 标准 hook JSON 输出
-    - `EnforcementLevel` 枚举 — HARD/PARTIAL/ADVISORY 能力声明
-  - 升级 `hooks/scripts/role_isolation.py` → v2.0 HARD 阻断
-    - FULL mode: 自评自审 → `permissionDecision: "deny"` + `exit 2`
-    - LIGHTWEIGHT/STANDARD: 保持 WARN-only 向后兼容
-  - 新增 `tests/test_enforcement_hub.py` — 39 测试覆盖全 API
-  - 注册 gate `G-T-0040-IMPLEMENT` 定义实现范围
-
-## Verified
-
-- 2116 tests passed (0 regression from v2.0.0 baseline)
-- 39 new enforcement_hub tests all pass
-- role_isolation.py v2.0 logic verified via code review
-- EnforcementHub reads .ai/state.yaml, gates.yaml, task_graph.yaml correctly
-
-## Unverified
-
-- role_isolation.py HARD blocking live-fire (needs real ZCode session with distinct agent IDs)
-- EnforcementHub hook integration live-fire (needs hook reload)
-- External vertical slice (T-0041) — deferred to v3.1
-
-## Evidence
-
-- `loop_core/enforcement_hub.py` — 390 lines, full EnforcementHub implementation
-- `hooks/scripts/role_isolation.py` — upgraded to v2.0 with HARD blocking
-- `tests/test_enforcement_hub.py` — 39 tests, all passing
-- Full regression: 2116 passed, 61 skipped, 18 xfailed
-
-## Pending
-
-- T-0041: 外部垂直切片验证 — 用 loop-engine 交付真实 CLI 工具
-- T-0044: 角色能力认证框架 (role_capability.py)
-- T-0045: 全 11 角色 CONTRACT.yaml 补齐
-- Live-fire verification of hook HARD enforcement
-
+current_gate_id is null because no pending decision is required.
+G-T-0052-COMPREHENSIVE-REMEDIATION is approved and execution is in progress.
 
 ## Allowed Scope
 
-```yaml
-allowed_effects:
-  - read
-  - write governance files (.ai/, hooks/scripts/, .zcode/tools/)
-  - update evidence and test files
-forbidden_effects:
-  - deploy
-  - rollback
-  - database changes
-  - permission changes
-  - secret handling
-  - payment actions
-  - production data modifications
-  - migrations
-  - modify AGENTS.md
-  - install or enable skill/MCP/agent/automation/protocol
-  - enter real business project
-```
+Defined by the active gate's allowed_paths in gates.yaml.
 
 ## Forbidden Scope
 
-See Allowed Scope above. Any action not explicitly listed in allowed_effects is forbidden.
+Defined by the active gate's forbidden_actions in gates.yaml.
+
+## Verified
+
+See Structured Lifecycle block below.
+
+## Unverified
+
+See Structured Lifecycle block below.
+
+## Evidence
+
+Evidence is recorded in .ai/evidence/<task_id>/ and verified via evidence-manifest.
 
 ## Integration Impact
 
-- gate_guard.py: Gate lifecycle logic fixed (T-0046)
-- governor_lib.py: Gate lifecycle semantics aligned
-- validate_state.py: Legacy error classification added
-- Version consistency: All files aligned to v3.0.0
-- Role contracts: test-engineer completed
-
-## Structured Lifecycle
-
-```
-current_phase: S6-delivery
-current_task: T-0050
-current_gate: G-T-0050-MIDFIX (approved, in_progress)
-task_status: in_progress
-```
-
-## Structured Next Action
-
-T-0050 execution: Complete mid-priority fixes, run full regression, record evidence.
-
-## Checkpoint
-
-- Core layer fail-closed: IMPLEMENTED
-- role_isolation.py fail-closed: IMPLEMENTED
-- Negative path test coverage: 20 new tests added
-- Gate lifecycle deadlock: RESOLVED (T-0046)
-- Version consistency: RESOLVED (T-0046)
-- Historical task mismatches: CLASSIFIED AS LEGACY (T-0046)
+No integration impact assessed. See checkpoint block below.
 
 ## Next Session First Step
 
-USER_DECISION_REQUIRED — 审查 v3.0.0 T-0040 交付结果，决定是否批准 / 要求修复 / 进入下一阶段
+CONTINUE_APPROVED_EXECUTION
 
 ## Startup Prompt
 
 Use $project-governor, validate structured state, and continue only inside the approved scope.
 
-<!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
+提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。
 
-<!-- PROJECT-GOVERNOR-NEXT-ACTION-END -->
+## Structured Lifecycle
 
 <!-- PROJECT-GOVERNOR-LIFECYCLE-BEGIN -->
 ```json
 {
-  "schema": "ProjectLifecycleProjection/v1",
-  "verified": [],
-  "unverified": [
-    "EVIDENCE_MANIFEST_REQUIRED",
-    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
-  ],
-  "not_performed": [
-    "USER_ACCEPTANCE_NOT_PERFORMED",
-    "PRODUCTION_AUTHORITY_LIFECYCLE_UNAVAILABLE"
-  ],
+  "installation_eligibility": "BLOCKED",
   "not_authorized": [
     "INDEPENDENT_REREVIEW_AUTHORIZED",
     "INSTALLATION_AUTHORIZED",
@@ -174,19 +154,72 @@ Use $project-governor, validate structured state, and continue only inside the a
     "DOWNSTREAM_TASK_CREATION_AUTHORIZED",
     "REAL_PROJECT_ENTRY_AUTHORIZED"
   ],
-  "installation_eligibility": "BLOCKED"
+  "not_performed": [
+    "USER_ACCEPTANCE_NOT_PERFORMED",
+    "PRODUCTION_AUTHORITY_LIFECYCLE_UNAVAILABLE"
+  ],
+  "schema": "ProjectLifecycleProjection/v1",
+  "unverified": [
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
+  ],
+  "verified": [
+    "STRUCTURED_STATE_HASHES_VERIFIED"
+  ]
 }
 ```
 <!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
 
+## Structured Next Action
+
+<!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
+```json
+{
+  "approved_execution_gate_id": "G-T-0052-COMPREHENSIVE-REMEDIATION",
+  "approved_execution_status": "in_progress",
+  "current_gate_id": "G-T-0052-COMPREHENSIVE-REMEDIATION",
+  "current_task_id": "T-0052",
+  "current_task_status": "in_progress",
+  "lifecycle_revision": 0,
+  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "schema": "ProjectGovernorNextAction/v2"
+}
+```
+<!-- PROJECT-GOVERNOR-NEXT-ACTION-END -->
+
+## Checkpoint
+
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
+  "authority_hash": "2337C69A376EF942A0249978571E61B1BCAB58F34037DDAA88E14B5109EE6FC3",
+  "blockers": [],
+  "checkpoint_id": "CP-3C9E731E405DA5A37E6FB44A",
+  "checkpoint_status": "PENDING_SUCCESSOR_ACK",
+  "contract_id": "PCC-2026-07-16-R1",
+  "controller_generation": 1,
+  "evidence_manifest_hashes": {
+    "file_count": 6,
+    "manifest_file_sha256": "9E16DEC7C8350C8DDB5E4270CE0B2D2E7C0B0966876A55707887FF06C458BEFC",
+    "ordered_entries_sha256": "0A13AABEC2EB4A58D9F25DD8381B8C14DA5D705BBEA286FAB08FDF5EDD061D52",
+    "semantic_sha256": "C2159D158CB80BD4615D90FA2CD699AA295FE37CDE31BBCE0F98BAA1EC4FB220",
+    "total_bytes": 7593
+  },
+  "fixture_only": false,
+  "project_continuity_hashes": {
+    "file_sha256": "0D2770473D03BE9F2566EC8FF0C30262BD6C2B37DFCB1920D8203DA08D33D30D",
+    "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
+    "source_sha256": "3DEAB75E885138A6B8D049F9E569214E9A9DA098FDDA8395B5DE654794423271"
+  },
+  "recovered_state_sha256": "C979FDBFD77D2C99D15B271707BCD812A86505DDB3FD9F221A7C3961F1279AEB",
+  "requirements_revision": "T-0034-REQ-2026-07-16-R1",
   "schema": "Checkpoint/v1.0",
-  "checkpoint_status": "NOT_ESTABLISHED",
-  "blockers": [
-    "TRANSACTION_REGISTRY_MISSING"
-  ]
+  "task_scope_hash": "387F12B9F31D5D0F307498E063C27A45AA8CB08A5C1D2208096B88B556EF84BE",
+  "transaction_registry_hashes": {
+    "checkpoint_semantic_sha256": "5C99D5C2425154741AE25217E824B17AFD734D3AA776286F4ED7A94647901BCE",
+    "file_sha256": "0D99CF029CBF0D360725195E8B0825832E019976EEF988A9EFFDD2F7B01301CE",
+    "semantic_sha256": "2CF3351B01F4A75E5114D8EEED9B0C418079516C0CDD264A4579ED4299A7F555",
+    "source_sha256": "CBCD552B56BA77B10A11A38257B965B0009162F67E0F196B6824CFD44AC06262"
+  }
 }
 ```
 <!-- PROJECT-GOVERNOR-CHECKPOINT-END -->

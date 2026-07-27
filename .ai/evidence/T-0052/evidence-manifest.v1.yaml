@@ -1,0 +1,54 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0052-001
+task_id: T-0052
+gate_id: G-T-0052-COMPREHENSIVE-REMEDIATION
+authority_ref: loop-engine/T-0052
+evidence_root: .ai/evidence/T-0052
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 1048576
+  max_total_bytes: 104857600
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0052/approval.md
+  role: result
+  required: true
+  sha256: 2B36E98DB598111BF9CACF35B0C99F3775F2E8B58D4C6DF6254E2B89585E6B50
+  size: 307
+  mtime_ns: 1785142713916816500
+- path: .ai/evidence/T-0052/commands.md
+  role: command
+  required: true
+  sha256: 4019BFEE497532B30EDCC937CB44F0C3188C3F2BFA520FE61DE2B9912C6C5CB5
+  size: 298
+  mtime_ns: 1785142721126989400
+- path: .ai/evidence/T-0052/compile-evidence.json
+  role: result
+  required: true
+  sha256: 0E1DF7A9443460AE3495B060ECB91474DB38665EA5FF017289C0D93FF463363B
+  size: 181
+  mtime_ns: 1785144313798529000
+- path: .ai/evidence/T-0052/comprehensive-remediation-evidence.md
+  role: result
+  required: true
+  sha256: 142E5F45C85731A928C9DE840D67ABC33D011475C124BBB5095E09A20183103D
+  size: 4239
+  mtime_ns: 1785144339875053900
+- path: .ai/evidence/T-0052/final-evidence.md
+  role: result
+  required: true
+  sha256: 4951A4209688E9AD3A635D91311BCE3F2E13E71F1794596B0F94BC7EE2921731
+  size: 1610
+  mtime_ns: 1785144736544259600
+- path: .ai/evidence/T-0052/gate-request.md
+  role: command
+  required: true
+  sha256: 54CA8DCB118AAE2847D09662D2E3AA3E2B3F48BFD2ADE8D35A0A7F9873789955
+  size: 958
+  mtime_ns: 1785142511603412600
+file_count: 6
+total_bytes: 7593
+ordered_entries_sha256: 0A13AABEC2EB4A58D9F25DD8381B8C14DA5D705BBEA286FAB08FDF5EDD061D52
+semantic_sha256: C2159D158CB80BD4615D90FA2CD699AA295FE37CDE31BBCE0F98BAA1EC4FB220
+created_at: '2026-07-27T09:35:08.099708+00:00'
+created_by: T-0052-remediation

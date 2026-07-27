@@ -88,6 +88,18 @@ MINI_LOOP_PHASES = {
     Phase.S9_FIX_OPTIMIZE,
 }
 
+# Only these phase boundaries represent a user decision.  Role verdicts and
+# internal evidence gates must not be treated as user approval.
+USER_GATE_PHASES = {
+    Phase.S1_REQUIREMENTS,
+    Phase.S6_DELIVERY,
+}
+
+
+def phase_needs_user_gate(phase: Phase) -> bool:
+    """Return whether entering ``phase`` requires an explicit user gate."""
+    return phase in USER_GATE_PHASES
+
 
 @dataclass
 class StateValidationResult:
@@ -463,6 +475,7 @@ def check_phase_constraints(
     task_has_active: bool = False,
     verification_passed: bool = False,
     compile_passed: bool = False,
+    user_gate_approved: bool | None = None,
 ) -> StateValidationResult:
     """Check whether all constraints for a phase are satisfied.
 
@@ -479,6 +492,12 @@ def check_phase_constraints(
     constraints = get_constraints_for_phase(phase)
     errors: list[str] = []
     warnings: list[str] = []
+
+    if phase_needs_user_gate(phase) and user_gate_approved is False:
+        errors.append(
+            f"User gate required for {phase.value}; role verdicts and internal gates "
+            "do not replace explicit user approval"
+        )
 
     for constraint in constraints:
         satisfied = _check_single_constraint(

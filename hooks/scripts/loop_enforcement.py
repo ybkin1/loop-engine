@@ -74,6 +74,34 @@ GOVERNANCE_EXEMPT = [
     ".zcode/config.json",
 ]
 
+# Governance metadata paths: always readable even without active task.
+# Business files and project-level exploration without a task are blocked.
+MINIMAL_METADATA_READ = [
+    ".ai/state.yaml",
+    ".ai/gates.yaml",
+    ".ai/task_graph.yaml",
+    ".ai/HANDOFF.md",
+    ".ai/PROGRESS.md",
+    ".ai/project_continuity.yaml",
+    ".ai/transaction_registry.yaml",
+    ".ai/tasks/",
+    ".ai/evidence/",
+    ".ai/schemas/",
+    ".ai/certifications/",
+    ".ai/runtime/",
+    ".ai/checkers/",
+    ".ai/guards/",
+    "AGENTS.md",
+    ".zcode/config.json",
+    ".zcode/tools/",
+    ".zcode/skills/",
+    "loop_core/",
+    "hooks/",
+    "tools/",
+    "agents/",
+    "tests/",
+]
+
 # Files that the main-thread can always write (evidence, handoff)
 MAIN_THREAD_ALLOWED = [
     ".ai/evidence/",
@@ -135,6 +163,15 @@ def is_governance_write(rel_path: str | None) -> bool:
             return True
     for allowed in MAIN_THREAD_ALLOWED:
         if rel.startswith(allowed):
+            return True
+    return False
+
+
+def is_minimal_metadata_read(rel_path: str) -> bool:
+    """Check if the path is governance metadata always readable without active task."""
+    rel = rel_path.replace("\\", "/")
+    for allowed in MINIMAL_METADATA_READ:
+        if rel == allowed or rel.startswith(allowed.rstrip("/") + "/"):
             return True
     return False
 
@@ -371,12 +408,46 @@ def main():
             )
             return EXIT_BLOCK
 
-        # ── Bash 只读命令：目标为 None 且命令是只读的 → 直接放行 ──
-        # 注意：ZCode hook_input 中没有 tool_name 字段，直接用 command 判断
+        # ── Bash 命令提取（治理检查延后到 task_id 加载后）──
         command = (hook_input.get("tool_input") or {}).get("command", "")
-        if command and target is None:
-            if is_readonly_command(command):
-                return EXIT_PASS
+
+        # Runtime-managed projects do not permit direct state/evidence edits.
+        # They must use RuntimeController transitions so task activation cannot
+        # be forged by writing current_task_id or a gate file.
+        runtime_projection = root / ".ai" / "runtime" / "runtime-state.json"
+        runtime_managed = runtime_projection.exists()
+        if runtime_managed and rel is not None and is_governance_write(rel):
+            tool_input = hook_input.get("tool_input") or {}
+            recovery = tool_input.get("recovery_mode") == "GOVERNANCE_RECOVERY"
+            caller_class = str(tool_input.get("caller_class") or hook_input.get("caller_class") or "")
+            if not recovery and caller_class != "controller":
+                logger.warning("BLOCKED by RuntimeController: GOVERNANCE_CONTROLLER_ONLY")
+                return EXIT_BLOCK
+
+        # Controller-owned runtime state takes precedence over legacy checks.
+        # A present runtime projection means this project has opted into the
+        # canonical identity/capability policy; missing caller identity fails
+        # closed instead of falling back to prompt-based role claims.
+        if runtime_managed and rel is not None and not is_governance_write(rel):
+            try:
+                from loop_core.runtime_controller import ExecutionContext, RuntimeController
+                tool_input = hook_input.get("tool_input") or {}
+                context = ExecutionContext(
+                    actor_id=str(tool_input.get("actor_id") or hook_input.get("actor_id") or ""),
+                    role_id=str(tool_input.get("role_id") or hook_input.get("role_id") or ""),
+                    caller_class=str(tool_input.get("caller_class") or hook_input.get("caller_class") or ""),
+                    task_id=tool_input.get("task_id") or hook_input.get("task_id"),
+                    execution_id=tool_input.get("execution_id") or hook_input.get("execution_id"),
+                    session_id=tool_input.get("session_id") or hook_input.get("session_id"),
+                    capability_id=tool_input.get("capability_id") or hook_input.get("capability_id"),
+                )
+                allowed, reason = RuntimeController(root).authorize_write(context, rel)
+                if not allowed:
+                    logger.warning("BLOCKED by RuntimeController: %s", reason)
+                    return EXIT_BLOCK
+            except Exception as exc:
+                logger.warning("BLOCKED: RuntimeController unavailable: %s", exc)
+                return EXIT_BLOCK
 
         # Always allow governance file writes
         if is_governance_write(rel):
@@ -390,6 +461,65 @@ def main():
 
         current_phase = state.get("current_phase", "")
         task_id = state.get("current_task_id")
+        tool_name = hook_input.get("tool_name", "")
+        tool_input = hook_input.get("tool_input") or {}
+
+        # ── GOVERNANCE_RECOVERY: 最小化、受限、可审计的恢复通道 ──
+        # 只在 Controller/runtime-state 损坏时使用。
+        # 只能修复治理骨架（.ai/、.zcode/tools/），不能写业务代码。
+        if tool_input.get("recovery_mode") == "GOVERNANCE_RECOVERY":
+            if rel and is_governance_write(rel):
+                logger.info("GOVERNANCE_RECOVERY: allowed governance write to %s", rel)
+                return EXIT_PASS
+            logger.warning("GOVERNANCE_RECOVERY denied: %s is not a governance path", rel or "no target")
+            return EXIT_BLOCK
+
+        # ── Agent/Skill 编排工具豁免（必须在 task_id 检查之前）──
+        # Agent/Skill/Task 不直接写入文件；子代理的每次写入会被独立拦截。
+        # 无 task_id 时仍需允许编排层创建任务/提案。
+        if tool_name in ("Agent", "Skill", "Task") and target is None and not command:
+            return EXIT_PASS
+
+        # ── Git 版本控制豁免 ──
+        # git add/commit/diff/log 操作 git 索引和对象库，不直接修改工作树文件。
+        # 拦截 git 会导致无法提交治理记录，造成治理死锁。
+        if command:
+            cmd_clean = (command or "").strip().lower()
+            is_git = cmd_clean.startswith("git ") or " git " in cmd_clean or cmd_clean.startswith("cd ") and "git " in cmd_clean
+            if is_git:
+                return EXIT_PASS
+
+        # ── Read 治理：无任务时只允许治理元数据读取 ──
+        if tool_name == "Read" and not task_id:
+            if rel and is_minimal_metadata_read(rel):
+                return EXIT_PASS
+            logger.warning(
+                "BLOCKED: Read tool without active task. "
+                "Only governance metadata reads (.ai/*, AGENTS.md, .zcode/*) are allowed. "
+                "Target: %s", rel or "no target"
+            )
+            return EXIT_BLOCK
+
+        # ── Bash 只读命令治理：无任务时阻断项目级探索 ──
+        # 但允许目标明确为治理路径（.ai/* .zcode/*）的只读命令。
+        if command and target is None:
+            if is_readonly_command(command):
+                if not task_id:
+                    # Check if the command references governance paths
+                    cmd_lower = (command or "").lower()
+                    gov_ref = any(prefix in cmd_lower for prefix in (
+                        ".ai/", ".zcode/", "agents/", "loop_core/", "hooks/",
+                        "tools/", "agents.md", "readme", "pyproject", "govern",
+                    ))
+                    if gov_ref:
+                        return EXIT_PASS
+                    logger.warning(
+                        "BLOCKED: Readonly Bash command without active task. "
+                        "Project-level exploration requires a task. Command: %s",
+                        command[:200] if command else "",
+                    )
+                    return EXIT_BLOCK
+                return EXIT_PASS
 
         # ── HardConstraints Integration ──
         # 作为补充检查：HardConstraints 检测到 BLOCKER 时直接阻断。

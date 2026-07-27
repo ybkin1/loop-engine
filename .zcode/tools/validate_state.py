@@ -409,9 +409,12 @@ def main() -> int:
 
     blocker_errors = [e for e in errors if not str(e).startswith("[warn]") and not str(e).startswith("[legacy]")]
     warn_errors = [e for e in errors if str(e).startswith("[warn]")]
+    legacy_errors = [e for e in errors if str(e).startswith("[legacy]")]
 
     for error in warn_errors:
         print(error)
+    for error in legacy_errors:
+        print(f"[warn] {error}")
     for error in list(dict.fromkeys(blocker_errors)):
         print(f"[error] {error}")
 

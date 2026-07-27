@@ -1,0 +1,24 @@
+schema: TransactionRegistry/v1
+contract_id: CDFT-2026-07-16-R1
+requirements_revision: T-0034-REQ-2026-07-16-R1
+project_id: loop-engine
+controller_generation: 1
+registry_revision: 0
+state_revision_sha256: 8394EAABA4988993F94E129FA5878653C4D8B7204A7C225ED4BAFED42B884645
+active_transactions: []
+in_flight_actors: []
+unconsumed_deltas: []
+partial_writes: []
+generation_fence:
+  fence_id: FENCE-001
+  fenced_generation: 0
+  successor_generation: 1
+  issued_at: '2026-07-27T09:33:39.554804+00:00'
+  authority_ref: loop-engine/T-0052
+checkpoint_acknowledgments: []
+updated_at: '2026-07-27T09:33:39.554804+00:00'
+updated_by: T-0052 remediation
+authority_ref: loop-engine/T-0052
+fixture_only: false
+semantic_sha256: 2CF3351B01F4A75E5114D8EEED9B0C418079516C0CDD264A4579ED4299A7F555
+source_sha256: CBCD552B56BA77B10A11A38257B965B0009162F67E0F196B6824CFD44AC06262

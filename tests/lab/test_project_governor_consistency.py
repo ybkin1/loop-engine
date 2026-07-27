@@ -306,8 +306,9 @@ class ProjectGovernorConsistencyTests(unittest.TestCase):
         )
         graph_path.write_text(graph, encoding="utf-8")
         result = self.run_script("validate_state.py")
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn("Historical task status mismatch: T-0002", result.stdout)
+        # T-0046: historical mismatches are [legacy] warnings, not hard blockers
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("[legacy] Historical task status mismatch: T-0002", result.stdout)
 
     def test_audit_handoff_rejects_semantic_task_status_mismatch(self) -> None:
         self.run_script("close_session.py")

@@ -29,12 +29,38 @@ from loop_core.state_machine import (
     can_approve_gate,
     can_enter_phase,
     check_self_review,
+    phase_needs_user_gate,
 )
 
 
-# ═══════════════════════════════════════════════════════════════════════
-# RoleIsolation 检查
-# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestUserGatePhaseSemantics:
+    def test_only_s1_and_s6_require_user_gate(self):
+        assert phase_needs_user_gate(Phase.S1_REQUIREMENTS) is True
+        assert phase_needs_user_gate(Phase.S6_DELIVERY) is True
+        assert phase_needs_user_gate(Phase.S2_ARCHITECTURE) is False
+        assert phase_needs_user_gate(Phase.S5_QUALITY) is False
+        assert phase_needs_user_gate(Phase.S11_MAINTENANCE) is False
+
+    def test_explicitly_missing_user_gate_blocks_user_phase(self):
+        result = check_phase_constraints(
+            Phase.S6_DELIVERY,
+            {"G-S6-independent-review"},
+            verification_passed=True,
+            user_gate_approved=False,
+        )
+        assert result.allowed is False
+        assert any("User gate required" in error for error in result.errors)
+
+    def test_internal_phase_does_not_require_user_gate(self):
+        result = check_phase_constraints(
+            Phase.S2_ARCHITECTURE,
+            {"G-S1-requirements"},
+            user_gate_approved=False,
+        )
+        assert result.allowed is True
+
 
 class TestRoleIsolation:
     """Tests for check_role_isolation and RoleIsolationCheck."""

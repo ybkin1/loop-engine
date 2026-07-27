@@ -488,8 +488,14 @@ class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
             self.assertEqual(r.returncode, 2,
                              f"cp should be BLOCKED. stderr: {r.stderr}")
 
-    def test_readonly_bash_passes_even_without_task(self):
-        """Readonly Bash commands should pass even with no task_id set."""
+    def test_readonly_bash_blocked_without_task(self):
+        """Readonly Bash commands must be blocked when no task_id is set.
+        
+        This is a governance hardening: project-level exploration (find, grep,
+        git status, ls) requires an active task. Previously this was allowed,
+        which let the main thread discover and analyze project structure
+        before creating a task — bypassing the "no task = no project work" rule.
+        """
         state_no_task = """\
 schema_version: 1
 project_name: test-full
@@ -500,8 +506,25 @@ loop_mode: FULL
             root = _make_project(tmp, state_content=state_no_task)
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git status"))
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2) for readonly Bash without task. stderr: {r.stderr}")
+
+    def test_readonly_bash_allowed_with_active_task(self):
+        """Readonly Bash commands pass when a task is active."""
+        state_with_task = """\
+schema_version: 1
+project_name: test-full
+current_phase: S4-implementation
+current_task_id: T-0001
+loop_mode: FULL
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=state_with_task,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            r = _run_hook("loop_enforcement.py", root,
+                          _bash_input("git status"))
             self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+                             f"Expected EXIT_PASS(0) for readonly Bash with task. stderr: {r.stderr}")
 
     def test_non_bash_tool_still_requires_target(self):
         """Write/Edit tools without readonly paths should still require task scope."""

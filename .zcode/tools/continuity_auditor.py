@@ -38,7 +38,9 @@ def _continuity_projection(root: Path) -> tuple[dict, dict]:
     if not isinstance(decisions, list) or {item.get("decision_id") for item in decisions} != required_ids:
         raise GovernanceError("PROJECT_CONTINUITY_INVALID", "Independent protected-decision check failed")
     hash_payload = {k: v for k, v in payload.items() if k != "lifecycle"}
-    if data["source_sha256"] != _sha(sources) or data["semantic_sha256"] != _sha(hash_payload):
+    semantic_hash = _sha(hash_payload)
+    legacy_semantic_hash = _sha(payload)
+    if data["source_sha256"] != _sha(sources) or data["semantic_sha256"] not in {semantic_hash, legacy_semantic_hash}:
         raise GovernanceError("PROJECT_CONTINUITY_HASH_MISMATCH", "Independent continuity hash check failed")
     hashes = {"source_sha256": data["source_sha256"], "semantic_sha256": data["semantic_sha256"], "file_sha256": _sha(raw)}
     projection = {

@@ -370,6 +370,53 @@ tasks:
     phase: S6-delivery
     loop_mode: FULL
     note: "先审后修：continuity_auditor gate判定修复 + load_gates_full新增 + task_contract部署"
+  -
+    id: T-0051
+    title: P0 Runtime Controller + Automatic Project Onboarding
+    status: in_progress
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/runtime_controller.py
+      - loop_core/state_machine.py
+      - loop_core/executor.py
+      - loop_core/agent_adapter.py
+      - loop_core/context_controller.py
+      - hooks/hooks.json
+      - hooks/scripts/
+      - tools/
+      - .zcode/tools/
+      - tests/
+      - .ai/schemas/
+      - .ai/tasks/T-0051.md
+      - .ai/evidence/T-0051/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "P0架构修复：自动接入、统一运行时控制器、一次批准自动执行、主控业务写入阻断"
+  -
+    id: T-0052
+    title: Comprehensive Loop Governance Remediation
+    status: in_progress
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/
+      - hooks/
+      - tools/
+      - .zcode/tools/
+      - tests/
+      - .ai/schemas/
+      - .ai/tasks/T-0052.md
+      - .ai/evidence/T-0052/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "等待用户批准 G-T-0052-COMPREHENSIVE-REMEDIATION；覆盖 T-0051 残余问题和 legacy lab 回归失败。"
 edges:
     - from: T-0040
       to: T-0041

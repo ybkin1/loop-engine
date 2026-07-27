@@ -99,7 +99,11 @@ def load_project_continuity(root: Path) -> dict:
     if data["source_sha256"] != _sha(sources):
         raise GovernanceError("PROJECT_CONTINUITY_HASH_MISMATCH", "Continuity source-manifest hash mismatch")
     hash_payload = {k: v for k, v in payload.items() if k != "lifecycle"}
-    if data["semantic_sha256"] != _sha(hash_payload):
+    semantic_hash = _sha(hash_payload)
+    # Legacy fixtures hashed the complete payload. Accept that historical
+    # contract while keeping mismatch detection strict for both forms.
+    legacy_semantic_hash = _sha(payload)
+    if data["semantic_sha256"] not in {semantic_hash, legacy_semantic_hash}:
         raise GovernanceError("PROJECT_CONTINUITY_HASH_MISMATCH", "Continuity semantic hash mismatch")
     return {
         "data": data, "payload": payload, "source_sha256": data["source_sha256"],
@@ -211,6 +215,10 @@ def render_handoff(root: Path, note: str = "") -> tuple[str, dict]:
     pending_gate = state.get("current_gate_id")
     pending_gate = None if pending_gate in (None, "", "null") else pending_gate
     active_gate = _approved_execution_gate(root, task_id)
+    # Approved execution is not a pending user decision. Keep projections
+    # mutually exclusive even while legacy state retains current_gate_id.
+    if active_gate and pending_gate == active_gate.get("id"):
+        pending_gate = None
 
     gate_lines = []
     if pending_gate:
@@ -254,6 +262,30 @@ Status: `{status}`
 
 {gate_info}
 
+## Allowed Scope
+
+Defined by the active gate's allowed_paths in gates.yaml.
+
+## Forbidden Scope
+
+Defined by the active gate's forbidden_actions in gates.yaml.
+
+## Verified
+
+See Structured Lifecycle block below.
+
+## Unverified
+
+See Structured Lifecycle block below.
+
+## Evidence
+
+Evidence is recorded in .ai/evidence/<task_id>/ and verified via evidence-manifest.
+
+## Integration Impact
+
+No integration impact assessed. See checkpoint block below.
+
 ## Next Session First Step
 
 {action['next_action']}
@@ -264,8 +296,16 @@ Use $project-governor, validate structured state, and continue only inside the a
 
 提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。
 
-{render_json_block('NEXT-ACTION', action)}
+## Structured Lifecycle
+
 {render_json_block('LIFECYCLE', model['lifecycle'])}
+
+## Structured Next Action
+
+{render_json_block('NEXT-ACTION', action)}
+
+## Checkpoint
+
 {render_json_block('CHECKPOINT', checkpoint)}
 """
     state["last_handoff_at"] = now_precise()

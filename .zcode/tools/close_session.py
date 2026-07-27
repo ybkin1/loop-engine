@@ -31,12 +31,20 @@ def main() -> int:
                 break
 
     try:
-        # v3.5: Auto-repair continuity before render to prevent drift deadlock
+        # v3.5: Auto-repair only dynamic manifest drift; semantic/static drift remains blocking
         try:
             from repair_continuity import repair_continuity
-            repair_continuity(root)
+            repair_continuity(root, dynamic_only=True)
+        except TypeError:
+            # Backward-compatible tool without dynamic_only: do not auto-repair
+            pass
         except Exception:
-            pass  # Non-critical: repair is best-effort
+            pass
+
+        # Validate continuity after the restricted repair attempt.
+        # Any semantic hash mismatch or static source drift must stop close_session.
+        from continuity_producer import load_project_continuity
+        load_project_continuity(root)
 
         handoff, state = render_handoff(root, args.note)
         base = ai_dir(root)
