@@ -232,3 +232,72 @@ class TestLoopDispatcher:
         # Last two are serial
         assert len(plan.batches[2]) == 1
         assert len(plan.batches[3]) == 1
+
+
+# ── Execution-level role isolation tests ─────────────────────────────
+
+class TestRoleIsolationExecution:
+    def test_developer_and_reviewer_different_ids_pass(self):
+        manifest = _make_manifest(subagents=[
+            SubagentSpec("developer:T-1", "dev", "Write code", max_parallel=True),
+            SubagentSpec("independent-reviewer:T-1", "reviewer", "Review code",
+                         max_parallel=False),
+        ])
+        adapter = ZCodeAgentAdapter()
+        plan = LoopDispatcher().prepare(manifest, adapter)
+        # Should not raise — ZCodeAdapter generates unique IDs per launch
+        assert plan.total_steps == 2
+        # Verify IDs are different
+        dev_step = plan.batches[0][0]
+        rev_step = plan.batches[1][0] if len(plan.batches) > 1 else plan.batches[0][1]
+        assert dev_step.agent_input.actor_id != rev_step.agent_input.actor_id
+        assert dev_step.agent_input.session_id != rev_step.agent_input.session_id
+
+    def test_same_subagent_id_still_generates_different_execution_ids(self):
+        """Even with same subagent_id prefix, execution IDs differ."""
+        manifest = _make_manifest(subagents=[
+            SubagentSpec("role-a", "dev", "Task A", max_parallel=True),
+            SubagentSpec("role-b", "reviewer", "Task B", max_parallel=True),
+        ])
+        adapter = ZCodeAgentAdapter()
+        plan = LoopDispatcher().prepare(manifest, adapter)
+        a = plan.batches[0][0]
+        b = plan.batches[0][1]
+        assert a.agent_input.actor_id != b.agent_input.actor_id
+        assert a.agent_input.session_id != b.agent_input.session_id
+
+
+# ── build_execution_script tests ─────────────────────────────────────
+
+class TestExecutionScript:
+    def test_script_includes_role_isolation_report(self):
+        manifest = _make_manifest(subagents=[
+            SubagentSpec("developer:T-1", "dev", "Code"),
+            SubagentSpec("independent-reviewer:T-1", "reviewer", "Review"),
+        ])
+        adapter = ZCodeAgentAdapter()
+        script = LoopDispatcher().build_execution_script(manifest, adapter)
+
+        assert script["role_isolation"]["verified"] is True
+        assert script["role_isolation"]["distinct"] is True
+        assert len(script["role_isolation"]["developer_actor_ids"]) == 1
+        assert len(script["role_isolation"]["reviewer_actor_ids"]) == 1
+
+    def test_script_includes_retry_strategy(self):
+        manifest = _make_manifest()
+        adapter = ZCodeAgentAdapter()
+        script = LoopDispatcher().build_execution_script(manifest, adapter)
+
+        for batch in script["batches"]:
+            assert "on_failure" in batch
+            assert batch["on_failure"]["action"] == "retry_each_failed_separately"
+            assert "max_total_retries_per_step" in batch["on_failure"]
+
+    def test_script_aggregation_section(self):
+        manifest = _make_manifest()
+        adapter = ZCodeAgentAdapter()
+        script = LoopDispatcher().build_execution_script(manifest, adapter)
+
+        assert "aggregation" in script
+        assert script["aggregation"]["role"] == "main-thread"
+        assert "prompt" in script["aggregation"]

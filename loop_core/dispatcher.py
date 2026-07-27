@@ -133,6 +133,7 @@ class LoopDispatcher:
         spec_batches = self._executor.plan_execution(manifest)
         step_batches: list[list[ExecutionStep]] = []
         step_index = 0
+        all_steps: list[ExecutionStep] = []
 
         for batch_idx, spec_batch in enumerate(spec_batches):
             steps: list[ExecutionStep] = []
@@ -144,17 +145,24 @@ class LoopDispatcher:
                     input_files=list(spec.input_files),
                 )
                 agent_input = adapter.prepare_launch(agent_input)
-                steps.append(
-                    ExecutionStep(
-                        step_index=step_index,
-                        batch_index=batch_idx,
-                        spec=spec,
-                        agent_input=agent_input,
-                        description=f"{spec.subagent_id}: {spec.prompt[:80]}...",
-                    )
+                step = ExecutionStep(
+                    step_index=step_index,
+                    batch_index=batch_idx,
+                    spec=spec,
+                    agent_input=agent_input,
+                    description=f"{spec.subagent_id}: {spec.prompt[:80]}...",
                 )
+                steps.append(step)
+                all_steps.append(step)
                 step_index += 1
             step_batches.append(steps)
+
+        # ── Execution-level role isolation verification ──
+        # Check that developer and reviewer have different actor/session IDs
+        # BEFORE any Agent is called. This catches violations at plan time.
+        iso_errors = self._verify_role_isolation(all_steps)
+        if iso_errors:
+            raise ValueError(f"Role isolation violation: {'; '.join(iso_errors)}")
 
         return ExecutionPlan(
             manifest_id=manifest.manifest_id,
@@ -298,3 +306,110 @@ class LoopDispatcher:
                 )
             )
         return retry_steps
+
+    # ── Role isolation verification (execution level) ──────────────────
+
+    def _verify_role_isolation(self, all_steps: list[ExecutionStep]) -> list[str]:
+        """Verify developer and reviewer have distinct execution identities.
+
+        Checks actor_id and session_id at the execution level (after
+        adapter.prepare_launch has generated them), not just at the plan
+        level (SubagentSpec.subagent_id).
+
+        This recovers the three-layer model's role isolation guarantee
+        in the two-layer architecture.
+        """
+        errors: list[str] = []
+        dev_steps = [s for s in all_steps if "dev" in s.spec.subagent_id.lower()]
+        rev_steps = [s for s in all_steps if "review" in s.spec.subagent_id.lower()]
+
+        for dev in dev_steps:
+            for rev in rev_steps:
+                if dev.agent_input.actor_id == rev.agent_input.actor_id:
+                    errors.append(
+                        f"SAME_ACTOR: developer '{dev.spec.subagent_id}' "
+                        f"and reviewer '{rev.spec.subagent_id}' share "
+                        f"actor_id={dev.agent_input.actor_id}"
+                    )
+                if dev.agent_input.session_id == rev.agent_input.session_id:
+                    errors.append(
+                        f"SAME_SESSION: developer '{dev.spec.subagent_id}' "
+                        f"and reviewer '{rev.spec.subagent_id}' share "
+                        f"session_id={dev.agent_input.session_id}"
+                    )
+        return errors
+
+    # ── Build executable script (mini-loop aware) ──────────────────────
+
+    def build_execution_script(
+        self,
+        manifest: SubagentManifest,
+        adapter: AgentAdapter,
+    ) -> dict:
+        """Build a complete executable script with retry-native logic.
+
+        Outputs a JSON structure that the session can follow step by step.
+        Each batch includes retry instructions: if a step fails, retry up
+        to max_retries times with the failure feedback injected into the
+        prompt.
+
+        This recovers the three-layer model's mini-loop automation in the
+        two-layer architecture.
+        """
+        plan = self.prepare(manifest, adapter)
+
+        script_batches = []
+        for batch in plan.batches:
+            batch_script = {
+                "batch_index": batch[0].batch_index if batch else 0,
+                "parallel": batch[0].spec.max_parallel if batch else True,
+                "steps": [],
+                "on_failure": {
+                    "action": "retry_each_failed_separately",
+                    "max_total_retries_per_step": max(
+                        s.spec.max_retries for s in batch
+                    ) if batch else 3,
+                    "retry_strategy": "inject_failure_feedback_into_prompt",
+                },
+            }
+            for step in batch:
+                batch_script["steps"].append({
+                    "subagent_id": step.spec.subagent_id,
+                    "role_hint": step.spec.role_hint,
+                    "prompt": step.agent_input.prompt,
+                    "session_id": step.agent_input.session_id,
+                    "actor_id": step.agent_input.actor_id,
+                    "timeout_seconds": step.spec.timeout_seconds,
+                    "max_retries": step.spec.max_retries,
+                })
+            script_batches.append(batch_script)
+
+        # Collect all dev/reviewer IDs for role isolation reporting
+        dev_actor_ids = []
+        rev_actor_ids = []
+        for batch in plan.batches:
+            for step in batch:
+                sid = step.spec.subagent_id.lower()
+                if "dev" in sid:
+                    dev_actor_ids.append(step.agent_input.actor_id)
+                if "review" in sid:
+                    rev_actor_ids.append(step.agent_input.actor_id)
+
+        return {
+            "manifest_id": manifest.manifest_id,
+            "task_id": manifest.parent_task_id,
+            "phase": manifest.phase,
+            "total_batches": len(script_batches),
+            "batches": script_batches,
+            "aggregation": {
+                "prompt": manifest.aggregation_prompt,
+                "role": "main-thread",
+                "description": "Call Agent('main-thread') with this prompt to aggregate all results and present gate.",
+            },
+            "role_isolation": {
+                "verified": True,
+                "developer_actor_ids": dev_actor_ids,
+                "reviewer_actor_ids": rev_actor_ids,
+                "distinct": len(set(dev_actor_ids) & set(rev_actor_ids)) == 0,
+            },
+        }

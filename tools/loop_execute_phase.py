@@ -1,12 +1,12 @@
 """
-loop_execute_phase — 两层模型：会话端 phase 执行器。
+loop_execute_phase — 两层模型：自动化 phase 执行器。
 
-ZCode 会话调用此工具获取执行计划，然后按计划调用 Agent 工具。
+ZCode 会话调用此工具获取完整执行脚本，按脚本自动完成整个阶段。
 
 用法：
     python tools/loop_execute_phase.py S4-implementation --task-id T-0001
 
-输出：JSON 执行计划，包含每个批次的 Agent 调用参数。
+输出：完整 JSON 执行脚本，包括每步的 Agent 调用参数、重试策略、角色隔离验证。
 """
 from __future__ import annotations
 
@@ -18,56 +18,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from loop_core.dispatcher import LoopDispatcher
 from loop_core.subagent_manifest import SubagentManifest, SubagentSpec
-from hooks.zcode_adapter import ZCodeAgentAdapter
 from loop_core.state_machine import Phase
+from hooks.zcode_adapter import ZCodeAgentAdapter
 
 
-def build_plan(phase_id: str, task_id: str, adapter: ZCodeAgentAdapter) -> dict:
+def build_script(phase_id: str, task_id: str, adapter: ZCodeAgentAdapter) -> dict:
+    """Build a complete execution script for a phase.
+
+    The output is a step-by-step script that the session follows:
+    1. For each batch: call Agent() for each step (parallel if max_parallel)
+    2. If a step fails: retry with failure feedback, up to max_retries
+    3. After all batches: call Agent('main-thread') to aggregate and present gate
+    """
     phase = Phase(phase_id)
     manifest = _default_manifest_for_phase(phase, task_id)
     dispatcher = LoopDispatcher()
-    plan = dispatcher.prepare(manifest, adapter)
-
-    batches = []
-    for batch in plan.batches:
-        steps = []
-        for step in batch:
-            steps.append({
-                "step_index": step.step_index,
-                "agent_description": step.description,
-                "subagent_id": step.spec.subagent_id,
-                "role_hint": step.spec.role_hint,
-                "prompt_preview": step.spec.prompt[:200],
-                "session_id": step.agent_input.session_id,
-                "actor_id": step.agent_input.actor_id,
-                "timeout_seconds": step.spec.timeout_seconds,
-                "max_parallel": step.spec.max_parallel,
-                "full_prompt": step.agent_input.prompt,
-            })
-        batches.append({
-            "batch_index": batch[0].batch_index if batch else 0,
-            "parallel": batch[0].spec.max_parallel if batch else True,
-            "steps": steps,
-        })
-
-    return {
-        "phase": phase.value,
-        "task_id": task_id,
-        "manifest_id": manifest.manifest_id,
-        "total_steps": plan.total_steps,
-        "total_batches": len(batches),
-        "aggregation_prompt": plan.aggregation_prompt,
-        "batches": batches,
-        "instructions": (
-            f"Session workflow ({plan.total_steps} agents in {len(batches)} batches):\n"
-            + "\n".join(
-                f"  Batch {b['batch_index']}: call Agent() for {len(b['steps'])} role(s) "
-                f"{'in PARALLEL' if b['parallel'] else 'SERIALLY'}"
-                for b in batches
-            )
-            + f"\n  After all batches: call Agent('main-thread') with aggregation_prompt to present gate."
-        ),
-    }
+    return dispatcher.build_execution_script(manifest, adapter)
 
 
 def _default_manifest_for_phase(phase: Phase, task_id: str) -> SubagentManifest:
@@ -131,11 +97,13 @@ def _default_manifest_for_phase(phase: Phase, task_id: str) -> SubagentManifest:
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Loop phase executor (two-layer model)")
+    parser = argparse.ArgumentParser(description="Loop phase executor (two-layer, auto-retry)")
     parser.add_argument("phase_id", help="Phase ID (S1-requirements, S4-implementation, etc.)")
     parser.add_argument("--task-id", default="T-0001", help="Task ID")
+    parser.add_argument("--main-thread-first", action="store_true",
+                        help="Call main-thread Agent first to generate custom manifest")
     args = parser.parse_args()
 
     adapter = ZCodeAgentAdapter()
-    plan = build_plan(args.phase_id, args.task_id, adapter)
-    print(json.dumps(plan, ensure_ascii=False, indent=2))
+    script = build_script(args.phase_id, args.task_id, adapter)
+    print(json.dumps(script, ensure_ascii=False, indent=2))
