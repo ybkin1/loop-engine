@@ -229,7 +229,7 @@ class TestGovernanceFileWrite(unittest.TestCase):
             self.assertEqual(result.decision, Decision.DENY)
 
     def test_governance_zcode_tools_prefix(self):
-        """Write to .zcode/tools/ is treated as governance path."""
+        """Write to .zcode/tools/ → DENY by loop_core (host paths handled by hooks)."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp,
                 **{".ai/state.yaml": STATE_WITH_TASK})
@@ -238,11 +238,12 @@ class TestGovernanceFileWrite(unittest.TestCase):
                 action=Action.WRITE_FILE,
                 target_path=str(root / ".zcode/tools/mytool/config.json"),
             ))
-            self.assertEqual(result.decision, Decision.ALLOW)
-            self.assertIn("no pending gates", result.reason.lower())
+            # loop_core does not know about .zcode/ — governance decisions
+            # for host-specific paths are injected by hooks/path_guard
+            self.assertEqual(result.decision, Decision.DENY)
 
     def test_governance_zcode_skills_prefix(self):
-        """Write to .zcode/skills/ is treated as governance path."""
+        """Write to .zcode/skills/ → DENY by loop_core (host paths handled by hooks)."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp,
                 **{".ai/state.yaml": STATE_WITH_TASK})
@@ -251,8 +252,7 @@ class TestGovernanceFileWrite(unittest.TestCase):
                 action=Action.WRITE_FILE,
                 target_path=str(root / ".zcode/skills/myskill/SKILL.md"),
             ))
-            self.assertEqual(result.decision, Decision.ALLOW)
-            self.assertIn("no pending gates", result.reason.lower())
+            self.assertEqual(result.decision, Decision.DENY)
 
     def test_gates_yaml_always_allowed(self):
         """.ai/gates.yaml is always ALLOW (decision-recording exemption)."""
@@ -301,7 +301,7 @@ class TestProtectedPath(unittest.TestCase):
             self.assertIn("AGENTS.md", result.reason)
 
     def test_zcode_config_json_triggers_ask_user(self):
-        """Write to .zcode/config.json → ASK_USER."""
+        """Write to .zcode/config.json → DENY by loop_core (host paths handled by hooks/path_guard)."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp,
                 **{".ai/state.yaml": STATE_WITH_TASK})
@@ -310,8 +310,9 @@ class TestProtectedPath(unittest.TestCase):
                 action=Action.WRITE_FILE,
                 target_path=str(root / ".zcode/config.json"),
             ))
-            self.assertEqual(result.decision, Decision.ASK_USER)
-            self.assertIn(".zcode/config.json", result.reason)
+            # loop_core does not know about .zcode/ — protection decisions
+            # for host-specific paths are injected by hooks/path_guard
+            self.assertEqual(result.decision, Decision.DENY)
 
 
 class TestHighRiskAction(unittest.TestCase):
@@ -742,17 +743,17 @@ class TestDecisionChainPriority(unittest.TestCase):
             self.assertIn("high-risk", result.reason.lower())
 
     def test_protected_checked_before_governance(self):
-        """Protected path checked before governance (even for .zcode paths)."""
+        """Host paths (.zcode/) → DENY by loop_core (handled by hooks layer)."""
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp,
                 **{".ai/state.yaml": STATE_WITH_TASK})
             ctrl = _ctrl(root)
-            # .zcode/config.json is both protected AND under .zcode/
             result = ctrl.authorize(AuthRequest(
                 action=Action.WRITE_FILE,
                 target_path=str(root / ".zcode/config.json"),
             ))
-            self.assertEqual(result.decision, Decision.ASK_USER)
+            # loop_core does not know about .zcode/ — fail-closed
+            self.assertEqual(result.decision, Decision.DENY)
 
     def test_decision_recording_exempt_checked_early(self):
         """.ai/gates.yaml exemption checked before protected/governance checks."""

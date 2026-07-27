@@ -26,8 +26,8 @@ from loop_core.agent_adapter import (
     AgentInput,
     AgentOutput,
     AgentStatus,
-    ZCodeAgentAdapter,
 )
+from hooks.zcode_adapter import ZCodeAgentAdapter
 
 
 # ── Fixtures ────────────────────────────────────────────────────────────

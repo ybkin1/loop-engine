@@ -73,10 +73,10 @@ class ContextController:
     """
 
     # Protected paths: writing to these always requires user confirmation.
-    PROTECTED_PATHS: list[str] = ["AGENTS.md", ".zcode/config.json"]
+    PROTECTED_PATHS: list[str] = ["AGENTS.md"]
 
     # Governance file prefixes: files under these are governance artifacts.
-    GOVERNANCE_PREFIXES: list[str] = [".ai/", ".zcode/tools/", ".zcode/skills/"]
+    GOVERNANCE_PREFIXES: list[str] = [".ai/"]
 
     # High-risk actions: require an independent gate (not self-approved).
     HIGH_RISK_ACTIONS: frozenset[Action] = frozenset({

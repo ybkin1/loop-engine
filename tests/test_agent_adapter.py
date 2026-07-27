@@ -12,9 +12,9 @@ from loop_core.agent_adapter import (
     AgentUnavailableError,
     AgentCapabilityProbe,
     DelegationRequest,
-    ZCodeAgentAdapter,
     probe_agent_capability,
 )
+from hooks.zcode_adapter import ZCodeAgentAdapter
 
 
 
@@ -49,13 +49,13 @@ class TestDelegationContract:
 
 class TestAgentCapabilityProbe:
     def test_probe_is_conservative_without_host_visibility(self):
-        result = probe_agent_capability(agent_tool_visible=False)
+        result = probe_agent_capability(host="zcode", agent_tool_visible=False)
         assert isinstance(result, AgentCapabilityProbe)
         assert result.status == "CAPABILITY_UNAVAILABLE"
         assert result.recursive_launch is None
 
     def test_visible_tool_still_requires_live_fire(self):
-        result = probe_agent_capability(agent_tool_visible=True)
+        result = probe_agent_capability(host="zcode", agent_tool_visible=True)
         assert result.status == "NOT_VERIFIED"
         assert result.governed_recursive_launch is None
 
@@ -247,8 +247,8 @@ class TestAlternative2ToolConstraints:
 
     def test_build_prompt_both(self):
         result = ZCodeAgentAdapter.build_tool_constraint_prompt(["read"], ["deploy"])
-        assert "只能使用以下工具" in result
-        assert "禁止使用以下工具" in result
+        assert "Allowed" in result
+        assert "Forbidden" in result
         assert "CONTRACT_VIOLATION" in result
 
     def test_build_prompt_none(self):
@@ -511,7 +511,7 @@ class TestZCodeAgentAdapterStub:
         with pytest.raises(AgentUnavailableError) as exc:
             adapter.launch_agent(ai)
         assert "REAL_AGENT_UNAVAILABLE" in str(exc.value)
-        assert "prepare_launch" in str(exc.value)
+        assert "not yet available" in str(exc.value)
 
     def test_get_status_returns_unavailable(self):
         assert ZCodeAgentAdapter().get_status("any") == AgentStatus.UNAVAILABLE

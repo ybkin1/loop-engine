@@ -1037,7 +1037,7 @@ class HardConstraints:
         Counts the files listed in a task's allowed_paths configuration.
         If the count exceeds max_files, returns a violation.
 
-        Governance files (.ai/*, .zcode/*) are excluded from the count.
+        Governance files (.ai/* and host-specific governance dirs) are excluded.
 
         Args:
             root: Project root directory.
@@ -1071,7 +1071,7 @@ class HardConstraints:
         allowed_paths = _parse_allowed_paths_from_markdown(text)
 
         # Filter out governance files (they don't count toward the limit)
-        governance_prefixes = (".ai/", ".zcode/")
+        governance_prefixes = (".ai/",)  # host-specific prefixes injected by adapter
         file_paths = [
             p for p in allowed_paths
             if p and not p.strip().startswith(governance_prefixes)

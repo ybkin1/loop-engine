@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from loop_core.dispatcher import LoopDispatcher
 from loop_core.subagent_manifest import SubagentManifest, SubagentSpec
-from loop_core.agent_adapter import ZCodeAgentAdapter
+from hooks.zcode_adapter import ZCodeAgentAdapter
 from loop_core.state_machine import Phase
 
 
