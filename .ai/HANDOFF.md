@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0052
+T-0053
 
 Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0052-COMPREHENSIVE-REMEDIATION
+active_gate: G-T-0053-AGENT-CONTRACT-MIGRATION
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0052-COMPREHENSIVE-REMEDIATION is approved and execution is in progress.
+G-T-0053-AGENT-CONTRACT-MIGRATION is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -116,19 +116,21 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Verified
 
-See Structured Lifecycle block below.
+None
 
 ## Unverified
 
-See Structured Lifecycle block below.
+- EVIDENCE_MANIFEST_REQUIRED
+- FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
 
 ## Evidence
 
-Evidence is recorded in .ai/evidence/<task_id>/ and verified via evidence-manifest.
+Evidence manifest: .ai/evidence/T-0053/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
-No integration impact assessed. See checkpoint block below.
+Checkpoint status: NOT_ESTABLISHED.
+Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
@@ -160,11 +162,10 @@ Use $project-governor, validate structured state, and continue only inside the a
   ],
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
+    "EVIDENCE_MANIFEST_REQUIRED",
     "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
-  "verified": [
-    "STRUCTURED_STATE_HASHES_VERIFIED"
-  ]
+  "verified": []
 }
 ```
 <!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
@@ -174,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0052-COMPREHENSIVE-REMEDIATION",
+  "approved_execution_gate_id": "G-T-0053-AGENT-CONTRACT-MIGRATION",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0052-COMPREHENSIVE-REMEDIATION",
-  "current_task_id": "T-0052",
+  "current_gate_id": "G-T-0053-AGENT-CONTRACT-MIGRATION",
+  "current_task_id": "T-0053",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",
@@ -191,35 +192,11 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
-  "authority_hash": "2337C69A376EF942A0249978571E61B1BCAB58F34037DDAA88E14B5109EE6FC3",
-  "blockers": [],
-  "checkpoint_id": "CP-3C9E731E405DA5A37E6FB44A",
-  "checkpoint_status": "PENDING_SUCCESSOR_ACK",
-  "contract_id": "PCC-2026-07-16-R1",
-  "controller_generation": 1,
-  "evidence_manifest_hashes": {
-    "file_count": 6,
-    "manifest_file_sha256": "9E16DEC7C8350C8DDB5E4270CE0B2D2E7C0B0966876A55707887FF06C458BEFC",
-    "ordered_entries_sha256": "0A13AABEC2EB4A58D9F25DD8381B8C14DA5D705BBEA286FAB08FDF5EDD061D52",
-    "semantic_sha256": "C2159D158CB80BD4615D90FA2CD699AA295FE37CDE31BBCE0F98BAA1EC4FB220",
-    "total_bytes": 7593
-  },
-  "fixture_only": false,
-  "project_continuity_hashes": {
-    "file_sha256": "0D2770473D03BE9F2566EC8FF0C30262BD6C2B37DFCB1920D8203DA08D33D30D",
-    "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-    "source_sha256": "3DEAB75E885138A6B8D049F9E569214E9A9DA098FDDA8395B5DE654794423271"
-  },
-  "recovered_state_sha256": "C979FDBFD77D2C99D15B271707BCD812A86505DDB3FD9F221A7C3961F1279AEB",
-  "requirements_revision": "T-0034-REQ-2026-07-16-R1",
-  "schema": "Checkpoint/v1.0",
-  "task_scope_hash": "387F12B9F31D5D0F307498E063C27A45AA8CB08A5C1D2208096B88B556EF84BE",
-  "transaction_registry_hashes": {
-    "checkpoint_semantic_sha256": "5C99D5C2425154741AE25217E824B17AFD734D3AA776286F4ED7A94647901BCE",
-    "file_sha256": "0D99CF029CBF0D360725195E8B0825832E019976EEF988A9EFFDD2F7B01301CE",
-    "semantic_sha256": "2CF3351B01F4A75E5114D8EEED9B0C418079516C0CDD264A4579ED4299A7F555",
-    "source_sha256": "CBCD552B56BA77B10A11A38257B965B0009162F67E0F196B6824CFD44AC06262"
-  }
+  "blockers": [
+    "EVIDENCE_MANIFEST_REQUIRED"
+  ],
+  "checkpoint_status": "NOT_ESTABLISHED",
+  "schema": "Checkpoint/v1.0"
 }
 ```
 <!-- PROJECT-GOVERNOR-CHECKPOINT-END -->

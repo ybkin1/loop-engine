@@ -90,7 +90,11 @@ agents/
 1. 角色身份 2. 固定立场 3. 职责范围 4. 明确禁止 5. 输入资料 6. 输出产物
 7. 质量标准 8. 可否决事项 9. 上游验收 10. 下游交接 11. 冲突处理 12. 证据要求
 
-## 运行方式
+## 运行方式（v3.6 宿主编排模式）
 
-每个角色 agent 由主控会话通过 ZCode Agent 工具启动为独立子会话，
-加载自己的 SKILL.md + references + scripts，不能访问其他角色的运行上下文。
+ZCode 子代理不具备 Agent 工具（live-fire 已证实），因此采用宿主编排：
+
+1. 用户会话拉起 main-thread Agent → 产出 SubagentManifest（编排计划）
+2. 宿主（用户会话）使用 `loop_core/dispatcher.py` 按清单并行调用角色 Agent
+3. 每个角色 Agent 加载自己的 SKILL.md + references + scripts，**不能**访问其他角色的运行上下文
+4. main-thread 收到聚合结果后验证产出并呈现 gate

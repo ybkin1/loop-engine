@@ -272,19 +272,20 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Verified
 
-See Structured Lifecycle block below.
+{chr(10).join('- ' + v for v in model['lifecycle'].get('verified', ['None'])) if model['lifecycle'].get('verified') else 'None'}
 
 ## Unverified
 
-See Structured Lifecycle block below.
+{chr(10).join('- ' + v for v in model['lifecycle'].get('unverified', ['None'])) if model['lifecycle'].get('unverified') else 'None'}
 
 ## Evidence
 
-Evidence is recorded in .ai/evidence/<task_id>/ and verified via evidence-manifest.
+Evidence manifest: {f".ai/evidence/{task_id}/evidence-manifest.v1.yaml" if task_id else 'not yet created'}.
 
 ## Integration Impact
 
-No integration impact assessed. See checkpoint block below.
+Checkpoint status: {checkpoint.get('checkpoint_status', 'UNKNOWN')}.
+Blockers: {', '.join(checkpoint.get('blockers', ['none'])) if checkpoint.get('blockers') else 'none'}.
 
 ## Next Session First Step
 

@@ -421,6 +421,12 @@ def main() -> int:
     if blocker_errors:
         return 2
     print("[ok] state is usable")
+
+    # ── Checkpoint hint ───────────────────────────────────────────
+    handoff = read_text(base / "HANDOFF.md")
+    if handoff and "PENDING_SUCCESSOR_ACK" in handoff:
+        print("[info] Checkpoint is PENDING_SUCCESSOR_ACK — successor session should acknowledge before proceeding to next phase.")
+
     return 0
 
 

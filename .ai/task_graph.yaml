@@ -417,6 +417,25 @@ tasks:
       - .ai/gates.yaml
       - .ai/HANDOFF.md
     note: "等待用户批准 G-T-0052-COMPREHENSIVE-REMEDIATION；覆盖 T-0051 残余问题和 legacy lab 回归失败。"
+  -
+    id: T-0053
+    title: Agent Contract Migration + Low-Priority Cleanup
+    status: in_progress
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - agents/
+      - .zcode/tools/
+      - loop_core/
+      - tests/
+      - .ai/tasks/T-0053.md
+      - .ai/evidence/T-0053/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "G-T-0053-AGENT-CONTRACT-MIGRATION approved; executing agent contract migration"
 edges:
     - from: T-0040
       to: T-0041

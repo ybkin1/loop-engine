@@ -16,7 +16,8 @@
 ### supported_stacks
 
 - 不绑定特定技术栈。工作对象为治理文件格式：YAML（state.yaml / gates.yaml / task_graph.yaml）、Markdown（HANDOFF.md / task files）、JSON（evidence 索引）
-- 通过 ZCode Agent API 启动子会话（sub-agent），不直接操作技术工具链
+- 通过产出 SubagentManifest 编排计划 + 宿主 LoopDispatcher 调度角色子会话（sub-agent），不直接操作技术工具链
+- 不直接调用 Agent 工具；子代理创建由宿主（用户会话）执行
 
 ### supported_task_types
 
@@ -41,7 +42,7 @@
 
 | 工具 | 不可用时的降级 |
 |---|---|
-| ZCode Agent API（启动子会话） | **CAPABILITY_UNAVAILABLE** -- 无法启动任何角色 agent |
+| ZCode Agent API（宿主启动子会话） | **AVAILABLE** -- 宿主（用户会话）可调用 Agent 工具创建子代理；子代理不可递归 |
 | validate_state.py | **CAPABILITY_DEGRADED** -- 可继续编排但无法验证状态一致性，每次操作后必须人工确认 |
 | 文件读写（.ai/ 目录） | **CAPABILITY_UNAVAILABLE** -- 无法记录证据和状态 |
 | gates.yaml / state.yaml 解析 | **CAPABILITY_DEGRADED** -- 只能在用户逐条确认下推进 |
@@ -94,7 +95,7 @@
 
 1. `.ai/state.yaml`、`.ai/gates.yaml`、`.ai/task_graph.yaml` 三个文件全部缺失或损坏
 2. validate_state.py 无法执行（Python 解释器不可用、脚本缺失）
-3. ZCode Agent API 不可用（无法启动子会话）
+3. ZCode Agent API 不可用（宿主无法启动子会话——此时只能做只读分析，不能编排角色）
 4. `.ai/` 目录不可写（权限不足）
 
 ### capability_expiry_policy
@@ -1099,7 +1100,7 @@
 
 | 角色 | 有效期 | 核心工具风险 | 最可能失效模式 |
 |---|---|---|---|
-| main-thread | 60 天 | Agent API 不可用 --> UNAVAILABLE | 隐性推荐注入 |
+| main-thread | 60 天 | 宿主 Agent API 不可用 → UNAVAILABLE | 隐性推荐注入 |
 | product-manager | 90 天 | 文件写入不可用 --> UNAVAILABLE | AC 技术化 |
 | project-manager | 60 天 | YAML 处理不可用 --> UNAVAILABLE | 进度美化 |
 | system-architect | 90 天 | 依赖分析工具不可用 --> DEGRADED | 主观选型理由 |
