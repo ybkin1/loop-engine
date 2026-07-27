@@ -418,6 +418,12 @@ tasks:
       - .ai/HANDOFF.md
     note: "等待用户批准 G-T-0052-COMPREHENSIVE-REMEDIATION；覆盖 T-0051 残余问题和 legacy lab 回归失败。"
   -
+    id: T-0036
+    title: Structured State Contract Repair (lab fixture reference)
+    status: completed
+    created_at: "2026-07-20"
+    note: "Lab reference task; actual contract repair performed in T-0046-T-0053"
+  -
     id: T-0053
     title: Agent Contract Migration + Low-Priority Cleanup
     status: in_progress

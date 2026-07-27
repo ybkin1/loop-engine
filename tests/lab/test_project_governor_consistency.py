@@ -1219,7 +1219,9 @@ class T0036RepairRedContractTests(unittest.TestCase):
         task_path = self.base / "tasks" / "T-0036.md"
         shutil.copy2(CANDIDATE_ROOT / ".ai" / "tasks" / "T-0036.md", task_path)
         task_path.write_text(
-            task_path.read_text(encoding="utf-8").replace("`active`", "`in_progress`", 1),
+            task_path.read_text(encoding="utf-8")
+            .replace("`active`", "`in_progress`", 1)
+            .replace("`completed`", "`in_progress`", 1),
             encoding="utf-8",
         )
         graph = load_yaml(self.base / "task_graph.yaml")
