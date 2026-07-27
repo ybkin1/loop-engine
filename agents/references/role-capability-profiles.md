@@ -6,18 +6,17 @@
 
 ---
 
-## 1. main-thread（主控会话）
+## 1. main-thread（阶段规划者 + 汇总者）
 
 | 字段 | 值 |
 |---|---|
 | role_id | main-thread |
-| role_version | 2.0.0 |
+| role_version | 3.0.0 |
 
 ### supported_stacks
 
 - 不绑定特定技术栈。工作对象为治理文件格式：YAML（state.yaml / gates.yaml / task_graph.yaml）、Markdown（HANDOFF.md / task files）、JSON（evidence 索引）
-- 通过产出 SubagentManifest 编排计划 + 宿主 LoopDispatcher 调度角色子会话（sub-agent），不直接操作技术工具链
-- 不直接调用 Agent 工具；子代理创建由宿主（用户会话）执行
+- 产出 SubagentManifest 编排计划；**不直接调用 Agent 工具**（调人是 ZCode 会话的事）
 
 ### supported_task_types
 
