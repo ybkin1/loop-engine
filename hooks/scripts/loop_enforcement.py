@@ -481,13 +481,33 @@ def main():
             return EXIT_PASS
 
         # ── Git 版本控制豁免 ──
-        # git add/commit/diff/log 操作 git 索引和对象库，不直接修改工作树文件。
-        # 拦截 git 会导致无法提交治理记录，造成治理死锁。
+        # 无任务时：只允许 git add/commit/diff（提交治理记录必须）
+        # 有任务时：所有本地 git 操作放行
+        # git push/pull/fetch/clone 等网络操作始终需 task scope 检查
         if command:
-            cmd_clean = (command or "").strip().lower()
-            is_git = cmd_clean.startswith("git ") or " git " in cmd_clean or cmd_clean.startswith("cd ") and "git " in cmd_clean
-            if is_git:
-                return EXIT_PASS
+            cmd_stripped = (command or "").strip()
+            _GIT_COMMIT_OPS = ("git add", "git commit", "git diff")
+            _GIT_ALL_LOCAL = _GIT_COMMIT_OPS + (
+                "git status", "git log", "git branch", "git checkout",
+                "git switch", "git restore", "git stash", "git tag",
+                "git show", "git config", "git rm", "git mv", "git reset",
+                "git merge", "git rebase",
+            )
+            is_commit_op = any(cmd_stripped.startswith(p) for p in _GIT_COMMIT_OPS)
+            is_local_op = any(cmd_stripped.startswith(p) for p in _GIT_ALL_LOCAL)
+            # Compound commands: cd /x && git ...
+            has_git = " git " in cmd_stripped
+            is_network = any(
+                cmd_stripped.rstrip().endswith(suffix)
+                for suffix in (" push", " pull", " fetch", " clone")
+            )
+            if not is_network:
+                if task_id and is_local_op:
+                    return EXIT_PASS
+                if not task_id and is_commit_op:
+                    return EXIT_PASS
+                if has_git and "cd " in cmd_stripped and not is_network:
+                    return EXIT_PASS
 
         # ── Read 治理：无任务时只允许治理元数据读取 ──
         if tool_name == "Read" and not task_id:
