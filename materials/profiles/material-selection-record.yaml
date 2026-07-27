@@ -1,0 +1,28 @@
+selection_id: "MSEL-<id>"
+selection_version: "<semver or date>"
+selection_scope: "project | phase_profile"
+parent_selection_id: "MSEL-<id>-PROJECT"
+subset_relation: "strict_subset | independent"
+project_profile_id: "PROJECT-PROFILE-<id>"
+phase_profile_id: "PHASE-PROFILE-<id>"
+intent_summary: "<what the project needs>"
+risk_tier: "<risk tier>"
+query_terms: ["<domain>", "<artifact>", "<constraint>"]
+selected_materials:
+  - material_id: "<material_id>"
+    reason: "<problem and fit>"
+    version_locked: "<version/date>"
+    adaptation: "<project-specific rule>"
+    evidence_target: "<what must be proven>"
+rejected_materials:
+  - material_id: "<material_id>"
+    reason: "<not applicable, lower authority, inaccessible, conflict>"
+conflicts:
+  - sources: ["<id>", "<id>"]
+    decision: "<which applies and why>"
+    adr: "<adr path>"
+selected_templates: ["materials/templates/<template path>"]
+selected_roles: ["<role contract id>"]
+selected_phases: ["<phase profile id>"]
+user_gate: "<pending gate id>"
+status: "candidate | approved_by_user | superseded"

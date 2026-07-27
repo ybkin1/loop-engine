@@ -1,138 +1,33 @@
-# Loop Engine — Loop 工程软件交付系统
+# Loop Engine Lab
 
-ZCode 插件。把 AI 编码变成具备完整软件工程纪律的可交付系统。
+本目录是 loop 工程的实验工作台，用于模拟“主线程 + 一次性 subagent + 文档契约 + 评审循环”的工作方式。
 
-## 版本
+当前状态：实验草案，未安装为任何正式协议。
 
-**v3.0.0** — 2026-07-24
+## 目标
 
-## 安装
+- 让主线程替代用户进行任务编排。
+- 让每个 subagent 只读取自己的上下文包和任务卡。
+- 让候选产物、评审意见、修订产物有固定路径。
+- 防止候选文档被误认为正式协议。
+- 为后续真实 subagent 工具接入预留文件级接口。
 
-### 方式一：ZCode 界面
+## 目录
 
-```
-ZCode → Settings → Plugin Management → Discover → + → 选择本项目目录
-```
+- `stable/`: 当前权威事实与稳定入口文档。
+- `roles/`: 不同 subagent 的角色背景提示词。
+- `templates/`: 任务卡、评审报告、修订任务、交接摘要模板。
+- `registry/`: 文档与 run 注册表。
+- `runs/`: 每一轮 loop 的输入、输出、评审、修订和证据。
+- `archive/`: 旧版本和废弃材料。
+- `materials/`: 正式 Loop 开发前的外部软件工程、提示词工程、Agent、质量和交付素材库候选基线。
 
-### 方式二：命令行联结
+素材库当前处于 `candidate / research-baseline-v0.1`：`materials/catalog.yaml` 保存来源与适用边界，`materials/templates/` 保存可组合交付物模板，不能直接视为已批准的运行时规则。后续项目必须先按风险和技术栈选择素材并形成项目配置，再经过用户 Gate 才能进入执行。
 
-```bash
-mklink /J %USERPROFILE%\.zcode\plugin-workspace\loop-engine C:\Users\Administrator\ZCodeProject\loop-engine
-```
+## 核心规则
 
-### 初始化目标项目
-
-```bash
-python scripts/install.py --project-root /path/to/your/project
-```
-
-目标项目将获得 `.ai/` 治理目录（state.yaml / gates.yaml / HANDOFF.md 等模板）。
-
-### 卸载
-
-```bash
-python scripts/uninstall.py --project-root /path/to/your/project
-```
-
-## 项目结构
-
-```
-loop-engine/
-├── .zcode-plugin/          ← ZCode 插件清单
-├── hooks/                  ← ZCode 执行层 hook（6 个）
-│   ├── hooks.json
-│   └── scripts/
-│       ├── loop_auto_activate.py  ← SessionStart Loop 自动激活
-│       ├── template_injector.py   ← SessionStart 模板注入
-│       ├── session_brief.py       ← SessionStart 治理摘要
-│       ├── loop_enforcement.py    ← PreToolUse 写入拦截
-│       ├── gate_guard.py          ← PreToolUse gate 阻断
-│       ├── ledger_guard.py        ← PreToolUse 账本保护
-│       ├── role_isolation.py      ← PreToolUse 角色隔离 (v2.0 HARD)
-│       ├── path_guard.py          ← PreToolUse 路径保护
-│       └── hook_common.py         ← 共享工具库
-├── skills/                 ← 治理技能（LLM 知识层）
-│   └── loop-governance/
-│       ├── SKILL.md            ← 治理启动器
-│       ├── config.yaml         ← 行为配置
-│       ├── chain.yaml          ← 证据链定义
-│       ├── references/         ← 参考文档
-│       ├── examples/           ← 场景示例
-│       └── templates/          ← 治理模板
-├── agents/                 ← 11 个专业角色合同
-├── tools/                  ← MCP 工具（7 个）
-│   ├── server.py               ← JSON-RPC stdio 服务器
-│   └── tool_*.py               ← 7 个工具实现
-├── commands/               ← 斜杠命令（3 个）
-│   ├── loop-validate.md
-│   ├── loop-verify-chain.md
-│   └── loop-cost.md
-├── loop_core/               ← Python 核心引擎
-│   ├── state_machine.py         ← 阶段状态机 + gate 逻辑
-│   ├── hard_constraints.py      ← 8 项硬约束（C1-C8）
-│   ├── enforcement_hub.py       ← Hook↔Core 治理决策桥 (v3.0)
-│   ├── intent_router.py         ← 意图识别与 Loop 路由
-│   ├── executor.py              ← 阶段/角色执行引擎
-│   ├── router.py                ← 项目分级路由
-│   ├── agent_adapter.py         ← Agent 适配器
-│   ├── approval_record.py       ← 批准记录
-│   └── ...                      ← 等 20+ 模块
-├── scripts/                ← 独立工具脚本
-│   ├── install.py
-│   ├── uninstall.py
-│   ├── cost_tracker.py
-│   ├── evidence_chain.py
-│   └── gen_continuity.py
-├── tests/                  ← 测试套件（2116 条）
-├── demo/                   ← 垂直切片验证项目 (v3.0)
-│   └── loop-demo-todo/         ← 完整 S1-S6 闭环 CLI 工具
-├── docs/                   ← 设计文档
-│   ├── 00-project-charter.md
-│   ├── 01-requirements.md
-│   ├── 02-architecture.md
-│   ├── 03-interface-contract.md
-│   └── 06-delivery.md
-├── .ai/                    ← 治理数据
-│   ├── state.yaml
-│   ├── gates.yaml
-│   ├── task_graph.yaml
-│   └── HANDOFF.md
-├── .zcode/                 ← 运行时工具
-│   ├── tools/              ← 治理脚本（12 个）
-│   └── skills/loop-governance/
-├── archive/                ← 历史实验证据
-└── AGENTS.md               ← 项目启动规则
-```
-
-## 核心能力
-
-| 层 | 组件 | 功能 |
-|----|------|------|
-| **执行层** | 6 个 Hook | 写入拦截、gate 阻断、角色隔离(HARD)、路径保护、账本保护、自动激活 |
-| **知识层** | Skill + 11 Agent | 治理启动、角色协作、状态机 |
-| **工具层** | 7 个 MCP 工具 | 质量门禁、安全扫描、依赖分析、契约验证、证据链、成本报告 |
-| **命令层** | 3 个 Slash 命令 | 状态校验、证据链验证、成本报告 |
-
-## 质量
-
-| 门禁 | 结果 |
-|------|------|
-| Lint (ruff) | ✅ 0 errors |
-| Test (pytest) | ✅ 113 passed, 1 skipped |
-| Security | ✅ PyYAML 6.0.3（无已知 CVE） |
-
-## 依赖
-
-Python 3.10+, PyYAML >= 6.0
-
-## 阶段进度
-
-| 阶段 | 任务 | 状态 |
-|------|------|------|
-| S0-init | 项目合并 | ✅ |
-| S1-requirements | T-0022 需求规格 | ✅ |
-| S2-architecture | T-0023 架构设计 | ✅ |
-| S3-interface | T-0024 接口契约 | ✅ |
-| S4-implementation | T-0025 代码修复 | ✅ |
-| S5-quality | T-0026 质量门禁 | ✅ |
-| S6-delivery | T-0027 交付准备 | ✅ |
+1. subagent 不直接修改 `stable/`。
+2. subagent 只能写入任务卡声明的 `allowed_write` 路径。
+3. `runs/` 中的文件默认都是过程产物，不是权威事实。
+4. 只有主线程可以在通过 gate 后 promotion 到 `stable/`。
+5. 自动评审通过不等于用户批准。

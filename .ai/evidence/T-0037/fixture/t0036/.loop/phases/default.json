@@ -1,0 +1,222 @@
+{
+  "phases": [
+    {
+      "internal_checks": [
+        "intent",
+        "risk"
+      ],
+      "merge_target": null,
+      "name": "启动与分级",
+      "outcome": "恢复上下文并确定项目模式",
+      "phase_id": "P0",
+      "required_roles": [
+        "controller",
+        "project-manager"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "goal_traceability"
+      ],
+      "merge_target": null,
+      "name": "产品发现",
+      "outcome": "明确用户问题和目标",
+      "phase_id": "P1",
+      "required_roles": [
+        "product-manager"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": "目标是否正确"
+    },
+    {
+      "internal_checks": [
+        "requirements",
+        "acceptance"
+      ],
+      "merge_target": null,
+      "name": "需求基线",
+      "outcome": "冻结范围、验收和变更规则",
+      "phase_id": "P2",
+      "required_roles": [
+        "product-manager",
+        "quality-engineer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": "是否接受需求基线"
+    },
+    {
+      "internal_checks": [
+        "architecture",
+        "security_boundary"
+      ],
+      "merge_target": null,
+      "name": "整体架构",
+      "outcome": "冻结系统边界和重大架构取舍",
+      "phase_id": "P3",
+      "required_roles": [
+        "system-architect",
+        "security-engineer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": "是否接受重大架构方向"
+    },
+    {
+      "internal_checks": [
+        "contract",
+        "dependency"
+      ],
+      "merge_target": null,
+      "name": "详细设计",
+      "outcome": "冻结组件、接口、数据和调用契约",
+      "phase_id": "P4",
+      "required_roles": [
+        "module-architect",
+        "quality-engineer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "quality",
+        "security"
+      ],
+      "merge_target": null,
+      "name": "质量与安全设计",
+      "outcome": "冻结测试策略、质量门禁和威胁控制",
+      "phase_id": "P5",
+      "required_roles": [
+        "quality-engineer",
+        "security-engineer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "acyclic_graph",
+        "budget"
+      ],
+      "merge_target": null,
+      "name": "任务规划",
+      "outcome": "形成依赖图和工作包",
+      "phase_id": "P6",
+      "required_roles": [
+        "project-manager",
+        "controller"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "write_scope",
+        "tests"
+      ],
+      "merge_target": null,
+      "name": "实现与单测",
+      "outcome": "实现批准的工作包并完成局部验证",
+      "phase_id": "P7",
+      "required_roles": [
+        "developer",
+        "quality-engineer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "integration",
+        "regression"
+      ],
+      "merge_target": null,
+      "name": "集成与功能测试",
+      "outcome": "验证跨模块和用户路径",
+      "phase_id": "P8",
+      "required_roles": [
+        "quality-engineer",
+        "independent-reviewer"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "nonfunctional",
+        "recovery"
+      ],
+      "merge_target": null,
+      "name": "非功能验证",
+      "outcome": "验证性能、安全、恢复和运行边界",
+      "phase_id": "P9",
+      "required_roles": [
+        "quality-engineer",
+        "security-engineer",
+        "release-operations"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "readiness",
+        "rollback"
+      ],
+      "merge_target": null,
+      "name": "交付准备",
+      "outcome": "形成可交付和可交接的完整包",
+      "phase_id": "P10",
+      "required_roles": [
+        "delivery-manager",
+        "release-operations"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    },
+    {
+      "internal_checks": [
+        "packet_complete"
+      ],
+      "merge_target": null,
+      "name": "用户验收",
+      "outcome": "让用户判断产品目标和可见行为是否满足",
+      "phase_id": "P11",
+      "required_roles": [
+        "controller",
+        "delivery-manager"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": "是否接受产品并继续"
+    },
+    {
+      "internal_checks": [
+        "change_traceability"
+      ],
+      "merge_target": null,
+      "name": "运行维护",
+      "outcome": "处理监控、缺陷、变更和演进",
+      "phase_id": "P12",
+      "required_roles": [
+        "project-manager",
+        "release-operations"
+      ],
+      "status": "required",
+      "tailoring_reason": null,
+      "user_decision": null
+    }
+  ]
+}

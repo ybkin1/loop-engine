@@ -1,0 +1,9 @@
+{
+  "delivery_target": "candidate",
+  "goal": "build software engineering material library",
+  "host": "codex",
+  "project_id": "T-0036",
+  "risk_tier": "medium",
+  "selected_materials": [],
+  "technology_baseline": []
+}

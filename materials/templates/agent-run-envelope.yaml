@@ -1,0 +1,20 @@
+run_id: "RUN-<id>"
+agent_id: "<host-assigned id>"
+role_id: "ROLE-<id>"
+prompt_contract: "PROMPT-<id>@<version>"
+input_fingerprint: "<hash>"
+source_materials: ["<material_id>@<version>"]
+tool_capabilities: ["<tool id and permission>"]
+start_time: "<timestamp>"
+end_time: "<timestamp>"
+events:
+  - sequence: 1
+    type: "input | tool_call | tool_result | artifact | finding | handoff"
+    reference: "<durable evidence path>"
+    result_hash: "<hash>"
+verification:
+  deterministic_checks: ["<checker result>"]
+  independent_review: "<review id or null>"
+  freshness: "<source and artifact age>"
+verdict: "PASS | REPAIR_REQUIRED | BLOCKED | NOT_ASSESSED"
+limitations: ["<known limitation>"]

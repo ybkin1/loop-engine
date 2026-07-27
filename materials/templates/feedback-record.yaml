@@ -1,0 +1,12 @@
+feedback_id: "FB-<id>"
+run_id: "RUN-<id>"
+trigger: "<failure, finding, user correction, metric>"
+observed_behavior: "<what happened>"
+expected_behavior: "<what should happen>"
+evidence: ["<path>"]
+root_cause_class: "prompt | context | tool | data | design | implementation | test | process | unknown"
+proposed_change: "<candidate change>"
+side_effects: ["<risk>"]
+independent_review: "<review id>"
+retest: "<command/result>"
+status: "open | candidate | adopted | rejected | superseded"

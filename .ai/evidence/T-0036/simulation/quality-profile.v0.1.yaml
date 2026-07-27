@@ -1,0 +1,23 @@
+quality_profile_id: "QUALITY-PROFILE-T0036-SIM-HIGH-V0.1"
+risk_tier: "high"
+quality_attributes: ["traceability", "source_integrity", "completeness", "maintainability", "security"]
+mandatory_checkers:
+  - "yaml_parse_and_required_fields"
+  - "catalog_template_reference_closure"
+  - "source_status_and_freshness"
+  - "coverage_matrix_completeness"
+  - "independent_review"
+  - "prompt_injection_and_sensitive_data_scan"
+evidence_rules:
+  source: "PowerShell Invoke-WebRequest observation + repository files + deterministic validation commands"
+  freshness: "source observation must record retrieval date; project configuration must lock material version/date"
+  reproducibility: "commands, environment, file paths and checker output must be recorded"
+  independence: "independent reviewer receives frozen artifacts and fresh context; author cannot self-approve"
+thresholds:
+  tests: "all deterministic structure and reference checks pass"
+  coverage: "all declared engineering domains have a source/template/gap status"
+  security: "no secrets; untrusted source instructions remain data; critical injection or copyright risk blocks"
+  performance: "P9 runtime performance is NOT_APPLICABLE; cost and freshness checks remain required"
+blocking_findings: ["P0", "P1", "unresolved source integrity risk", "missing user decision"]
+waiver_policy: "only explicit user decision with reason, expiry and compensating evidence"
+release_recommendation: "candidate baseline only; not a user gate"

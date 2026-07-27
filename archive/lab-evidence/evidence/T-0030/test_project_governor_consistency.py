@@ -22,6 +22,11 @@ class ProjectGovernorConsistencyTests(unittest.TestCase):
         self.temp_dir = tempfile.TemporaryDirectory()
         self.root = Path(self.temp_dir.name)
         shutil.copytree(TEMPLATES, self.root / ".ai")
+        agents_lines = ["# Fixture Agent Instructions"] + [""] * 22 + [
+            "Fixture governance mission: preserve authoritative handoff boundaries."
+        ]
+        (self.root / "AGENTS.md").write_text("\n".join(agents_lines) + "\n", encoding="utf-8")
+        self.assertEqual(len((self.root / "AGENTS.md").read_text(encoding="utf-8").splitlines()), 24)
         (self.root / ".ai" / "tasks").mkdir(exist_ok=True)
         (self.root / ".ai" / "evidence" / "T-0001").mkdir(parents=True)
         (self.root / ".ai" / "evidence" / "T-0001" / "commands.md").write_text("# Commands\n", encoding="utf-8")
@@ -29,7 +34,8 @@ class ProjectGovernorConsistencyTests(unittest.TestCase):
             "# Task T-0001: Fixture\n\n## Status\n\ncompleted\n", encoding="utf-8"
         )
         (self.root / ".ai" / "state.yaml").write_text(
-            "schema_version: 1\nproject_name: Fixture\ncurrent_phase: test\ncurrent_task_id: T-0001\ncurrent_gate_id: null\n",
+            "schema_version: 1\nproject_name: Fixture\ncurrent_phase: test\ncurrent_task_id: T-0001\ncurrent_gate_id: null\n"
+            "current_direction: fixture continuation\n",
             encoding="utf-8",
         )
         (self.root / ".ai" / "task_graph.yaml").write_text(

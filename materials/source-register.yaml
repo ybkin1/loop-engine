@@ -1,0 +1,496 @@
+schema_version: '0.1'
+retrieval_run:
+  run_id: T0036-REPAIR-F006-20260724T1325
+  started_at: '2026-07-24T13:31:48+08:00'
+  completed_at: '2026-07-24T13:32:43+08:00'
+  record_count: 46
+  http_count: 44
+  local_count: 2
+records:
+- material_id: PROMPT-001
+  source_locator: https://platform.openai.com/docs/guides/prompt-engineering
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 403
+  final_url: https://platform.openai.com/docs/guides/prompt-engineering
+  page_title: Attention Required! | Cloudflare
+  failure_reason: HTTP 403 access challenge; page body not treated as source content
+  verification_status: access_blocked
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=403; final_url=https://platform.openai.com/docs/guides/prompt-engineering; page_title=Attention Required! | Cloudflare; failure_reason=HTTP
+    403 access challenge; page body not treated as source content
+- material_id: PROMPT-002
+  source_locator: https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://claude.com/app-unavailable-in-region
+  page_title: App unavailable in region | Claude by Anthropic
+  failure_reason: Final page is a regional-unavailability notice; source body not treated as read
+  verification_status: access_blocked
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://claude.com/app-unavailable-in-region; page_title=App unavailable in region | Claude by Anthropic;
+    failure_reason=Final page is a regional-unavailability notice; source body not treated as read
+- material_id: PROMPT-003
+  source_locator: https://ai.google.dev/gemini-api/docs/prompting-strategies
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: null
+  final_url: not_available
+  page_title: not_observed
+  failure_reason: 'ConnectTimeout: HTTPSConnectionPool(host=''ai.google.dev'', port=443): Max retries exceeded with url: /gemini-api/docs/prompting-strategies (Caused by ConnectTimeoutError(<HTTPSConnection(host=''ai.google.dev'',
+    port=443) at 0x17c44b57aa0>, ''Connection to ai.google.dev timed out. (connect timeout=8)''))'
+  verification_status: access_blocked
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; transport failure; failure_reason=ConnectTimeout: HTTPSConnectionPool(host=''ai.google.dev'', port=443): Max retries exceeded with url:
+    /gemini-api/docs/prompting-strategies (Caused by ConnectTimeoutError(<HTTPSConnection(host=''ai.google.dev'', port=443) at 0x17c44b57aa0>, ''Connection to ai.google.dev timed out. (connect timeout=8)''))'
+- material_id: AGENT-001
+  source_locator: https://modelcontextprotocol.io/specification/2025-06-18
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://modelcontextprotocol.io/specification/2025-06-18
+  page_title: Specification - Model Context Protocol
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://modelcontextprotocol.io/specification/2025-06-18; page_title=Specification - Model Context Protocol;
+    failure_reason=none
+- material_id: AGENT-002
+  source_locator: https://arxiv.org/abs/2210.03629
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://arxiv.org/abs/2210.03629
+  page_title: '[2210.03629] ReAct: Synergizing Reasoning and Acting in Language Models'
+  failure_reason: none
+  verification_status: content_read
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://arxiv.org/abs/2210.03629; page_title=[2210.03629] ReAct: Synergizing Reasoning and Acting in Language
+    Models; failure_reason=none'
+- material_id: AGENT-003
+  source_locator: https://arxiv.org/abs/2303.11366
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://arxiv.org/abs/2303.11366
+  page_title: '[2303.11366] Reflexion: Language Agents with Verbal Reinforcement Learning'
+  failure_reason: none
+  verification_status: content_read
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://arxiv.org/abs/2303.11366; page_title=[2303.11366] Reflexion: Language Agents with Verbal Reinforcement
+    Learning; failure_reason=none'
+- material_id: PROMPT-004
+  source_locator: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+  page_title: Effective context engineering for AI agents \ Anthropic
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents; page_title=Effective context
+    engineering for AI agents \ Anthropic; failure_reason=none
+- material_id: AGENT-004
+  source_locator: https://www.anthropic.com/engineering/building-effective-agents
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://www.anthropic.com/engineering/building-effective-agents
+  page_title: Building Effective AI Agents \ Anthropic
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.anthropic.com/engineering/building-effective-agents; page_title=Building Effective AI Agents \
+    Anthropic; failure_reason=none
+- material_id: EVAL-001
+  source_locator: https://inspect.aisi.org.uk/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://inspect.aisi.org.uk/
+  page_title: Inspect
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://inspect.aisi.org.uk/; page_title=Inspect; failure_reason=none
+- material_id: EVAL-002
+  source_locator: https://www.promptfoo.dev/docs/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://www.promptfoo.dev/docs/
+  page_title: not_observed
+  failure_reason: HTTP success and final URL observed; stable page title/body not observed in this run
+  verification_status: url_verified_only
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.promptfoo.dev/docs/; page_title=not_observed; failure_reason=HTTP success and final URL observed;
+    stable page title/body not observed in this run
+- material_id: AI-GOV-001
+  source_locator: https://www.nist.gov/itl/ai-risk-management-framework
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://www.nist.gov/itl/ai-risk-management-framework
+  page_title: AI Risk Management Framework | NIST
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.nist.gov/itl/ai-risk-management-framework; page_title=AI Risk Management Framework | NIST; failure_reason=none
+- material_id: AI-GOV-002
+  source_locator: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:48+08:00'
+  http_status: 200
+  final_url: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf
+  page_title: not_observed
+  failure_reason: HTTP success and final URL observed; PDF title/body not extracted in this run
+  verification_status: url_verified_only
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf; page_title=not_observed; failure_reason=HTTP success
+    and final URL observed; PDF title/body not extracted in this run
+- material_id: REQ-001
+  source_locator: https://www.iso.org/standard/72089.html
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:51+08:00'
+  http_status: 200
+  final_url: https://www.iso.org/standard/72089.html
+  page_title: ISO/IEC/IEEE 29148:2018 - Systems and software engineering — Life cycle processes — Requirements engineering
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.iso.org/standard/72089.html; page_title=ISO/IEC/IEEE 29148:2018 - Systems and software engineering
+    — Life cycle processes — Requirements engineering; failure_reason=none
+- material_id: LIFE-001
+  source_locator: https://www.iso.org/standard/63712.html
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:52+08:00'
+  http_status: 200
+  final_url: https://www.iso.org/standard/63712.html
+  page_title: ISO/IEC/IEEE 12207:2017 - Systems and software engineering — Software life cycle processes
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.iso.org/standard/63712.html; page_title=ISO/IEC/IEEE 12207:2017 - Systems and software engineering
+    — Software life cycle processes; failure_reason=none
+- material_id: ARCH-001
+  source_locator: https://www.iso.org/standard/50508.html
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:52+08:00'
+  http_status: 200
+  final_url: https://www.iso.org/standard/50508.html
+  page_title: ISO/IEC/IEEE 42010:2011 - Systems and software engineering — Architecture description
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.iso.org/standard/50508.html; page_title=ISO/IEC/IEEE 42010:2011 - Systems and software engineering
+    — Architecture description; failure_reason=none
+- material_id: ARCH-002
+  source_locator: https://c4model.com/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:52+08:00'
+  http_status: 200
+  final_url: https://c4model.com/
+  page_title: Home | C4 model
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://c4model.com/; page_title=Home | C4 model; failure_reason=none
+- material_id: ARCH-003
+  source_locator: https://arc42.org/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:52+08:00'
+  http_status: 200
+  final_url: https://arc42.org/
+  page_title: arc42 - arc42
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://arc42.org/; page_title=arc42 - arc42; failure_reason=none
+- material_id: ARCH-004
+  source_locator: https://github.com/adr/madr
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:52+08:00'
+  http_status: null
+  final_url: not_available
+  page_title: not_observed
+  failure_reason: 'ConnectTimeout: HTTPSConnectionPool(host=''github.com'', port=443): Max retries exceeded with url: /adr/madr (Caused by ConnectTimeoutError(<HTTPSConnection(host=''github.com'', port=443)
+    at 0x17c44b74a70>, ''Connection to github.com timed out. (connect timeout=8)''))'
+  verification_status: access_blocked
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; transport failure; failure_reason=ConnectTimeout: HTTPSConnectionPool(host=''github.com'', port=443): Max retries exceeded with url:
+    /adr/madr (Caused by ConnectTimeoutError(<HTTPSConnection(host=''github.com'', port=443) at 0x17c44b74a70>, ''Connection to github.com timed out. (connect timeout=8)''))'
+- material_id: API-001
+  source_locator: https://spec.openapis.org/oas/latest.html
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:53+08:00'
+  http_status: 200
+  final_url: https://spec.openapis.org/oas/latest.html
+  page_title: OpenAPI Specification v3.2.0
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://spec.openapis.org/oas/latest.html; page_title=OpenAPI Specification v3.2.0; failure_reason=none
+- material_id: API-002
+  source_locator: https://json-schema.org/specification
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:53+08:00'
+  http_status: 200
+  final_url: https://json-schema.org/specification
+  page_title: JSON Schema - Specification [#section]
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://json-schema.org/specification; page_title=JSON Schema - Specification [#section]; failure_reason=none
+- material_id: API-003
+  source_locator: https://www.asyncapi.com/docs/reference/specification/latest
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:54+08:00'
+  http_status: 200
+  final_url: https://www.asyncapi.com/docs/reference/specification/v3.1.0
+  page_title: 3.1.0 | AsyncAPI Initiative for event-driven APIs
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.asyncapi.com/docs/reference/specification/v3.1.0; page_title=3.1.0 | AsyncAPI Initiative for event-driven
+    APIs; failure_reason=none
+- material_id: API-004
+  source_locator: https://cloud.google.com/apis/design
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:55+08:00'
+  http_status: null
+  final_url: not_available
+  page_title: not_observed
+  failure_reason: 'ConnectTimeout: HTTPSConnectionPool(host=''cloud.google.com'', port=443): Max retries exceeded with url: /apis/design (Caused by ConnectTimeoutError(<HTTPSConnection(host=''cloud.google.com'',
+    port=443) at 0x17c44b76f90>, ''Connection to cloud.google.com timed out. (connect timeout=8)''))'
+  verification_status: access_blocked
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; transport failure; failure_reason=ConnectTimeout: HTTPSConnectionPool(host=''cloud.google.com'', port=443): Max retries exceeded with
+    url: /apis/design (Caused by ConnectTimeoutError(<HTTPSConnection(host=''cloud.google.com'', port=443) at 0x17c44b76f90>, ''Connection to cloud.google.com timed out. (connect timeout=8)''))'
+- material_id: CODE-001
+  source_locator: https://google.github.io/eng-practices/review/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:55+08:00'
+  http_status: 200
+  final_url: https://google.github.io/eng-practices/review/
+  page_title: Introduction {#intro} | eng-practices
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://google.github.io/eng-practices/review/; page_title=Introduction {#intro} | eng-practices; failure_reason=none
+- material_id: CODE-002
+  source_locator: https://www.conventionalcommits.org/en/v1.0.0/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:56+08:00'
+  http_status: 200
+  final_url: https://www.conventionalcommits.org/en/v1.0.0/
+  page_title: Conventional Commits
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.conventionalcommits.org/en/v1.0.0/; page_title=Conventional Commits; failure_reason=none
+- material_id: CODE-003
+  source_locator: https://semver.org/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:56+08:00'
+  http_status: 200
+  final_url: https://semver.org/
+  page_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://semver.org/; page_title=Semantic Versioning 2.0.0 | Semantic Versioning; failure_reason=none
+- material_id: TEST-001
+  source_locator: https://www.istqb.org/certifications/certified-tester-foundation-level
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:56+08:00'
+  http_status: 200
+  final_url: https://istqb.org/certifications/certified-tester-foundation-level-agile-tester-ctfl-at/
+  page_title: Certified Tester Foundation Level Agile Tester (CTFL-AT) - International Software Testing Qualifications Board
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://istqb.org/certifications/certified-tester-foundation-level-agile-tester-ctfl-at/; page_title=Certified
+    Tester Foundation Level Agile Tester (CTFL-AT) - International Software Testing Qualifications Board; failure_reason=none
+- material_id: TEST-002
+  source_locator: https://testing-library.com/docs/guiding-principles/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:57+08:00'
+  http_status: 200
+  final_url: https://testing-library.com/docs/guiding-principles/
+  page_title: Guiding Principles | Testing Library
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://testing-library.com/docs/guiding-principles/; page_title=Guiding Principles | Testing Library; failure_reason=none
+- material_id: TEST-003
+  source_locator: https://docs.pact.io/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:57+08:00'
+  http_status: 200
+  final_url: https://docs.pact.io/
+  page_title: Introduction | Pact Docs
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://docs.pact.io/; page_title=Introduction | Pact Docs; failure_reason=none
+- material_id: TEST-004
+  source_locator: https://stryker-mutator.io/docs/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:57+08:00'
+  http_status: 200
+  final_url: https://stryker-mutator.io/docs/
+  page_title: What is mutation testing? | Stryker Mutator
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://stryker-mutator.io/docs/; page_title=What is mutation testing? | Stryker Mutator; failure_reason=none
+- material_id: TEST-005
+  source_locator: https://grafana.com/docs/k6/latest/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:57+08:00'
+  http_status: 200
+  final_url: https://grafana.com/docs/k6/latest/
+  page_title: Grafana k6 | Grafana k6 documentation
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://grafana.com/docs/k6/latest/; page_title=Grafana k6 | Grafana k6 documentation; failure_reason=none
+- material_id: SEC-001
+  source_locator: https://csrc.nist.gov/projects/ssdf
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:58+08:00'
+  http_status: 200
+  final_url: https://csrc.nist.gov/projects/ssdf
+  page_title: Secure Software Development Framework | CSRC
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://csrc.nist.gov/projects/ssdf; page_title=Secure Software Development Framework | CSRC; failure_reason=none
+- material_id: SEC-002
+  source_locator: https://owasp.org/www-project-application-security-verification-standard/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:31:59+08:00'
+  http_status: 200
+  final_url: https://owasp.org/www-project-application-security-verification-standard/
+  page_title: OWASP Application Security Verification Standard (ASVS) | OWASP Foundation
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://owasp.org/www-project-application-security-verification-standard/; page_title=OWASP Application Security
+    Verification Standard (ASVS) | OWASP Foundation; failure_reason=none
+- material_id: SEC-003
+  source_locator: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:00+08:00'
+  http_status: 200
+  final_url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+  page_title: OWASP Top 10 for Large Language Model Applications | OWASP Foundation
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://owasp.org/www-project-top-10-for-large-language-model-applications/; page_title=OWASP Top 10 for Large
+    Language Model Applications | OWASP Foundation; failure_reason=none
+- material_id: SEC-004
+  source_locator: https://slsa.dev/spec/v1.0/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:00+08:00'
+  http_status: 200
+  final_url: https://slsa.dev/spec/v1.0/
+  page_title: SLSA • SLSA specification
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://slsa.dev/spec/v1.0/; page_title=SLSA • SLSA specification; failure_reason=none
+- material_id: OPS-001
+  source_locator: https://opentelemetry.io/docs/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:00+08:00'
+  http_status: 200
+  final_url: https://opentelemetry.io/docs/
+  page_title: Documentation | OpenTelemetry
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://opentelemetry.io/docs/; page_title=Documentation | OpenTelemetry; failure_reason=none
+- material_id: OPS-002
+  source_locator: https://sre.google/sre-book/table-of-contents/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:01+08:00'
+  http_status: null
+  final_url: not_available
+  page_title: not_observed
+  failure_reason: 'SSLError: HTTPSConnectionPool(host=''sre.google'', port=443): Max retries exceeded with url: /sre-book/table-of-contents/ (Caused by SSLError(SSLEOFError(8, ''[SSL: UNEXPECTED_EOF_WHILE_READING]
+    EOF occurred in violation of protocol (_ssl.c:1010)'')))'
+  verification_status: access_blocked
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; transport failure; failure_reason=SSLError: HTTPSConnectionPool(host=''sre.google'', port=443): Max retries exceeded with url: /sre-book/table-of-contents/
+    (Caused by SSLError(SSLEOFError(8, ''[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)'')))'
+- material_id: OPS-003
+  source_locator: https://12factor.net/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:02+08:00'
+  http_status: 200
+  final_url: https://12factor.net/
+  page_title: The Twelve-Factor App
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://12factor.net/; page_title=The Twelve-Factor App; failure_reason=none
+- material_id: OPS-004
+  source_locator: https://dora.dev/guides/dora-metrics-four-keys/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:02+08:00'
+  http_status: 200
+  final_url: https://dora.dev/guides/dora-metrics/
+  page_title: DORA | DORA’s software delivery performance metrics
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://dora.dev/guides/dora-metrics/; page_title=DORA | DORA’s software delivery performance metrics; failure_reason=none
+- material_id: PM-001
+  source_locator: https://agilemanifesto.org/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:02+08:00'
+  http_status: 200
+  final_url: https://agilemanifesto.org/
+  page_title: Manifesto for Agile Software Development
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://agilemanifesto.org/; page_title=Manifesto for Agile Software Development; failure_reason=none
+- material_id: PM-002
+  source_locator: https://scrumguides.org/scrum-guide.html
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:03+08:00'
+  http_status: 200
+  final_url: https://scrumguides.org/scrum-guide.html
+  page_title: Scrum Guide | Scrum Guides
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://scrumguides.org/scrum-guide.html; page_title=Scrum Guide | Scrum Guides; failure_reason=none
+- material_id: PM-003
+  source_locator: https://kanbanguides.org/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:03+08:00'
+  http_status: 200
+  final_url: https://kanbanguides.org/
+  page_title: Kanban Guides - Learn how to apply Kanban to optimise flow and value delivery. Home of the Open Guide to Kanban and The Kanban Guide
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://kanbanguides.org/; page_title=Kanban Guides - Learn how to apply Kanban to optimise flow and value
+    delivery. Home of the Open Guide to Kanban and The Kanban Guide; failure_reason=none
+- material_id: PM-004
+  source_locator: https://www.pmi.org/standards/pmbok
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:03+08:00'
+  http_status: 403
+  final_url: https://www.pmi.org/standards/pmbok
+  page_title: Just a moment...
+  failure_reason: HTTP 403 access challenge; page body not treated as source content
+  verification_status: access_blocked
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=403; final_url=https://www.pmi.org/standards/pmbok; page_title=Just a moment...; failure_reason=HTTP 403 access challenge;
+    page body not treated as source content
+- material_id: DOC-001
+  source_locator: https://diataxis.fr/
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:03+08:00'
+  http_status: 200
+  final_url: https://diataxis.fr/
+  page_title: Diátaxis
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://diataxis.fr/; page_title=Diátaxis; failure_reason=none
+- material_id: DOC-002
+  source_locator: https://www.rfc-editor.org/rfc/rfc2119
+  access_method: http_get
+  retrieved_at: '2026-07-24T13:32:04+08:00'
+  http_status: 200
+  final_url: https://www.rfc-editor.org/info/rfc2119/
+  page_title: 'RFC 2119: Key words for use in RFCs to Indicate Requirement Levels | RFC Editor'
+  failure_reason: none
+  verification_status: content_read
+  source_observation: 'retrieval_run=T0036-REPAIR-F006-20260724T1325; http_status=200; final_url=https://www.rfc-editor.org/info/rfc2119/; page_title=RFC 2119: Key words for use in RFCs to Indicate Requirement
+    Levels | RFC Editor; failure_reason=none'
+- material_id: LOOP-001
+  source_locator: materials/templates/role-contract.md
+  access_method: local_file
+  retrieved_at: '2026-07-24T13:32:43+08:00'
+  http_status: null
+  final_url: not_applicable
+  page_title: Role Contract
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; local_path_exists=True; path=materials/templates/role-contract.md
+- material_id: LOOP-002
+  source_locator: materials/templates/phase-profile.yaml
+  access_method: local_file
+  retrieved_at: '2026-07-24T13:32:43+08:00'
+  http_status: null
+  final_url: not_applicable
+  page_title: Phase Profile Template
+  failure_reason: none
+  verification_status: content_read
+  source_observation: retrieval_run=T0036-REPAIR-F006-20260724T1325; local_path_exists=True; path=materials/templates/phase-profile.yaml

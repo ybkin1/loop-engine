@@ -1,0 +1,40 @@
+schema_version: "0.1"
+description: "Loop 素材登记最小字段；每个素材必须可追溯、可组合、可拒绝。"
+required:
+  - material_id
+  - category
+  - title
+  - source_url
+  - source_type
+  - authority
+  - version_or_date
+  - problem_solved
+  - when_to_use
+  - when_not_to_use
+  - inputs
+  - outputs
+  - template_or_schema
+  - adaptation_notes
+  - risks
+  - evidence_level
+  - verification_status
+fields:
+  material_id: "稳定 ID；建议 DOMAIN-NNN。"
+  category: "prompt | agent | requirements | lifecycle | architecture | api | coding | testing | security | delivery | operations | project_management | documentation | loop_adaptation"
+  title: "材料名称。"
+  source_url: "官方或原始来源 URL；Loop 自定义材料必须写 repository path。"
+  source_type: "official_standard | official_guidance | official_tooling | industry_practice | methodology | template | research_paper | loop_adaptation"
+  authority: "international_standard | government | official_vendor | industry_body | open_source_project | research_literature | community_method | loop_project"
+  version_or_date: "版本、发布日期或 live page；未知时必须写 unknown。"
+  problem_solved: "解决的问题。"
+  when_to_use: "适用条件。"
+  when_not_to_use: "禁用条件或不适用边界。"
+  inputs: "所需输入列表。"
+  outputs: "应产生的输出列表。"
+  template_or_schema: "对应模板、Schema、工具或 none。"
+  adaptation_notes: "转为 Loop 角色、阶段、证据或检查器时的注意事项。"
+  risks: "误用、过期、版权、偏差或自动化风险。"
+  evidence_level: "E1 | E2 | E3 | E4。"
+  verification_status: "content_read | url_verified_only | access_blocked | not_yet_checked。"
+  retrieved_at: "YYYY-MM-DD。"
+  source_observation: "实际访问结果；不能用推断替代。"

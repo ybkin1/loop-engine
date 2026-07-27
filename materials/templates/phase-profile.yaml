@@ -1,0 +1,26 @@
+phase_profile_id: "PHASE-PROFILE-<id>"
+project_profile_id: "<project-profile-id>"
+phase_profile_version: "<semver or date>"
+material_selection_id: "<material-selection-id>"
+status: "candidate"
+simulation_only: false
+planned_not_executed: true
+phases:
+  - phase_id: "P<0-12>"
+    purpose: "<phase outcome>"
+    entry_conditions: ["<approved input>"]
+    activities:
+      - role: "<role-id>"
+        loop_id: "<role-loop-id>"
+        required_outputs: ["<artifact>"]
+        checkers: ["<checker-id>"]
+    exit_conditions: ["<deterministic condition>"]
+    human_decision:
+      question: "<plain-language decision>"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: "<review packet path>"
+    tailoring:
+      mode: "expanded | merged | not_applicable"
+      reason: "<risk-based reason>"
+      compensation: ["<additional evidence if merged or skipped>"]
+    forbidden_transition: "No agent or checker may write user approval."

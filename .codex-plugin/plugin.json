@@ -1,0 +1,22 @@
+{
+  "name": "loop-engine",
+  "version": "3.0.0",
+  "description": "Loop Engineering Governance -- AI-driven software delivery system with role collaboration, quality gates, evidence chains, and gate state machine. Adapted from zcode loop-governance v1.0.0 for Codex.",
+  "author": { "name": "Loop Engineering" },
+  "license": "MIT",
+  "keywords": ["governance", "quality", "code-review", "testing", "ci-cd", "evidence-chain", "loop-engineering"],
+  "skills": "./codex_loop/skills",
+  "hooks": "./codex_loop/hooks",
+  "commands": "./codex_loop/commands",
+  "mcpServers": {
+    "loop-tools": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["${CODEX_PLUGIN_ROOT}/codex_loop/tools/server.py"],
+      "env": {
+        "LOOP_PLUGIN_ROOT": "${CODEX_PLUGIN_ROOT}",
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

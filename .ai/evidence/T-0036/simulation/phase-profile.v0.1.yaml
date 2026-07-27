@@ -1,0 +1,206 @@
+phase_profile_id: "PHASE-PROFILE-T0036-SIM-FULL-DESIGN-V0.1"
+project_profile_id: "PROJECT-PROFILE-T0036-SIM-V0.1"
+phase_profile_version: "0.1"
+material_selection_id: "MSEL-T0036-SIM-V0.1"
+status: "candidate"
+simulation_only: true
+planned_not_executed: true
+phases:
+  - phase_id: "P0"
+    purpose: "确定任务路由、范围和 Gate 边界。"
+    entry_conditions: ["用户目标和任务 ID 已登记"]
+    activities:
+      - role: "product-manager"
+        loop_id: "PM-P0"
+        required_outputs: ["routing decision", "scope statement"]
+        checkers: ["scope-check"]
+    exit_conditions: ["task scope and required Gate are explicit"]
+    human_decision:
+      question: "是否进入需求和素材研究阶段？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "高风险素材基线需要先固定边界。"
+      compensation: []
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P1-P2"
+    purpose: "建立需求、范围和素材选择基线。"
+    entry_conditions: ["P0 routing evidence"]
+    activities:
+      - role: "research-engineer"
+        loop_id: "RESEARCH-P1-P2"
+        required_outputs: ["source register", "catalog candidates", "selection record"]
+        checkers: ["source-closure-check", "metadata-check"]
+    exit_conditions: ["requirements, selected materials, and unresolved gaps are recorded"]
+    human_decision:
+      question: "是否接受当前研究范围作为设计输入？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: "materials/material-library-review-packet.md"
+    tailoring:
+      mode: "merged"
+      reason: "目标已确认，但范围和验收仍需同一基线。"
+      compensation: ["requirements traceability", "source freshness evidence"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P3-P4"
+    purpose: "形成素材库架构、模板关系和 ADR 组合规则。"
+    entry_conditions: ["P1-P2 material selection"]
+    activities:
+      - role: "system-architect"
+        loop_id: "ARCH-P3-P4"
+        required_outputs: ["architecture baseline", "template mapping", "architecture decisions"]
+        checkers: ["coverage-check", "reference-closure-check"]
+    exit_conditions: ["catalog, templates, profiles, and coverage relations resolve"]
+    human_decision:
+      question: "是否接受素材库结构设计？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/architecture-baseline.v0.1.md"
+    tailoring:
+      mode: "merged"
+      reason: "素材库架构与组件契约仍可独立复核。"
+      compensation: ["component contract checks"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P5"
+    purpose: "验证质量、来源新鲜度、风险和证据等级。"
+    entry_conditions: ["P3-P4 architecture evidence"]
+    activities:
+      - role: "quality-engineer"
+        loop_id: "QUALITY-P5"
+        required_outputs: ["quality profile", "validation evidence"]
+        checkers: ["schema-check", "freshness-check", "duplicate-check"]
+    exit_conditions: ["quality and source checks produce reproducible evidence"]
+    human_decision:
+      question: "质量证据是否足以进入交付包？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/simulation-validation.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "来源新鲜度和证据完整性是本素材库的主要风险。"
+      compensation: ["fresh independent review"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P6"
+    purpose: "完成实现前的设计和组件契约检查。"
+    entry_conditions: ["P5 quality evidence"]
+    activities:
+      - role: "module-architect"
+        loop_id: "MODULE-P6"
+        required_outputs: ["component contract"]
+        checkers: ["reference-closure-check"]
+    exit_conditions: ["component contracts are explicit or gaps are recorded"]
+    human_decision:
+      question: "是否继续构造素材库交付物？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "not_applicable"
+      reason: "本次 simulation 不实现 Runtime 组件。"
+      compensation: ["design-only boundary marker"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P7"
+    purpose: "构造材料、模板和用户可读评审包。"
+    entry_conditions: ["P6 component contracts"]
+    activities:
+      - role: "developer"
+        loop_id: "MATERIAL-P7"
+        required_outputs: ["material library artifacts", "review packet"]
+        checkers: ["metadata-check", "coverage-check"]
+    exit_conditions: ["candidate artifacts and open decisions are packaged"]
+    human_decision:
+      question: "交付包是否可供独立评审？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: "materials/material-library-review-packet.md"
+    tailoring:
+      mode: "expanded"
+      reason: "材料构造不是 Runtime 实现。"
+      compensation: ["simulation_only", "planned_not_executed"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P8"
+    purpose: "执行安全、来源风险和误用边界检查。"
+    entry_conditions: ["P7 candidate artifacts"]
+    activities:
+      - role: "security-engineer"
+        loop_id: "SECURITY-P8"
+        required_outputs: ["security review", "risk register"]
+        checkers: ["risk-check"]
+    exit_conditions: ["security and misuse risks are recorded"]
+    human_decision:
+      question: "安全和误用风险是否需要修复？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "高风险素材会成为后续项目输入。"
+      compensation: ["security review evidence"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P9"
+    purpose: "记录性能关注点和不适用项。"
+    entry_conditions: ["P8 risk evidence"]
+    activities:
+      - role: "quality-engineer"
+        loop_id: "QUALITY-P9"
+        required_outputs: ["performance applicability decision"]
+        checkers: ["tailoring-check"]
+    exit_conditions: ["non-applicable runtime performance is explicitly recorded"]
+    human_decision:
+      question: "是否需要额外性能验证？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "not_applicable"
+      reason: "本任务不执行 Runtime 性能。"
+      compensation: ["source freshness and evidence integrity checks"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P10"
+    purpose: "整理交付、变更和恢复证据。"
+    entry_conditions: ["P8 security evidence", "P9 tailoring evidence"]
+    activities:
+      - role: "release-operations"
+        loop_id: "DELIVERY-P10"
+        required_outputs: ["delivery readiness", "changed-path manifest"]
+        checkers: ["path-boundary-check", "recovery-check"]
+    exit_conditions: ["delivery evidence and recovery limits are explicit"]
+    human_decision:
+      question: "是否准备进入人工评审？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "路径和证据边界必须可追溯。"
+      compensation: ["changed-path manifest"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P11"
+    purpose: "形成独立人工评审包和用户决策问题。"
+    entry_conditions: ["P10 delivery evidence"]
+    activities:
+      - role: "independent-reviewer"
+        loop_id: "REVIEW-P11"
+        required_outputs: ["human review packet", "evidence-only verdict"]
+        checkers: ["independence-check"]
+    exit_conditions: ["review findings and unresolved user decisions are recorded"]
+    human_decision:
+      question: "是否批准后续独立评审或修复路线？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "独立性与用户决策不可由 simulation 自动宣布。"
+      compensation: ["fresh independent context"]
+    forbidden_transition: "No agent or checker may write user approval."
+  - phase_id: "P12"
+    purpose: "记录交接、未决事项和后续 Gate 顺序。"
+    entry_conditions: ["P11 evidence-only verdict"]
+    activities:
+      - role: "controller"
+        loop_id: "HANDOFF-P12"
+        required_outputs: ["handoff", "next Gate request"]
+        checkers: ["authorization-boundary-check"]
+    exit_conditions: ["repair, rereview, baseline, and downstream boundaries are explicit"]
+    human_decision:
+      question: "下一步 Gate 是修复、复审还是用户基线决定？"
+      options: ["approve", "repair", "reject", "defer"]
+      evidence_packet: ".ai/evidence/T-0036/simulation/human-review-packet.v0.1.md"
+    tailoring:
+      mode: "expanded"
+      reason: "Gate 顺序由用户决定，不能由 Agent 推进。"
+      compensation: ["handoff continuity evidence"]
+    forbidden_transition: "No agent or checker may write user approval."

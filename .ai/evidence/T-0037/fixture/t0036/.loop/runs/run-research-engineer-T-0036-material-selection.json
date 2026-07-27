@@ -1,0 +1,70 @@
+{
+  "capability_probe": {
+    "checks": [
+      {
+        "id": "contract_shape",
+        "status": "PASS"
+      },
+      {
+        "id": "prompt_bounded",
+        "status": "PASS"
+      },
+      {
+        "id": "role_isolation",
+        "status": "PASS"
+      },
+      {
+        "id": "runtime_behavior",
+        "reason": "model invocation is host-owned",
+        "status": "NOT_RUN"
+      }
+    ],
+    "evidence": "contract admission only; behavioral capability is not certified",
+    "minimum_pass": 0.9,
+    "probe_id": "RE-SOURCE-001",
+    "status": "NOT_RUN"
+  },
+  "deterministic_checks": [],
+  "independent_verification": [],
+  "input_fingerprints": {
+    "project_overlay": "0723fc8c1144bc1c5795fbdf94623c572522eb70ff62115b9b1cbc6e090d36c1",
+    "role_contract": "95832dfcf202b25fd70dc151ddedaf2c6924e633fbbb9282e68fe694f8c4e270",
+    "work_packet": "9e19f00f948189a0cc6354cc6a50aaf5e77902520d76de6dcabc88faf9b0b2fe"
+  },
+  "output_artifacts": [],
+  "permission_preflight": {
+    "errors": [],
+    "status": "PASS",
+    "targets": [
+      ".loop/packets/research/material-selection.md"
+    ]
+  },
+  "phase_id": "P0",
+  "role_id": "research-engineer",
+  "role_version": "1.0.0",
+  "run_id": "run-research-engineer-T-0036-material-selection",
+  "task_id": "T-0036-material-selection",
+  "tool_preflight": {
+    "available_tools": [
+      "schema_check",
+      "source_fetch",
+      "structured_write",
+      "workspace_read"
+    ],
+    "missing_tools": [],
+    "required_tools": [
+      "workspace_read",
+      "source_fetch",
+      "schema_check",
+      "structured_write"
+    ],
+    "status": "PASS"
+  },
+  "unverified": [
+    "model execution not performed",
+    "behavioral capability probe not run",
+    "model response schema not validated"
+  ],
+  "verdict": "READY_TO_INVOKE",
+  "vetoes_or_abstentions": []
+}

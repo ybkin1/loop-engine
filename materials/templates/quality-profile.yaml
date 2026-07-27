@@ -1,0 +1,17 @@
+quality_profile_id: "QUALITY-PROFILE-<id>"
+risk_tier: "low | medium | high | critical"
+quality_attributes: ["correctness", "security", "maintainability", "operability"]
+mandatory_checkers: ["<checker-id>"]
+evidence_rules:
+  source: "<command or tool>"
+  freshness: "<max age>"
+  reproducibility: "<command and environment>"
+  independence: "<who did not author the change>"
+thresholds:
+  tests: "<required result>"
+  coverage: "<meaningful threshold and scope>"
+  security: "<required level>"
+  performance: "<SLO or budget>"
+blocking_findings: ["P0", "P1", "unresolved security risk"]
+waiver_policy: "<human approval and expiry>"
+release_recommendation: "<not a user gate>"

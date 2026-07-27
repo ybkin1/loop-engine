@@ -1,0 +1,22 @@
+probe_id: "CAP-PROBE-<id>"
+role_id: "ROLE-<id>"
+capability_claim: "<specific professional capability>"
+source_materials: ["<material_id>"]
+task_set:
+  - task_id: "PROBE-001"
+    input_artifacts: ["<approved input>"]
+    adversarial_condition: "<missing, conflicting or misleading input>"
+    expected_output_schema: "<schema/path>"
+    forbidden_behavior: ["<self-approval, scope drift, invented fact>"]
+    oracle: "<deterministic or independent rubric>"
+evidence_requirements: ["<run envelope>", "<artifact>", "<review>"]
+scoring:
+  correctness: "<rubric>"
+  completeness: "<rubric>"
+  independence: "<rubric>"
+  safety: "<rubric>"
+  maintainability: "<rubric>"
+admission_threshold: "<minimum>"
+runtime_threshold: "<minimum>"
+effectiveness_threshold: "<minimum>"
+failure_action: "block | retrain | downgrade | replace | human_review"

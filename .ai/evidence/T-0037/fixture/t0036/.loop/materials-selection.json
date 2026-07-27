@@ -1,0 +1,42 @@
+{
+  "selection_version": "0.1.0",
+  "query_terms": [
+    "architecture",
+    "software engineering",
+    "quality"
+  ],
+  "selected_materials": [
+    {
+      "material_id": "ARCH-002",
+      "title": "C4 Model for Visualising Software Architecture",
+      "verification_status": "content_read",
+      "evidence_level": "E3",
+      "reason": "用上下文、容器、组件、代码层次表达架构。",
+      "adaptation": "把每张图绑定到模块清单、接口、依赖和证据，不允许只交付漂亮图片。"
+    },
+    {
+      "material_id": "ARCH-003",
+      "title": "arc42 Software Architecture Documentation Template",
+      "verification_status": "content_read",
+      "evidence_level": "E3",
+      "reason": "提供从目标、约束、上下文到构建块、运行时、部署、质量和风险的架构文档骨架。",
+      "adaptation": "将章节映射到 system architect 和 module architect 两个角色的交付边界。"
+    }
+  ],
+  "excluded_unverified": [
+    "PROMPT-001",
+    "PROMPT-002",
+    "PROMPT-003",
+    "AGENT-002",
+    "AGENT-003",
+    "ARCH-001",
+    "ARCH-004",
+    "API-004",
+    "TEST-001",
+    "TEST-003",
+    "OPS-002",
+    "PM-004",
+    "DOC-002"
+  ],
+  "status": "candidate"
+}

@@ -1,0 +1,20 @@
+project_profile_id: "PROJECT-PROFILE-<id>"
+profile_version: "<semver or date>"
+project_selection_id: "MSEL-<id>-PROJECT"
+project_selection_version: "<selection version>"
+project_selection_scope: "project"
+project_type: "<web service | desktop | library | agent system | data tool | other>"
+user_goal: "<plain language>"
+delivery_target: "<usable | deployable | production | experiment>"
+risk_tier: "low | medium | high | critical"
+data_sensitivity: "public | internal | confidential | personal | regulated"
+availability_need: "none | best_effort | service_slo"
+host: "Codex | Claude Code | Zcode | Qoder | other"
+technology_baseline: ["<language/framework/version>"]
+selected_materials: ["<material_id>"]
+selected_templates: ["materials/templates/<template path>"]
+phase_profile: "<phase profile id>"
+quality_profile: "<quality profile id>"
+human_gate_policy: "<decision points>"
+tailoring_decisions: ["<why a phase/material was merged or skipped>"]
+status: "candidate | approved_by_user | active | retired"

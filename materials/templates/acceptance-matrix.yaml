@@ -1,0 +1,9 @@
+acceptance_matrix_id: "ACCEPT-<id>"
+requirements:
+  - requirement_id: "REQ-<id>"
+    user_observable_outcome: "<outcome>"
+    acceptance_method: "manual | automated | mixed"
+    test_or_check: "<id/command>"
+    evidence: "<path>"
+    owner: "<role>"
+    status: "unverified | partial | passed | failed"

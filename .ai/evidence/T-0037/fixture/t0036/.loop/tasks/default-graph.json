@@ -1,0 +1,451 @@
+{
+  "nodes": [
+    {
+      "depends_on": [],
+      "expected_outputs": [],
+      "internal_checks": [
+        "intent",
+        "risk"
+      ],
+      "owner_role": "controller",
+      "phase_id": "P0",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P0-controller",
+      "title": "启动与分级: controller",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P0-controller"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "intent",
+        "risk"
+      ],
+      "owner_role": "project-manager",
+      "phase_id": "P0",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P0-project-manager",
+      "title": "启动与分级: project-manager",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P0-controller",
+        "P0-project-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "goal_traceability"
+      ],
+      "owner_role": "product-manager",
+      "phase_id": "P1",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P1-product-manager",
+      "title": "产品发现: product-manager",
+      "user_gate": true
+    },
+    {
+      "depends_on": [
+        "P1-product-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "requirements",
+        "acceptance"
+      ],
+      "owner_role": "product-manager",
+      "phase_id": "P2",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P2-product-manager",
+      "title": "需求基线: product-manager",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P2-product-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "requirements",
+        "acceptance"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P2",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P2-quality-engineer",
+      "title": "需求基线: quality-engineer",
+      "user_gate": true
+    },
+    {
+      "depends_on": [
+        "P2-product-manager",
+        "P2-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "architecture",
+        "security_boundary"
+      ],
+      "owner_role": "system-architect",
+      "phase_id": "P3",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P3-system-architect",
+      "title": "整体架构: system-architect",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P3-system-architect"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "architecture",
+        "security_boundary"
+      ],
+      "owner_role": "security-engineer",
+      "phase_id": "P3",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P3-security-engineer",
+      "title": "整体架构: security-engineer",
+      "user_gate": true
+    },
+    {
+      "depends_on": [
+        "P3-system-architect",
+        "P3-security-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "contract",
+        "dependency"
+      ],
+      "owner_role": "module-architect",
+      "phase_id": "P4",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P4-module-architect",
+      "title": "详细设计: module-architect",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P4-module-architect"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "contract",
+        "dependency"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P4",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P4-quality-engineer",
+      "title": "详细设计: quality-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P4-module-architect",
+        "P4-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "quality",
+        "security"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P5",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P5-quality-engineer",
+      "title": "质量与安全设计: quality-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P5-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "quality",
+        "security"
+      ],
+      "owner_role": "security-engineer",
+      "phase_id": "P5",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P5-security-engineer",
+      "title": "质量与安全设计: security-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P5-quality-engineer",
+        "P5-security-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "acyclic_graph",
+        "budget"
+      ],
+      "owner_role": "project-manager",
+      "phase_id": "P6",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P6-project-manager",
+      "title": "任务规划: project-manager",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P6-project-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "acyclic_graph",
+        "budget"
+      ],
+      "owner_role": "controller",
+      "phase_id": "P6",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P6-controller",
+      "title": "任务规划: controller",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P6-project-manager",
+        "P6-controller"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "write_scope",
+        "tests"
+      ],
+      "owner_role": "developer",
+      "phase_id": "P7",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P7-developer",
+      "title": "实现与单测: developer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P7-developer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "write_scope",
+        "tests"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P7",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P7-quality-engineer",
+      "title": "实现与单测: quality-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P7-developer",
+        "P7-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "integration",
+        "regression"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P8",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P8-quality-engineer",
+      "title": "集成与功能测试: quality-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P8-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "integration",
+        "regression"
+      ],
+      "owner_role": "independent-reviewer",
+      "phase_id": "P8",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P8-independent-reviewer",
+      "title": "集成与功能测试: independent-reviewer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P8-quality-engineer",
+        "P8-independent-reviewer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "nonfunctional",
+        "recovery"
+      ],
+      "owner_role": "quality-engineer",
+      "phase_id": "P9",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P9-quality-engineer",
+      "title": "非功能验证: quality-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P9-quality-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "nonfunctional",
+        "recovery"
+      ],
+      "owner_role": "security-engineer",
+      "phase_id": "P9",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P9-security-engineer",
+      "title": "非功能验证: security-engineer",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P9-security-engineer"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "nonfunctional",
+        "recovery"
+      ],
+      "owner_role": "release-operations",
+      "phase_id": "P9",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P9-release-operations",
+      "title": "非功能验证: release-operations",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P9-quality-engineer",
+        "P9-security-engineer",
+        "P9-release-operations"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "readiness",
+        "rollback"
+      ],
+      "owner_role": "delivery-manager",
+      "phase_id": "P10",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P10-delivery-manager",
+      "title": "交付准备: delivery-manager",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P10-delivery-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "readiness",
+        "rollback"
+      ],
+      "owner_role": "release-operations",
+      "phase_id": "P10",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P10-release-operations",
+      "title": "交付准备: release-operations",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P10-delivery-manager",
+        "P10-release-operations"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "packet_complete"
+      ],
+      "owner_role": "controller",
+      "phase_id": "P11",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P11-controller",
+      "title": "用户验收: controller",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P11-controller"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "packet_complete"
+      ],
+      "owner_role": "delivery-manager",
+      "phase_id": "P11",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P11-delivery-manager",
+      "title": "用户验收: delivery-manager",
+      "user_gate": true
+    },
+    {
+      "depends_on": [
+        "P11-controller",
+        "P11-delivery-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "change_traceability"
+      ],
+      "owner_role": "project-manager",
+      "phase_id": "P12",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P12-project-manager",
+      "title": "运行维护: project-manager",
+      "user_gate": false
+    },
+    {
+      "depends_on": [
+        "P12-project-manager"
+      ],
+      "expected_outputs": [],
+      "internal_checks": [
+        "change_traceability"
+      ],
+      "owner_role": "release-operations",
+      "phase_id": "P12",
+      "required_inputs": [],
+      "status": "pending",
+      "task_id": "P12-release-operations",
+      "title": "运行维护: release-operations",
+      "user_gate": false
+    }
+  ]
+}

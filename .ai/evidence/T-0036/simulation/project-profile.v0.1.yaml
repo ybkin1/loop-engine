@@ -1,0 +1,24 @@
+project_profile_id: "PROJECT-PROFILE-T0036-SIM-V0.1"
+profile_version: "0.1"
+project_selection_id: "MSEL-T0036-SIM-PROJECT-V0.1"
+project_selection_version: "0.1"
+project_selection_scope: "project"
+project_type: "engineering knowledge and prompt/agent material library"
+user_goal: "建立可追溯、可检索、可组合的工程素材库，为后续 Loop 角色、阶段、质量门禁和提示词提供稳定输入。"
+delivery_target: "candidate baseline for formal Loop design"
+risk_tier: "high"
+data_sensitivity: "public"
+availability_need: "none"
+host: "Codex"
+technology_baseline: ["versioned Markdown", "YAML", "PowerShell", "Python/PyYAML validation"]
+selected_materials: ["REQ-001", "LIFE-001", "AI-GOV-001", "PROMPT-004", "AGENT-004", "EVAL-001", "ARCH-001", "ARCH-002", "ARCH-003", "API-002", "CODE-001", "TEST-001", "SEC-001", "SEC-003", "DOC-001", "LOOP-001", "LOOP-002"]
+selected_templates: ["materials/templates/requirements-baseline.md", "materials/templates/architecture-description.md", "materials/templates/adr.md", "materials/templates/role-contract.md", "materials/templates/role-capability-probe.yaml", "materials/templates/phase-profile.yaml", "materials/templates/quality-profile.yaml", "materials/templates/human-review-packet.md", "materials/profiles/material-selection-record.yaml"]
+phase_profile: "PHASE-PROFILE-T0036-SIM-FULL-DESIGN-V0.1"
+quality_profile: "QUALITY-PROFILE-T0036-SIM-HIGH-V0.1"
+human_gate_policy: "P0 routing, P2 research baseline, P3/P4 architecture, P5 quality, P10 delivery, P11 user acceptance"
+tailoring_decisions:
+  - "P1 and P2 are merged because the project goal is already user-confirmed, but scope and acceptance still require a recorded baseline."
+  - "P3 and P4 are merged for the library architecture, while component contracts remain separately reviewable."
+  - "P9 runtime performance is NOT_APPLICABLE; source freshness, evidence integrity and security checks remain applicable in P5/P8."
+  - "P7 means material/template construction, not Loop Runtime implementation."
+status: "candidate"

@@ -1,0 +1,15 @@
+risk_register_id: "RISK-<id>"
+items:
+  - risk_id: "R-<id>"
+    description: "<risk statement>"
+    cause: "<cause>"
+    affected_goal: "<goal or requirement>"
+    likelihood: "low | medium | high"
+    impact: "low | medium | high | critical"
+    owner_role: "<role>"
+    mitigation: ["<action>"]
+    trigger: "<observable trigger>"
+    evidence: ["<path or command>"]
+    residual_risk: "<remaining risk>"
+    decision: "open | mitigated | accepted_by_user | closed"
+    expiry_or_review: "<date or event>"

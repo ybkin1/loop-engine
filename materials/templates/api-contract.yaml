@@ -1,0 +1,17 @@
+contract_id: "API-<id>"
+protocol: "REST | event | RPC"
+version: "<semver or date>"
+owner: "<module>"
+source_of_truth: "<spec path>"
+security_boundary: "<authn/authz/data classification>"
+operations:
+  - operation_id: "<id>"
+    purpose: "<business behavior>"
+    request_schema: "<schema ref>"
+    response_schema: "<schema ref>"
+    errors: ["<error code and retryability>"]
+    idempotency: "<rule>"
+    timeout: "<budget>"
+    compatibility: "<backward/forward rule>"
+validation: ["schema validation", "compatibility check", "contract test"]
+change_policy: "<spec first, review, deprecation, migration>"

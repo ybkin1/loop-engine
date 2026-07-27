@@ -1,0 +1,30 @@
+schema_version: "0.1"
+description: "机器可读来源核验登记；每个 catalog material_id 必须有且只有一条记录。"
+required:
+  - material_id
+  - source_locator
+  - access_method
+  - retrieved_at
+  - http_status
+  - final_url
+  - page_title
+  - failure_reason
+  - verification_status
+  - source_observation
+enums:
+  access_method: [http_get, local_file]
+  verification_status: [content_read, url_verified_only, access_blocked]
+sentinels:
+  local_http_status: null
+  local_final_url: not_applicable
+  unknown_page_title: not_observed
+  no_failure: none
+constraints:
+  - "retrieved_at is RFC3339 with timezone offset and lies within retrieval_run.started_at and completed_at"
+  - "access_method=http_get records the actual HTTP status or null on transport failure"
+  - "access_method=http_get records the final response URL or not_available on transport failure"
+  - "verification_status=content_read requires a 2xx/3xx HTTP status, a non-empty final_url, a non-empty page_title, and failure_reason=none"
+  - "verification_status=url_verified_only requires a 2xx/3xx HTTP status and a non-empty final_url"
+  - "verification_status=access_blocked requires failure_reason other than none"
+  - "access_method=local_file requires http_status=null and final_url=not_applicable"
+  - "records.material_id set equals materials.catalog.yaml material_id set exactly"

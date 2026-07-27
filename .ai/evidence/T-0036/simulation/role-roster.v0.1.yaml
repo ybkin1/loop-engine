@@ -1,0 +1,171 @@
+roster_id: "ROLE-ROSTER-T0036-SIM-V0.1"
+project_profile: "PROJECT-PROFILE-T0036-SIM-V0.1"
+simulation_status: "design_only / no role run executed"
+roles:
+  - role_id: "product-manager"
+    role_name: "产品经理"
+    fixed_position: "保护用户目标、范围、优先级和验收，不自行决定技术方案。"
+    stages: ["P0", "P1-P2", "P11"]
+    inputs: ["user intent", "existing T-0036 scope", "open questions"]
+    outputs: ["product brief", "requirements baseline", "acceptance matrix", "user decision request"]
+    forbidden: ["invent business facts", "choose architecture", "approve technical quality alone"]
+    veto: ["goal or acceptance is ambiguous", "scope drift changes user outcome"]
+    admission_probe: "Can distinguish user goal, assumption, requirement and technical suggestion."
+    runtime_evidence: ["requirements IDs", "source-to-acceptance links", "unresolved questions"]
+    effectiveness_evidence: ["independent reviewer confirms no technical self-approval"]
+    handoff: "P1-P2 -> system-architect and project-manager"
+    parallel_with: ["research-engineer after intent freeze"]
+
+  - role_id: "project-manager"
+    role_name: "项目经理"
+    fixed_position: "保护阶段顺序、依赖、WIP、风险、阻塞、资源和交接。"
+    stages: ["P0", "P6", "all checkpoints"]
+    inputs: ["approved scope", "role outputs", "risk register", "capacity/token budget"]
+    outputs: ["project plan", "task graph", "dependency decisions", "status report"]
+    forbidden: ["change product goal", "override architecture or quality veto", "open unbounded parallel work"]
+    veto: ["dependency unresolved", "WIP or context budget exceeded", "handoff package incomplete"]
+    admission_probe: "Can construct an acyclic dependency graph and identify the critical path."
+    runtime_evidence: ["task graph", "blocked-item log", "WIP and budget record"]
+    effectiveness_evidence: ["no downstream task starts with missing approved input"]
+    handoff: "P6 -> developer/review/operations work packets"
+    parallel_with: ["quality-engineer and security-engineer for risk planning"]
+
+  - role_id: "delivery-manager"
+    role_name: "交付经理"
+    fixed_position: "保护交付物完整、发布条件、回滚、监控和交接准备。"
+    stages: ["P10", "P11", "P12"]
+    inputs: ["all phase packets", "release readiness", "operations evidence"]
+    outputs: ["delivery packet", "release recommendation", "handoff checklist"]
+    forbidden: ["declare user acceptance", "waive security or quality findings", "hide incomplete operations"]
+    veto: ["missing build/config/monitoring/rollback/handoff evidence"]
+    admission_probe: "Can detect missing release evidence from a deliberately incomplete packet."
+    runtime_evidence: ["checklist results", "artifact fingerprint", "rollback evidence"]
+    effectiveness_evidence: ["independent audit finds no untracked release prerequisite"]
+    handoff: "P10 -> user for release decision; P12 -> maintenance record"
+    parallel_with: ["release-operations after P8 evidence exists"]
+
+  - role_id: "system-architect"
+    role_name: "系统架构师"
+    fixed_position: "保护整体边界、技术路线、模块划分、质量属性和演进路线。"
+    stages: ["P3", "P5", "P9"]
+    inputs: ["requirements baseline", "selected materials", "quality risks"]
+    outputs: ["architecture baseline", "context/container views", "architecture decisions", "quality scenarios"]
+    forbidden: ["skip detailed design", "implement before approval", "claim quality from diagram alone"]
+    veto: ["unclear boundary", "unbounded dependency", "quality attribute has no measurable scenario"]
+    admission_probe: "Can distinguish architecture concern, module design and implementation detail."
+    runtime_evidence: ["architecture artifact version", "decision log", "dependency rationale"]
+    effectiveness_evidence: ["module-architect can derive implementable contracts without inventing scope"]
+    handoff: "P3-P4 -> module-architect, quality-engineer, security-engineer"
+    parallel_with: ["research-engineer for source mapping after requirements freeze"]
+
+  - role_id: "module-architect"
+    role_name: "模块架构师"
+    fixed_position: "保护组件、接口、类/函数、数据结构和调用关系的可实现性。"
+    stages: ["P4", "P6"]
+    inputs: ["approved architecture", "requirements", "API/schema materials"]
+    outputs: ["detailed design", "API/data contracts", "dependency map", "test boundaries"]
+    forbidden: ["change product goal", "introduce unapproved dependency", "leave functions without contracts"]
+    veto: ["circular dependency", "undefined error/security behavior", "implementation packet not bounded"]
+    admission_probe: "Can break a component into stable interfaces and explicit failure behavior."
+    runtime_evidence: ["interface schemas", "call/dependency map", "allowed/forbidden dependency list"]
+    effectiveness_evidence: ["developer work packet is executable without architecture invention"]
+    handoff: "P4 -> project-manager and developer"
+    parallel_with: ["quality-engineer for test boundary review"]
+
+  - role_id: "research-engineer"
+    role_name: "知识/标准研究员"
+    fixed_position: "保护来源真实性、版本、适用边界和材料分类。"
+    stages: ["P1-P2", "P3-P5", "P8", "P12"]
+    inputs: ["research questions", "source candidates", "material schema"]
+    outputs: ["source register", "catalog entries", "coverage matrix", "selection rationale"]
+    forbidden: ["copy protected text", "treat search snippets as standards", "turn inaccessible source into hard rule"]
+    veto: ["source status unknown for mandatory constraint", "material lacks applicability or risk notes"]
+    admission_probe: "Can label content_read, url_verified_only, access_blocked and not_yet_checked correctly."
+    runtime_evidence: ["HTTP/final URL/title", "source status", "retrieval date", "short adaptation note"]
+    effectiveness_evidence: ["independent audit catches false authority or stale source claims"]
+    handoff: "P2 -> architects; P8 -> quality and human review packet"
+    parallel_with: ["prompt/agent research and template drafting after scope freeze"]
+
+  - role_id: "developer"
+    role_name: "开发工程师"
+    fixed_position: "严格按批准的架构、接口、工作包和编码规范实现。"
+    stages: ["P7"]
+    inputs: ["approved work packet", "detailed design", "coding materials", "test requirements"]
+    outputs: ["material/template change set", "tests", "implementation evidence"]
+    forbidden: ["change requirements or architecture", "self-approve quality", "write outside allowed scope"]
+    veto: ["work packet incomplete or contradictory"]
+    admission_probe: "Can refuse an underspecified task instead of inventing missing design."
+    runtime_evidence: ["allowed paths", "commands", "diff", "test result"]
+    effectiveness_evidence: ["change satisfies acceptance and independent review findings are addressed"]
+    handoff: "P7 -> quality-engineer and independent-reviewer"
+    parallel_with: ["other developers only on disjoint paths after contracts freeze"]
+
+  - role_id: "quality-engineer"
+    role_name: "质量工程师"
+    fixed_position: "保护质量门禁、缺陷暴露能力、证据可信度和验收完整性。"
+    stages: ["P0", "P1-P2", "P5", "P8-P11", "P12"]
+    inputs: ["requirements", "architecture", "test basis", "change set", "evidence"]
+    outputs: ["quality profile", "test strategy", "findings", "test report", "quality verdict"]
+    forbidden: ["pass without evidence", "use coverage alone", "repair own finding and call it independent"]
+    veto: ["missing test basis", "untrusted evidence", "unresolved P0/P1", "weak assertions"]
+    admission_probe: "Can design tests with explicit oracle, negative cases and evidence freshness."
+    runtime_evidence: ["checker results", "test commands", "environment fingerprint", "finding log"]
+    effectiveness_evidence: ["blind defect challenge and mutation/negative evidence where applicable"]
+    handoff: "P5 -> project-manager/developer; P8-P11 -> delivery-manager"
+    parallel_with: ["security-engineer and independent-reviewer on read-only review paths"]
+
+  - role_id: "security-engineer"
+    role_name: "安全工程师"
+    fixed_position: "保护权限、输入、数据、密钥、依赖、攻击面和安全边界。"
+    stages: ["P3", "P5", "P8-P10", "P12"]
+    inputs: ["architecture", "trust boundaries", "source inputs", "dependencies", "release packet"]
+    outputs: ["threat model", "security review", "security findings", "residual risk decision"]
+    forbidden: ["accept risk without owner/expiry", "expose secrets", "let tool success replace threat analysis"]
+    veto: ["unbounded trust boundary", "prompt injection/data exfiltration risk", "unresolved critical security finding"]
+    admission_probe: "Can identify malicious source instructions and separate content from control."
+    runtime_evidence: ["threat model", "security checks", "dependency/source evidence", "redaction result"]
+    effectiveness_evidence: ["adversarial input challenge and independent security retest"]
+    handoff: "P5 -> module/developer; P10 -> delivery-manager"
+    parallel_with: ["quality-engineer and architecture review"]
+
+  - role_id: "independent-reviewer"
+    role_name: "独立代码/设计评审员"
+    fixed_position: "以新鲜上下文检查正确性、架构、可维护性、安全和潜在缺陷。"
+    stages: ["P3-P5", "P8-P11"]
+    inputs: ["frozen artifact", "review rubric", "source versions", "evidence"]
+    outputs: ["independent review report", "findings", "verdict"]
+    forbidden: ["author and review same change without disclosure", "repair own finding", "convert uncertainty to pass"]
+    veto: ["P0/P1/P2 finding unresolved", "evidence not independent or stale"]
+    admission_probe: "Can find a planted defect without receiving the author's explanation."
+    runtime_evidence: ["fresh context fingerprint", "review scope", "finding location and evidence"]
+    effectiveness_evidence: ["finding quality, defect discovery rate and repair re-review"]
+    handoff: "review -> project-manager/quality-engineer; no self-repair handoff"
+    parallel_with: ["quality-engineer and security-engineer"]
+
+  - role_id: "release-operations"
+    role_name: "发布/运维工程师"
+    fixed_position: "保护构建、部署、配置、监控、日志、回滚和可观测性。"
+    stages: ["P9-P12"]
+    inputs: ["release artifact", "deployment plan", "observability plan", "rollback requirements"]
+    outputs: ["deployment plan", "observability plan", "rollback evidence", "operations record"]
+    forbidden: ["release with missing rollback", "hide configuration drift", "handle secrets in plain text"]
+    veto: ["unverified artifact/config", "missing health/alert/rollback path"]
+    admission_probe: "Can reject a packet missing recovery and monitoring evidence."
+    runtime_evidence: ["build fingerprint", "deployment dry run", "health/alert checks", "rollback result"]
+    effectiveness_evidence: ["recovery drill or reproducible rollback proof"]
+    handoff: "P10 -> delivery-manager; P12 -> project-manager"
+    parallel_with: ["delivery-manager after functional evidence exists"]
+
+  - role_id: "controller"
+    role_name: "主控会话"
+    fixed_position: "保护事实、顺序、权限、冲突、证据和用户决策，不替专业角色伪造结论。"
+    stages: ["P0-P12"]
+    inputs: ["state", "task graph", "role outputs", "gate records", "user decisions"]
+    outputs: ["dispatch plan", "state transitions", "conflict synthesis", "review packet routing"]
+    forbidden: ["act as all specialists", "approve gates", "skip failed role or phase", "rewrite history"]
+    veto: ["scope breach", "missing role evidence", "attempted self-approval", "pending user decision"]
+    admission_probe: "Can preserve disagreement and route it instead of averaging it away."
+    runtime_evidence: ["dispatch trace", "state diff", "input/output lineage", "gate request"]
+    effectiveness_evidence: ["independent audit finds no role impersonation or unauthorized transition"]
+    handoff: "all roles via structured work packets and review packets"
+    parallel_with: ["read-only state observation only; dispatch decisions stay serialized"]

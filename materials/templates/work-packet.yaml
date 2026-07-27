@@ -1,0 +1,16 @@
+work_packet_id: "WP-<id>"
+phase_id: "P<id>"
+role_id: "ROLE-<id>"
+requirement_version: "REQ-<version>"
+architecture_version: "ARCH-<version>"
+task: "<one bounded task>"
+inputs: ["<approved artifact>"]
+allowed_dependencies: ["<module or interface>"]
+forbidden_dependencies: ["<module or layer>"]
+expected_changes: ["<files or symbols>"]
+tests_required: ["<test id or command>"]
+security_requirements: ["<requirement>"]
+performance_requirements: ["<budget>"]
+handoff_to: "<reviewer or next role>"
+evidence_path: "<path>"
+status: "ready | in_progress | review | repair | done"
