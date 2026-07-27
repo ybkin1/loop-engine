@@ -7,16 +7,15 @@ of maintaining independent authorization logic.
 
 Decision chain (priority from high to low):
 1. High-risk operations → require independent gate → DENY
-2. Protected paths (AGENTS.md, .zcode/config.json) → ASK_USER
-3. Governance files (.ai/, .zcode/tools/, .zcode/skills/) →
+2. Protected paths (AGENTS.md) → ASK_USER
+3. Governance files (.ai/) →
    - No pending gate → ALLOW
    - Pending gate exists → check allowed_paths → ALLOW if in scope, else DENY
 4. Task scope → match allowed_paths → ALLOW (if in scope), else DENY
 5. Default → DENY (fail-closed)
 
-Key: during a pending gate, writes targeting paths within the gate's
-allowed_paths are ALLOWED. This solves the "design phase needs to write
-design docs but is blocked by pending gate" deadlock.
+Note: Host-specific paths (.zcode/, .claude/, etc.) are injected by the
+hooks layer (path_guard.py), not hardcoded in loop_core.
 """
 from __future__ import annotations
 
@@ -181,8 +180,9 @@ class ContextController:
     def _check_protected(self, path: str | None) -> AuthResult | None:
         """Protected paths trigger ASK_USER to confirm the write.
 
-        AGENTS.md and .zcode/config.json are critical project files
-        that the user must explicitly approve modifications to.
+        AGENTS.md is a critical project file that the user must
+        explicitly approve modifications to.  Host-specific protected
+        paths are handled by hooks/path_guard.py.
         """
         if path is None:
             return None
@@ -201,12 +201,11 @@ class ContextController:
     # ── Check 3: Governance Files ─────────────────────────────────────
 
     def _check_governance(self, request: AuthRequest) -> AuthResult | None:
-        """Governance files (.ai/, .zcode/tools/, .zcode/skills/) logic:
+        """Governance files (.ai/) logic:
 
         - No pending gate → ALLOW (governance maintenance is always OK).
-        - Pending gate → check if target is in the gate's allowed_paths:
-          * In allowed_paths → ALLOW (design docs can be written during review).
-          * Not in allowed_paths → DENY (prevents bypassing the gate).
+        - Pending gate → check if target is in the gate's allowed_paths.
+        Host-specific governance prefixes are injected by hooks.
         """
         if request.target_path is None:
             return None
