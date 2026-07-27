@@ -1,8 +1,23 @@
 """
-Agent Adapter — 抽象 Agent 调用接口。
+Agent Adapter — Minimal agent-execution contract.
 
-定义宿主无关的 Agent 调用协议。具体平台实现（如 ZCodeAgentAdapter）
-位于宿主适配器层（hooks/、tools/）。
+AgentAdapter defines the smallest interface needed to spawn, monitor, and
+collect results from an AI agent.  It is deliberately narrow — just the
+agent lifecycle.  Everything else (file I/O, state management, gate
+presentation, evidence, user interaction) belongs to HostAdapter
+(loop_core/contracts.py).
+
+Relationship with HostAdapter
+-------------------------------
+HostAdapter is the comprehensive governance contract.  AgentAdapter is the
+focused agent-execution contract.  A HostAdapter implementation SHOULD
+compose an AgentAdapter internally for agent lifecycle operations.
+
+    HostAdapter   — governance platform ("what the Loop system needs")
+    AgentAdapter  — agent executor     ("how to spawn and manage an agent")
+
+Specific platform implementations (e.g. ZCodeAgentAdapter) live in the
+host adapter layer (hooks/, tools/), NOT in loop_core/.
 """
 from __future__ import annotations
 
@@ -160,7 +175,13 @@ def probe_agent_capability(*, host: str = "", configured: bool = True,
 
 
 class AgentAdapter(ABC):
-    """Agent 调用抽象接口。所有宿主平台必须实现此接口。"""
+    """Minimal agent-execution contract — just spawn, monitor, collect.
+
+    This is deliberately narrow.  File I/O, state management, gate presentation,
+    evidence, and user interaction belong to HostAdapter (loop_core/contracts.py).
+
+    Concrete implementations (e.g. ZCodeAgentAdapter) live in hooks/ or tools/.
+    """
 
     @abstractmethod
     def launch_agent(self, agent_input: AgentInput) -> AgentOutput: ...
