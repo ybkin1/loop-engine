@@ -311,7 +311,20 @@ TOOLS = {
             },
             "required": ["project_root", "actor_id", "role_id", "caller_class", "task_id", "execution_id"]
         }
-    }
+    },
+    # v3.10 — MCP Agent Runtime: bypass ZCode sub-agent limitation
+    "loop_dispatch_agents": {
+        "description": "按 SubagentManifest 调度所有子代理（通过 LLM API 直接调用），返回聚合结果。不写文件。",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string", "description": "项目根目录"},
+                "manifest": {"type": "object", "description": "SubagentManifest JSON"},
+                "max_retries": {"type": "integer", "description": "每个 subagent 最大重试次数（默认 2）"}
+            },
+            "required": ["project_root", "manifest"]
+        }
+    },
 }
 
 
@@ -450,6 +463,34 @@ def _dispatch(tool_name: str, args: dict) -> dict:
                     capability_id=args.get("capability_id"),
                 ))
             return {"ok": True, **snapshot.__dict__}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
+    if tool_name == "loop_dispatch_agents":
+        project_root = arguments.get("project_root", ".")
+        manifest = arguments.get("manifest", {})
+        max_retries = arguments.get("max_retries", 2)
+        try:
+            from tools.mcp_agent_runtime import MCPAgentRuntime
+            runtime = MCPAgentRuntime(agents_dir=Path(project_root) / "agents")
+            result = runtime.dispatch_manifest(manifest, max_retries=max_retries)
+            return {
+                "manifest_id": result.manifest_id,
+                "total": result.total,
+                "completed": result.completed,
+                "failed": result.failed,
+                "results": [
+                    {
+                        "subagent_id": r.subagent_id,
+                        "status": r.status,
+                        "output": r.output,
+                        "error": r.error,
+                        "token_count": r.token_count,
+                        "duration_ms": r.duration_ms,
+                    }
+                    for r in result.results
+                ],
+            }
         except Exception as exc:
             return {"ok": False, "error": str(exc)}
 

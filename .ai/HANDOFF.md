@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0053
+T-0054
 
 Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0053-AGENT-CONTRACT-MIGRATION
+active_gate: G-T-0054-MCP-AGENT-RUNTIME
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0053-AGENT-CONTRACT-MIGRATION is approved and execution is in progress.
+G-T-0054-MCP-AGENT-RUNTIME is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0053/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0054/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0053-AGENT-CONTRACT-MIGRATION",
+  "approved_execution_gate_id": "G-T-0054-MCP-AGENT-RUNTIME",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0053-AGENT-CONTRACT-MIGRATION",
-  "current_task_id": "T-0053",
+  "current_gate_id": "G-T-0054-MCP-AGENT-RUNTIME",
+  "current_task_id": "T-0054",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",
