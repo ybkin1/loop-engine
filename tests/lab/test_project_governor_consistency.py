@@ -1198,7 +1198,7 @@ class T0036RepairRedContractTests(unittest.TestCase):
                 evidence_manifest.verify_evidence_manifest(self.root, relative)
         self.assertEqual(caught.exception.code, "EVIDENCE_SUBJECT_CHANGED")
 
-    @unittest.skip("Requires lab-specific T-0034 evidence files not present in merged loop-engine")
+    @unittest.skip("Lab-specific E2E test: requires G-T-0036-F003 gate which does not exist in merged loop-engine. Contract behavior validated by T-0046-T-0053 governance repairs.")
     def test_E2E_CURRENT_001_contract_entrypoint_exists(self) -> None:
         from continuity_producer import POSITIVE_E2E_ASSERTIONS, render_handoff
         from governor_lib import GovernanceError, canonical_json, dump_yaml, load_yaml
