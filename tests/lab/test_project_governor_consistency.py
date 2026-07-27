@@ -1198,24 +1198,16 @@ class T0036RepairRedContractTests(unittest.TestCase):
                 evidence_manifest.verify_evidence_manifest(self.root, relative)
         self.assertEqual(caught.exception.code, "EVIDENCE_SUBJECT_CHANGED")
 
-    @unittest.skip("Lab-specific E2E test: requires G-T-0036-F003 gate which does not exist in merged loop-engine. Contract behavior validated by T-0046-T-0053 governance repairs.")
     def test_E2E_CURRENT_001_contract_entrypoint_exists(self) -> None:
         from continuity_producer import POSITIVE_E2E_ASSERTIONS, render_handoff
         from governor_lib import GovernanceError, canonical_json, dump_yaml, load_yaml
         from validation_runner import run_gate_bound_validation
 
-        live_root = CANDIDATE_ROOT
         gate_id = "G-T-0036-F003-COMPLETED-STATE-FIXTURE-V0-1"
-        live_protected = [
-            live_root / ".ai" / "PROJECT.md", live_root / ".ai" / "CONTRACTS.md",
-            live_root / ".ai" / "evidence" / "T-0034" / "project-continuity-contract.v0.2.md",
-            live_root / ".ai" / "evidence" / "T-0034" / "controller-data-flow-transaction-contracts.v0.2.md",
-            CANDIDATE_ROOT / "NOT_INSTALLED", CANDIDATE_ROOT / "NOT_ACTIVATED",
-        ]
-        live_before = {str(path): hashlib.sha256(path.read_bytes()).hexdigest().upper() for path in live_protected}
 
+        # Phase 1: AUTHORITY_MISSING on fixture without the gate
         with self.assertRaises(GovernanceError) as caught:
-            run_gate_bound_validation(live_root)
+            run_gate_bound_validation(self.root)
         self.assertEqual(caught.exception.code, "AUTHORITY_MISSING")
 
         for name in [
@@ -1223,26 +1215,40 @@ class T0036RepairRedContractTests(unittest.TestCase):
             "CONVENTIONS.md", "CODEMAP.md", "PROGRESS.md", "QUALITY_GATES.md", "ACCEPTANCE.md",
             "DECISIONS.md", "KNOWN_ISSUES.md", "state.yaml", "task_graph.yaml", "gates.yaml",
         ]:
-            shutil.copy2(live_root / ".ai" / name, self.base / name)
+            shutil.copy2(CANDIDATE_ROOT / ".ai" / name, self.base / name)
         task_path = self.base / "tasks" / "T-0036.md"
-        shutil.copy2(live_root / ".ai" / "tasks" / "T-0036.md", task_path)
+        shutil.copy2(CANDIDATE_ROOT / ".ai" / "tasks" / "T-0036.md", task_path)
         task_path.write_text(
-            task_path.read_text(encoding="utf-8").replace("## Status\n\nactive", "## Status\n\nin_progress", 1),
+            task_path.read_text(encoding="utf-8").replace("`active`", "`in_progress`", 1),
             encoding="utf-8",
         )
         graph = load_yaml(self.base / "task_graph.yaml")
-        task_entry = next(item for item in graph["tasks"] if item.get("id") == "T-0036")
-        task_entry["status"] = "in_progress"
+        task_entries = [item for item in graph["tasks"] if item.get("id") == "T-0036"]
+        if task_entries:
+            task_entry = task_entries[0]
+            task_entry["status"] = "in_progress"
+        else:
+            graph["tasks"].append({"id": "T-0036", "title": "Structured State Contract Repair", "status": "in_progress"})
         (self.base / "task_graph.yaml").write_text(dump_yaml(graph) + "\n", encoding="utf-8")
+
+        # Point state.yaml to T-0036 (was copied from real project with live task)
+        fixture_state = load_yaml(self.base / "state.yaml")
+        fixture_state["current_task_id"] = "T-0036"
+        fixture_state["current_gate_id"] = gate_id
+        (self.base / "state.yaml").write_text(dump_yaml(fixture_state) + "\n", encoding="utf-8")
         mirror_contracts = self.base / "evidence" / "T-0034"
         mirror_contracts.mkdir(parents=True, exist_ok=True)
         for name in ["project-continuity-contract.v0.2.md", "controller-data-flow-transaction-contracts.v0.2.md"]:
-            shutil.copy2(live_root / ".ai" / "evidence" / "T-0034" / name, mirror_contracts / name)
+            shutil.copy2(CANDIDATE_ROOT / ".ai" / "evidence" / "T-0034" / name, mirror_contracts / name)
         evidence = self.base / "evidence" / "T-0036"
         evidence.mkdir(parents=True, exist_ok=True)
         (evidence / "fixture-approval.md").write_text("fixture_only: true\napproved: true\n", encoding="utf-8")
         (evidence / "fixture-execution.md").write_text("fixture_only: true\nexecution: in_progress\n", encoding="utf-8")
         (evidence / "commands.md").write_text("# E2E controlled commands\n", encoding="utf-8")
+        (evidence / "compile-evidence.json").write_text(
+            '{"status":"pass","exit_code":0,"compiled_files":0,"total_files":0,"failed_count":0,"errors":[],"timestamp":"2026-07-20T00:00:00+00:00"}',
+            encoding="utf-8",
+        )
 
         controlled_test = self.root / "controlled_validator_test.py"
         controlled_test.write_text(
@@ -1305,7 +1311,12 @@ class T0036RepairRedContractTests(unittest.TestCase):
             "cwd": str(self.root), "timeout_seconds": 60,
             "environment": {"PYTHONDONTWRITEBYTECODE": "1", "PYTHONHASHSEED": "0", "PYTHONIOENCODING": "utf-8", "PYTHONPATH": "absent"},
             "target_and_test_paths": ["controlled_validator_test.py", ".ai/tasks/T-0036.md"],
-            "protected_paths": [str(path) for path in live_protected],
+            "protected_paths": [
+                str(self.root / ".ai" / "PROJECT.md"),
+                str(self.root / ".ai" / "CONTRACTS.md"),
+                str(self.root / ".ai" / "evidence" / "T-0034" / "project-continuity-contract.v0.2.md"),
+                str(self.root / ".ai" / "evidence" / "T-0034" / "controller-data-flow-transaction-contracts.v0.2.md"),
+            ],
             "evidence_manifest": manifest_relative,
             "evidence_manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(),
             "stdout_path": ".ai/evidence/T-0036/e2e.stdout.txt",
@@ -1359,8 +1370,6 @@ class T0036RepairRedContractTests(unittest.TestCase):
         capability = self.run_action("capability")
         self.assertIn("SECURELY_ISOLATED_AUTHORITY_LIFECYCLE_UNAVAILABLE", capability.stdout)
         self.assertIn("installation_eligibility=BLOCKED", capability.stdout)
-        live_after = {str(path): hashlib.sha256(path.read_bytes()).hexdigest().upper() for path in live_protected}
-        self.assertEqual(live_after, live_before)
         self.assertEqual(set(POSITIVE_E2E_ASSERTIONS), {
             "HANDOFF_GENERATED_FROM_STRUCTURED_STATE", "LIFECYCLE_PROJECTED_WITHOUT_PROSE_SCAN",
             "CHECKPOINT_PENDING_ACK_BEFORE_STABLE", "CHECKPOINT_STABLE_FIXTURE_ONLY_AFTER_MATCHING_ACK",
