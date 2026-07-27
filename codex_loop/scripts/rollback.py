@@ -26,7 +26,7 @@ from pathlib import Path
 _SOURCE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_SOURCE_ROOT / ".zcode" / "tools"))
 
-from governor_lib import ai_dir, load_yaml  # noqa: E402
+from codex_loop.governance.governor_lib import ai_dir, load_yaml  # noqa: E402
 
 
 # ── Public API ──────────────────────────────────────────────────────────
