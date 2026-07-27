@@ -96,6 +96,7 @@ COMPARATORS = {
     "test": compare_test,
     "audit": compare_audit,
     "build": lambda v, t: (int(v) == 0, "exit code != 0" if int(v) != 0 else "exit 0"),
+    "compile": lambda v, t: (int(v) <= int(t), f"{v} files failed to compile (threshold {t})" if int(v) > int(t) else f"{v} compile errors ≤ {t}"),
 }
 
 

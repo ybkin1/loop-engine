@@ -1,0 +1,80 @@
+{
+  "role": "release-engineer",
+  "verdict": "GO",
+  "schema": "release_report/v1",
+  "timestamp": "2026-07-23T00:00:00Z",
+  "target_environment": "ZCode 本地插件",
+  "upstream_status": {
+    "quality": "PASS",
+    "security": "PASS"
+  },
+  "checks": [
+    {
+      "name": "build_reproducibility",
+      "status": "PASS",
+      "value": "requirements.txt 含唯一依赖 PyYAML>=6.0；pip install -r requirements.txt 单命令完成安装；hooks/scripts/、.zcode/tools/、scripts/ 下所有生产代码仅依赖 Python stdlib + PyYAML，无遗漏依赖",
+      "threshold": "单条确定性命令，无人工步骤",
+      "reason": "ZCode 插件无传统构建产物；依赖安装即构建，单文件 requirements.txt 完全确定依赖版本范围",
+      "evidence": "requirements.txt:1"
+    },
+    {
+      "name": "deployment_automation",
+      "status": "PASS",
+      "value": "python scripts/install.py --project-root <目标> 全自动安装（创建 .ai/ 模板目录、复制 config.yaml/chain.yaml、安装工具脚本到 .zcode/tools/，零交互式输入）；plugin.json 合法 JSON（skills/hooks/commands/mcpServers 字段完整）；hooks.json 合法 JSON（SessionStart 3 hooks + PreToolUse 4 hooks）",
+      "threshold": "部署完全脚本化，单命令触发，无人工作业",
+      "reason": "",
+      "evidence": "scripts/install.py:1-111; .zcode-plugin/plugin.json:1-23; hooks/hooks.json:1-53"
+    },
+    {
+      "name": "health_check",
+      "status": "PASS",
+      "value": "validate_state.py 覆盖7类检查项（必需文件、state.yaml 完整性、pending gates 阻断级检查、governance invariants、task contracts self-review+input freezing、ProjectContinuity、HANDOFF audit），blocker 错误返回 exit 2；gate_guard.py PreToolUse hook 在 pending gate 存在时 exit 2 阻断写入，状态文件损坏时按 fail_on_state_error 策略（默认 closed=阻断）",
+      "threshold": "至少一个健康检查机制可用（适配 ZCode 插件：无 HTTP 端点，以 CLI 状态检查 + hook 守卫替代 /health 端点）",
+      "reason": "ZCode 本地插件无 HTTP 服务端点；validate_state.py 覆盖治理状态完整性检查（exit 2 on blocker），gate_guard.py 在每次写入操作前阻断异常状态——两者等价于健康检查+就绪探针",
+      "evidence": ".zcode/tools/validate_state.py:16-96; hooks/scripts/gate_guard.py:44-96"
+    },
+    {
+      "name": "structured_logging",
+      "status": "PASS",
+      "value": "全部 7 个 hook 脚本（hook_common.py, gate_guard.py, loop_auto_activate.py, session_brief.py, loop_enforcement.py, path_guard.py, role_isolation.py, template_injector.py）使用 Python logging 模块，统一格式 '[%(name)s] %(levelname)s: %(message)s'；WARNING 级别默认输出到 stderr；非治理项目静默 exit 0",
+      "threshold": "使用 logging 模块替代 print()，含模块名+级别+消息（适配 ZCode 插件上下文：单机本地运行，无需 JSON 日志聚合）",
+      "reason": "ZCode 本地插件上下文：日志输出到 stderr 供 ZCode 捕获，非分布式系统无需 trace_id；任务说明确认 logging 模块即为合格标准",
+      "evidence": "hook_common.py:19-20; gate_guard.py:24-25; loop_auto_activate.py:23-24; session_brief.py:24-25; loop_enforcement.py:27-28; path_guard.py:29-30; role_isolation.py:27-28; template_injector.py:29-30"
+    },
+    {
+      "name": "rollback_plan",
+      "status": "PASS",
+      "value": "6要素完整：(1)触发条件——3种场景；(2)回滚命令——python scripts/uninstall.py --project-root <目标>；(3)回滚行为——.ai/ 备份至 .ai.backup-<timestamp>/ + .zcode/skills/loop-governance/ 移除；(4)数据回滚——手动重命名备份目录恢复 .ai/；(5)时间估计——执行<1秒，手动恢复<1分钟，合计<5分钟；(6)验证方法——确认目录删除+备份存在+重启会话 hook 失效；uninstall.py 实现与文档描述完全一致（shutil.move + rmtree）",
+      "threshold": "精确回滚命令 + 数据回滚步骤 + 预估时间≤5分钟 + 验证方法",
+      "reason": "",
+      "evidence": "docs/rollback-plan.md:3-39; scripts/uninstall.py:17-39"
+    },
+    {
+      "name": "monitoring_alerting",
+      "status": "PASS",
+      "value": "5条监控链路就绪：(1)pytest 测试套件 246 passed 质量回归监控；(2)ruff check lint 零违规代码质量监控；(3)security_scan.py P0/P1 安全扫描监控；(4)perf_runner.py hook 延迟基准测试含 p50/p95/max 指标，WARN 阈值 max>4000ms；(5)cost_log.jsonl Token 成本追踪（运行时生成）",
+      "threshold": "至少3条监控链路就绪（适配 ZCode 插件：无 Web 服务 CPU/内存/请求延迟指标，以代码质量+性能基准+安全扫描+成本替代）",
+      "reason": "ZCode 本地插件无运行时服务，APM/基础设施监控不适用；perf_runner.py 覆盖 hook 延迟 p50/p95/p99 指标，pytest 覆盖功能正确性，security_scan 覆盖安全态势，ruff 覆盖代码质量，cost_log 覆盖资源消耗——5条链路充分覆盖插件可观测性",
+      "evidence": "docs/ops-handoff.md:40-45; scripts/perf_runner.py:33-37,92-105; scripts/security_scan.py:105-143; docs/deployment-plan.md:29-33"
+    },
+    {
+      "name": "config_management",
+      "status": "PASS",
+      "value": "config.yaml 外部化全部行为配置（gate_guard/path_guard/session_brief/quality_gates/certification/degradation 共6大节307行）；state.yaml 外部化运行时状态（schema_version/project_name/current_phase/loop_mode）；hook_common.py DEFAULT_CONFIG（31-55行）提供健壮默认值确保配置缺失时不崩溃；代码中无硬编码配置值",
+      "threshold": "所有配置外部化到 config.yaml/state.yaml，不硬编码在源代码中",
+      "reason": "",
+      "evidence": ".zcode/skills/loop-governance/config.yaml:1-307; .ai/state.yaml:1-12; hooks/scripts/hook_common.py:31-55"
+    },
+    {
+      "name": "secret_management",
+      "status": "PASS",
+      "value": "安全审计 PASS（P0_findings=0, P1_findings=0, 50 files scanned）；生产代码（hooks/、.zcode/tools/、scripts/）无明文 api_key/secret/password/token/private key；auto_mutation.py 含 seeded test defect 已被安全审计明确排除于生产审计范围",
+      "threshold": "安全扫描 PASS + 无明文密钥",
+      "reason": "",
+      "evidence": ".ai/evidence/security/security_audit.json:5,11-13; scripts/security_scan.py:21-28"
+    }
+  ],
+  "overall": "GO",
+  "blocked_by": [],
+  "summary": "Loop Engine v1.0.0 全部 8 维度 PASS：构建可重复（pip install -r requirements.txt 单命令）、部署自动化（install.py 零交互）、健康检查就绪（validate_state.py + gate_guard.py 阻断语义正确）、日志结构化（logging 模块统一格式）、回滚方案完备（6要素<5分钟）、5条监控链路覆盖、配置外部化到 config.yaml/state.yaml、无明文密钥。上游质量 PASS（246 tests, 0 lint errors）+ 安全 PASS（0 P0/P1 findings）。发布就绪，GO。"
+}

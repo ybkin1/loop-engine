@@ -37,8 +37,9 @@ DEFAULT_CONFIG = {
         "enabled": True,
         # closed: 状态文件不可读时阻断写入；open: 放行并在 stderr 警告
         "fail_on_state_error": "closed",
-        # pending gate 期间仍允许写入的路径（决策记录豁免，见 references/decision-rules.md）
-        "decision_recording_exempt": [".ai/gates.yaml"],
+        # gate 状态异常（missing/rejected/blocked）时仍允许写入的治理文件路径
+        # 防止 fail-closed 死锁：无法写 gates.yaml/state.yaml 修复状态
+        "decision_recording_exempt": [".ai/gates.yaml", ".ai/state.yaml", ".ai/task_graph.yaml", ".ai/project_continuity.yaml"],
     },
     "path_guard": {
         "enabled": True,
@@ -491,6 +492,35 @@ def load_gates_for_context(root: Path) -> dict:
     except Exception:
         return {}
 
+    return gates
+
+
+def load_gates_full(root: Path) -> dict:
+    """Load full gate data including execution_status (v3.5).
+
+    Returns dict[str, dict] with keys: status, execution_status, task_id.
+    Use this when you need to distinguish in_progress from completed gates.
+    """
+    gates_path = root / GATES_REL
+    if not gates_path.exists():
+        return {}
+
+    gates: dict[str, dict] = {}
+
+    if yaml is not None:
+        try:
+            data = yaml.safe_load(gates_path.read_text(encoding="utf-8")) or {}
+        except Exception:
+            return {}
+        gate_list = data.get("gates", [])
+        if isinstance(gate_list, list):
+            for gate in gate_list:
+                if isinstance(gate, dict) and gate.get("id"):
+                    gates[str(gate["id"])] = {
+                        "status": str(gate.get("status", "")),
+                        "execution_status": str(gate.get("execution_status", "")),
+                        "task_id": str(gate.get("task_id", "")),
+                    }
     return gates
 
 

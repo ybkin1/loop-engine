@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -364,12 +365,28 @@ def main() -> int:
 
     # 5. ProjectContinuity — skip in S0-init (too heavy for fresh project)
     continuity_path = base / "project_continuity.yaml"
+    repair_mode = "--repair" in sys.argv or os.environ.get("LOOP_REPAIR_CONTINUITY") == "1"
     if continuity_path.exists():
         try:
             from continuity_producer import load_project_continuity
             load_project_continuity(root)
         except (GovernanceError, ImportError) as exc:
-            errors.append(f"ProjectContinuity invalid: {exc}")
+            err_code = str(getattr(exc, 'code', ''))
+            # v3.5: REPAIR_MODE — auto-repair continuity drift instead of hard-blocking
+            if repair_mode and "SOURCE_DRIFT" in err_code:
+                try:
+                    from repair_continuity import repair_continuity
+                    result = repair_continuity(root)
+                    if result.get("fixed", 0) > 0:
+                        print(f"[loop-governance] [repair] Auto-repaired {result['fixed']} drifted hash(es).")
+                        # Re-validate after repair
+                        load_project_continuity(root)
+                    else:
+                        errors.append(f"ProjectContinuity invalid: {exc} (auto-repair found nothing to fix)")
+                except Exception as re:
+                    errors.append(f"ProjectContinuity invalid: {exc} (auto-repair failed: {re})")
+            else:
+                errors.append(f"ProjectContinuity invalid: {exc}")
     else:
         print("[loop-governance] [info] ProjectContinuity not yet created (expected in S0-init)")
 

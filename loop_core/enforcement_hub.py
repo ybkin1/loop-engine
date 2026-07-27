@@ -34,6 +34,8 @@ from loop_core.state_machine import (
     check_self_review,
     resolve_gate_status,
 )
+# Unified EnforcementLevel (v3.5) — single source of truth in enforcement.py
+from loop_core.enforcement import EnforcementLevel
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +45,6 @@ logger = logging.getLogger(__name__)
 # These sentinels propagate through the read methods and are detected by
 # _governance_state_healthy() before any enforcement decision is made.
 _CORRUPT_SENTINEL = object()  # single shared sentinel for all three files
-
-
-class EnforcementLevel(str, Enum):
-    """What level of enforcement this adapter/host provides."""
-    HARD = "HARD"
-    PARTIAL = "PARTIAL"
-    ADVISORY = "ADVISORY"
 
 
 @dataclass
@@ -281,6 +276,8 @@ class EnforcementHub:
             "review_status": self._load_review_status(),
             "evidence_list": self._load_evidence_envelopes(),
             "current_hashes": self._compute_evidence_hashes(),
+            "root": self._root,
+            "scan_paths": [self._root],
         }
         if target_path:
             ctx["target_path"] = target_path
@@ -460,7 +457,12 @@ class EnforcementHub:
                 ))
         approved = self._get_approved_gate_ids()
         ha = any(t.get("status") in ("active", "in_progress") for t in tasks)
-        pc = check_phase_constraints(target_phase, approved, task_has_active=ha)
+        # Build context early — used by compile check and check_all below
+        ctx = self._build_context(target_phase=target_phase)
+        # Check compile evidence from quality results
+        compile_ok = ctx.get("quality_results", {}).get("compile", "") == "PASS"
+        pc = check_phase_constraints(target_phase, approved, task_has_active=ha,
+                                      compile_passed=compile_ok)
         if not pc.allowed:
             for err in pc.errors:
                 violations.append(ConstraintViolation(
@@ -469,7 +471,14 @@ class EnforcementHub:
                     detail="Phase constraint not satisfied",
                     remediation="Satisfy required constraints.",
                 ))
-        ctx = self._build_context(target_phase=target_phase)
+        # C9: Import validity check — enforced on S4→S5 transition
+        if cp == Phase.S4_IMPLEMENTATION and target_phase == Phase.S5_QUALITY:
+            c9_violations = self._hc.check_c9_import_validity(
+                root=self._root,
+                scan_paths=[self._root],
+            )
+            violations.extend(c9_violations)
+
         violations.extend(self._hc.check_all(ctx).violations)
         bc = sum(1 for v in violations if v.severity == Severity.BLOCKER)
         if bc > 0:

@@ -96,12 +96,17 @@ def _check_gate_lifecycle(root, current_gate_id, state):
     gate_task_id = str(gate_data.get("task_id", ""))
     state_task_id = str(state.get("current_task_id", ""))
 
-    # Fail-closed: gate belongs to a different task
+    # Pending status check — task-scoped (T-0050 fix)
+    # Only block writes when the pending gate belongs to the CURRENT task.
+    # If a pending gate belongs to a different task, treat it as a legacy gate (allow writes).
+    if status == "pending":
+        if gate_task_id and state_task_id and gate_task_id != state_task_id:
+            return "allow_legacy"
+        return "block_pending"
+
+    # Fail-closed: gate belongs to a different task (only for non-pending gates)
     if gate_task_id and state_task_id and gate_task_id != state_task_id:
         return "block_task_mismatch"
-
-    if status == "pending":
-        return "block_pending"
     elif status == "approved":
         if exec_status == "completed":
             return "skip"

@@ -394,6 +394,10 @@ PHASE_CONSTRAINTS: dict[Phase, list[PhaseConstraint]] = {
             "C4-no-implementation", Phase.S5_QUALITY,
             "Implementation baseline required (S4-implementation gate approved)",
         ),
+        PhaseConstraint(
+            "C15-compile-check", Phase.S5_QUALITY,
+            "Compile check must pass before entering S5-quality (all .py files must compile successfully)",
+        ),
     ],
     Phase.S6_DELIVERY: [
         PhaseConstraint(
@@ -458,6 +462,7 @@ def check_phase_constraints(
     approved_gate_ids: set[str],
     task_has_active: bool = False,
     verification_passed: bool = False,
+    compile_passed: bool = False,
 ) -> StateValidationResult:
     """Check whether all constraints for a phase are satisfied.
 
@@ -466,6 +471,7 @@ def check_phase_constraints(
         approved_gate_ids: Set of gate IDs that have been approved.
         task_has_active: Whether task_graph.yaml has at least one active task.
         verification_passed: Whether deterministic verification (tests/lint/build) passed.
+        compile_passed: Whether compile gate check passed (all .py files compile successfully).
 
     Returns:
         StateValidationResult with errors for each unsatisfied blocker constraint.
@@ -476,7 +482,7 @@ def check_phase_constraints(
 
     for constraint in constraints:
         satisfied = _check_single_constraint(
-            constraint, approved_gate_ids, task_has_active, verification_passed
+            constraint, approved_gate_ids, task_has_active, verification_passed, compile_passed
         )
         if not satisfied:
             msg = f"Constraint '{constraint.constraint_id}' not satisfied: {constraint.description}"
@@ -497,6 +503,7 @@ def _check_single_constraint(
     approved_gate_ids: set[str],
     task_has_active: bool,
     verification_passed: bool,
+    compile_passed: bool = False,
 ) -> bool:
     """Evaluate a single constraint against the provided state."""
     cid = constraint.constraint_id
@@ -534,6 +541,9 @@ def _check_single_constraint(
         # This is checked externally — if we're calling this, assume no blockers
         # (the caller should have already verified this)
         return True
+
+    if cid == "C15-compile-check":
+        return compile_passed
 
     # Unknown constraint — warn but don't block
     return True
@@ -662,25 +672,25 @@ def init_project(root: str | Path, project_name: str) -> dict:
 
     # Default gates per phase
     gate_defs = [
-        {"gate_id": "gate-requirements", "phase": "S1-requirements",
+        {"id": "gate-requirements", "phase": "S1-requirements",
          "conditions": [
              {"condition_id": "req-baselined", "type": "role_required", "description": "需求已基线化", "params": {"role_id": "product-manager", "status": "completed"}},
          ], "status": "pending"},
-        {"gate_id": "gate-architecture", "phase": "S2-architecture",
+        {"id": "gate-architecture", "phase": "S2-architecture",
          "conditions": [
              {"condition_id": "arch-complete", "type": "role_required", "description": "架构设计完成", "params": {"role_id": "system-architect", "status": "completed"}},
          ], "status": "pending"},
-        {"gate_id": "gate-implementation", "phase": "S4-implementation",
+        {"id": "gate-implementation", "phase": "S4-implementation",
          "conditions": [
              {"condition_id": "code-complete", "type": "role_required", "description": "实现完成", "params": {"role_id": "developer", "status": "completed"}},
              {"condition_id": "tests-pass", "type": "evidence_required", "description": "测试通过", "params": {"evidence_type": "test_result"}},
          ], "status": "pending"},
-        {"gate_id": "gate-quality", "phase": "S5-quality",
+        {"id": "gate-quality", "phase": "S5-quality",
          "conditions": [
              {"condition_id": "qa-pass", "type": "role_required", "description": "质量通过", "params": {"role_id": "quality-engineer", "status": "completed"}},
              {"condition_id": "security-pass", "type": "role_required", "description": "安全通过", "params": {"role_id": "security-engineer", "status": "completed"}},
          ], "status": "pending"},
-        {"gate_id": "gate-delivery", "phase": "S6-delivery",
+        {"id": "gate-delivery", "phase": "S6-delivery",
          "conditions": [
              {"condition_id": "delivery-ready", "type": "role_required", "description": "交付就绪", "params": {"role_id": "delivery-manager", "status": "completed"}},
              {"condition_id": "human-approval", "type": "manual_approval", "description": "用户验收通过", "params": {}},

@@ -11,10 +11,33 @@ from enum import Enum
 
 
 class EnforcementLevel(str, Enum):
-    """How strongly a host can enforce Loop constraints."""
-    STRONG = "STRONG"    # Can intercept file writes and command execution (exit 2 = deny)
-    MEDIUM = "MEDIUM"    # Can control most flows via plugins/MCP/workflows
-    ADVISORY = "ADVISORY"  # Read-only: can suggest but not enforce
+    """How strongly a host can enforce Loop constraints.
+
+    Unified enum — single source of truth for all layers (v3.5).
+    STRONG/HARD: Can intercept writes + commands, return exit 2 = deny.
+    MEDIUM/PARTIAL: Can control most flows via plugins/MCP/workflows.
+    ADVISORY: Read-only, can suggest but not enforce.
+    """
+    STRONG = "STRONG"
+    HARD = "HARD"        # Alias for STRONG — preferred in hook/Core contexts
+    MEDIUM = "MEDIUM"
+    PARTIAL = "PARTIAL"  # Alias for MEDIUM — preferred in hook/Core contexts
+    ADVISORY = "ADVISORY"
+
+    @property
+    def canonical(self) -> "EnforcementLevel":
+        """Return the canonical level (STRONG/MEDIUM/ADVISORY)."""
+        return _CANONICAL.get(self, self)
+
+
+# Cross-reference mapping for alias resolution (module-level, not enum member)
+_CANONICAL = {
+    EnforcementLevel.HARD: EnforcementLevel.STRONG,
+    EnforcementLevel.STRONG: EnforcementLevel.STRONG,
+    EnforcementLevel.PARTIAL: EnforcementLevel.MEDIUM,
+    EnforcementLevel.MEDIUM: EnforcementLevel.MEDIUM,
+    EnforcementLevel.ADVISORY: EnforcementLevel.ADVISORY,
+}
 
 
 @dataclass

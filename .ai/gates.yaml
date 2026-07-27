@@ -2300,3 +2300,103 @@ gates:
   evidence_required:
   - .ai/evidence/T-0048/approval.md
   - .ai/evidence/T-0048/commands.md
+- id: G-T-0049-ROOTFIX
+  task_id: T-0049
+  gate_type: user-implementation
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-24T00:00:00+08:00'
+  approval_evidence: .ai/evidence/T-0049/approval.md
+  execution_evidence: .ai/evidence/T-0049/commands.md
+  scope: root cause fix — unify 3-layer architecture, continuity bomb defusal, deadlock immunity, EnforcementLevel unification, gate field naming fix
+  allowed_paths:
+  - loop_core/state_machine.py
+  - loop_core/enforcement_hub.py
+  - loop_core/enforcement.py
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/hook_common.py
+  - .zcode/tools/repair_continuity.py
+  - .zcode/tools/continuity_producer.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/governor_lib.py
+  - tests/
+  - .ai/tasks/T-0049.md
+  - .ai/evidence/T-0049/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/project_continuity.yaml
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - create repair_continuity.py
+  - expand decision_recording_exempt
+  - unify EnforcementLevel
+  - fix init_project gate fields
+  - unify gate lifecycle determination
+  - create continuity tests
+  - update governance records
+  forbidden_actions:
+  - modify AGENTS.md
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0049/approval.md
+  - .ai/evidence/T-0049/commands.md
+- id: G-T-0050-MIDFIX
+  task_id: T-0050
+  gate_type: user-implementation
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-24T00:00:00+08:00'
+  approval_evidence: .ai/evidence/T-0050/approval.md
+  execution_evidence: .ai/evidence/T-0050/commands.md
+  scope: mid-priority fixes — gate lifecycle unification, hook_common completion, task_contract fix, continuity tests
+  allowed_paths:
+  - hooks/scripts/hook_common.py
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - .zcode/tools/governor_lib.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/continuity_producer.py
+  - .zcode/tools/task_contract.py
+  - loop_core/enforcement_hub.py
+  - tests/
+  - .ai/tasks/T-0050.md
+  - .ai/evidence/T-0050/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  allowed_actions:
+  - unify gate lifecycle determination
+  - complete hook_common data
+  - fix task_contract imports
+  - create continuity tests
+  - update governance records
+  forbidden_actions:
+  - modify AGENTS.md
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0050/approval.md
+  - .ai/evidence/T-0050/commands.md

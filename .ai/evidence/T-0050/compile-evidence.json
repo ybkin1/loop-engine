@@ -1,0 +1,12 @@
+{
+  "gate": "compile",
+  "exit_code": 0,
+  "compiled_files": 83,
+  "total_files": 83,
+  "errors": [],
+  "timestamp": "2026-07-24T12:00:00.000000+00:00",
+  "evidence_id": "compile-evidence-T-0050",
+  "task_id": "T-0050",
+  "checker": ".ai/checkers/compile_gate.py",
+  "paths_checked": ["loop_core", "hooks/scripts", "tests"]
+}

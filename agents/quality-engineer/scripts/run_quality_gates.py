@@ -48,6 +48,8 @@ DEFAULT_QUALITY_GATES = {
     "audit_threshold": {"HIGH": 0, "CRITICAL": 0},
     "build_command": None,         # 例: "python -m build"
     "build_threshold": 0,          # exit code 上限
+    "compile_command": None,       # 例: "python .ai/checkers/compile_gate.py . --paths loop_core"
+    "compile_threshold": 0,        # 允许的最大编译失败文件数
     "project_type": "auto",        # python | javascript | auto
 }
 
@@ -159,6 +161,26 @@ def parse_build_output(raw: str, exit_code: int, command: str) -> int:
     return exit_code
 
 
+def parse_compile_output(raw: str, exit_code: int, command: str) -> Tuple[int, int, list]:
+    """解析编译门禁输出，返回 (compiled_count, failed_count, error_list)。"""
+    raw_clean = raw.strip()
+    if raw_clean.startswith("{"):
+        try:
+            data = json.loads(raw_clean)
+            compiled = data.get("compiled_files", 0)
+            total = data.get("total_files", compiled)
+            failed = data.get("failed_count", total - compiled)
+            errors = data.get("errors", [])
+            return compiled, failed, errors
+        except json.JSONDecodeError:
+            pass
+    # Fallback: use exit code to determine pass/fail
+    if exit_code == 0:
+        return 0, 0, []
+    else:
+        return 0, 1, [{"error": raw_clean[:500]}]
+
+
 # --------------- 核心 ---------------
 
 def load_config(project_root: Path) -> dict:
@@ -181,6 +203,12 @@ def load_config(project_root: Path) -> dict:
     templates = qg.get("templates", {})
     if isinstance(templates, dict):
         pt = gates.get("project_type", "auto")
+        # Auto-detect project type if set to "auto"
+        if pt == "auto":
+            if (project_root / "pyproject.toml").exists() or (project_root / "setup.py").exists() or (project_root / "requirements.txt").exists():
+                pt = "python"
+            elif (project_root / "package.json").exists():
+                pt = "javascript"
         tmpl = templates.get(pt, templates.get("default", {}))
         if isinstance(tmpl, dict):
             for key, default in DEFAULT_QUALITY_GATES.items():
@@ -255,6 +283,15 @@ def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
         code = parse_build_output(r["stdout"], r["exit_code"], gates["build_command"])
         results.append({"name": "build", "value": code, "threshold": gates.get("build_threshold", 0),
                         "raw": r["stdout"][:200], "exit_code": code, "skipped": r.get("skipped", False)})
+
+    # Compile
+    if gates.get("compile_command"):
+        r = run_one_check("compile", gates["compile_command"], project_root, timeout=120)
+        compiled, failed, error_list = parse_compile_output(r["stdout"], r["exit_code"], gates["compile_command"])
+        results.append({"name": "compile", "value": failed, "threshold": gates.get("compile_threshold", 0),
+                        "raw": json.dumps(error_list)[:300] if error_list else "0 errors",
+                        "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "compiled_files": compiled})
 
     return results
 

@@ -47,6 +47,8 @@ def now_precise() -> str:
 def project_root_arg() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("project_root", help="Project root containing .ai")
+    parser.add_argument("--repair", action="store_true",
+                        help="Auto-repair continuity hash drift instead of blocking")
     return parser
 
 
@@ -341,5 +343,43 @@ def governance_invariant_errors(root: Path) -> list[str]:
             errors.append(f"{status} requires approval evidence for current task: {task_id}")
     if status == "in_progress" and not any(evidence_path_exists(base, gate.get("execution_evidence")) for gate in approved):
         errors.append(f"in_progress requires execution evidence for current task: {task_id}")
+    # v3.5: Compile evidence check — S4+ tasks must have compile output as evidence
+    current_phase = state.get("current_phase", "")
+    if status == "in_progress" and current_phase in (
+        "S4-implementation", "S5-quality", "S6-delivery",
+        "S7-integration", "S8-functional-test", "S9-fix-optimize",
+        "S10-performance", "S11-maintenance",
+    ):
+        compile_evidence = base / "evidence" / task_id / "compile-evidence.json"
+        if not compile_evidence.exists():
+            errors.append(
+                f"COMPILE_EVIDENCE_MISSING: Task {task_id} at phase {current_phase} "
+                f"requires compile evidence at {compile_evidence.relative_to(base)}. "
+                "Run .ai/checkers/compile_gate.py to generate."
+            )
     errors.extend(historical_task_inventory_errors(root, exclude_task_id=task_id))
+
+    # ── HANDOFF consistency check (v3.5) ─────────────────────────────────
+    handoff_text = read_text(base / "HANDOFF.md")
+    if handoff_text:
+        # Detect stale prose that contradicts structured state
+        stale_patterns = [
+            ("Product implementation has not started", "HANDOFF contains stale 'implementation not started' claim"),
+            ("implementation has not started", "HANDOFF contains stale 'implementation not started' claim"),
+            ("The design baseline is approved, promoted and frozen", "HANDOFF references legacy baseline wording"),
+        ]
+        for pattern, warning in stale_patterns:
+            if pattern.lower() in handoff_text.lower():
+                errors.append(f"[warn] HANDOFF_STALE_CONTENT: {warning}. Run close_session.py to regenerate.")
+
+    # ── PROJECT.md anchor check (v3.5) ───────────────────────────────────
+    project_md = read_text(base / "PROJECT.md")
+    if project_md:
+        impl_started = state.get("implementation_started")
+        if impl_started and "implementation has not started" in project_md.lower():
+            errors.append(
+                "[warn] PROJECT_ANCHOR_STALE: .ai/PROJECT.md claims 'implementation has not started' "
+                "but state.yaml has implementation_started=true. Update PROJECT.md to reflect current phase."
+            )
+
     return errors

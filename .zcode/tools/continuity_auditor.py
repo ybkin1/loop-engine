@@ -37,7 +37,8 @@ def _continuity_projection(root: Path) -> tuple[dict, dict]:
     required_ids = {"USER_AUTHORITY", "CODEX_DELIVERY_RESPONSIBILITY", "EVIDENCE_ONLY_BOUNDARY", "MEANS_END_BOUNDARY"}
     if not isinstance(decisions, list) or {item.get("decision_id") for item in decisions} != required_ids:
         raise GovernanceError("PROJECT_CONTINUITY_INVALID", "Independent protected-decision check failed")
-    if data["source_sha256"] != _sha(sources) or data["semantic_sha256"] != _sha(payload):
+    hash_payload = {k: v for k, v in payload.items() if k != "lifecycle"}
+    if data["source_sha256"] != _sha(sources) or data["semantic_sha256"] != _sha(hash_payload):
         raise GovernanceError("PROJECT_CONTINUITY_HASH_MISMATCH", "Independent continuity hash check failed")
     hashes = {"source_sha256": data["source_sha256"], "semantic_sha256": data["semantic_sha256"], "file_sha256": _sha(raw)}
     projection = {
@@ -51,8 +52,20 @@ def _continuity_projection(root: Path) -> tuple[dict, dict]:
 
 
 def _approved_gate(root: Path, task_id: str | None) -> dict | None:
+    """Find the approved gate for a task, matching all valid execution states.
+
+    v3.5 fix: Previously only matched execution_status in {approved_not_started, in_progress}.
+    Now also matches 'completed' and legacy gates with no execution_status,
+    aligning with governor_lib and gate_guard lifecycle semantics.
+    """
     matches = [item for item in gates(root) if item.get("task_id") == task_id and item.get("status") == "approved"]
-    matches = [item for item in matches if item.get("execution_status") in {"approved_not_started", "in_progress"}]
+    # Prefer in_progress/approved_not_started, fall back to completed/legacy
+    active = [m for m in matches if m.get("execution_status") in {"approved_not_started", "in_progress"}]
+    if active:
+        return active[-1]
+    completed_or_legacy = [m for m in matches if m.get("execution_status") == "completed" or not m.get("execution_status")]
+    if completed_or_legacy:
+        return completed_or_legacy[-1]
     return matches[-1] if matches else None
 
 

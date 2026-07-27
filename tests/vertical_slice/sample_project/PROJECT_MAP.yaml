@@ -1,0 +1,363 @@
+# PROJECT_MAP.yaml — Sample project for vertical slice validation
+#
+# A small web application: Simple Task Manager
+# - 3 pages: Login, Dashboard, TaskDetail
+# - 5 API endpoints: login, register, getTasks, createTask, updateTask
+# - 3 modules: auth-module, task-module, api-gateway
+# - 2 database tables: users, tasks
+
+project:
+  name: "Simple Task Manager"
+  type: web_app
+  description: >
+    A minimal task management web application that allows users to register,
+    log in, and manage their personal tasks. Users can create tasks, mark them
+    as complete, and view their task list. This project is designed as a
+    vertical-slice validation target for Loop's governance system.
+
+pages:
+  - id: page-login
+    path: "/login"
+    title: "Login"
+    elements:
+      - id: input-username
+        type: input
+        label: "Username"
+      - id: input-password
+        type: input
+        label: "Password"
+      - id: btn-login
+        type: button
+        label: "Sign In"
+        properties:
+          action: submit_form
+          target: page-dashboard
+      - id: link-register
+        type: link
+        label: "Create an account"
+        properties:
+          target: page-dashboard
+    states:
+      - name: default
+        description: "Shows the login form with username and password fields."
+      - name: loading
+        description: "Shows a spinner while authentication is in progress."
+      - name: error
+        description: "Shows an error message if credentials are incorrect."
+    navigation_from: []
+    navigation_to:
+      - page-dashboard
+
+  - id: page-dashboard
+    path: "/dashboard"
+    title: "My Tasks"
+    elements:
+      - id: nav-logout
+        type: navigation
+        label: "Logout"
+      - id: table-task-list
+        type: table
+        label: "Task List"
+        properties:
+          columns: ["Title", "Status", "Due Date"]
+      - id: btn-create-task
+        type: button
+        label: "New Task"
+        properties:
+          action: navigate
+          target: page-task-detail
+      - id: input-search
+        type: input
+        label: "Search tasks"
+    states:
+      - name: loading
+        description: "Shows a skeleton loader while tasks are being fetched."
+      - name: empty
+        description: "Shows a friendly message when the user has no tasks."
+      - name: default
+        description: "Shows the full task list table with all user tasks."
+      - name: error
+        description: "Shows an error message if task loading fails."
+    navigation_from:
+      - page-login
+    navigation_to:
+      - page-task-detail
+
+  - id: page-task-detail
+    path: "/task/:id"
+    title: "Task Details"
+    elements:
+      - id: text-task-title
+        type: text
+        label: "Task Title"
+      - id: text-task-status
+        type: text
+        label: "Status"
+      - id: dropdown-status
+        type: dropdown
+        label: "Change Status"
+        properties:
+          options: ["Pending", "In Progress", "Done"]
+      - id: btn-save
+        type: button
+        label: "Save Changes"
+      - id: btn-back
+        type: button
+        label: "Back to Dashboard"
+        properties:
+          action: navigate
+          target: page-dashboard
+    states:
+      - name: loading
+        description: "Shows a spinner while task details are being loaded."
+      - name: default
+        description: "Shows all task details with edit controls."
+      - name: error
+        description: "Shows an error if the task is not found."
+    navigation_from:
+      - page-dashboard
+    navigation_to:
+      - page-dashboard
+
+api_endpoints:
+  - id: api-login
+    method: POST
+    path: "/api/auth/login"
+    request:
+      headers:
+        - "Content-Type: application/json"
+      body_schema:
+        type: object
+        required: ["username", "password"]
+        properties:
+          username:
+            type: string
+          password:
+            type: string
+    response:
+      success_schema:
+        type: object
+        properties:
+          token:
+            type: string
+          user:
+            type: object
+      error_codes: ["400", "401", "500"]
+    auth_required: false
+
+  - id: api-register
+    method: POST
+    path: "/api/auth/register"
+    request:
+      headers:
+        - "Content-Type: application/json"
+      body_schema:
+        type: object
+        required: ["username", "password", "email"]
+        properties:
+          username:
+            type: string
+          password:
+            type: string
+          email:
+            type: string
+    response:
+      success_schema:
+        type: object
+        properties:
+          id:
+            type: string
+          message:
+            type: string
+      error_codes: ["400", "409", "500"]
+    auth_required: false
+
+  - id: api-get-tasks
+    method: GET
+    path: "/api/tasks"
+    request:
+      headers:
+        - "Authorization: Bearer <token>"
+    response:
+      success_schema:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+            title:
+              type: string
+            status:
+              type: string
+            due_date:
+              type: string
+      error_codes: ["401", "500"]
+    auth_required: true
+
+  - id: api-create-task
+    method: POST
+    path: "/api/tasks"
+    request:
+      headers:
+        - "Authorization: Bearer <token>"
+        - "Content-Type: application/json"
+      body_schema:
+        type: object
+        required: ["title"]
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          due_date:
+            type: string
+    response:
+      success_schema:
+        type: object
+        properties:
+          id:
+            type: string
+          title:
+            type: string
+      error_codes: ["400", "401", "500"]
+    auth_required: true
+
+  - id: api-update-task
+    method: PATCH
+    path: "/api/tasks/:id"
+    request:
+      headers:
+        - "Authorization: Bearer <token>"
+        - "Content-Type: application/json"
+      body_schema:
+        type: object
+        properties:
+          title:
+            type: string
+          status:
+            type: string
+          due_date:
+            type: string
+    response:
+      success_schema:
+        type: object
+        properties:
+          id:
+            type: string
+          updated:
+            type: boolean
+      error_codes: ["400", "401", "404", "500"]
+    auth_required: true
+
+modules:
+  - id: auth-module
+    responsibilities:
+      - "User registration and login"
+      - "Password hashing and verification"
+      - "JWT token generation and validation"
+      - "Session management"
+    depends_on:
+      - api-gateway
+    depended_by:
+      - task-module
+
+  - id: task-module
+    responsibilities:
+      - "Task CRUD operations"
+      - "Task search and filtering"
+      - "Task status management"
+    depends_on:
+      - auth-module
+      - api-gateway
+    depended_by: []
+
+  - id: api-gateway
+    responsibilities:
+      - "Request routing and validation"
+      - "Authentication middleware"
+      - "Rate limiting"
+      - "Error formatting and response normalization"
+    depends_on: []
+    depended_by:
+      - auth-module
+      - task-module
+
+database:
+  tables:
+    - name: users
+      columns:
+        - name: id
+          type: "INTEGER"
+          nullable: false
+          primary_key: true
+          foreign_key: null
+        - name: username
+          type: "VARCHAR(50)"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: password_hash
+          type: "VARCHAR(255)"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: email
+          type: "VARCHAR(100)"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: created_at
+          type: "TIMESTAMP"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+      indexes:
+        - "idx_users_username ON users(username)"
+        - "idx_users_email ON users(email)"
+
+    - name: tasks
+      columns:
+        - name: id
+          type: "INTEGER"
+          nullable: false
+          primary_key: true
+          foreign_key: null
+        - name: user_id
+          type: "INTEGER"
+          nullable: false
+          primary_key: false
+          foreign_key: "users.id"
+        - name: title
+          type: "VARCHAR(200)"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: description
+          type: "TEXT"
+          nullable: true
+          primary_key: false
+          foreign_key: null
+        - name: status
+          type: "VARCHAR(20)"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: due_date
+          type: "DATE"
+          nullable: true
+          primary_key: false
+          foreign_key: null
+        - name: created_at
+          type: "TIMESTAMP"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+        - name: updated_at
+          type: "TIMESTAMP"
+          nullable: false
+          primary_key: false
+          foreign_key: null
+      indexes:
+        - "idx_tasks_user_id ON tasks(user_id)"
+        - "idx_tasks_status ON tasks(status)"

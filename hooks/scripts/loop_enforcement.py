@@ -147,10 +147,82 @@ def is_in_task_scope(rel_path: str | None, contract: dict | None) -> bool:
     if not allowed:
         return False  # Missing explicit scope is unsafe; fail closed.
     for path in allowed:
-        path = path.replace("\\", "/").lstrip("./")
+        path = path.replace("\\", "/")
+        # Strip only "./" prefix, not individual '.' characters (v3.5 fix)
+        # lstrip("./") would corrupt paths like ".zcode/" -> "zcode/"
+        if path.startswith("./"):
+            path = path[2:]
         if rel_path == path or rel_path.startswith(path.rstrip("/") + "/"):
             return True
     return False
+
+
+# ── C11: File Write Counter ────────────────────────────────────────────
+
+def _read_task_max_files(root: Path, task_id: str) -> int | None:
+    """Parse max_files from the task contract markdown.
+
+    Looks for 'max_files:' field in the task's .md file.
+    Returns None if not specified (no limit).
+    """
+    task_path = root / ".ai" / "tasks" / f"{task_id}.md"
+    if not task_path.is_file():
+        return None
+
+    try:
+        text = task_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("max_files:"):
+            value = stripped.split(":", 1)[1].strip().strip('"').strip("'")
+            try:
+                return int(value)
+            except ValueError:
+                return None
+
+    return None
+
+
+def _get_file_write_count_file(root: Path, task_id: str) -> Path:
+    """Get the path to the file write counter for a task."""
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    return evidence_dir / "file_write_count.json"
+
+
+def _read_file_write_count(root: Path, task_id: str) -> int:
+    """Read the current file write count for a task. Returns 0 if no counter exists."""
+    counter_file = _get_file_write_count_file(root, task_id)
+    if not counter_file.is_file():
+        return 0
+
+    try:
+        data = json.loads(counter_file.read_text(encoding="utf-8"))
+        return data.get("count", 0)
+    except (json.JSONDecodeError, OSError):
+        return 0
+
+
+def _increment_file_write_count(root: Path, task_id: str, file_path: str) -> int:
+    """Increment the file write counter for a task and return the new count.
+
+    Creates the evidence directory if it doesn't exist.
+    """
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+
+    current_count = _read_file_write_count(root, task_id)
+    new_count = current_count + 1
+
+    counter_file = _get_file_write_count_file(root, task_id)
+    counter_file.write_text(
+        json.dumps({"count": new_count, "last_file": file_path}, indent=2),
+        encoding="utf-8",
+    )
+
+    return new_count
 
 
 # ── Phase Gate Enforcement ──
@@ -433,6 +505,24 @@ def main():
                 task_id,
             )
             return EXIT_BLOCK
+
+        # ── C11: File Write Limit Check ──
+        # Governance files are already exempted above (is_governance_write),
+        # so this check only applies to non-governance file writes.
+        if rel is not None:
+            max_files = _read_task_max_files(root, task_id)
+            if max_files is not None:
+                current_count = _read_file_write_count(root, task_id)
+                if current_count >= max_files:
+                    logger.warning(
+                        "BLOCKED: Task '%s' has reached its file write limit "
+                        "(%d/%d files written). "
+                        "Update the task contract's max_files or split the task.",
+                        task_id, current_count, max_files,
+                    )
+                    return EXIT_BLOCK
+                # Increment the counter (write will proceed)
+                _increment_file_write_count(root, task_id, rel)
 
         if not is_in_task_scope(rel, contract):
             logger.warning(

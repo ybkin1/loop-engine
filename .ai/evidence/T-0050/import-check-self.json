@@ -1,0 +1,39 @@
+{
+  "tool": "ImportGate (manual scan; import_checker.py module exists but also being verified itself)",
+  "scan_targets": [
+    "loop_core",
+    "hooks/scripts",
+    ".zcode/tools"
+  ],
+  "project_root": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+  "status": "fail",
+  "exit_code": 1,
+  "total_files_scanned": 52,
+  "total_files_with_undeclared": 2,
+  "undeclared_details": [
+    {
+      "file": "loop_core\\import_checker.py",
+      "undeclared_imports": [
+        {
+          "line": 193,
+          "import": "tomli",
+          "top": "tomli"
+        }
+      ],
+      "resolution": "FIX REQUIRED: add tomli to pyproject.toml dev dependencies (Python 3.10 backport of tomllib), OR switch to tomllib (stdlib in Python 3.11+) and bump requires-python to >=3.11"
+    },
+    {
+      "file": "loop_core\\project_map_schema.py",
+      "undeclared_imports": [
+        {
+          "line": 331,
+          "import": "jsonschema",
+          "top": "jsonschema"
+        }
+      ],
+      "resolution": "FIX REQUIRED: add jsonschema to pyproject.toml dependencies or optional-dependencies"
+    }
+  ],
+  "note": "pyyaml is imported as yaml (properly mapped to declared dependency). All other imports are stdlib or local project modules.",
+  "timestamp": "2026-07-27T02:48:10.502548+00:00"
+}

@@ -9,10 +9,13 @@ gate_guard:
   # closed: 状态文件不可读时阻断写入（默认，安全姿态）
   # open:   状态文件不可读时放行并在 stderr 警告（仅排障时临时使用）
   fail_on_state_error: closed
-  # pending gate 期间仍允许写入的路径（决策记录豁免）
-  # 理由见 references/decision-rules.md：不豁免会死锁——用户批准后无法落盘
+  # gate 状态异常（missing/rejected/blocked）时仍允许写入的治理文件路径
+  # 防止 fail-closed 死锁：无法写 gates.yaml/state.yaml/task_graph.yaml 修复状态
   decision_recording_exempt:
     - .ai/gates.yaml
+    - .ai/state.yaml
+    - .ai/task_graph.yaml
+    - .ai/project_continuity.yaml
 
 path_guard:
   enabled: true
@@ -49,6 +52,7 @@ quality_gates:
     HIGH: 0
     CRITICAL: 0
   build_threshold: 0
+  compile_threshold: 0
 
   # 语言模板：project_type 匹配时自动应用
   templates:
@@ -65,6 +69,7 @@ quality_gates:
       test_command: "pytest --cov=src --cov-report=term --tb=short -q"
       audit_command: "pip-audit -r requirements.txt --format json"
       build_command: "python -m build"
+      compile_command: "python .ai/checkers/compile_gate.py . --paths loop_core"
 
     default:
       # 未识别语言时的保守配置：只跑测试和 lint（如果命令存在）

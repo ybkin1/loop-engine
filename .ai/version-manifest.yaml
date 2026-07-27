@@ -1,0 +1,41 @@
+schema_version: 1
+generated_at: "2026-07-24T00:00:00+08:00"
+generated_by: T-0046-reconciliation
+
+# pyproject.toml is the single source of truth for project release version
+project_release_version: "3.0.0"
+
+# Core protocol version — the Loop Core API contract
+core_protocol_version: "3.0.0"
+
+# Plugin version — the ZCode governance plugin
+plugin_version: "3.0.0"
+
+# Historical snapshots (DO NOT modify — preserved for audit trail)
+historical_snapshots:
+  - version: "1.0.0"
+    note: "Initial governance design (T-0002~T-0005 era)"
+    sources:
+      - "historical evidence in .ai/evidence/T-0002 through T-0005"
+  - version: "2.0.0"
+    note: "Unified governance architecture candidate (pre-loop-engine merge)"
+    sources:
+      - "historical evidence in early .ai/ records"
+  - version: "3.0.0"
+    note: "Current release — loop-engine core delivery (T-0040 era)"
+    sources:
+      - "pyproject.toml"
+      - "README.md"
+      - "loop_core/__init__.py"
+      - "src/loop_engine/__init__.py"
+      - "docs/06-delivery.md"
+      - ".zcode-plugin/plugin.json"
+
+# Version consistency matrix
+consistency_check:
+  pyproject_toml: "3.0.0"
+  readme_md: "3.0.0"
+  loop_core_init: "3.0.0"
+  src_loop_engine_init: "3.0.0"
+  docs_06_delivery: "3.0.0"
+  plugin_json: "3.0.0"

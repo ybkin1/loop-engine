@@ -278,7 +278,7 @@ class PhaseExecutor:
         os.replace(str(tmp_path), str(state_path))
 
     def _write_task_graph(self, project_root: Path, plan: PhasePlan) -> None:
-        """Write phase execution summary to .ai/task_graph.yaml."""
+        """Write phase execution summary to .ai/task_graph.yaml (atomic write)."""
         graph_path = project_root / ".ai" / "task_graph.yaml"
         graph_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -300,7 +300,10 @@ class PhaseExecutor:
             for fname, fhash in plan.input_hashes.items():
                 lines.append(f"  {fname}: {fhash}")
 
-        graph_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        # Atomic write: .tmp + os.replace() to prevent cross-file inconsistency
+        tmp_path = project_root / ".ai" / "task_graph.yaml.tmp"
+        tmp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        os.replace(str(tmp_path), str(graph_path))
 
     def _freeze_inputs(self, input_files: list[str]) -> dict[str, str]:
         """Compute SHA256 hashes for a list of input files."""
@@ -566,6 +569,27 @@ class PhaseExecutor:
                 ))
             return plan
 
+        # Step 2b: Compile gate check (S4→S5 quality gate — CompileGate)
+        # Before advancing to S5_QUALITY, all .py files must compile successfully.
+        # This is a QUALITY gate — blocks phase advance only, never file writes.
+        if phase == Phase.S5_QUALITY:
+            compile_ok = self._run_compile_gate_check(project_root)
+            if not compile_ok:
+                plan = PhasePlan(
+                    phase=phase,
+                    loop_mode=self.mode,
+                    status=StepStatus.BLOCKED,
+                )
+                plan.steps.append(RoleStep(
+                    role_id="compile-gate",
+                    status=StepStatus.BLOCKED,
+                    verdict="COMPILE_FAILED: One or more .py files failed to compile. "
+                            "Fix compilation errors before advancing to S5-quality.",
+                ))
+                # Persist the blocked state so the reason is recorded
+                self.persist_state(plan, project_root)
+                return plan
+
         # Step 3: Freeze inputs
         frozen_inputs = self._freeze_inputs(input_files or [])
 
@@ -633,6 +657,84 @@ class PhaseExecutor:
         self.persist_state(plan, project_root)
 
         return plan
+
+    def _run_compile_gate_check(self, project_root: Path) -> bool:
+        """Run the CompileGate checker on the project's core directories.
+
+        Returns True if all .py files compile successfully, False otherwise.
+        The compile gate is a QUALITY gate — it blocks phase advance only,
+        never file writes. Evidence is stored in .ai/evidence/compile/.
+        """
+        import json as _json
+
+        checker_script = project_root / ".ai" / "checkers" / "compile_gate.py"
+        if not checker_script.exists():
+            # Compile gate checker not available — warn but don't block
+            import warnings
+            warnings.warn(
+                "COMPILE_GATE_UNAVAILABLE: .ai/checkers/compile_gate.py not found. "
+                "Compile check skipped — phase advance allowed."
+            )
+            return True
+
+        try:
+            result = subprocess.run(
+                [sys.executable, str(checker_script), str(project_root),
+                 "--paths", "loop_core,hooks/scripts,tests"],
+                capture_output=True,
+                text=True,
+                timeout=120,
+                cwd=str(project_root),
+            )
+
+            # Parse the JSON output
+            stdout = result.stdout.strip()
+            if stdout:
+                try:
+                    data = _json.loads(stdout)
+                    exit_code = data.get("exit_code", result.returncode)
+                    compiled_files = data.get("compiled_files", 0)
+                    total_files = data.get("total_files", 0)
+                    errors = data.get("errors", [])
+
+                    # Write compile evidence to .ai/evidence/compile/
+                    evidence_dir = project_root / ".ai" / "evidence" / "compile"
+                    evidence_dir.mkdir(parents=True, exist_ok=True)
+                    evidence_path = evidence_dir / "compile_report.json"
+                    evidence_path.write_text(_json.dumps(data, ensure_ascii=False, indent=2),
+                                            encoding="utf-8")
+
+                    if exit_code == 0 and not errors:
+                        return True
+                    else:
+                        import logging
+                        logging.warning(
+                            f"COMPILE_FAILED: {len(errors)}/{total_files} files failed to compile. "
+                            f"See {evidence_path} for details."
+                        )
+                        return False
+                except _json.JSONDecodeError:
+                    pass
+
+            # Fallback: use returncode
+            if result.returncode == 0:
+                return True
+            else:
+                import logging
+                logging.warning(
+                    f"COMPILE_FAILED: exit code {result.returncode}. "
+                    f"stderr: {result.stderr[:500]}"
+                )
+                return False
+
+        except subprocess.TimeoutExpired:
+            import logging
+            logging.warning("COMPILE_GATE_TIMEOUT: Compile check timed out after 120s.")
+            return False
+        except Exception as e:
+            import logging
+            logging.warning(f"COMPILE_GATE_ERROR: {e}")
+            return False
 
     def persist_state(self, plan: PhasePlan, project_root: Path | None = None) -> None:
         """Persist PhasePlan state back to .ai/state.yaml and .ai/task_graph.yaml.

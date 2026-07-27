@@ -3,85 +3,7 @@
 ## Product Direction And Authority
 
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-BEGIN -->
-```json
-{
-  "schema": "ProjectContinuityProjection/v1",
-  "project_id": "loop-engine",
-  "user_origin": {
-    "audience": "单人AI辅助软件研发",
-    "capability_assumptions": [
-      "用户无代码能力",
-      "用户无项目管理背景"
-    ],
-    "user_authorities": [
-      "批准gate",
-      "拒绝gate",
-      "请求修复",
-      "提出目标"
-    ]
-  },
-  "product_identity": {
-    "project_id": "loop-engine",
-    "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
-    "north_star": "每个非技术用户都能借助AI交付可用软件",
-    "success_signals": [
-      "治理流程可被非技术用户理解",
-      "gate机制有效阻断未授权操作",
-      "证据链完整可审计"
-    ]
-  },
-  "protected_decisions": [
-    {
-      "decision_id": "MEANS_END_BOUNDARY",
-      "statement": "AI负责手段，用户负责目标和gate批准",
-      "rationale_ref": ".ai/DECISIONS.md",
-      "authority_ref": "user",
-      "change_policy": "需用户显式gate批准"
-    },
-    {
-      "decision_id": "USER_AUTHORITY",
-      "statement": "只有用户能批准gate、拒绝gate、请求修复",
-      "rationale_ref": ".ai/DECISIONS.md",
-      "authority_ref": "user",
-      "change_policy": "不可变更"
-    },
-    {
-      "decision_id": "CODEX_DELIVERY_RESPONSIBILITY",
-      "statement": "AI负责在批准范围内完成交付",
-      "rationale_ref": ".ai/DECISIONS.md",
-      "authority_ref": "user",
-      "change_policy": "需用户显式gate批准"
-    },
-    {
-      "decision_id": "EVIDENCE_ONLY_BOUNDARY",
-      "statement": "reviewer PASS、测试通过、validator成功仅为evidence，不替代用户批准",
-      "rationale_ref": ".ai/DECISIONS.md",
-      "authority_ref": "user",
-      "change_policy": "不可变更"
-    }
-  ],
-  "authorization_boundaries": {
-    "allowed_effects": [
-      "read",
-      "write governance files"
-    ],
-    "forbidden_effects": [
-      "deploy",
-      "rollback",
-      "database",
-      "permission",
-      "secret",
-      "payment",
-      "production_data",
-      "migration"
-    ],
-    "current_gate_id": "G-T-0047-HARDENING"
-  },
-  "source_sha256": "8487009BC9649F1CD7A540AC9426507B5CC7C6854E30FC9083C8915D2DD27FB3",
-  "semantic_sha256": "AC02D495F90485360E5435B639AB9FFF81B8A38590C89E1452403B804324ADC4",
-  "persisted_file_sha256": "8EA9530E729868FEB3F53F533A35F240E96C5E2E14D797CFFFE8BB6B39A7CCA2"
-}
-```
+
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-END -->
 
 ## Current Phase
@@ -90,13 +12,13 @@ S6-delivery
 
 ## Current Task
 
-T-0048: Finalize — Atomic Write + Hook Split Completion + Status Marking + Vertical Slice
+T-0050: Mid-Priority Fixes — Gate Lifecycle Unification + hook_common Completion + task_contract Fix
 
 Status: `in_progress`
 
 ## Current Gate
 
-G-T-0048-FINALIZE: approved+in_progress (2026-07-24)
+G-T-0050-MIDFIX: approved+in_progress (2026-07-24)
 
 ## Recent Changes
 
@@ -201,14 +123,14 @@ See Allowed Scope above. Any action not explicitly listed in allowed_effects is 
 
 ```
 current_phase: S6-delivery
-current_task: T-0047
-current_gate: G-T-0047-HARDENING (approved, in_progress)
+current_task: T-0050
+current_gate: G-T-0050-MIDFIX (approved, in_progress)
 task_status: in_progress
 ```
 
 ## Structured Next Action
 
-T-0047 execution: Complete governance hardening, run full regression, record evidence.
+T-0050 execution: Complete mid-priority fixes, run full regression, record evidence.
 
 ## Checkpoint
 
@@ -228,18 +150,7 @@ USER_DECISION_REQUIRED — 审查 v3.0.0 T-0040 交付结果，决定是否批�
 Use $project-governor, validate structured state, and continue only inside the approved scope.
 
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
-```json
-{
-  "schema": "ProjectGovernorNextAction/v2",
-  "current_task_id": "T-0048",
-  "current_task_status": "in_progress",
-  "current_gate_id": "G-T-0048-FINALIZE",
-  "approved_execution_gate_id": "G-T-0048-FINALIZE",
-  "approved_execution_status": "in_progress",
-  "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION"
-}
-```
+
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-END -->
 
 <!-- PROJECT-GOVERNOR-LIFECYCLE-BEGIN -->

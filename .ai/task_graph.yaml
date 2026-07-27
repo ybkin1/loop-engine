@@ -336,6 +336,40 @@ tasks:
       - CHANGELOG.md
       - tests/
     note: "收尾修复：executor原子写入 + hook拆分补全 + T-0043/T-0044标记完成 + T-0041垂直切片证据 + T-0042证据+CHANGELOG"
+  -
+    id: T-0049
+    title: Root Cause Fix — 3-Layer Architecture Unification + Continuity Bomb Defusal + Deadlock Immunity
+    status: in_progress
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/state_machine.py
+      - loop_core/enforcement_hub.py
+      - loop_core/enforcement.py
+      - hooks/scripts/gate_guard.py
+      - hooks/scripts/hook_common.py
+      - .zcode/tools/repair_continuity.py
+      - .zcode/tools/continuity_producer.py
+      - .zcode/tools/continuity_auditor.py
+      - .zcode/tools/governor_lib.py
+      - tests/
+      - .ai/tasks/T-0049.md
+      - .ai/evidence/T-0049/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/project_continuity.yaml
+      - .ai/HANDOFF.md
+    note: "根因修复：三层架构统一 + continuity炸弹拆除 + 死锁免疫"
+  -
+    id: T-0050
+    title: Mid-Priority Fixes — Gate Lifecycle Unification + hook_common Completion + task_contract Fix
+    status: in_progress
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    note: "先审后修：continuity_auditor gate判定修复 + load_gates_full新增 + task_contract部署"
 edges:
     - from: T-0040
       to: T-0041
