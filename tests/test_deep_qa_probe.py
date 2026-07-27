@@ -295,9 +295,8 @@ class TestBashFalsePositives:
         # has_write_operations checks for curl command, echo is not curl
         assert not has_write_operations("echo 'use curl to download'")
 
-    @pytest.mark.xfail(reason="Known limitation: \\binstall\\b matches 'install' in echo args")
     def test_wget_in_string_not_detected(self):
-        """KNOWN LIMITATION: \\binstall\\b matches 'install' in echo argument."""
+        """\binstall\b no longer falsely matches 'install' in echo arguments (fixed in v3.6)."""
         assert not has_write_operations("echo 'install wget first'")
 
     def test_pip_in_path_not_detected(self):
