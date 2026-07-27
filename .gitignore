@@ -26,3 +26,17 @@ venv/
 # OS
 Thumbs.db
 .DS_Store
+
+# Secrets — NEVER commit these
+.env
+.env.*
+*.pem
+*.key
+credentials.*
+secrets.*
+token.*
+!token.*.template
+
+# User-specific ZCode config (may contain paths)
+.zcode/config.json
+.zcode/plans/
