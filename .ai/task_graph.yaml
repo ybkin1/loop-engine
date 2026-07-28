@@ -633,7 +633,7 @@ tasks:
   -
     id: T-0064
     title: P0-P2 全面缺陷修复
-    status: in_progress
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     allowed_paths:
@@ -647,6 +647,22 @@ tasks:
       - loop_core/
       - tests/
     note: "治理漂移修复 + Hook 异常加固 + 测试补全"
+
+  -
+    id: T-0065
+    title: 测试覆盖率补全
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0065.md
+      - .ai/evidence/T-0065/
+      - tests/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "P0-4 loop_core tests + P0-5 Hook tests + E2E"
 
 edges:
     - from: T-0040
