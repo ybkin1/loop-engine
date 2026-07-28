@@ -651,7 +651,7 @@ tasks:
   -
     id: T-0065
     title: 测试覆盖率补全
-    status: in_progress
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     allowed_paths:
@@ -664,6 +664,21 @@ tasks:
       - .ai/HANDOFF.md
     note: "P0-4 loop_core tests + P0-5 Hook tests + E2E"
 
+  -
+    id: T-0066
+    title: 残余缺陷清零 + 最终验收
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0066.md
+      - .ai/evidence/T-0066/
+      - tests/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "Router/state_machine/static_analyzer tests + final closeout"
 edges:
     - from: T-0040
       to: T-0041

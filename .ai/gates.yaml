@@ -3447,3 +3447,34 @@ gates:
     runtime_behavior: true
   notes:
   - Test coverage completion for P0-4 and P0-5
+- id: G-T-0066-FINAL-CLEANUP
+  task_id: T-0066
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  scope: Final remaining test coverage for router/state_machine/static_analyzer
+  approval_evidence: .ai/evidence/T-0066/approval.md
+  execution_evidence: .ai/evidence/T-0066/commands.md
+  allowed_paths:
+  - tests/
+  - .ai/
+  allowed_actions:
+  - create tests
+  - run regression
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Final cleanup task

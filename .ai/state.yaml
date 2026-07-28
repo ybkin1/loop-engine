@@ -1,8 +1,8 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0065
-current_gate_id: G-T-0065-TEST-COVERAGE
+current_task_id: T-0066
+current_gate_id: G-T-0066-FINAL-CLEANUP
 loop_mode: FULL
 last_handoff_at: '2026-07-27T23:35:17.181523+08:00'
 notes:
