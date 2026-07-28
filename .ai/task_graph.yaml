@@ -354,4 +354,10 @@ tasks:
   updated_at: '2026-07-28T18:30:00+08:00'
   phase: S4-implementation
   note: Fix session_brief FAIL-CLOSED, load_state alignment, execution_status, version. Deepen quality-engineer, test-engineer, independent-reviewer, main-thread roles.
+- id: T-0053
+  title: loop-engine-lab剩余事项收尾
+  status: active
+  created_at: '2026-07-28T19:00:00+08:00'
+  phase: S4-implementation
+  note: Phase A cleanup+push, Phase B P2 test fixes, Phase C repo unification (user gate), Phase D real project entry (user gate)
 edges: []
