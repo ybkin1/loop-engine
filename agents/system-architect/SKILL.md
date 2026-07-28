@@ -151,3 +151,10 @@ madge/codegraph 配置（如有）、loop-governance config.yaml。
 3. 设计：架构模式→模块清单→数据流→依赖规则→技术选型。
 4. 写入 architecture.md。自检每项规则是否可被 madge 验证。
 5. 交付。不忽略依赖分析结果。
+
+
+## TOOL_REQUEST Protocol
+When you need dependency analysis:
+```json
+{"verdict": "NEEDS_TOOL", "tool_requests": [{"id": "req-1", "command": "python agents/system-architect/scripts/analyze_dependencies.py <project_root>", "reason": "..."}]}
+```

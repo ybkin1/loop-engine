@@ -163,3 +163,11 @@ when_to_use: >
 1. 报告 BLOCKED：缺少质量门配置
 2. 不尝试猜测或使用默认命令
 3. 提示项目需要在 config.yaml 中添加 quality_gates 节
+
+
+## TOOL_REQUEST Protocol
+When you need to execute scripts, output a TOOL_REQUEST block:
+```json
+{"verdict": "NEEDS_TOOL", "tool_requests": [{"id": "req-1", "command": "python agents/quality-engineer/scripts/run_quality_gates.py <project_root>", "reason": "..."}]}
+```
+The main agent will execute and return results. Then complete your analysis.

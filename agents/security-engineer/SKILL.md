@@ -134,3 +134,10 @@ when_to_use: 编码阶段接近完成但尚未交付时；质量工程师PASS后
 5. 生成 security_report.json，包含完整 findings 数组、overall 判定、blocked_by 列表
 6. 生成 security_summary.md，包含扫描项表格 + 阻断发现（文件路径/行号/代码证据）+ 误报审查说明
 7. 按 §10 要求向各下游角色交付
+
+
+## TOOL_REQUEST Protocol
+When you need to run security scans, output:
+```json
+{"verdict": "NEEDS_TOOL", "tool_requests": [{"id": "req-1", "command": "python agents/security-engineer/scripts/run_security_scan.py <project_root>", "reason": "..."}]}
+```
