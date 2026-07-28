@@ -51,6 +51,29 @@ def load_state(root: Path) -> dict:
     return state
 
 
+
+# Sentinel for corrupted governance state (T-0052 — aligned with enforcement_hub._CORRUPT_SENTINEL)
+_CORRUPT_SENTINEL = object()
+
+
+def load_state_fail_closed(root: Path) -> dict:
+    """Load state.yaml — FAIL CLOSED on corruption.
+
+    Unlike load_state() which silently returns {} on error, this function
+    raises an exception when the state file exists but cannot be parsed.
+    Hooks that enforce governance decisions should use this function.
+    Session brief hooks may use load_state() for non-blocking operation.
+    """
+    sp = root / STATE_REL
+    if not sp.exists():
+        return {}
+    try:
+        import yaml
+        with open(sp, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception as e:
+        raise RuntimeError(f"Corrupted state.yaml: {e}") from e
 def _naive_pending_scan(text: str) -> set[str]:
     """Quick scan for 'status: pending' lines in gates.yaml text."""
     pending: set[str] = set()

@@ -1,0 +1,15 @@
+{
+  "schema": "gate/v1",
+  "description": "Gate definition \u2014 a phase transition checkpoint that requires user approval",
+  "required_fields": [
+    "id",
+    "status",
+    "task_id"
+  ],
+  "fields": {
+    "id": "Unique gate identifier (e.g. G-T-0001-APPROVE)",
+    "status": "pending | approved | rejected | blocked",
+    "task_id": "The task this gate belongs to",
+    "execution_status": "approved_not_started | in_progress | completed \u2014 only meaningful when status=approved. If absent on an approved gate, the gate guard treats it as legacy and allows writes."
+  }
+}

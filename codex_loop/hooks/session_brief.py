@@ -96,23 +96,53 @@ def main():
     if not is_governance_project(root):
         return 0
 
+    state_file = root / ".ai" / "state.yaml"
+    if state_file.exists():
+        try:
+            load_state(root)
+        except Exception as state_err:
+            _emit_brief(_build_corruption_alert(root, state_err))
+            return 0
+
     try:
         cfg = load_config(root)
         if not cfg.get("session_brief", DEFAULT_CONFIG["session_brief"]).get("enabled", True):
             return 0
-        brief = build_brief(root, cfg)
-        output = {
-            "hookSpecificOutput": {
-                "hookEventName": "SessionStart",
-                "additionalContext": brief,
-            }
-        }
-        sys.stdout.write(json.dumps(output, ensure_ascii=True))
+        _emit_brief(build_brief(root, cfg))
     except Exception as e:
-        # 注入失败不阻断会话，只在日志留痕
-        logger.warning("摘要生成失败（%s）。", e)
+        # brief generation failed, inject corruption alert
+        logger.warning("summary generation failed: %s", e)
+        _emit_brief(_build_corruption_alert(root, e))
     return 0
 
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def _build_corruption_alert(root, error):
+    return "\n".join([
+        "[loop-governance] WARN: governance state corrupted",
+        f"Error: {error}",
+        "gate_guard will BLOCK all writes until state.yaml is repaired.",
+        f"File: {(root / ".ai" / "state.yaml")}",
+    ])
+
+
+
+def _build_corruption_alert(root, error):
+    lines = [
+        "[loop-governance] WARN: governance state file corrupted",
+        "Error: " + str(error),
+        "gate_guard will BLOCK all writes until state.yaml is repaired.",
+        "File: " + str(root / ".ai" / "state.yaml"),
+    ]
+    return chr(10).join(lines)
+
+
+def _emit_brief(brief: str):
+    sys.stdout.write(json.dumps(
+        {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": brief}},
+        ensure_ascii=True
+    ))
+

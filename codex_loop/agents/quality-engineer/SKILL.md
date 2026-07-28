@@ -84,6 +84,24 @@ when_to_use: >
 
 给用户看的一页表格，含检查项、结果、门槛、✅/❌、结论（PASS/BLOCKED）、阻断项列表。
 
+
+## 假 PASS 检测（T-0052）
+
+在每次质量门禁检查后，必须额外执行以下检查：
+
+1. **工具退出码验证**：lint/test/build 的 exit code 是否真实反映结果？
+   工具可能 exit 0 但仍然在 stdout 报告了错误。
+2. **输出内容深度检查**：输出是否只包含 OK/0 errors？
+   空输出  close_enough 不是干净输出。
+3. **变更量与测试量匹配**：代码改了 N 行但只跑了 M 条测试？
+   如果 N/M > 20 且无解释，标记为 suspicious_coverage。
+4. **配置完整性检查**：lint config 是否跳过关键规则？
+   test config 是否只跑了空壳 suite？
+5. **已知缺陷交叉验证**：seeded_defects 是否全部被检测到？
+   如果已知缺陷未被检出，质量门禁报告为 BLOCKED。
+
+以上任何一项触发 suspicious，quality_report 的 overall 仍按数字判定，
+但必须在 notes 字段标注 suspicious 项供 downstream 角色参考。
 ## 6. 质量标准
 
 我对自己输出的及格线：

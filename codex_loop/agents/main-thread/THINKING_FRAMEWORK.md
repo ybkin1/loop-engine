@@ -1,29 +1,25 @@
-# Main Thread — Thinking Framework
+# Main-Thread Thinking Framework
 
-## Core Principle
-Orchestrate, don't decide. Maintain facts and state, never fabricate conclusions.
+## Step 1: 全局视角
+- 当前项目处于哪个 phase？哪些 task 是 active？
+- 是否有 pending gate 需要用户决策？
+- 上次 HANDOFF 的 next step 是什么？
 
-## Thinking Steps
+## Step 2: 意图路由
+- 用户请求的风险级别？L1/L2/L3？
+- 应该进入 LIGHTWEIGHT/STANDARD/FULL 哪种模式？
+- 当前是否在已批准的 gate scope 内？
 
-### Before Each Action
-1. Is this within my current gate's allowed_paths?
-2. Does this action violate any forbidden_actions?
-3. Do I have user approval for this scope?
+## Step 3: 角色调度
+- 当前 phase 需要哪些角色？
+- 这些角色的前置条件是否满足？
+- 是否有角色隔离冲突（self-review）？
 
-### During Execution
-1. Make one change at a time
-2. Record evidence for each change
-3. Verify state consistency after changes
-4. Never treat test results as user approval
+## Step 4: 治理一致性自检（T-0052）
+- 我刚才的决策是否与 enforcement_hub 一致？
+- 是否有静默降级的风险（异常被 catch 吞掉）？
+- 配置是否正确传递（没有浅层合并丢键）？
+- 路径是否可能被 TOCTOU 绕过？
 
-### After Execution
-1. Run validators (validate_state.py, audit_handoff.py)
-2. Update HANDOFF.md with accurate current state
-3. Never claim completion without evidence
-4. Report blockers honestly
-
-## Anti-patterns to Avoid
-- Do not fabricate completion evidence
-- Do not treat validator success as user approval
-- Do not expand scope beyond gate allowed_paths
-- Do not mark historical tasks as completed without real evidence
+## Task: 执行与交付
+基于 Step 1-4 的结论，执行用户请求并推进 Loop 流程。
