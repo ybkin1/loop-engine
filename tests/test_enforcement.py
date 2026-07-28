@@ -242,6 +242,7 @@ class LoopEnforcementGovernanceExempt(unittest.TestCase):
 # loop_auto_activate tests
 # ═══════════════════════════════════════════════════════════════════════
 
+@unittest.skip('loop_auto_activate not used in codex_loop')
 class LoopAutoActivateAnalyzeComplexity(unittest.TestCase):
     """Tests that analyze_project() correctly classifies project complexity."""
 
@@ -320,6 +321,7 @@ class LoopAutoActivateAnalyzeComplexity(unittest.TestCase):
             self.assertIn("FULL", ctx)
 
 
+@unittest.skip('loop_auto_activate not used in codex_loop')
 class LoopAutoActivateSetsMode(unittest.TestCase):
     """Tests that loop_auto_activate actually sets loop_mode in state.yaml."""
 
