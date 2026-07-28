@@ -41,7 +41,9 @@ def repair_continuity(root: Path) -> dict:
         except OSError as e:
             errors.append(f"read error: {item['path']}: {e}"); continue
         if item.get("sha256") != ah or item.get("size") != sz:
-            item["sha256"] = ah; item["size"] = sz; fixed += 1
+            item["sha256"] = ah
+            item["size"] = sz
+            fixed += 1
     data["source_sha256"] = hashlib.sha256(_canonical_json(sm).encode()).hexdigest().upper()
     hash_payload = {k: v for k, v in data["project_continuity"].items() if k != "lifecycle"}
     data["semantic_sha256"] = hashlib.sha256(_canonical_json(hash_payload).encode()).hexdigest().upper()
