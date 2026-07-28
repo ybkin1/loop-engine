@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { PhaseExecutor, PHASE_ROLES, StepStatus } from '../src/core/executor.js';
+import { PhaseExecutor, PHASE_ROLES, StepStatus, HookRegistry } from '../src/core/executor.js';
+import type { RoleExecutionHook, RoleExecutionContext, RoleStepResult } from '../src/core/executor.js';
 
 // ── StepStatus enum ─────────────────────────────────────────────
 
@@ -134,5 +135,156 @@ describe('PhaseExecutor', () => {
 
     // Try to execute "architecture" phase — should throw PHASE_MISMATCH
     await expect(executor.executePhase('architecture')).rejects.toThrow(/PHASE_MISMATCH|current phase/i);
+  });
+
+  it('executePhase 无 state.yaml → STATE_LOAD_FAILED 异常', async () => {
+    // tmpDir has no .ai/state.yaml
+    const emptyExecutor = new PhaseExecutor(tmpDir);
+    await expect(emptyExecutor.executePhase('requirements')).rejects.toThrow(/STATE_LOAD_FAILED|failed to load/i);
+  });
+
+  it('executeRole 返回 COMPLETE 状态和预期输出', async () => {
+    const plan = executor.planPhase('requirements');
+    const step = plan.steps[0]; // R01
+    const result = await executor.executeRole(step);
+    expect(result.status).toBe(StepStatus.COMPLETE);
+    expect(result.role_id).toBe('R01');
+    expect(result.output).toBeDefined();
+    // Should populate required fields
+    expect(result.output!['requirements_doc']).toBeTruthy();
+    expect(result.output!['acceptance_criteria']).toBeTruthy();
+  });
+
+  it('planPhase 创建的计划包含正确的 gate_id', () => {
+    const plan = executor.planPhase('architecture');
+    expect(plan.gate_id).toBe('gate-architecture');
+    expect(plan.status).toBe(StepStatus.PENDING);
+    expect(plan.steps).toHaveLength(2);
+    expect(plan.steps[0].role_id).toBe('R04');
+    expect(plan.steps[1].role_id).toBe('R08');
+  });
+});
+
+// ── HookRegistry ──────────────────────────────────────────────────
+
+describe('HookRegistry', () => {
+  it('register + get + has 基本操作', () => {
+    const registry = new HookRegistry();
+    const mockHook: RoleExecutionHook = {
+      execute: async () => ({ role_id: 'R01', status: StepStatus.COMPLETE, duration_ms: 0 }),
+    };
+
+    expect(registry.has('R01')).toBe(false);
+    expect(registry.size).toBe(0);
+
+    registry.register('R01', mockHook);
+    expect(registry.has('R01')).toBe(true);
+    expect(registry.get('R01')).toBe(mockHook);
+    expect(registry.size).toBe(1);
+  });
+
+  it('get 未注册的 role 返回 undefined', () => {
+    const registry = new HookRegistry();
+    expect(registry.get('R99')).toBeUndefined();
+  });
+});
+
+// ── PhaseExecutor with Hooks ────────────────────────────────────────
+
+describe('PhaseExecutor with hooks', () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'executor-hook-test-'));
+  });
+
+  afterEach(() => {
+    if (existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
+  });
+
+  it('无 hook 时回退到模拟执行', async () => {
+    const executor = new PhaseExecutor(tmpDir);
+    const plan = executor.planPhase('requirements');
+    const result = await executor.executeRole(plan.steps[0]);
+    expect(result.status).toBe(StepStatus.COMPLETE);
+    expect(result.output!['requirements_doc']).toBe('generated_by_R01');
+  });
+
+  it('注册 hook 后调用 hook 执行', async () => {
+    const registry = new HookRegistry();
+    const hook: RoleExecutionHook = {
+      execute: async (ctx: RoleExecutionContext): Promise<RoleStepResult> => ({
+        role_id: ctx.role_id,
+        status: StepStatus.COMPLETE,
+        output: { requirements_doc: 'real_output', acceptance_criteria: 'real_ac' },
+        duration_ms: 0,
+      }),
+    };
+    registry.register('R01', hook);
+
+    const executor = new PhaseExecutor(tmpDir, registry);
+    const plan = executor.planPhase('requirements');
+    const result = await executor.executeRole(plan.steps[0], 'requirements');
+
+    expect(result.status).toBe(StepStatus.COMPLETE);
+    expect(result.output!['requirements_doc']).toBe('real_output');
+    expect(result.output!['acceptance_criteria']).toBe('real_ac');
+  });
+
+  it('hook 抛异常 → FAILED 状态', async () => {
+    const registry = new HookRegistry();
+    const hook: RoleExecutionHook = {
+      execute: async (): Promise<RoleStepResult> => {
+        throw new Error('hook crashed');
+      },
+    };
+    registry.register('R01', hook);
+
+    const executor = new PhaseExecutor(tmpDir, registry);
+    const plan = executor.planPhase('requirements');
+    const result = await executor.executeRole(plan.steps[0], 'requirements');
+
+    expect(result.status).toBe(StepStatus.FAILED);
+    expect(result.error).toContain('hook crashed');
+  });
+
+  it('hook 超时 → FAILED 状态', async () => {
+    const registry = new HookRegistry();
+    const hook: RoleExecutionHook = {
+      execute: async (): Promise<RoleStepResult> => {
+        // Never resolves — will timeout
+        return new Promise<RoleStepResult>(() => {});
+      },
+    };
+    registry.register('R01', hook);
+
+    const executor = new PhaseExecutor(tmpDir, registry, { default_timeout_ms: 50 });
+    const plan = executor.planPhase('requirements');
+    const result = await executor.executeRole(plan.steps[0], 'requirements');
+
+    expect(result.status).toBe(StepStatus.FAILED);
+    expect(result.error).toContain('timed out');
+  });
+
+  it('hook 接收正确的 context', async () => {
+    const registry = new HookRegistry();
+    let capturedCtx: RoleExecutionContext | null = null;
+    const hook: RoleExecutionHook = {
+      execute: async (ctx: RoleExecutionContext): Promise<RoleStepResult> => {
+        capturedCtx = ctx;
+        return { role_id: ctx.role_id, status: StepStatus.COMPLETE, duration_ms: 0 };
+      },
+    };
+    registry.register('R04', hook);
+
+    const executor = new PhaseExecutor(tmpDir, registry, { default_timeout_ms: 5000 });
+    const plan = executor.planPhase('architecture');
+    await executor.executeRole(plan.steps[0], 'architecture');
+
+    expect(capturedCtx).not.toBeNull();
+    expect(capturedCtx!.role_id).toBe('R04');
+    expect(capturedCtx!.phase_id).toBe('architecture');
+    expect(capturedCtx!.timeout_ms).toBe(5000);
+    expect(capturedCtx!.required_fields).toContain('architecture_doc');
   });
 });

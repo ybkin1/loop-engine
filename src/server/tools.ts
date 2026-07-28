@@ -25,6 +25,11 @@ import { EnforcementHub } from "../core/enforcement_hub.js";
 import { PacketBuilder, toMarkdown } from "../core/human_review_packet.js";
 import type { HumanReviewPacket } from "../core/human_review_packet.js";
 
+/** Default task complexity when not specified (medium). */
+const DEFAULT_COMPLEXITY = 0.5;
+/** Default number of recent entries to return. */
+const DEFAULT_RECENT_ENTRIES = 10;
+
 function resolveRoot(args: Record<string, unknown>): string {
   const raw = (args.project_root as string) || process.cwd();
   return validateProjectRoot(raw);
@@ -333,7 +338,7 @@ export function registerTools(server: Server): void {
           const ledger = new ExecutionLedger(ledgerPath);
           const taskId = args?.task_id as string | undefined;
           const roleId = args?.role_id as string | undefined;
-          const recentN = (args?.recent as number) ?? 10;
+          const recentN = (args?.recent as number) ?? DEFAULT_RECENT_ENTRIES;
 
           let entries;
           if (taskId) {
@@ -368,7 +373,7 @@ export function registerTools(server: Server): void {
 
         case "loop_load_context": {
           const roleId = args!.role_id as string;
-          const complexity = (args?.complexity as number) ?? 0.5;
+          const complexity = (args?.complexity as number) ?? DEFAULT_COMPLEXITY;
           const loader = new ContextLoader();
           const loaded = loader.loadRoleContext(roleId, complexity);
           const summary = `Role: ${loaded.role_id}\nLevel: ${loaded.level}\nTokens: ~${loaded.estimated_tokens}\nSections: ${loaded.loaded_sections.join(", ")}`;
@@ -413,7 +418,7 @@ export function registerTools(server: Server): void {
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      return textReply(`Error: ${msg}`);
+      return textReply(`Error in tool '${name}': ${msg}`);
     }
   });
 }

@@ -10,6 +10,7 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, relative, normalize } from "node:path";
+import { createHash } from "node:crypto";
 import { parseDocument } from "yaml";
 import { loadState, loadGates } from "./state-machine.js";
 import {
@@ -94,6 +95,9 @@ const DEVELOPMENT_ROLES = new Set(["R05", "R06"]);
 /** Roles that belong to the quality / review domain. */
 const QUALITY_ROLES = new Set(["R07", "R08", "R09"]);
 
+/** Default evidence TTL: 24 hours in milliseconds. */
+const DEFAULT_EVIDENCE_TTL_MS = 86400_000;
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const hardConstraints = new HardConstraints();
@@ -136,7 +140,7 @@ function loadEvidenceEnvelopes(projectRoot: string): EvidenceEnvelope[] {
             record.evidence_id,
             record.content_hash,
             record.phase ?? "unknown",
-            record.expires_at ?? new Date(Date.now() + 86400_000).toISOString(),
+            record.expires_at ?? new Date(Date.now() + DEFAULT_EVIDENCE_TTL_MS).toISOString(),
             record.created_at ?? new Date().toISOString(),
           ),
         );
@@ -168,10 +172,21 @@ export class EnforcementHub {
     targetPath: string,
     allowedPaths?: string[],
   ): Promise<EnforcementDecision> {
-    const [state, gates] = await Promise.all([
-      loadState(this.projectRoot),
-      loadGates(this.projectRoot),
-    ]);
+    let state: ProjectState;
+    let gates: GatesRegistry;
+    try {
+      [state, gates] = await Promise.all([
+        loadState(this.projectRoot),
+        loadGates(this.projectRoot),
+      ]);
+    } catch (err) {
+      return makeDecision(
+        false,
+        `Cannot load governance state for write check: ${err instanceof Error ? err.message : String(err)}`,
+        [`State load error: ${err instanceof Error ? err.message : String(err)}`],
+        1,
+      );
+    }
 
     // Any BLOCKED gate → DENY
     const blockedGates = gates.gates.filter(g => g.status === "blocked");
@@ -220,10 +235,21 @@ export class EnforcementHub {
   async shouldAllowPhaseAdvance(
     targetPhase: string,
   ): Promise<EnforcementDecision> {
-    const [state, gates] = await Promise.all([
-      loadState(this.projectRoot),
-      loadGates(this.projectRoot),
-    ]);
+    let state: ProjectState;
+    let gates: GatesRegistry;
+    try {
+      [state, gates] = await Promise.all([
+        loadState(this.projectRoot),
+        loadGates(this.projectRoot),
+      ]);
+    } catch (err) {
+      return makeDecision(
+        false,
+        `Cannot load governance state for phase advance check: ${err instanceof Error ? err.message : String(err)}`,
+        [`State load error: ${err instanceof Error ? err.message : String(err)}`],
+        1,
+      );
+    }
 
     const ctx = buildContext(state, gates, {
       target_phase: targetPhase,
@@ -320,10 +346,21 @@ export class EnforcementHub {
    * Delegates to HardConstraints.checkC8.
    */
   async checkEvidenceFreshness(): Promise<EnforcementDecision> {
-    const [state, gates] = await Promise.all([
-      loadState(this.projectRoot),
-      loadGates(this.projectRoot),
-    ]);
+    let state: ProjectState;
+    let gates: GatesRegistry;
+    try {
+      [state, gates] = await Promise.all([
+        loadState(this.projectRoot),
+        loadGates(this.projectRoot),
+      ]);
+    } catch (err) {
+      return makeDecision(
+        false,
+        `Cannot load governance state for evidence freshness check: ${err instanceof Error ? err.message : String(err)}`,
+        [`State load error: ${err instanceof Error ? err.message : String(err)}`],
+        1,
+      );
+    }
 
     const evidenceList = loadEvidenceEnvelopes(this.projectRoot);
     if (evidenceList.length === 0) {
@@ -351,10 +388,25 @@ export class EnforcementHub {
    * Returns a summary of the current governance state.
    */
   async getGovernanceStatus(): Promise<GovernanceStatus> {
-    const [state, gates] = await Promise.all([
-      loadState(this.projectRoot),
-      loadGates(this.projectRoot),
-    ]);
+    let state: ProjectState;
+    let gates: GatesRegistry;
+    try {
+      [state, gates] = await Promise.all([
+        loadState(this.projectRoot),
+        loadGates(this.projectRoot),
+      ]);
+    } catch (err) {
+      return {
+        project_root: this.projectRoot,
+        current_phase: "unknown",
+        current_gate: null,
+        active_role: null,
+        pending_gates: [],
+        blocked_gates: [],
+        constraint_violations: 0,
+        overall_status: "BLOCKED",
+      };
+    }
 
     const ctx = buildContext(state, gates, {
       evidence_list: loadEvidenceEnvelopes(this.projectRoot),
@@ -391,6 +443,88 @@ export class EnforcementHub {
       constraint_violations: violationCount,
       overall_status,
     };
+  }
+  /**
+   * SEC-003: Compute integrity hash of governance files.
+   * Returns a SHA-256 hash combining state.yaml and gates.yaml content.
+   *
+   * IMPORTANT: The `integrity_hash` line in state.yaml is excluded from
+   * computation to avoid circular dependency (storing the hash changes the
+   * file, which would invalidate the hash).
+   */
+  computeGovernanceFileHash(): { hash: string; files: Record<string, string> } {
+    const files: Record<string, string> = {};
+    const statePath = join(this.projectRoot, ".ai", "state.yaml");
+    const gatesPath = join(this.projectRoot, ".ai", "gates.yaml");
+
+    for (const [key, filePath] of [["state", statePath], ["gates", gatesPath]] as const) {
+      if (existsSync(filePath)) {
+        let content = readFileSync(filePath, "utf-8");
+        // Exclude integrity_hash line from state.yaml to prevent circular dependency
+        if (key === "state") {
+          content = content.replace(/^integrity_hash:.*$\n?/m, "");
+        }
+        files[key] = createHash("sha256").update(content, "utf-8").digest("hex");
+      }
+    }
+
+    // Combined hash: hash of all individual file hashes concatenated
+    const combined = Object.values(files).sort().join(":");
+    const hash = createHash("sha256").update(combined, "utf-8").digest("hex");
+    return { hash, files };
+  }
+
+  /**
+   * SEC-003: Check governance file integrity.
+   * Compares current hash of state.yaml/gates.yaml against the expected
+   * integrity_hash stored in state.yaml.
+   */
+  async checkGovernanceFileIntegrity(): Promise<EnforcementDecision> {
+    const statePath = join(this.projectRoot, ".ai", "state.yaml");
+    if (!existsSync(statePath)) {
+      return makeDecision(true, "No governance state found — integrity check N/A.", [], 0);
+    }
+
+    const state = await loadState(this.projectRoot);
+    if (!state) {
+      return makeDecision(
+        false,
+        "Cannot parse governance state — file may be corrupted.",
+        ["state.yaml parse failure"],
+        1,
+      );
+    }
+
+    // If no integrity_hash has been recorded yet, compute and store it
+    const rawState = readFileSync(statePath, "utf-8");
+    const storedHashMatch = rawState.match(/integrity_hash:\s*["']?([a-f0-9]{64})["']?/);
+    const currentHash = this.computeGovernanceFileHash();
+
+    if (!storedHashMatch) {
+      // No hash recorded yet — this is the baseline. Caller should persist it.
+      return makeDecision(
+        true,
+        `No integrity_hash recorded. Baseline hash: ${currentHash.hash}. Persist this value to state.yaml.`,
+        [],
+        0,
+      );
+    }
+
+    const storedHash = storedHashMatch[1];
+    if (storedHash !== currentHash.hash) {
+      return makeDecision(
+        false,
+        "Governance file integrity check FAILED — files may have been tampered with.",
+        [
+          `Stored hash:   ${storedHash}`,
+          `Computed hash: ${currentHash.hash}`,
+          "Re-run `loop init` or restore governance files from a trusted backup.",
+        ],
+        1,
+      );
+    }
+
+    return makeDecision(true, "Governance file integrity verified.", [], 0);
   }
 }
 

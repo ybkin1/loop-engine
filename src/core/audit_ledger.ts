@@ -173,7 +173,13 @@ export class AuditLedger {
     const entry: LedgerEntry = { ...entryWithoutHash, chain_hash };
 
     // Append as a single JSON line
-    appendFileSync(this.ledgerPath, JSON.stringify(entry) + "\n", "utf-8");
+    try {
+      appendFileSync(this.ledgerPath, JSON.stringify(entry) + "\n", "utf-8");
+    } catch (err) {
+      throw new Error(
+        `Failed to append audit ledger entry at "${this.ledgerPath}": ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
 
     return entry;
   }

@@ -176,7 +176,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.ALLOW);
-    expect(result.check_level).toBe(3);
+    expect(result.reason).toMatch(/not under Loop governance/i);
   });
 
   it('INSTALL_PACKAGE → DENY (高风险)', async () => {
@@ -186,7 +186,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.DENY);
-    expect(result.check_level).toBe(1);
+    expect(result.reason).toMatch(/high-risk|INSTALL_PACKAGE/i);
   });
 
   it('DELETE_FILE → DENY (高风险)', async () => {
@@ -196,7 +196,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.DENY);
-    expect(result.check_level).toBe(1);
+    expect(result.reason).toMatch(/high-risk|DELETE_FILE/i);
   });
 
   it('治理文件写入 → ALLOW', async () => {
@@ -207,7 +207,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.ALLOW);
-    expect(result.check_level).toBe(3);
+    expect(result.reason).toMatch(/governance|\.ai/i);
   });
 
   it('无 pending gate → ALLOW', async () => {
@@ -218,7 +218,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.ALLOW);
-    expect(result.check_level).toBe(3);
+    expect(result.reason).toMatch(/no pending|all.*passed/i);
   });
 
   it('有 pending gate + 无 active task → DENY', async () => {
@@ -228,9 +228,9 @@ describe('ContextController', () => {
       target_path: 'src/main.ts',
       project_root: root,
     });
-    // pending gate → continues to level 4, no task graph → DENY
+    // pending gate → continues to task scope, no task graph → DENY
     expect(result.decision).toBe(Decision.DENY);
-    expect(result.check_level).toBe(4);
+    expect(result.reason).toMatch(/no active task|task graph/i);
   });
 
   it('有 pending gate + 路径在 active task 范围内 → ALLOW', async () => {
@@ -245,7 +245,7 @@ describe('ContextController', () => {
       project_root: root,
     });
     expect(result.decision).toBe(Decision.ALLOW);
-    expect(result.check_level).toBe(4);
+    expect(result.reason).toMatch(/within allowed|task scope/i);
   });
 
   it('有 blocked gate + 无 task graph → DENY', async () => {
@@ -257,7 +257,7 @@ describe('ContextController', () => {
     });
     // blocked counts as pending → level 3 passes through → level 4 no task → DENY
     expect(result.decision).toBe(Decision.DENY);
-    expect(result.check_level).toBe(4);
+    expect(result.reason).toMatch(/no active task|task graph/i);
   });
 
   it('protected path → ASK_USER', async () => {
@@ -267,11 +267,9 @@ describe('ContextController', () => {
       target_path: 'AGENTS.md',
       project_root: root,
     });
-    // Non-governance project → level 3 ALLOW fires first
-    // But AGENTS.md is a protected path → level 2 ASK_USER
-    // Actually level 2 fires before level 3, so ASK_USER
+    // AGENTS.md is a protected path → ASK_USER
     expect(result.decision).toBe(Decision.ASK_USER);
-    expect(result.check_level).toBe(2);
+    expect(result.reason).toMatch(/protected|AGENTS\.md/i);
   });
 });
 
@@ -287,6 +285,83 @@ describe('quickAuth', () => {
   it('非治理项目 → ALLOW', async () => {
     root = mkdtempSync(join(tmpdir(), 'quick-auth-test-'));
     const result = await quickAuth(root, Action.WRITE_FILE, 'src/main.ts');
+    expect(result.decision).toBe(Decision.ALLOW);
+  });
+});
+
+// ── SEC-006: 路径前缀边界测试 ───────────────────────────────────────────────────
+
+describe('SEC-006: path prefix boundary', () => {
+  let controller: ContextController;
+  let root: string;
+
+  beforeEach(() => { controller = new ContextController(); });
+
+  afterEach(() => {
+    if (root) rmSync(root, { recursive: true, force: true });
+  });
+
+  it('路径前缀 /src 不应匹配 /srcfile', async () => {
+    root = setupProject({
+      state: MINIMAL_STATE,
+      gates: GATES_WITH_PENDING,
+      taskGraph: `
+tasks:
+  - task_id: task-1
+    status: active
+    allowed_paths:
+      - src/
+`,
+    });
+    // srcfile.ts should NOT match src/ prefix
+    const result = await controller.authorize({
+      action: Action.WRITE_FILE,
+      target_path: 'srcfile.ts',
+      project_root: root,
+    });
+    // srcfile.ts is not within src/ — should be DENY (out of task scope)
+    expect(result.decision).toBe(Decision.DENY);
+    expect(result.reason).toMatch(/outside allowed paths|task scope/i);
+  });
+
+  it('路径前缀 /src 应匹配 /src/main.ts', async () => {
+    root = setupProject({
+      state: MINIMAL_STATE,
+      gates: GATES_WITH_PENDING,
+      taskGraph: `
+tasks:
+  - task_id: task-1
+    status: active
+    allowed_paths:
+      - src/
+`,
+    });
+    const result = await controller.authorize({
+      action: Action.WRITE_FILE,
+      target_path: 'src/main.ts',
+      project_root: root,
+    });
+    expect(result.decision).toBe(Decision.ALLOW);
+  });
+
+  it('空路径处理 — 无 target_path 的操作应 ALLOW (只读操作)', async () => {
+    root = setupProject({
+      state: MINIMAL_STATE,
+      gates: GATES_WITH_PENDING,
+      taskGraph: `
+tasks:
+  - task_id: task-1
+    status: active
+    allowed_paths:
+      - src/
+`,
+    });
+    const result = await controller.authorize({
+      action: Action.EXEC_BASH,
+      // No target_path
+      project_root: root,
+    });
+    // No target path → task scope check passes for read-only operations
     expect(result.decision).toBe(Decision.ALLOW);
   });
 });

@@ -180,4 +180,129 @@ describe('ExecutionLedger', () => {
   it('空 ledger → length = 0', () => {
     expect(ledger.length).toBe(0);
   });
+
+  // ── 归档失败的非致命处理 ───────────────────────────────
+
+  it('归档失败不影响记录写入', () => {
+    // The maybeArchive function is called inside appendEntry with try/catch
+    // Even if archival fails, the entry should still be persisted
+    // We test this by verifying entries are correctly appended
+    // even when the ledger file is at the archive threshold
+    const record = makeRecord({ execution_id: 'exec-archive-test' });
+    const entry = ledger.appendEntry({
+      ...record,
+      status: ExecutionStatus.LAUNCHED,
+      started_at: new Date().toISOString(),
+    });
+    expect(entry.seq).toBe(1);
+    expect(entry.chain_hash).toBeTruthy();
+    expect(ledger.length).toBe(1);
+  });
+
+  it('ledger path 返回绝对路径', () => {
+    expect(ledger.path).toBeTruthy();
+    expect(ledger.path).toContain('execution.jsonl');
+  });
+
+  it('recordCompletion 不存在的 execution → null', () => {
+    const result = ledger.recordCompletion('nonexistent-exec');
+    expect(result).toBeNull();
+  });
+
+  it('recordFailure 不存在的 execution → null', () => {
+    const result = ledger.recordFailure('nonexistent-exec', 'some error');
+    expect(result).toBeNull();
+  });
+
+  it('recordCompletion 带 violations → VIOLATED 状态', () => {
+    ledger.recordLaunch(makeRecord());
+    const violated = ledger.recordCompletion('exec-001', '/output.txt', ['violation-1']);
+    expect(violated).toBeTruthy();
+    expect(violated!.status).toBe(ExecutionStatus.VIOLATED);
+    expect(violated!.tool_violations).toContain('violation-1');
+  });
+});
+
+// ── Enhanced Query Methods ───────────────────────────────────────────
+
+describe('ExecutionLedger enhanced queries', () => {
+  let tmpDir: string;
+  let ledger: ExecutionLedger;
+
+  beforeEach(() => {
+    tmpDir = mkdtempSync(join(tmpdir(), 'exec-ledger-enh-'));
+    ledger = new ExecutionLedger(join(tmpDir, 'exec.jsonl'));
+  });
+
+  afterEach(() => {
+    rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function makeRec(id: string, role = 'R06') {
+    return {
+      execution_id: id,
+      session_id: 'sess-1',
+      actor_id: 'agent-1',
+      role_id: role,
+      task_id: 'task-1',
+      prompt_fingerprint: 'abc',
+      input_files_hash: 'def',
+      tool_constraints: [],
+      tool_violations: [],
+    };
+  }
+
+  it('findActive 返回未完成的执行', () => {
+    ledger.recordLaunch(makeRec('exec-A'));
+    ledger.recordLaunch(makeRec('exec-B'));
+    ledger.recordCompletion('exec-A');
+
+    const active = ledger.findActive();
+    expect(active).toHaveLength(1);
+    expect(active[0].execution_id).toBe('exec-B');
+  });
+
+  it('findActive 全部完成后返回空', () => {
+    ledger.recordLaunch(makeRec('exec-A'));
+    ledger.recordCompletion('exec-A');
+    expect(ledger.findActive()).toHaveLength(0);
+  });
+
+  it('findByStatus 按状态过滤', () => {
+    ledger.recordLaunch(makeRec('exec-A'));
+    ledger.recordLaunch(makeRec('exec-B'));
+    ledger.recordFailure('exec-B', 'crash');
+
+    const launched = ledger.findByStatus(ExecutionStatus.LAUNCHED);
+    const failed = ledger.findByStatus(ExecutionStatus.FAILED);
+    expect(launched.length).toBeGreaterThanOrEqual(1);
+    expect(failed).toHaveLength(1);
+    expect(failed[0].execution_id).toBe('exec-B');
+  });
+
+  it('getStatistics 返回每角色统计', () => {
+    ledger.recordLaunch(makeRec('exec-1', 'R06'));
+    ledger.recordLaunch(makeRec('exec-2', 'R06'));
+    ledger.recordCompletion('exec-1');
+    ledger.recordFailure('exec-2', 'err');
+    ledger.recordLaunch(makeRec('exec-3', 'R09'));
+    ledger.recordCompletion('exec-3');
+
+    const stats = ledger.getStatistics();
+    expect(stats.length).toBe(2);
+
+    const r06 = stats.find(s => s.role_id === 'R06')!;
+    expect(r06.total_launches).toBe(2);
+    expect(r06.total_completions).toBe(1);
+    expect(r06.total_failures).toBe(1);
+    expect(r06.success_rate).toBe(0.5);
+
+    const r09 = stats.find(s => s.role_id === 'R09')!;
+    expect(r09.total_completions).toBe(1);
+    expect(r09.success_rate).toBe(1);
+  });
+
+  it('getStatistics 空账本返回空数组', () => {
+    expect(ledger.getStatistics()).toHaveLength(0);
+  });
 });

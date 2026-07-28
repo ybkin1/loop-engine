@@ -255,8 +255,12 @@ export class ExecutionLedger {
 
     appendFileSync(this.ledgerPath, JSON.stringify(fullRecord) + "\n", "utf-8");
 
-    // Auto-archive if threshold exceeded
-    maybeArchive(this.ledgerPath);
+    // Auto-archive if threshold exceeded (non-critical — skip on error)
+    try {
+      maybeArchive(this.ledgerPath);
+    } catch {
+      // Archival failure is non-fatal; the entry is still persisted
+    }
 
     return fullRecord;
   }
@@ -468,4 +472,111 @@ export class ExecutionLedger {
   get path(): string {
     return this.ledgerPath;
   }
+
+  // ── Enhanced Query Methods ─────────────────────────────────────────────
+
+  /**
+   * Find all currently active (LAUNCHED but not yet COMPLETED/FAILED) executions.
+   *
+   * Scans all entries and returns LAUNCHED records whose execution_id
+   * does not have a corresponding COMPLETED, FAILED, or VIOLATED entry.
+   */
+  findActive(): ExecutionRecord[] {
+    const entries = readAllEntries(this.ledgerPath);
+
+    // Collect execution IDs that have a terminal status
+    const terminalIds = new Set(
+      entries
+        .filter(e =>
+          e.status === ExecutionStatus.COMPLETED ||
+          e.status === ExecutionStatus.FAILED ||
+          e.status === ExecutionStatus.VIOLATED,
+        )
+        .map(e => e.execution_id),
+    );
+
+    // Return LAUNCHED entries without a terminal counterpart
+    return entries.filter(
+      e => e.status === ExecutionStatus.LAUNCHED && !terminalIds.has(e.execution_id),
+    );
+  }
+
+  /**
+   * Find entries by status.
+   *
+   * @param status - The execution status to filter by
+   * @returns Array of matching entries in chronological order
+   */
+  findByStatus(status: ExecutionStatus): ExecutionRecord[] {
+    const entries = readAllEntries(this.ledgerPath);
+    return entries.filter(e => e.status === status);
+  }
+
+  /**
+   * Compute per-role execution statistics.
+   *
+   * Aggregates total launches, completions, failures, violations,
+   * success rate, and average duration per role.
+   */
+  getStatistics(): RoleStatistics[] {
+    const entries = readAllEntries(this.ledgerPath);
+    const byRole = new Map<string, ExecutionRecord[]>();
+
+    for (const entry of entries) {
+      const list = byRole.get(entry.role_id) ?? [];
+      list.push(entry);
+      byRole.set(entry.role_id, list);
+    }
+
+    const stats: RoleStatistics[] = [];
+
+    for (const [roleId, roleEntries] of byRole) {
+      const launches = roleEntries.filter(e => e.status === ExecutionStatus.LAUNCHED).length;
+      const completions = roleEntries.filter(e => e.status === ExecutionStatus.COMPLETED).length;
+      const failures = roleEntries.filter(e => e.status === ExecutionStatus.FAILED).length;
+      const violations = roleEntries.filter(e => e.status === ExecutionStatus.VIOLATED).length;
+
+      // Compute average duration for completed entries
+      const durations: number[] = [];
+      for (const e of roleEntries) {
+        if (e.started_at && e.completed_at) {
+          const ms = new Date(e.completed_at).getTime() - new Date(e.started_at).getTime();
+          if (ms >= 0) durations.push(ms);
+        }
+      }
+      const avgDurationMs = durations.length > 0
+        ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+        : null;
+
+      const terminal = completions + failures + violations;
+      const successRate = terminal > 0 ? completions / terminal : null;
+
+      stats.push({
+        role_id: roleId,
+        total_launches: launches,
+        total_completions: completions,
+        total_failures: failures,
+        total_violations: violations,
+        success_rate: successRate,
+        avg_duration_ms: avgDurationMs,
+      });
+    }
+
+    return stats.sort((a, b) => a.role_id.localeCompare(b.role_id));
+  }
+}
+
+// ── RoleStatistics ───────────────────────────────────────────────────────────
+
+/** Per-role execution statistics. */
+export interface RoleStatistics {
+  role_id: string;
+  total_launches: number;
+  total_completions: number;
+  total_failures: number;
+  total_violations: number;
+  /** completions / (completions + failures + violations), null if no terminal entries */
+  success_rate: number | null;
+  /** Average execution duration in ms, null if no duration data */
+  avg_duration_ms: number | null;
 }

@@ -1,6 +1,8 @@
 import type { EvidenceRecord } from "../types/index.js";
 import { loadEvidence } from "./evidence.js";
 import { LoopError } from "./state-machine.js";
+import { readdirSync, existsSync } from "node:fs";
+import { join } from "node:path";
 
 export interface FreshnessResult {
   evidence_id: string;
@@ -77,4 +79,67 @@ export async function checkCausalChain(root: string, evidenceId: string): Promis
   await walk(evidenceId);
 
   return { evidence_id: evidenceId, valid: broken.length === 0, chain, broken_links: broken };
+}
+
+// ── Batch Operations ─────────────────────────────────────────────────
+
+/** Summary of freshness state across all evidence in a project. */
+export interface FreshnessSummary {
+  total: number;
+  fresh: number;
+  stale: number;
+  no_ttl: number;
+  not_found: number;
+  /** IDs of stale evidence */
+  stale_ids: string[];
+  /** Overall health: true if no stale evidence */
+  healthy: boolean;
+}
+
+/**
+ * List all evidence IDs in a project by scanning the evidence directory.
+ */
+export function listEvidenceIds(root: string): string[] {
+  const dir = join(root, ".ai", "evidence");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter(f => f.endsWith(".yaml"))
+    .map(f => f.replace(/\.yaml$/, ""));
+}
+
+/**
+ * Check freshness of all evidence in a project.
+ * Returns an array of FreshnessResult for each evidence file found.
+ */
+export async function checkAllFreshness(root: string): Promise<FreshnessResult[]> {
+  const ids = listEvidenceIds(root);
+  const results: FreshnessResult[] = [];
+  for (const id of ids) {
+    results.push(await checkFreshness(root, id));
+  }
+  return results;
+}
+
+/**
+ * Get a summary of evidence freshness across the project.
+ * Useful for governance dashboards and health checks.
+ */
+export async function getFreshnessSummary(root: string): Promise<FreshnessSummary> {
+  const results = await checkAllFreshness(root);
+
+  const fresh = results.filter(r => r.status === "fresh").length;
+  const stale = results.filter(r => r.status === "stale").length;
+  const noTtl = results.filter(r => r.status === "no_ttl").length;
+  const notFound = results.filter(r => r.status === "not_found").length;
+  const staleIds = results.filter(r => r.status === "stale").map(r => r.evidence_id);
+
+  return {
+    total: results.length,
+    fresh,
+    stale,
+    no_ttl: noTtl,
+    not_found: notFound,
+    stale_ids: staleIds,
+    healthy: stale === 0,
+  };
 }

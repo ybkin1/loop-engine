@@ -122,11 +122,8 @@ describe("checkConstraint", () => {
     expect(result.action).toBe("WARN");
   });
 
-  it("unknown constraint returns ADVISORY action", () => {
-    const result = checkConstraint("NONEXISTENT", EnforcementLevel.STRONG, {});
-    expect(result.action).toBe("ADVISORY");
-    expect(result.passed).toBe(false);
-    expect(result.reason).toContain("Unknown");
+  it("unknown constraint throws Error", () => {
+    expect(() => checkConstraint("NONEXISTENT", EnforcementLevel.STRONG, {})).toThrow(/Unknown constraint/);
   });
 
   it("EVIDENCE_STALE_ON_CHANGE detects stale evidence", () => {

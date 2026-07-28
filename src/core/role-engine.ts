@@ -31,14 +31,16 @@ export async function activateRole(root: string, roleId: string, activatedBy = "
   // Check prerequisites if spec exists
   const missing: string[] = [];
   if (spec) {
-    for (const req of spec.prerequisites.required_roles) {
+    const requiredRoles = spec.prerequisites?.required_roles ?? [];
+    for (const req of requiredRoles) {
       if (!(state.completed_roles ?? []).includes(req)) {
         missing.push(`Role ${req} not completed`);
       }
     }
-    if (spec.prerequisites.required_gates.length > 0) {
+    const requiredGates = spec.prerequisites?.required_gates ?? [];
+    if (requiredGates.length > 0) {
       const gates = await loadGates(root);
-      for (const gateId of spec.prerequisites.required_gates) {
+      for (const gateId of requiredGates) {
         const gate = gates.gates.find(g => g.gate_id === gateId);
         if (!gate || gate.status !== "passed") {
           missing.push(`Gate ${gateId} not passed`);

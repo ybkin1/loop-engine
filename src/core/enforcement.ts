@@ -152,7 +152,11 @@ export function validateHostCapabilities(
 
 /**
  * Check a specific constraint at a given enforcement level.
- * @deprecated Use HardConstraints class from ./hard_constraints.js for deterministic C1-C8 checking.
+ *
+ * For deterministic C1-C8 checking with full context support, prefer
+ * the {@link HardConstraints} class from ./hard_constraints.js.
+ *
+ * @throws {Error} when the constraintId is not recognised
  */
 export function checkConstraint(
   constraintId: string,
@@ -161,7 +165,7 @@ export function checkConstraint(
 ): { constraint_id: string; action: "BLOCK" | "WARN" | "ADVISORY"; passed: boolean; reason: string } {
   const constraint = HARD_CONSTRAINTS.find(c => c.id === constraintId);
   if (!constraint) {
-    return { constraint_id: constraintId, action: "ADVISORY", passed: false, reason: `Unknown constraint: ${constraintId}` };
+    throw new Error(`Unknown constraint: ${constraintId}. Available: ${HARD_CONSTRAINTS.map(c => c.id).join(", ")}`);
   }
 
   const action = constraint.behavior[level];

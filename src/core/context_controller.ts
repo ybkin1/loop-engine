@@ -68,7 +68,7 @@ export const PROTECTED_PATHS: string[] = [
   ".ai/gates.yaml",
 ];
 
-/** Dangerous command patterns that are always denied for EXEC_BASH */
+/** SEC-004: Dangerous command patterns that are always denied for EXEC_BASH */
 const DANGEROUS_COMMANDS: RegExp[] = [
   /\brm\s+(-[a-zA-Z]*[rf][a-zA-Z]*\s+)*\//,       // rm -rf / or rm file
   /\bformat\s+[a-zA-Z]:/,                           // Windows format
@@ -78,6 +78,14 @@ const DANGEROUS_COMMANDS: RegExp[] = [
   /\bshutdown\b/,                                    // shutdown
   /\breboot\b/,                                      // reboot
   /\breg\s+delete\b/,                                // Windows registry delete
+  // SEC-004: Additional dangerous patterns
+  /\bicacls\b.*\/reset/,                              // Windows ACL reset
+  /\btakeown\b/,                                      // Windows take ownership
+  /\bbcdedit\b/,                                      // Boot config edit
+  /\bnet\s+(user|localgroup)\b/,                     // Network user management
+  /\bsc\s+(stop|delete|config)\b/,                   // Service control
+  /\bpowershell\b.*\b-(EncodedCommand|ec)\b/i,       // Encoded PS commands
+  /\bcertutil\b.*-decode\b/,                         // Certutil decode (can write files)
 ];
 
 /** Governance file directory pattern */
@@ -110,11 +118,11 @@ interface TaskGraph {
  */
 export function isGovernancePath(filePath: string): boolean {
   const normalized = normalize(filePath).replace(/\\/g, "/");
-  // Match .ai/ prefix or /.ai/ in the path
+  // SEC-006: Match .ai/ prefix with boundary or /.ai/ in the path
   return (
     normalized.startsWith(".ai/") ||
+    normalized === ".ai" ||
     normalized.includes("/.ai/") ||
-    normalized.startsWith(GOVERNANCE_DIR) ||
     normalized.endsWith("/state.yaml") ||
     normalized.endsWith("/gates.yaml")
   );
@@ -420,7 +428,9 @@ export class ContextController {
 
     const inScope = allowedPaths.some(prefix => {
       const normalizedPrefix = normalize(prefix).replace(/\\/g, "/");
-      return normalizedTarget.startsWith(normalizedPrefix);
+      // Ensure proper path boundary: prefix must end with '/' or target must continue with '/'
+      return normalizedTarget === normalizedPrefix ||
+        normalizedTarget.startsWith(normalizedPrefix.endsWith("/") ? normalizedPrefix : normalizedPrefix + "/");
     });
 
     if (!inScope) {

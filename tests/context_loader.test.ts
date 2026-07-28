@@ -143,4 +143,95 @@ describe('ContextLoader', () => {
     const section = loader.loadDocumentSection(mdPath, 'Nonexistent Section');
     expect(section).toBeNull();
   });
+
+  // ── buildDocumentIndex 错误处理 ────────────────────────────
+
+  it('buildDocumentIndex 文件不存在 → 抛出异常', () => {
+    const nonExistent = join(tmpDir, 'nonexistent.md');
+    expect(() => loader.buildDocumentIndex(nonExistent)).toThrow(/Failed to read document/);
+  });
+
+  // ── 复杂度阈值边界 ─────────────────────────────────────
+
+  it('complexity=0.0 → MINIMAL', () => {
+    const ctx = loader.loadRoleContext('R01', 0.0);
+    expect(ctx.level).toBe(LoadLevel.MINIMAL);
+  });
+
+  it('complexity=0.29 → MINIMAL (边界)', () => {
+    const ctx = loader.loadRoleContext('R01', 0.29);
+    expect(ctx.level).toBe(LoadLevel.MINIMAL);
+  });
+
+  it('complexity=0.3 → STANDARD (边界)', () => {
+    const ctx = loader.loadRoleContext('R01', 0.3);
+    expect(ctx.level).toBe(LoadLevel.STANDARD);
+  });
+
+  it('complexity=0.69 → STANDARD (边界)', () => {
+    const ctx = loader.loadRoleContext('R01', 0.69);
+    expect(ctx.level).toBe(LoadLevel.STANDARD);
+  });
+
+  it('complexity=0.7 → FULL (边界)', () => {
+    const ctx = loader.loadRoleContext('R01', 0.7);
+    expect(ctx.level).toBe(LoadLevel.FULL);
+  });
+
+  it('complexity=1.0 → FULL', () => {
+    const ctx = loader.loadRoleContext('R01', 1.0);
+    expect(ctx.level).toBe(LoadLevel.FULL);
+  });
+
+  it('complexity 超出范围 (>1.0) 被截断为 FULL', () => {
+    const ctx = loader.loadRoleContext('R01', 1.5);
+    expect(ctx.level).toBe(LoadLevel.FULL);
+  });
+
+  it('complexity 负值被截断为 MINIMAL', () => {
+    const ctx = loader.loadRoleContext('R01', -0.5);
+    expect(ctx.level).toBe(LoadLevel.MINIMAL);
+  });
+});
+
+// ── Token budget loader ─────────────────────────────────────────────
+
+describe('ContextLoader.loadWithinBudget', () => {
+  const loader = new ContextLoader();
+
+  it('小预算返回 MINIMAL 级别（最低下限）', () => {
+    const ctx = loader.loadWithinBudget('R06', 50);
+    // MINIMAL 是最低级别，即使预算不足也返回 MINIMAL
+    expect(ctx.level).toBe(LoadLevel.MINIMAL);
+    expect(ctx.loaded_sections).toContain('stance');
+  });
+
+  it('大预算返回 FULL 级别', () => {
+    const ctx = loader.loadWithinBudget('R06', 5000);
+    expect(ctx.level).toBe(LoadLevel.FULL);
+  });
+
+  it('中等预算返回 STANDARD 级别', () => {
+    // FULL 级别通常 > 200 tokens，MINIMAL < 100
+    const ctx = loader.loadWithinBudget('R06', 200);
+    expect([LoadLevel.MINIMAL, LoadLevel.STANDARD]).toContain(ctx.level);
+    expect(ctx.estimated_tokens).toBeLessThanOrEqual(200);
+  });
+
+  it('无文档时不崩溃', () => {
+    const ctx = loader.loadWithinBudget('R01', 500, '/nonexistent/path.md');
+    expect(ctx.role_id).toBe('R01');
+    expect(ctx.estimated_tokens).toBeGreaterThan(0);
+  });
+});
+
+// ── Cache invalidation ──────────────────────────────────────────────
+
+describe('ContextLoader.invalidateCache', () => {
+  const loader = new ContextLoader();
+
+  it('invalidateCache 不抛异常', () => {
+    expect(() => loader.invalidateCache()).not.toThrow();
+    expect(() => loader.invalidateCache('/some/path.md')).not.toThrow();
+  });
 });

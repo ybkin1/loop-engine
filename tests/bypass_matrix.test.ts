@@ -211,3 +211,36 @@ describe("Gate bypass detection", () => {
     expect(result.exitCode).toBe(0);
   });
 });
+
+// ════════════════════════════════════════════════════════
+// SEC-004: Expanded Dangerous Command Detection
+// ════════════════════════════════════════════════════════
+describe("SEC-004: Expanded dangerous command detection", () => {
+  const dangerousCommands = [
+    { cmd: "dd if=/dev/zero of=/dev/sda", label: "dd disk write" },
+    { cmd: "xcopy src dest /E /I", label: "xcopy" },
+    { cmd: "robocopy src dest /MIR", label: "robocopy" },
+    { cmd: "icacls C:\\secret /grant Everyone:F", label: "icacls" },
+    { cmd: "takeown /f C:\\secret", label: "takeown" },
+    { cmd: "reg add HKLM\\SOFTWARE\\test /v val /d 1", label: "reg add" },
+    { cmd: "Rename-Item old.txt new.txt", label: "PowerShell Rename-Item" },
+    { cmd: "Set-Acl -Path C:\\file -Acl $acl", label: "PowerShell Set-Acl" },
+    { cmd: "Invoke-Expression 'Remove-Item C:\\file'", label: "PowerShell Invoke-Expression" },
+    { cmd: "Set-Content -Path file.txt -Value 'data'", label: "PowerShell Set-Content" },
+    { cmd: "Out-File -FilePath output.txt", label: "PowerShell Out-File" },
+    { cmd: "Remove-Item file.txt", label: "PowerShell Remove-Item" },
+  ];
+
+  for (const { cmd, label } of dangerousCommands) {
+    it(`detects dangerous: ${label}`, () => {
+      setupDir();
+      writeGates("PENDING");
+      const result = runHook(GATE_GUARD, {
+        tool_name: "Bash",
+        tool_input: { command: cmd },
+        cwd: TEST_ROOT,
+      });
+      expect(result.exitCode).toBe(2);
+    });
+  }
+});

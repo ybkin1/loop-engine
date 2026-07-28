@@ -8,7 +8,7 @@
  * Ported from ZCode loop_core/context_loader.py.
  */
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 // ── Enums ────────────────────────────────────────────────────────────────────
@@ -139,6 +139,11 @@ const ROLE_LOOP_GUIDES: Record<string, string> = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+/** Complexity threshold below which MINIMAL context is loaded. */
+const COMPLEXITY_MINIMAL_THRESHOLD = 0.3;
+/** Complexity threshold below which STANDARD context is loaded. */
+const COMPLEXITY_STANDARD_THRESHOLD = 0.7;
+
 /**
  * Determine the LoadLevel from a complexity score.
  *
@@ -148,14 +153,17 @@ const ROLE_LOOP_GUIDES: Record<string, string> = {
  */
 function levelFromComplexity(complexity: number): LoadLevel {
   const c = Math.max(0, Math.min(1, complexity));
-  if (c < 0.3) return LoadLevel.MINIMAL;
-  if (c < 0.7) return LoadLevel.STANDARD;
+  if (c < COMPLEXITY_MINIMAL_THRESHOLD) return LoadLevel.MINIMAL;
+  if (c < COMPLEXITY_STANDARD_THRESHOLD) return LoadLevel.STANDARD;
   return LoadLevel.FULL;
 }
 
 // ── ContextLoader ────────────────────────────────────────────────────────────
 
 export class ContextLoader {
+  /** Document index cache to avoid redundant file reads. */
+  private indexCache = new Map<string, { index: DocumentIndex; mtime: number }>();
+
   // ── Token estimation ─────────────────────────────────────────────────────
 
   /**
@@ -249,10 +257,32 @@ export class ContextLoader {
    *
    * Reads the file at `docPath`, parses headings (`#`, `##`, `###`, …)
    * into DocumentSection entries, and computes line / token totals.
+   * Results are cached by path + mtime to avoid redundant reads.
    */
   buildDocumentIndex(docPath: string): DocumentIndex {
     const absPath = resolve(docPath);
-    const raw = readFileSync(absPath, "utf-8");
+
+    // Check cache validity via mtime
+    let mtime = 0;
+    try {
+      mtime = statSync(absPath).mtimeMs;
+    } catch {
+      // File may not exist — fall through to read error
+    }
+
+    const cached = this.indexCache.get(absPath);
+    if (cached && cached.mtime === mtime) {
+      return cached.index;
+    }
+
+    let raw: string;
+    try {
+      raw = readFileSync(absPath, "utf-8");
+    } catch (err) {
+      throw new Error(
+        `Failed to read document at "${absPath}": ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
     const lines = raw.split("\n");
 
     const sections: DocumentSection[] = [];
@@ -299,7 +329,21 @@ export class ContextLoader {
     const total_lines = lines.length;
     const total_tokens = this.estimateTokens(raw);
 
-    return { doc_path: absPath, sections, total_lines, total_tokens };
+    const index: DocumentIndex = { doc_path: absPath, sections, total_lines, total_tokens };
+
+    // Store in cache
+    this.indexCache.set(absPath, { index, mtime });
+
+    return index;
+  }
+
+  /** Invalidate the document index cache (all entries or a specific path). */
+  invalidateCache(docPath?: string): void {
+    if (docPath) {
+      this.indexCache.delete(resolve(docPath));
+    } else {
+      this.indexCache.clear();
+    }
   }
 
   // ── Section loading ──────────────────────────────────────────────────────
@@ -357,6 +401,76 @@ export class ContextLoader {
       level: base.level,
       system_prompt,
       estimated_tokens,
+      loaded_sections: sections,
+    };
+  }
+
+  // ── Token budget loader ────────────────────────────────────────────────
+
+  /**
+   * Load role context within a strict token budget.
+   *
+   * Starts from MINIMAL and upgrades level only if the budget allows.
+   * Document sections are added greedily (shortest first) until budget is exhausted.
+   *
+   * @param roleId - Role to load context for
+   * @param docPath - Optional document path for additional sections
+   * @param maxTokens - Maximum token budget (default: 1000)
+   */
+  loadWithinBudget(
+    roleId: string,
+    maxTokens: number = 1000,
+    docPath?: string,
+  ): LoadedContext {
+    // Start with MINIMAL and try upgrading
+    let best = this.loadRoleContext(roleId, 0.0); // MINIMAL
+
+    const standard = this.loadRoleContext(roleId, 0.5); // STANDARD
+    if (standard.estimated_tokens <= maxTokens) {
+      best = standard;
+    }
+
+    const full = this.loadRoleContext(roleId, 1.0); // FULL
+    if (full.estimated_tokens <= maxTokens) {
+      best = full;
+    }
+
+    // If no docPath or already over budget, return what we have
+    if (!docPath || best.estimated_tokens >= maxTokens) {
+      return best;
+    }
+
+    // Try adding document sections within remaining budget
+    const absPath = resolve(docPath);
+    if (!existsSync(absPath)) return best;
+
+    const index = this.buildDocumentIndex(absPath);
+    const parts: string[] = [best.system_prompt];
+    const sections = [...best.loaded_sections];
+    let currentTokens = best.estimated_tokens;
+
+    // Sort sections by token count (greedy: shortest first)
+    const candidates = index.sections
+      .filter(s => s.level <= 2 && s.content.length > 0)
+      .sort((a, b) => a.content.length - b.content.length);
+
+    for (const sec of candidates) {
+      const heading = "#".repeat(sec.level) + " " + sec.title;
+      const chunk = `${heading}\n\n${sec.content}`;
+      const chunkTokens = this.estimateTokens(chunk);
+
+      if (currentTokens + chunkTokens > maxTokens) break;
+
+      parts.push(chunk);
+      sections.push(`doc:${sec.title}`);
+      currentTokens += chunkTokens;
+    }
+
+    return {
+      role_id: roleId,
+      level: best.level,
+      system_prompt: parts.join("\n\n---\n\n"),
+      estimated_tokens: currentTokens,
       loaded_sections: sections,
     };
   }

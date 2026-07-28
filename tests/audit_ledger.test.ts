@@ -106,3 +106,40 @@ describe("AuditLedger", () => {
     expect(empty).toHaveLength(0);
   });
 });
+
+// ── appendEntry 文件写入失败错误处理 ─────────────────────────
+
+describe("AuditLedger 错误处理", () => {
+  it('写入无效路径时抛出异常', () => {
+    // Create a ledger with an invalid path (non-existent directory deep structure)
+    const invalidPath = 'Z:\\nonexistent\\deep\\path\\audit.jsonl';
+    expect(() => new AuditLedger(invalidPath)).toThrow();
+  });
+
+  it('verifyIntegrity 空 ledger → valid', () => {
+    const emptyDir = join(process.cwd(), '.test-audit-empty-tmp');
+    if (existsSync(emptyDir)) rmSync(emptyDir, { recursive: true });
+    mkdirSync(emptyDir, { recursive: true });
+    const emptyLedger = new AuditLedger(join(emptyDir, 'empty.jsonl'));
+    const result = emptyLedger.verifyIntegrity();
+    expect(result.valid).toBe(true);
+    rmSync(emptyDir, { recursive: true, force: true });
+  });
+
+  it('recent(0) → 空数组', () => {
+    ledger.append('e1', 'R01', {});
+    const result = ledger.recent(0);
+    expect(result).toHaveLength(0);
+  });
+
+  it('recent(-1) → 空数组', () => {
+    ledger.append('e1', 'R01', {});
+    const result = ledger.recent(-1);
+    expect(result).toHaveLength(0);
+  });
+
+  it('ledger path 返回绝对路径', () => {
+    expect(ledger.path).toBeTruthy();
+    expect(ledger.path).toContain('audit.jsonl');
+  });
+});

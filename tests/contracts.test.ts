@@ -126,3 +126,62 @@ describe('createHostAdapter', () => {
     expect(adapter.host_name).toBe('standalone');
   });
 });
+
+// ── HostAdapterStandalone 边界测试 ────────────────────────────────────────────
+
+describe('HostAdapterStandalone 边界测试', () => {
+  let adapter: HostAdapterStandalone;
+
+  beforeEach(() => {
+    adapter = new HostAdapterStandalone();
+  });
+
+  it('execute() 始终返回 exit_code=-1 和 stderr="no host"', async () => {
+    const result = await adapter.execute('echo hello');
+    expect(result.exit_code).toBe(-1);
+    expect(result.stderr).toBe('no host');
+    expect(result.stdout).toBe('');
+  });
+
+  it('execute() 在 Windows 上也返回 no host', async () => {
+    // Standalone adapter should not execute anything regardless of platform
+    const result = await adapter.execute('dir');
+    expect(result.exit_code).toBe(-1);
+    expect(result.stderr).toBe('no host');
+  });
+
+  it('write_file 始终返回 false', () => {
+    expect(adapter.write_file('/any/path', 'content')).toBe(false);
+  });
+
+  it('file_exists 始终返回 false', () => {
+    expect(adapter.file_exists('/any/path')).toBe(false);
+  });
+
+  it('load_state 始终返回 null', async () => {
+    const state = await adapter.load_state('/any/root');
+    expect(state).toBeNull();
+  });
+
+  it('load_gates 始终返回 null', async () => {
+    const gates = await adapter.load_gates('/any/root');
+    expect(gates).toBeNull();
+  });
+
+  it('load_tasks 始终返回空数组', async () => {
+    const tasks = await adapter.load_tasks('/any/root');
+    expect(tasks).toEqual([]);
+  });
+
+  it('ask_user 始终返回 null', async () => {
+    const answer = await adapter.ask_user('question?');
+    expect(answer).toBeNull();
+  });
+
+  it('freeze_evidence 返回有效 hash', () => {
+    const evidence = adapter.freeze_evidence('ev1', 'content');
+    expect(evidence.evidence_id).toBe('ev1');
+    expect(evidence.content_hash).toHaveLength(64);
+    expect(evidence.frozen_at).toBeTruthy();
+  });
+});

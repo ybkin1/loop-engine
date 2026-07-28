@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { EnforcementHub, quickCheck } from '../src/core/enforcement_hub.js';
@@ -252,5 +252,124 @@ describe('EnforcementDecision.toHookOutput', () => {
     expect(output).toContain('[ENFORCEMENT] DENY');
     expect(output).toContain('Blockers:');
     rmSync(root, { recursive: true, force: true });
+  });
+});
+
+// ── SEC-003: 治理文件完整性检查 ─────────────────────────────────────────────────
+
+describe('EnforcementHub.computeGovernanceFileHash', () => {
+  let root: string;
+
+  afterEach(() => {
+    if (root) rmSync(root, { recursive: true, force: true });
+  });
+
+  it('返回 state 和 gates 文件的 hash', () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+    const result = hub.computeGovernanceFileHash();
+    expect(result.hash).toBeTruthy();
+    expect(result.hash).toHaveLength(64); // SHA-256 hex
+    expect(result.files.state).toBeTruthy();
+    expect(result.files.state).toHaveLength(64);
+    expect(result.files.gates).toBeTruthy();
+    expect(result.files.gates).toHaveLength(64);
+  });
+
+  it('文件不存在时返回空 files 对象', () => {
+    root = mkdtempSync(join(tmpdir(), 'enf-hub-hash-test-'));
+    const hub = new EnforcementHub(root);
+    const result = hub.computeGovernanceFileHash();
+    expect(result.hash).toBeTruthy();
+    expect(Object.keys(result.files)).toHaveLength(0);
+  });
+
+  it('内容变化时 hash 值不同', () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+    const hash1 = hub.computeGovernanceFileHash().hash;
+
+    // Modify state.yaml
+    writeFileSync(join(root, '.ai', 'state.yaml'), 'modified: true\n', 'utf-8');
+    const hash2 = hub.computeGovernanceFileHash().hash;
+
+    expect(hash1).not.toBe(hash2);
+  });
+});
+
+describe('EnforcementHub.checkGovernanceFileIntegrity', () => {
+  let root: string;
+
+  afterEach(() => {
+    if (root) rmSync(root, { recursive: true, force: true });
+  });
+
+  it('无 state.yaml → ALLOW (N/A)', async () => {
+    root = mkdtempSync(join(tmpdir(), 'enf-hub-integrity-test-'));
+    const hub = new EnforcementHub(root);
+    const result = await hub.checkGovernanceFileIntegrity();
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/no governance|N\/A/i);
+  });
+
+  it('无 integrity_hash 记录 → ALLOW (baseline)', async () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+    const result = await hub.checkGovernanceFileIntegrity();
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/baseline|no integrity_hash/i);
+  });
+
+  it('存储 integrity_hash 后校验通过（循环依赖修复）', async () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+
+    // Step 1: compute baseline hash
+    const baseline = hub.computeGovernanceFileHash();
+
+    // Step 2: persist integrity_hash into state.yaml (simulates what caller would do)
+    const statePath = join(root, '.ai', 'state.yaml');
+    const content = readFileSync(statePath, 'utf-8');
+    writeFileSync(statePath, content + `integrity_hash: ${baseline.hash}\n`, 'utf-8');
+
+    // Step 3: verify — should PASS because integrity_hash line is excluded from computation
+    const result = await hub.checkGovernanceFileIntegrity();
+    expect(result.allowed).toBe(true);
+    expect(result.reason).toMatch(/verified/i);
+  });
+
+  it('篡改文件后 integrity_hash 校验失败', async () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+
+    // Store baseline hash
+    const baseline = hub.computeGovernanceFileHash();
+    const statePath = join(root, '.ai', 'state.yaml');
+    const content = readFileSync(statePath, 'utf-8');
+    writeFileSync(statePath, content + `integrity_hash: ${baseline.hash}\n`, 'utf-8');
+
+    // Tamper with gates.yaml
+    const gatesPath = join(root, '.ai', 'gates.yaml');
+    writeFileSync(gatesPath, 'tampered: true\n', 'utf-8');
+
+    // Verify — should FAIL
+    const result = await hub.checkGovernanceFileIntegrity();
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/FAILED|tampered/i);
+  });
+
+  it('添加 integrity_hash 不改变计算出的 hash（稳定性）', () => {
+    root = setupProject({ state: STATE_ACTIVE, gates: GATES_ALL_PASSED });
+    const hub = new EnforcementHub(root);
+
+    const hash1 = hub.computeGovernanceFileHash().hash;
+
+    // Add integrity_hash line
+    const statePath = join(root, '.ai', 'state.yaml');
+    const content = readFileSync(statePath, 'utf-8');
+    writeFileSync(statePath, content + `integrity_hash: ${hash1}\n`, 'utf-8');
+
+    const hash2 = hub.computeGovernanceFileHash().hash;
+    expect(hash1).toBe(hash2);
   });
 });

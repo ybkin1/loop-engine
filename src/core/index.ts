@@ -1,8 +1,9 @@
 /**
  * core/index.ts — Barrel exports for the Loop Engineering core modules.
  *
- * Re-exports all public types, classes, enums, and functions from the core
- * subsystem so that consumers can import from a single entry point:
+ * Re-exports the **public API** of the core subsystem. Internal types,
+ * constants, and deprecated helpers are intentionally excluded — import
+ * them directly from the source module if needed.
  *
  * ```ts
  * import { HardConstraints, AuditLedger, VetoEscalation } from "../core/index.js";
@@ -32,7 +33,6 @@ export {
   submitEvidence,
   verifyEvidence,
   loadEvidence,
-  computeHash as computeEvidenceHash,
 } from "./evidence.js";
 
 // ── Handoff ───────────────────────────────────────────────────────────────────
@@ -42,18 +42,16 @@ export {
 } from "./handoff.js";
 
 // ── Enforcement ───────────────────────────────────────────────────────────────
+// Public API: level derivation + validation.
+// Internal constants (HOST_PRESETS, HARD_CONSTRAINTS) and deprecated helpers
+// (checkConstraint, getDegradationTable) are NOT re-exported.
 export {
   EnforcementLevel,
   deriveEnforcementLevel,
   validateHostCapabilities,
-  checkConstraint,
-  getDegradationTable,
-  HOST_PRESETS,
-  HARD_CONSTRAINTS,
 } from "./enforcement.js";
 export type {
   HostCapabilities,
-  HardConstraint,
   EnforcementResult,
 } from "./enforcement.js";
 
@@ -79,13 +77,18 @@ export type { RoleCertState } from "./certification.js";
 export {
   checkFreshness,
   checkCausalChain,
+  checkAllFreshness,
+  getFreshnessSummary,
+  listEvidenceIds,
 } from "./freshness.js";
 export type {
   FreshnessResult,
   CausalChainResult,
+  FreshnessSummary,
 } from "./freshness.js";
 
-// ── Hard Constraints (new) ────────────────────────────────────────────────────
+// ── Hard Constraints ──────────────────────────────────────────────────────────
+// Public API: constraint checker class + envelope factory.
 export {
   ConstraintID,
   Severity,
@@ -99,7 +102,7 @@ export type {
   ConstraintContext,
 } from "./hard_constraints.js";
 
-// ── Veto Escalation (new) ─────────────────────────────────────────────────────
+// ── Veto Escalation ───────────────────────────────────────────────────────────
 export {
   VetoSeverity,
   EscalationLevel,
@@ -110,7 +113,7 @@ export type {
   EscalationDecision,
 } from "./veto_escalation.js";
 
-// ── Audit Ledger (new) ────────────────────────────────────────────────────────
+// ── Audit Ledger ──────────────────────────────────────────────────────────────
 export { AuditLedger } from "./audit_ledger.js";
 export type { LedgerEntry, IntegrityResult } from "./audit_ledger.js";
 
@@ -140,13 +143,14 @@ export type {
 } from "./enforcement_hub.js";
 
 // ── Context Controller (unified authorization engine) ────────────────────────
+// Public API: controller class + quick helper.
+// Internal constants (PROTECTED_PATHS) and utilities (isGovernancePath)
+// are NOT re-exported.
 export {
   Action,
   Decision,
   ContextController,
   quickAuth,
-  isGovernancePath,
-  PROTECTED_PATHS,
 } from "./context_controller.js";
 export type {
   AuthRequest,
@@ -157,14 +161,17 @@ export type {
 export {
   StepStatus,
   PhaseExecutor,
+  HookRegistry,
   PHASE_ROLES,
 } from "./executor.js";
 export type {
-  RoleStep,
   PhasePlan,
   PhaseExecutionResult,
   RoleStepResult,
   ValidationResult,
+  RoleExecutionHook,
+  RoleExecutionContext,
+  ExecutorOptions,
 } from "./executor.js";
 
 // ── Context Loader ────────────────────────────────────────────────────────────
@@ -187,6 +194,7 @@ export type {
   ExecutionRecord,
   ExecutionIntegrity,
   CrossValidation,
+  RoleStatistics,
 } from "./execution_ledger.js";
 
 // ── Human Review Packet ──────────────────────────────────────────────────────

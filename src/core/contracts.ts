@@ -12,6 +12,9 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join } from "node:path";
 
+/** Default timeout for command execution in milliseconds. */
+const EXECUTE_TIMEOUT_MS = 30_000;
+
 import {
   EnforcementLevel,
   type HostCapabilities,
@@ -53,6 +56,33 @@ export interface FreshnessCheck {
   is_fresh: boolean;
   expires_at: string;
   hash_stable: boolean;
+}
+
+// ── Shared Evidence Helpers ─────────────────────────────────────────────────
+
+/**
+ * Freeze evidence content into a hash-bound envelope.
+ * Shared by all host adapter implementations.
+ */
+function _freezeEvidence(evidence_id: string, content: string): EvidenceFreeze {
+  return {
+    evidence_id,
+    content_hash: createHash("sha256").update(content, "utf-8").digest("hex"),
+    frozen_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Check freshness of a list of evidence envelopes.
+ * Shared by all host adapter implementations.
+ */
+function _checkEvidenceFreshness(envelopes: EvidenceEnvelope[]): FreshnessCheck[] {
+  return envelopes.map((env) => ({
+    evidence_id: env.evidence_id,
+    is_fresh: env.is_fresh(),
+    expires_at: env.expires_at,
+    hash_stable: !env.has_hash_changed(env.content_hash),
+  }));
 }
 
 // ── IHostAdapter Interface ───────────────────────────────────────────────────
@@ -122,14 +152,17 @@ export class HostAdapterQoder implements IHostAdapter {
 
   async execute(command: string, cwd?: string): Promise<ExecResult> {
     try {
-      const stdout = execFileSync("sh", ["-c", command], {
+      const isWindows = process.platform === "win32";
+      const shell = isWindows ? "cmd.exe" : "sh";
+      const shellArgs = isWindows ? ["/c", command] : ["-c", command];
+      const stdout = execFileSync(shell, shellArgs, {
         cwd,
         encoding: "utf-8",
-        timeout: 30_000,
+        timeout: EXECUTE_TIMEOUT_MS,
       });
       return { exit_code: 0, stdout: stdout ?? "", stderr: "" };
     } catch (err: unknown) {
-      const e = err as { status?: number; stdout?: string; stderr?: string };
+      const e = err as NodeJS.ErrnoException & { status?: number; stdout?: string; stderr?: string };
       return {
         exit_code: e.status ?? -1,
         stdout: e.stdout ?? "",
@@ -191,20 +224,11 @@ export class HostAdapterQoder implements IHostAdapter {
   // ── Evidence ──────────────────────────────────────────────────────────
 
   freeze_evidence(evidence_id: string, content: string): EvidenceFreeze {
-    return {
-      evidence_id,
-      content_hash: createHash("sha256").update(content, "utf-8").digest("hex"),
-      frozen_at: new Date().toISOString(),
-    };
+    return _freezeEvidence(evidence_id, content);
   }
 
   check_evidence_freshness(envelopes: EvidenceEnvelope[]): FreshnessCheck[] {
-    return envelopes.map((env) => ({
-      evidence_id: env.evidence_id,
-      is_fresh: env.is_fresh(),
-      expires_at: env.expires_at,
-      hash_stable: !env.has_hash_changed(env.content_hash),
-    }));
+    return _checkEvidenceFreshness(envelopes);
   }
 }
 
@@ -234,20 +258,11 @@ export class HostAdapterStandalone implements IHostAdapter {
   async ask_user(_question: string, _context?: string): Promise<string | null> { return null; }
 
   freeze_evidence(evidence_id: string, content: string): EvidenceFreeze {
-    return {
-      evidence_id,
-      content_hash: createHash("sha256").update(content, "utf-8").digest("hex"),
-      frozen_at: new Date().toISOString(),
-    };
+    return _freezeEvidence(evidence_id, content);
   }
 
   check_evidence_freshness(envelopes: EvidenceEnvelope[]): FreshnessCheck[] {
-    return envelopes.map((env) => ({
-      evidence_id: env.evidence_id,
-      is_fresh: env.is_fresh(),
-      expires_at: env.expires_at,
-      hash_stable: !env.has_hash_changed(env.content_hash),
-    }));
+    return _checkEvidenceFreshness(envelopes);
   }
 }
 

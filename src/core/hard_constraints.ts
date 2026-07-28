@@ -324,7 +324,14 @@ export class HardConstraints {
       }];
     }
 
-    const inScope = allAllowed.some(prefix => target_path.startsWith(prefix));
+    const inScope = allAllowed.some(prefix => {
+      // Normalize both paths to forward slashes for cross-platform comparison
+      const normTarget = target_path.replace(/\\/g, "/");
+      const normPrefix = prefix.replace(/\\/g, "/");
+      // Ensure proper path boundary: prefix must end with '/' or target must continue with '/'
+      return normTarget === normPrefix ||
+        normTarget.startsWith(normPrefix.endsWith("/") ? normPrefix : normPrefix + "/");
+    });
     if (!inScope) {
       return [{
         constraint_id: ConstraintID.C4,
