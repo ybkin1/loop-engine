@@ -53,9 +53,11 @@ _RO_CMDS: frozenset[str] = frozenset({
 # ══════════════════════════════════════════════════════════════════════════
 
 def _flush_cmd(buf: list[str], cmds: list[str], is_first: bool) -> bool:
-    if not buf: return False
+    if not buf:
+        return False
     word = ''.join(buf); buf.clear()
-    if not word or not is_first: return False
+    if not word or not is_first:
+        return False
     if '/' in word: word = word.rsplit('/', 1)[-1]
     if '=' in word and word.split('=', 1)[0].isidentifier(): return True
     if word in ('sudo', 'exec', 'command', 'nohup', 'time', 'nice', 'env'): return True

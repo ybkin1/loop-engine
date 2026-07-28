@@ -93,14 +93,20 @@ class EnforcementHub:
     def check_cross_domain_review(cls, developer_role: str, reviewer_role: str) -> bool:
         """Ensure reviewer is from a different domain than developer (Qoder pattern)."""
         dev_domains = []
-        if developer_role in cls.DEVELOPMENT_ROLES: dev_domains.append("development")
-        if developer_role in cls.QUALITY_ROLES: dev_domains.append("quality")
-        if developer_role in cls.GOVERNANCE_ROLES: dev_domains.append("governance")
+        if developer_role in cls.DEVELOPMENT_ROLES:
+            dev_domains.append("development")
+        if developer_role in cls.QUALITY_ROLES:
+            dev_domains.append("quality")
+        if developer_role in cls.GOVERNANCE_ROLES:
+            dev_domains.append("governance")
 
         rev_domains = []
-        if reviewer_role in cls.DEVELOPMENT_ROLES: rev_domains.append("development")
-        if reviewer_role in cls.QUALITY_ROLES: rev_domains.append("quality")
-        if reviewer_role in cls.GOVERNANCE_ROLES: rev_domains.append("governance")
+        if reviewer_role in cls.DEVELOPMENT_ROLES:
+            rev_domains.append("development")
+        if reviewer_role in cls.QUALITY_ROLES:
+            rev_domains.append("quality")
+        if reviewer_role in cls.GOVERNANCE_ROLES:
+            rev_domains.append("governance")
 
         # At least one domain must differ
         return len(set(dev_domains) & set(rev_domains)) < len(dev_domains)
