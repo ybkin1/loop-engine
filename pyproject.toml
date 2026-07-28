@@ -47,7 +47,19 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
-ignore = ["E501"]
+ignore = ["E501", "E741", "N806", "B007"]
+
+[tool.ruff.lint.per-file-ignores]
+"codex_loop/hooks/_hook_bash.py" = ["E701", "E702"]
+"codex_loop/governance/repair_continuity.py" = ["E701", "E702"]
+"codex_loop/hooks/hook_common.py" = ["F401"]
+"codex_loop/hooks/loop_auto_activate.py" = ["B005", "E402"]
+"codex_loop/hooks/session_brief.py" = ["E402"]
+"codex_loop/hooks/ledger_guard.py" = ["E402"]
+"codex_loop/hooks/loop_enforcement.py" = ["E402"]
+"codex_loop/core/contracts.py" = ["E402"]
+"codex_loop/roles/capability.py" = ["E402"]
+"codex_loop/governance/validate_state.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.10"

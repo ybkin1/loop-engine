@@ -52,8 +52,8 @@ def _checked_path(root: Path, relative: str) -> Path:
         cursor = cursor / part
         try:
             current = os.lstat(cursor)
-        except FileNotFoundError:
-            raise GovernanceError("EVIDENCE_SUBJECT_MISSING", f"Evidence subject missing: {normalized}")
+        except FileNotFoundError as err:
+            raise GovernanceError("EVIDENCE_SUBJECT_MISSING", f"Evidence subject missing: {normalized}") from err
         if os.path.islink(cursor) or _is_reparse(current):
             raise GovernanceError("EVIDENCE_REPARSE_FORBIDDEN", f"Reparse subject is forbidden: {normalized}")
     try:
