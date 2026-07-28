@@ -3,7 +3,8 @@ sync_plugin_cache.py — Sync project hook scripts and config to ZCode plugin ca
 
 Usage: python .zcode/tools/sync_plugin_cache.py <project_root>
 """
-import os, shutil, sys
+import shutil
+import sys
 from pathlib import Path
 
 def find_plugin_cache() -> Path | None:

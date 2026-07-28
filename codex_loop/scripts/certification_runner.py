@@ -27,7 +27,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 # ── Project root detection ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

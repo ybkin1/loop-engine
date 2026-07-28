@@ -9,12 +9,9 @@ Usage:
     python mutation_tester.py --verify-results --reviewer-output <json_file>
 """
 import argparse
-import hashlib
 import json
 import sys
-import tempfile
 from dataclasses import dataclass, field
-from pathlib import Path
 
 # Known defect types that can be seeded
 DEFECT_TYPES = {
@@ -139,7 +136,7 @@ def match_defects_to_findings(
         # Try to match against reviewer findings
         for finding in findings:
             title_lower = finding.get("title", "").lower()
-            desc_lower = defect_info.get("description", "").lower()
+            defect_info.get("description", "").lower()
 
             if defect_type == "hardcoded_secret" and ("api key" in title_lower or "hardcoded" in title_lower):
                 result.detected = True
@@ -175,7 +172,7 @@ def main():
     verify.add_argument("--reviewer-output", required=True, help="Path to reviewer JSON output")
     verify.add_argument("--seeded", nargs="+", required=True, help="List of seeded defect types")
 
-    list_cmd = sub.add_parser("list-defects", help="List available defect types")
+    sub.add_parser("list-defects", help="List available defect types")
 
     args = parser.parse_args()
 

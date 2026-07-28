@@ -10,7 +10,6 @@ if str(_project_root) not in sys.path:
     sys.path.insert(0, str(_project_root))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from codex_loop.governance.continuity_auditor import audit_handoff_model
 from codex_loop.governance.governor_lib import (
     GovernanceError, REQUIRED_FILES, ai_dir, current_task_id,
     governance_invariant_errors,

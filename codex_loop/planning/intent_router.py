@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-import math
 import re
-from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
 
 from codex_loop.planning.router import (
     LoopMode,
     ProjectProfile,
-    RiskLevel,
     RouteResult,
     route_intent,
 )
@@ -723,7 +720,7 @@ _NEGATION_PATTERNS: list[str] = [
 
 def _is_negated(desc_lower: str, kw: str) -> bool:
     """Check if a keyword match is likely negated in context.
-    
+
     Example: "I want to remove the database" → "database" is negated.
     """
     for pat in _NEGATION_PATTERNS:
@@ -741,7 +738,7 @@ def _set_if_match(
     keywords: list[str],
 ) -> None:
     """Set factors[key] = True if any keyword is found in desc_lower.
-    
+
     v3.2: Checks negation context before setting flag.
     """
     for kw in keywords:

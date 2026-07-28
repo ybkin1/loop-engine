@@ -125,7 +125,7 @@ def rollback(project_root: Path, backup_dir: str | None = None,
             return 1
 
         # 4. 输出摘要
-        print(f"\n[rollback] 回滚成功。")
+        print("\n[rollback] 回滚成功。")
         if target_backup / "state.yaml":
             try:
                 state = load_yaml(target_backup / "state.yaml")

@@ -514,9 +514,9 @@ class HumanReviewPacketBuilder:
         decision = DecisionRequired(
             question=f"Do you approve moving forward from {phase_label}?",
             options=[
-                f"Approve — move to the next phase",
-                f"Request changes — I want something adjusted",
-                f"Pause — I need time to think or have other questions",
+                "Approve — move to the next phase",
+                "Request changes — I want something adjusted",
+                "Pause — I need time to think or have other questions",
             ],
             recommendation=(
                 f"We recommend approving and moving forward. "
@@ -600,20 +600,20 @@ class HumanReviewPacketBuilder:
                 vetoed_by = veto.get("vetoed_by", "Unknown reviewer")
                 key_choices.append(KeyChoice(
                     question=f"Disagreement #{i + 1}: Should we follow {vetoed_by}'s concern?",
-                    option_a=f"Accept the concern and revise the work",
-                    option_b=f"Override the concern and proceed as-is",
+                    option_a="Accept the concern and revise the work",
+                    option_b="Override the concern and proceed as-is",
                     why_a=(
                         f"The reviewer believes: {reason}. "
                         f"Addressing this now prevents bigger problems later."
                     ),
                     why_not_b=(
-                        f"Ignoring this concern could lead to rework later — "
-                        f"potentially more expensive and time-consuming."
+                        "Ignoring this concern could lead to rework later — "
+                        "potentially more expensive and time-consuming."
                     ),
                     risk_if_wrong=(
-                        f"If the reviewer is wrong, we spend time on unnecessary changes. "
-                        f"If the reviewer is right and we ignore it, the issue could affect "
-                        f"users or require major rework later."
+                        "If the reviewer is wrong, we spend time on unnecessary changes. "
+                        "If the reviewer is right and we ignore it, the issue could affect "
+                        "users or require major rework later."
                     ),
                 ))
 
@@ -750,7 +750,7 @@ class HumanReviewPacketBuilder:
             first_key = list(artifacts.keys())[0]
             choices.append(KeyChoice(
                 question=f"How did we approach the {_phase_label(phase)} phase?",
-                option_a=f"Structured, step-by-step approach",
+                option_a="Structured, step-by-step approach",
                 option_b="Rapid, all-at-once delivery",
                 why_a=(
                     f"We produced {first_key} and related outputs in a "

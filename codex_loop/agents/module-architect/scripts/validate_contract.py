@@ -149,7 +149,7 @@ def validate_contract_schema(contract: Dict[str, Any]) -> List[Dict[str, str]]:
                     "severity": "BLOCKED",
                 })
 
-        exp_name = exp.get("name", f"#{i}")
+        exp.get("name", f"#{i}")
 
         # 检查 returns 类型
         returns = exp.get("returns", {})
@@ -519,7 +519,6 @@ def main():
     schema_issues = validate_contract_schema(contract)
 
     # 类型检查结果
-    type_issues = []
     blocked_count = 0
     for issue in schema_issues:
         if issue.get("severity") == "BLOCKED":

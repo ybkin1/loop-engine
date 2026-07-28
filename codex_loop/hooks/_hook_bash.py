@@ -6,7 +6,6 @@ Imported by hook_common.py; also usable standalone for new code.
 """
 from __future__ import annotations
 import re
-from typing import Any
 
 # ══════════════════════════════════════════════════════════════════════════
 # Command sets

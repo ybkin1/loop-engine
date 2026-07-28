@@ -19,7 +19,6 @@ def _parse_allowed_paths_from_markdown(text: str) -> list[str]:
 
     Handles both YAML code block format and plain list format.
     """
-    import re
 
     paths: list[str] = []
     in_yaml_block = False

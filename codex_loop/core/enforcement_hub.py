@@ -13,7 +13,6 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +26,6 @@ from codex_loop.core.hard_constraints import (
 from codex_loop.core.state_machine import (
     GateStatus,
     Phase,
-    can_approve_gate,
     can_enter_phase,
     can_transition_phase,
     check_phase_constraints,

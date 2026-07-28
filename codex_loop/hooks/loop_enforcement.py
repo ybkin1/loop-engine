@@ -35,14 +35,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # Also add loop-engine project root so loop_core is importable
 # Codex: loop_core available via codex_loop.core
 from codex_loop.hooks.hook_common import (
-    DEFAULT_CONFIG,
     extract_target_path,
     is_governance_project,
     is_path_safe,
     is_readonly_command,
-    load_config,
     load_gates_for_context,
-    load_phase_gates_for_context,
     load_state,
     load_tasks_for_context,
     normalize_rel,

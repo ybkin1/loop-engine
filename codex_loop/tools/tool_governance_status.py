@@ -1,5 +1,4 @@
 """loop_governance_status — Get full governance health summary."""
-import json
 import sys
 from pathlib import Path
 

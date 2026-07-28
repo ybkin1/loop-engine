@@ -221,7 +221,7 @@ class VetoEscalation:
 
         # Collect distinct roles and their domains
         distinct_roles: list[str] = list({v.role_id for v in blockers})
-        distinct_domains: set[str] = {self._domain_for(v.role_id) for v in blockers}
+        {self._domain_for(v.role_id) for v in blockers}
 
         # ── Rule 1: Security engineer → immediate USER_GATE ──────────
         if "security-engineer" in distinct_roles and len(distinct_roles) >= 2:
@@ -348,34 +348,34 @@ class VetoEscalation:
         lines.append("=" * 60)
         lines.append("HUMAN REVIEW PACKET — Veto Escalation")
         lines.append("=" * 60)
-        lines.append(f"")
+        lines.append("")
         lines.append(f"Task ID:       {task_id}")
         lines.append(f"Generated at:  {datetime.now(timezone.utc).isoformat()}")
         if escalation_level:
             lines.append(f"Escalation:    {escalation_level.value}")
         lines.append(f"Vetoing Roles: {', '.join(distinct_roles) if distinct_roles else '(none)'}")
-        lines.append(f"")
+        lines.append("")
 
         # Decision summary
         lines.append("─" * 60)
         lines.append("DECISION REQUIRED")
         lines.append("─" * 60)
-        lines.append(f"")
+        lines.append("")
         if escalation_reason:
             lines.append(f"{escalation_reason}")
         else:
             lines.append("Multiple roles have issued BLOCKER vetoes — human decision required.")
-        lines.append(f"")
+        lines.append("")
 
         # Blocking vetoes
         lines.append("─" * 60)
         lines.append(f"BLOCKER VETOES ({len(blockers)})")
         lines.append("─" * 60)
-        lines.append(f"")
+        lines.append("")
 
         if not blockers:
             lines.append("(No blocking vetoes active)")
-            lines.append(f"")
+            lines.append("")
         else:
             for i, v in enumerate(blockers, 1):
                 lines.append(f"[{i}] Veto: {v.veto_id}")
@@ -389,29 +389,29 @@ class VetoEscalation:
                 if v.suggested_remediation:
                     lines.append(f"    Remediation: {v.suggested_remediation}")
                 lines.append(f"    Recorded:   {v.recorded_at}")
-                lines.append(f"")
+                lines.append("")
 
         # Warnings
         if warnings:
             lines.append("─" * 60)
             lines.append(f"WARNINGS ({len(warnings)})")
             lines.append("─" * 60)
-            lines.append(f"")
+            lines.append("")
             for i, w in enumerate(warnings, 1):
                 lines.append(f"[{i}] {w.role_id}: {w.reason}")
-                lines.append(f"")
+                lines.append("")
 
         # Resolution guidance
         lines.append("─" * 60)
         lines.append("SUGGESTED RESOLUTIONS")
         lines.append("─" * 60)
-        lines.append(f"")
+        lines.append("")
         for i, v in enumerate(blockers, 1):
             if v.suggested_remediation:
                 lines.append(f"  [{i}] {v.role_id}: {v.suggested_remediation}")
         if not any(v.suggested_remediation for v in blockers):
             lines.append("  (No remediation suggestions provided by vetoing roles)")
-        lines.append(f"")
+        lines.append("")
 
         lines.append("=" * 60)
         lines.append("END OF HUMAN REVIEW PACKET")

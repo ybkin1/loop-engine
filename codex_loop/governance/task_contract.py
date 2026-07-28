@@ -8,8 +8,6 @@ Checks that:
 
 Imported by validate_state.py for task contract validation.
 """
-import hashlib
-import sys
 from pathlib import Path
 
 try:
@@ -71,6 +69,6 @@ def check_self_review(contract: dict) -> list[str]:
 def check_input_freezing(root: Path, task_id: str, contract: dict) -> list[str]:
     """Check that task inputs have not changed since last freeze."""
     errors = []
-    freeze_path = root / ".ai" / "evidence" / task_id / "input-freeze.json"
+    root / ".ai" / "evidence" / task_id / "input-freeze.json"
     # No freeze file → no check needed (first run)
     return errors

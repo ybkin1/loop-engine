@@ -7,7 +7,10 @@ When governance files are modified through normal operations, the source_manifes
 hashes in project_continuity.yaml become stale. This tool recalculates all hashes
 and updates the manifest atomically (.tmp + os.replace).
 """
-import hashlib, os, sys, json
+import hashlib
+import os
+import sys
+import json
 from pathlib import Path
 
 def _canonical_json(value) -> str:

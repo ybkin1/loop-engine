@@ -11,11 +11,7 @@ Usage:
 import argparse
 import hashlib
 import json
-import random
-import sys
-import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from pathlib import Path
 
 # Mutations that can be injected into source code
@@ -121,7 +117,7 @@ def verify_detection(reviewer_findings: list[dict], runs: list[MutationRun]) -> 
     for run in runs:
         mutation = MUTATIONS.get(run.mutation_id, {})
         desc = mutation.get("description", "").lower()
-        severity = mutation.get("severity", "")
+        mutation.get("severity", "")
 
         detected = any(
             run.mutation_id in title or desc.split()[0] in title
@@ -147,7 +143,7 @@ def main():
     verify.add_argument("--reviewer-output", required=True, help="JSON from reviewer")
     verify.add_argument("--mutation-dir", default=".ai/evidence/mutations")
 
-    list_cmd = sub.add_parser("list-defects")
+    sub.add_parser("list-defects")
 
     args = parser.parse_args()
 

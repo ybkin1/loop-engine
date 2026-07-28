@@ -1,5 +1,4 @@
 """loop_certify_role — Run capability certification for a role."""
-import json
 import sys
 from pathlib import Path
 
@@ -8,8 +7,7 @@ def run(role_id: str, project_root: str = ".") -> dict:
     """Run the capability challenge for a role and return results."""
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from codex_loop.core.role_capability import (
-        ROLE_CHALLENGES, create_default_profiles, load_all_profiles,
-        save_all_profiles,
+        ROLE_CHALLENGES, load_all_profiles,
     )
 
     if role_id == "all":

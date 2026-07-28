@@ -397,10 +397,6 @@ def is_path_safe(root: Path, target) -> bool:
 
 
 # ── Bash analysis — imported from _hook_bash ──
-from codex_loop.hooks._hook_bash import (
-    shell_tokenize, is_write_command, has_write_operations, is_readonly_command,
-    _WRITE_CMDS, _GIT_WRITE, _GIT_RO, _RO_CMDS,
-)
 
 def load_tasks_for_context(root: Path) -> list[dict]:
     """从 task_graph.yaml 加载任务列表，格式适配 HardConstraints。

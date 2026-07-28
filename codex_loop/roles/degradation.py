@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from codex_loop.core.enforcement import EnforcementLevel, HostCapabilities, HARD_CONSTRAINTS
+from codex_loop.core.enforcement import EnforcementLevel, HostCapabilities
 
 
 class DegradationAction(str, Enum):

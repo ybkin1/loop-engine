@@ -24,11 +24,10 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 from codex_loop.core.state_machine import (
-    Phase, GateStatus, StateValidationResult,
-    can_approve_gate, can_enter_phase, can_transition_phase,
+    Phase, GateStatus, can_enter_phase, can_transition_phase,
 )
 from codex_loop.planning.router import LoopMode
 
@@ -693,7 +692,7 @@ class PhaseExecutor:
                 try:
                     data = _json.loads(stdout)
                     exit_code = data.get("exit_code", result.returncode)
-                    compiled_files = data.get("compiled_files", 0)
+                    data.get("compiled_files", 0)
                     total_files = data.get("total_files", 0)
                     errors = data.get("errors", [])
 

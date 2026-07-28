@@ -6,7 +6,6 @@ Adapts the AgentAdapter abstract interface for Codex native sub-agent API.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 from codex_loop.runtime.agent_adapter import (
     AgentAdapter, AgentInput, AgentOutput, AgentStatus, AgentUnavailableError,
@@ -51,7 +50,7 @@ class CodexAgentAdapter(AgentAdapter):
         self._project_root = Path(project_root) if project_root else None
 
     def launch_agent(self, agent_input: AgentInput) -> AgentOutput:
-        agent_type = self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, "default")
+        self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, "default")
         return AgentOutput(
             actor_id=f"codex-actor-{agent_input.role_id}",
             session_id=f"codex-sess-{agent_input.task_id}",
