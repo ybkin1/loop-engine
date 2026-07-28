@@ -210,6 +210,14 @@ def load_yaml(path: Path):
         raise
     except Exception as exc:
         raise GovernanceError("YAML_INVALID", f"Invalid YAML: {path}") from exc
+    # T-0059 F-0055-010: Validate schema_version
+    if isinstance(value, dict) and "schema_version" in value:
+        import logging
+        if value.get("schema_version") != 1:
+            logging.getLogger("governor_lib").warning(
+                "Schema version mismatch in %s: expected 1, got %s. Migration may be required.",
+                str(path), value.get("schema_version")
+            )
     return value or {}
 
 
@@ -246,6 +254,32 @@ def evidence_path_exists(base: Path, value) -> bool:
     path = Path(value)
     return (path if path.is_absolute() else base.parent / path).exists()
 
+
+
+# T-0059 F-0055-011: Single source of truth - unified state loading
+def load_unified_state(root):
+    """Load governance state from authoritative sources.
+    Hierarchy: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md (projection)."""
+    base = ai_dir(root)
+    state = load_yaml(base / "state.yaml")
+    all_gates = gates(root)
+    all_tasks = [t for t in task_graph_entries(root) if isinstance(t, dict)]
+    task_id = state.get("current_task_id")
+    task_id = None if task_id in (None, "", "null") else task_id
+    task_status_val = None
+    if task_id:
+        for t in all_tasks:
+            if t.get("id") == task_id:
+                task_status_val = t.get("status")
+                break
+    current_gate_id = state.get("current_gate_id")
+    current_gate_id = None if current_gate_id in (None, "", "null") else current_gate_id
+    approved_gate = None
+    if task_id:
+        matches = [g for g in all_gates if isinstance(g, dict) and g.get("task_id") == task_id and g.get("status") == "approved"]
+        active = [m for m in matches if m.get("execution_status") in {"approved_not_started", "in_progress"}]
+        approved_gate = active[-1] if active else (matches[-1] if matches else None)
+    return {"state": state, "gates": all_gates, "tasks": all_tasks, "task_id": task_id, "task_status": task_status_val, "current_gate_id": current_gate_id, "approved_gate": approved_gate, "phase": state.get("current_phase", "")}
 
 def historical_task_inventory_errors(root: Path, exclude_task_id: str | None = None) -> list[str]:
     """T-0046: Historical task mismatches are classified as legacy warnings.

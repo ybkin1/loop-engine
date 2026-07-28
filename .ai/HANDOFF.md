@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "0D2770473D03BE9F2566EC8FF0C30262BD6C2B37DFCB1920D8203DA08D33D30D",
+  "persisted_file_sha256": "35DAF0ED1DBBC743B3945FB105CD286EF6B27917C6765810F2809910CDEFDDCB",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "3DEAB75E885138A6B8D049F9E569214E9A9DA098FDDA8395B5DE654794423271",
+  "source_sha256": "9E30CEB313AC8F5C6CFA0067B91231207BB534A81AA2B849D3336CFB32D7B59A",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0054
+T-0061
 
 Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0054-MCP-AGENT-RUNTIME
+active_gate: G-T-0061-ROLE-LOADER-AND-SAFE-BASH
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0054-MCP-AGENT-RUNTIME is approved and execution is in progress.
+G-T-0061-ROLE-LOADER-AND-SAFE-BASH is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0054/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0061/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0054-MCP-AGENT-RUNTIME",
+  "approved_execution_gate_id": "G-T-0061-ROLE-LOADER-AND-SAFE-BASH",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0054-MCP-AGENT-RUNTIME",
-  "current_task_id": "T-0054",
+  "current_gate_id": "G-T-0061-ROLE-LOADER-AND-SAFE-BASH",
+  "current_task_id": "T-0061",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",

@@ -144,9 +144,9 @@ class TestRoleAdmission:
 
 
 class TestDefaultProfiles:
-    def test_all_11_roles_created(self):
+    def test_all_registered_roles_created(self):
         profiles = create_default_profiles()
-        assert len(profiles) == 11
+        assert len(profiles) == 12
         assert "main-thread" in profiles
         assert "delivery-manager" in profiles
 
@@ -180,7 +180,7 @@ class TestPersistence:
         profiles["quality-engineer"].certify()
         save_all_profiles(profiles, str(tmp_path))
         loaded = load_all_profiles(str(tmp_path))
-        assert len(loaded) == 11
+        assert len(loaded) == 12
         assert loaded["quality-engineer"].status == CapabilityStatus.CERTIFIED
 
     def test_degradation_survives_restart(self, tmp_path):

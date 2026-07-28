@@ -133,6 +133,8 @@ class RuntimeController:
         return RuntimeState.LOOP_PROJECT_READY
 
     def onboard_project(self, intent: str = "", *, idempotency_key: str | None = None) -> RuntimeSnapshot:
+        # T-0059 F-0055-009: Check if already initialized, preserve existing governance state
+        already_init = (self.root / ".ai/state.yaml").exists()
         if not self.root.is_dir():
             raise RuntimeControllerError("NOT_A_PROJECT")
         self.meta_dir.mkdir(parents=True, exist_ok=True)

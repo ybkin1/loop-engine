@@ -46,6 +46,12 @@ def _closed(value, fields: set[str], label: str) -> None:
         raise GovernanceError("PROJECT_CONTINUITY_INVALID", f"{label} fields are invalid")
 
 
+
+# T-0058: Hash self-reference guard — HANDOFF.md and project_continuity.yaml
+# must never appear in the source_manifest to prevent hash cycles.
+# The continuity file embeds its own hash into HANDOFF, and adding HANDOFF
+# to the manifest would create a dependency cycle.
+
 def load_project_continuity(root: Path) -> dict:
     root = root.resolve()
     path = safe_project_path(root, ".ai/project_continuity.yaml")
@@ -168,7 +174,11 @@ def build_handoff_model(root: Path) -> dict:
         "approved_execution_gate_id": approved.get("id") if approved else None,
         "approved_execution_status": approved.get("execution_status") if approved else None,
         "lifecycle_revision": approved.get("lifecycle_revision", 0) if approved else 0,
-        "next_action": "CONTINUE_APPROVED_EXECUTION" if status == "in_progress" else "USER_DECISION_REQUIRED",
+        "next_action": (
+            "CONTINUE_APPROVED_EXECUTION" if status == "in_progress" else
+            "TASK_COMPLETED_AWAIT_NEXT" if status == "completed" else
+            "USER_DECISION_REQUIRED"
+        ),
     }
     evidence = None
     evidence_error = None
@@ -280,7 +290,7 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Evidence
 
-Evidence manifest: {f".ai/evidence/{task_id}/evidence-manifest.v1.yaml" if task_id else 'not yet created'}.
+Evidence manifest: {f".ai/evidence/{task_id}/evidence-manifest.v1.yaml" if task_id else 'not available (no active task)'}.
 
 ## Integration Impact
 

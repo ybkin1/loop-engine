@@ -99,7 +99,7 @@ class TestGateLifecycleApproved:
         result = _check_gate_lifecycle(temp_project, "G-TEST", state)
         assert result == "skip"
 
-    def test_approved_no_execution_status_returns_allow_legacy(self, temp_project):
+    def test_approved_no_execution_status_returns_block_missing(self, temp_project):
         """approved with no execution_status → legacy gate, allow."""
         _write_gates(temp_project, (
             "gates:\n"
@@ -109,7 +109,7 @@ class TestGateLifecycleApproved:
         ))
         state = {"current_task_id": "T-0046", "current_gate_id": "G-TEST"}
         result = _check_gate_lifecycle(temp_project, "G-TEST", state)
-        assert result == "allow_legacy"
+        assert result == "block_missing"  # T-0055E: unknown exec_status → fail-closed
 
 
 class TestGateLifecycleRejectedBlocked:

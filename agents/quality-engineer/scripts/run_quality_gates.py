@@ -34,6 +34,24 @@ from typing import Any, Dict, List, Optional, Tuple
 
 sys.dont_write_bytecode = True
 
+# --------------- Canonical status semantics ---------------
+# Every quality gate result MUST carry exactly one of these statuses.
+# PASS:       check executed and passed threshold
+# FAIL:       check executed and did NOT pass threshold
+# BLOCKED:    regression detected — must be resolved before proceeding
+# UNAVAILABLE: tool or command not configured / not installed — cannot execute
+# NOT_VERIFIED: check ran but result cannot be independently verified
+# ABSTAIN:    explicit decision not to run this check (e.g., out of scope)
+
+STATUS_PASS = "PASS"
+STATUS_FAIL = "FAIL"
+STATUS_BLOCKED = "BLOCKED"
+STATUS_UNAVAILABLE = "UNAVAILABLE"
+STATUS_NOT_VERIFIED = "NOT_VERIFIED"
+STATUS_ABSTAIN = "ABSTAIN"
+
+CANONICAL_STATUSES = frozenset([STATUS_PASS, STATUS_FAIL, STATUS_BLOCKED, STATUS_UNAVAILABLE, STATUS_NOT_VERIFIED, STATUS_ABSTAIN])
+
 # --------------- 默认配置 ---------------
 
 DEFAULT_QUALITY_GATES = {
@@ -81,18 +99,30 @@ def parse_lint_output(raw: str, exit_code: int, command: str) -> Tuple[int, str]
     return len(lines), raw[:500]
 
 
-def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int, int, str]:
-    """解析测试输出，返回 (passed, total, coverage_pct, raw_snippet)。"""
+def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int, int, str, bool]:
+    """解析测试输出，返回 (passed, total, coverage_pct, raw_snippet, zero_collected)。
+
+    zero_collected = True 表示测试收集数量为 0——这不等价于"全部通过"，
+    通常意味着 pytest 未找到测试文件或收集配置错误。
+    """
     coverage = 0
     passed = 0
     total = 0
+    zero_collected = False
     raw_clean = raw.strip()
+
+    # pytest --collect-only 风格：检测 "no tests ran" / "collected 0 items"
+    import re
+    m_collected = re.search(r"collected\s+(\d+)\s+item", raw_clean)
+    if m_collected and int(m_collected.group(1)) == 0:
+        zero_collected = True
+
+    if "no tests ran" in raw_clean.lower():
+        zero_collected = True
 
     # pytest --cov 输出
     for line in raw_clean.splitlines():
         if "passed" in line and ("failed" in line or "=" in line):
-            # 形如 "38 passed, 2 failed" 或 "= 40 passed in 1.23s ="
-            import re
             m_passed = re.search(r"(\d+)\s*passed", line)
             m_failed = re.search(r"(\d+)\s*failed", line)
             if m_passed:
@@ -114,7 +144,11 @@ def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int,
     if total == 0:
         total = passed
 
-    return passed, total, coverage, raw[:500]
+    # Zero-collected override: if nothing was collected, total=0 is real
+    if zero_collected and total == 0:
+        pass  # correct signal
+
+    return passed, total, coverage, raw[:500], zero_collected
 
 
 def parse_audit_output(raw: str, exit_code: int, command: str) -> Dict[str, int]:
@@ -219,9 +253,9 @@ def load_config(project_root: Path) -> dict:
 
 
 def run_one_check(name: str, command: Optional[str], project_root: Path, timeout: int = 120) -> Dict[str, Any]:
-    """运行一个检查，返回 {exit_code, stdout, stderr}。"""
+    """运行一个检查，返回 {exit_code, stdout, stderr, command, status}。"""
     if not command:
-        return {"exit_code": 0, "stdout": "", "stderr": "", "skipped": True}
+        return {"exit_code": 0, "stdout": "", "stderr": "", "skipped": True, "command": None, "status": STATUS_UNAVAILABLE}
     try:
         result = subprocess.run(
             shlex.split(command),
@@ -236,11 +270,12 @@ def run_one_check(name: str, command: Optional[str], project_root: Path, timeout
             "stdout": result.stdout,
             "stderr": result.stderr,
             "skipped": False,
+            "command": command,
         }
     except subprocess.TimeoutExpired:
-        return {"exit_code": -1, "stdout": "", "stderr": f"超时 ({timeout}s)", "skipped": False}
+        return {"exit_code": -1, "stdout": "", "stderr": f"超时 ({timeout}s)", "skipped": False, "command": command, "status": STATUS_FAIL}
     except Exception as e:
-        return {"exit_code": -1, "stdout": "", "stderr": str(e), "skipped": False}
+        return {"exit_code": -1, "stdout": "", "stderr": str(e), "skipped": False, "command": command, "status": STATUS_FAIL}
 
 
 def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
@@ -252,37 +287,43 @@ def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
         r = run_one_check("lint", gates["lint_command"], project_root)
         count, snippet = parse_lint_output(r["stdout"], r["exit_code"], gates["lint_command"])
         results.append({"name": "lint", "value": count, "threshold": gates.get("lint_threshold", 0),
-                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False)})
+                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "command": r.get("command")})
 
     # Typecheck
     if gates.get("typecheck_command"):
         r = run_one_check("typecheck", gates["typecheck_command"], project_root)
         count = 0 if r["exit_code"] == 0 else 1  # typecheck 简化为 0/1
         results.append({"name": "typecheck", "value": count, "threshold": gates.get("typecheck_threshold", 0),
-                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False)})
+                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "command": r.get("command")})
 
     # Test + Coverage
     if gates.get("test_command"):
         r = run_one_check("test", gates["test_command"], project_root, timeout=180)
-        passed, total, cov, snippet = parse_test_output(r["stdout"], r["exit_code"], gates["test_command"])
+        passed, total, cov, snippet, zero_collected = parse_test_output(r["stdout"], r["exit_code"], gates["test_command"])
         results.append({"name": "test", "value": f"{passed}/{total}", "threshold": gates.get("test_threshold", 0),
-                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False)})
+                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "command": r.get("command"), "zero_collected": zero_collected})
         results.append({"name": "coverage", "value": cov, "threshold": gates.get("coverage_threshold", 80),
-                        "raw": f"{cov}%", "exit_code": r["exit_code"], "skipped": r.get("skipped", False)})
+                        "raw": f"{cov}%", "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "command": r.get("command")})
 
     # Audit
     if gates.get("audit_command"):
         r = run_one_check("audit", gates["audit_command"], project_root)
         counts = parse_audit_output(r["stdout"], r["exit_code"], gates["audit_command"])
         results.append({"name": "audit", "value": counts, "threshold": gates.get("audit_threshold", {"HIGH": 0}),
-                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False)})
+                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                        "command": r.get("command")})
 
     # Build
     if gates.get("build_command"):
         r = run_one_check("build", gates["build_command"], project_root)
         code = parse_build_output(r["stdout"], r["exit_code"], gates["build_command"])
         results.append({"name": "build", "value": code, "threshold": gates.get("build_threshold", 0),
-                        "raw": r["stdout"][:200], "exit_code": code, "skipped": r.get("skipped", False)})
+                        "raw": r["stdout"][:200], "exit_code": code, "skipped": r.get("skipped", False),
+                        "command": r.get("command")})
 
     # Compile
     if gates.get("compile_command"):
@@ -291,7 +332,7 @@ def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
         results.append({"name": "compile", "value": failed, "threshold": gates.get("compile_threshold", 0),
                         "raw": json.dumps(error_list)[:300] if error_list else "0 errors",
                         "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "compiled_files": compiled})
+                        "compiled_files": compiled, "command": r.get("command")})
 
     return results
 
@@ -309,11 +350,18 @@ def generate_report(results: List[Dict[str, Any]], project_root: Path, output_di
         item = check(r["name"], r["value"], r["threshold"])
         item["raw"] = r.get("raw", "")[:200]
         item["skipped"] = r.get("skipped", False)
+        item["command"] = r.get("command")
+        # Propagate zero_collected if present
+        if r.get("zero_collected"):
+            item["zero_collected"] = True
+            if item["status"] == STATUS_PASS:
+                item["status"] = STATUS_FAIL
+                item["reason"] = (item.get("reason", "") + "; zero tests collected").strip("; ")
         checks_out.append(item)
-        if item["status"] == "blocked":
-            blocked_by.append(f"{r['name']}: {item['reason']}")
+        if item["status"] in (STATUS_BLOCKED, STATUS_FAIL):
+            blocked_by.append(f"{r['name']}: {item.get('reason', 'unknown')}")
 
-    overall = "PASS" if not blocked_by else "BLOCKED"
+    overall = STATUS_PASS if not blocked_by else STATUS_BLOCKED
 
     # 计算源码树 SHA256（用于证据链绑定）
     src_hash = _compute_src_hash(project_root)
@@ -343,7 +391,7 @@ def generate_report(results: List[Dict[str, Any]], project_root: Path, output_di
         "|--------|------|------|------|",
     ]
     for item in checks_out:
-        status_icon = "✅" if item["status"] == "pass" else ("❌" if item["status"] == "blocked" else "⚠️")
+        status_icon = "✅" if item["status"] in ("pass", STATUS_PASS) else ("❌" if item["status"] in ("blocked", "fail", STATUS_BLOCKED, STATUS_FAIL) else "⚠️")
         value_str = str(item.get("value", "—"))
         thresh_str = str(item.get("threshold", "—"))
         if isinstance(value_str, dict):

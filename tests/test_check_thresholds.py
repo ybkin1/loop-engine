@@ -68,21 +68,21 @@ class CompareAuditTest(unittest.TestCase):
 class CheckSingleTest(unittest.TestCase):
     def test_lint_blocked(self):
         item = check("lint", 5, 0)
-        self.assertEqual(item["status"], "blocked")
+        self.assertEqual(item["status"], "BLOCKED")
         self.assertIn("5 > 0", item["reason"])
     def test_lint_pass(self):
         item = check("lint", 0, 0)
-        self.assertEqual(item["status"], "pass")
+        self.assertEqual(item["status"], "PASS")
     def test_coverage_blocked(self):
         item = check("coverage", 62, 80)
-        self.assertEqual(item["status"], "blocked")
+        self.assertEqual(item["status"], "BLOCKED")
     def test_audit_blocked(self):
         item = check("audit", {"HIGH": 2}, {"HIGH": 0})
-        self.assertEqual(item["status"], "blocked")
+        self.assertEqual(item["status"], "BLOCKED")
         self.assertIn("HIGH: 2 > 0", item["reason"])
     def test_unknown_check_passes(self):
         item = check("unknown", 999, 0)
-        self.assertEqual(item["status"], "pass")
+        self.assertEqual(item["status"], "PASS")
 
 
 class CheckAllTest(unittest.TestCase):
@@ -128,7 +128,7 @@ class CliTest(unittest.TestCase):
         )
         self.assertEqual(r.returncode, 2, f"stderr: {r.stderr}")
         out = json.loads(r.stdout)
-        self.assertEqual(out["status"], "blocked")
+        self.assertEqual(out["status"], "BLOCKED")
 
 
 if __name__ == "__main__":

@@ -113,8 +113,8 @@ def _check_gate_lifecycle(root, current_gate_id, state):
         elif exec_status in ("approved_not_started", "in_progress"):
             return "allow"
         else:
-            # Approved but no execution_status → legacy gate, allow
-            return "allow_legacy"
+            # Unknown execution_status on approved gate → fail-closed
+            return "block_missing"
     elif status in ("rejected", "blocked"):
         return "block_rejected"
     else:
@@ -256,6 +256,27 @@ def main():
                 "[warn] HardConstraints C7 检查异常，fail-open 放行：%s", e
             )
 
+    # ── T-0056: Independent Review Evidence Check ──
+    gate_list = _load_gate_data(root)
+    for gate in gate_list:
+        if not isinstance(gate, dict):
+            continue
+        cq = gate.get("content_quality", {})
+        if cq and cq.get("require_independent_review"):
+            # Check for review evidence
+            review_evidence_paths = gate.get("review_evidence", [])
+            if review_evidence_paths:
+                missing = []
+                for rp in review_evidence_paths:
+                    ep = root / rp
+                    if not ep.exists():
+                        missing.append(rp)
+                if missing:
+                    logger.warning(
+                        "[content_quality] Independent review evidence missing: %s",
+                        ", ".join(missing),
+                    )
+                    return EXIT_BLOCK
     return EXIT_PASS
 
 

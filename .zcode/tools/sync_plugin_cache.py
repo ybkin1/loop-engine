@@ -4,17 +4,47 @@ sync_plugin_cache.py — Sync project hook scripts and config to ZCode plugin ca
 
 Usage: python .zcode/tools/sync_plugin_cache.py <project_root>
 """
-import os, shutil, sys
+import hashlib
+import shutil
+import sys
 from pathlib import Path
+
+
+# The project checkout is the source of truth.  These runtime files are loaded
+# from the plugin cache by some ZCode sessions, so mtime-only hook syncing is
+# insufficient for them.
+RUNTIME_FILES = (
+    (Path("tools") / "server.py", Path("tools") / "server.py"),
+    (Path("loop_core") / "role_capability.py", Path("loop_core") / "role_capability.py"),
+)
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _copy_verified(source: Path, target: Path) -> None:
+    """Copy a source-of-truth file and fail if the cache is not identical."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(str(source), str(target))
+    if _sha256(source) != _sha256(target):
+        raise OSError(f"post-sync hash mismatch: {source} -> {target}")
 
 def find_plugin_cache() -> Path | None:
     home = Path.home()
     cache_root = home / ".zcode" / "cli" / "plugins" / "cache" / "zcode-plugins-official"
-    if cache_root.exists():
-        for d in cache_root.iterdir():
-            if d.is_dir() and "loop-governance" in d.name.lower():
-                return d
-    return None
+    if not cache_root.exists():
+        return None
+    candidates = []
+    for package_dir in cache_root.iterdir():
+        if not package_dir.is_dir() or "loop-governance" not in package_dir.name.lower():
+            continue
+        versions = [
+            child for child in package_dir.iterdir()
+            if child.is_dir() and (child / ".zcode-plugin").exists()
+        ]
+        candidates.extend(versions or [package_dir])
+    return max(candidates, key=lambda path: path.stat().st_mtime_ns) if candidates else None
 
 def sync_hook_scripts(project_root: Path, cache_dir: Path) -> int:
     local = project_root / "hooks" / "scripts"
@@ -25,10 +55,26 @@ def sync_hook_scripts(project_root: Path, cache_dir: Path) -> int:
     for f in local.glob("*.py"):
         if f.name.startswith("__"): continue
         t = cache / f.name
-        if not t.exists() or f.stat().st_mtime > t.stat().st_mtime:
-            shutil.copy2(str(f), str(t)); n += 1
+        if not t.exists() or _sha256(f) != _sha256(t):
+            _copy_verified(f, t); n += 1
     if n: print(f"[sync] {n} hook scripts synced.")
-    return 0
+    return n
+
+
+def sync_runtime_files(project_root: Path, cache_dir: Path) -> int:
+    """Synchronize cache copies of runtime files using content hashes."""
+    n = 0
+    for source_rel, target_rel in RUNTIME_FILES:
+        source = project_root / source_rel
+        target = cache_dir / target_rel
+        if not source.is_file():
+            continue
+        if not target.exists() or _sha256(source) != _sha256(target):
+            _copy_verified(source, target)
+            n += 1
+    if n:
+        print(f"[sync] {n} runtime files synced and verified.")
+    return n
 
 def sync_config(project_root: Path, cache_dir: Path) -> int:
     local = project_root / ".zcode" / "skills" / "loop-governance"
@@ -50,7 +96,7 @@ def sync_config(project_root: Path, cache_dir: Path) -> int:
             if not t.exists() or f.stat().st_mtime > t.stat().st_mtime:
                 shutil.copy2(str(f), str(t)); n += 1
     if n: print(f"[sync] {n} config/template files synced.")
-    return 0
+    return n
 
 def main():
     if len(sys.argv) < 2:
@@ -64,7 +110,7 @@ def main():
         sys.exit(1)
     print(f"[sync] From: {root}")
     print(f"[sync] To:   {cache}")
-    e = sync_hook_scripts(root, cache) + sync_config(root, cache)
+    e = sync_hook_scripts(root, cache) + sync_runtime_files(root, cache) + sync_config(root, cache)
     sys.exit(0 if e == 0 else 2)
 
 if __name__ == "__main__":

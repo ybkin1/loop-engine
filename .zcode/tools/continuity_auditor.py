@@ -173,7 +173,11 @@ def audit_handoff_model(root: Path, text: str) -> list[str]:
         "approved_execution_gate_id": gate.get("id") if gate else None,
         "approved_execution_status": gate.get("execution_status") if gate else None,
         "lifecycle_revision": gate.get("lifecycle_revision", 0) if gate else 0,
-        "next_action": "CONTINUE_APPROVED_EXECUTION" if status == "in_progress" else "USER_DECISION_REQUIRED",
+        "next_action": (
+            "CONTINUE_APPROVED_EXECUTION" if status == "in_progress" else
+            "TASK_COMPLETED_AWAIT_NEXT" if status == "completed" else
+            "USER_DECISION_REQUIRED"
+        ),
     }
     evidence = None
     evidence_error = None

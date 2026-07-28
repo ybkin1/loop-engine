@@ -5,6 +5,13 @@ _hook_state.py — Governance state reading utilities extracted from hook_common
 
 Functions for reading .ai/state.yaml, .ai/gates.yaml, .ai/task_graph.yaml
 and related governance state files.
+
+v3.11.2 repair (T-0055E / F-0055-002):
+  - Unified error semantics: load_state / load_gates / load_tasks now return
+    (data, error) tuples so callers can distinguish "missing file",
+    "parse error", and "empty but valid".
+  - Empty collections no longer silently degrade to the same value as error.
+  - All readers use the same fail-open / fail-closed contract.
 """
 
 import logging
@@ -19,25 +26,100 @@ except ImportError:
 
 STATE_REL = Path(".ai") / "state.yaml"
 GATES_REL = Path(".ai") / "gates.yaml"
+TASKS_REL = Path(".ai") / "task_graph.yaml"
+
+# ── Error sentinels ────────────────────────────────────────────────────────
+ERR_MISSING = "MISSING_FILE"
+ERR_PARSE = "PARSE_ERROR"
+ERR_NO_YAML = "NO_YAML_LIBRARY"
 
 
-def load_state(root: Path) -> dict:
-    """Load .ai/state.yaml as a dict. Returns empty dict on missing/unreadable file.
+def load_state(root: Path) -> tuple[dict, str | None]:
+    """Load .ai/state.yaml. Returns (data, error_sentinel).
 
-    When PyYAML is unavailable, falls back to simple line-by-line key-value parsing
-    (top-level scalar keys only — nested data like phases/completed_roles is lost).
+    data: dict (empty on error, {} on missing file — callers must check error_sentinel).
+    error_sentinel: None on success, ERR_MISSING / ERR_PARSE / ERR_NO_YAML otherwise.
     """
     sp = root / STATE_REL
     if not sp.exists():
-        return {}
-    if yaml is not None:
+        return {}, ERR_MISSING
+    if yaml is None:
+        return _fallback_parse(sp), ERR_NO_YAML
+    try:
+        with open(sp, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        if not isinstance(data, dict):
+            return {}, ERR_PARSE
+        return data, None
+    except Exception:
         try:
-            with open(sp, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-            return data if isinstance(data, dict) else {}
+            return _fallback_parse(sp), ERR_PARSE
         except Exception:
-            pass
-    # Fallback: line-by-line key-value scan
+            return {}, ERR_PARSE
+
+
+def load_gates(root: Path) -> tuple[list[dict], str | None]:
+    """Load gates from .ai/gates.yaml. Returns (gates_list, error_sentinel)."""
+    gp = root / GATES_REL
+    if not gp.exists():
+        return [], ERR_MISSING
+    if yaml is None:
+        return [], ERR_NO_YAML
+    try:
+        with open(gp, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        gates = data.get("gates", [])
+        if not isinstance(gates, list):
+            return [], ERR_PARSE
+        return gates, None
+    except Exception:
+        return [], ERR_PARSE
+
+
+def load_tasks(root: Path) -> tuple[list[dict], str | None]:
+    """Load tasks from .ai/task_graph.yaml. Returns (tasks_list, error_sentinel)."""
+    tp = root / TASKS_REL
+    if not tp.exists():
+        return [], ERR_MISSING
+    if yaml is None:
+        return [], ERR_NO_YAML
+    try:
+        with open(tp, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+        tasks = data.get("tasks", [])
+        if not isinstance(tasks, list):
+            return [], ERR_PARSE
+        return tasks, None
+    except Exception:
+        return [], ERR_PARSE
+
+
+def pending_gates(root: Path) -> list[str]:
+    """Return list of gate IDs with status == "pending" in gates.yaml.
+
+    Returns empty list on file missing / parse error / no pending gates.
+    Callers should use load_gates() directly if they need to distinguish
+    "no pending gates" from "could not read gates".
+    """
+    gates, err = load_gates(root)
+    if err is not None:
+        return []
+    return [g["id"] for g in gates if isinstance(g, dict) and g.get("status") == "pending"]
+
+
+def current_task_id(root: Path) -> str | None:
+    """Extract current_task_id from state.yaml. Returns None on any error."""
+    state, err = load_state(root)
+    if err is not None:
+        return None
+    tid = state.get("current_task_id")
+    return tid if tid and tid != "null" else None
+
+
+# ── Internal helpers ──────────────────────────────────────────────────────
+
+def _fallback_parse(sp: Path) -> dict:
+    """Line-by-line key-value parsing for top-level scalar keys only."""
     state: dict = {}
     try:
         for line in sp.read_text(encoding="utf-8").splitlines():
@@ -51,94 +133,3 @@ def load_state(root: Path) -> dict:
     except Exception:
         pass
     return state
-
-
-def _naive_pending_scan(text: str) -> set[str]:
-    """Quick scan for 'status: pending' lines in gates.yaml text."""
-    pending: set[str] = set()
-    current_id: str | None = None
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("- id:"):
-            current_id = stripped.split(":", 1)[1].strip().strip('"').strip("'")
-        elif stripped.startswith("status:") and "pending" in stripped.lower() and current_id:
-            pending.add(current_id)
-    return pending
-
-
-def pending_gates(root: Path) -> list[dict]:
-    """Return all gates in .ai/gates.yaml whose status is 'pending'."""
-    gp = root / GATES_REL
-    if not gp.exists():
-        return []
-    try:
-        if yaml is not None:
-            with open(gp, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f) or {}
-            gates = data.get("gates", []) if isinstance(data, dict) else []
-            return [g for g in gates if isinstance(g, dict) and g.get("status") == "pending"]
-        text = gp.read_text(encoding="utf-8")
-        pending_ids = _naive_pending_scan(text)
-        return [{"id": pid, "status": "pending"} for pid in pending_ids]
-    except Exception:
-        return []
-
-
-def load_tasks_for_context(root: Path) -> list[dict]:
-    """Load task list from .ai/task_graph.yaml for enforcement context."""
-    tp = root / ".ai" / "task_graph.yaml"
-    if not tp.exists() or yaml is None:
-        return []
-    try:
-        with open(tp, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-        return data.get("tasks", []) if isinstance(data, dict) else []
-    except Exception:
-        return []
-
-
-def load_gates_for_context(root: Path) -> dict:
-    """Load gate data as {gate_id: status} dict for enforcement context."""
-    gp = root / GATES_REL
-    if not gp.exists() or yaml is None:
-        return {}
-    try:
-        with open(gp, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-        gates = data.get("gates", []) if isinstance(data, dict) else []
-        return {g["id"]: g["status"] for g in gates if isinstance(g, dict) and g.get("id") and g.get("status")}
-    except Exception:
-        return {}
-
-
-def load_phase_gates_for_context(root: Path) -> dict:
-    """Build {Phase: gate_status} mapping for phase-gate enforcement."""
-    gp = root / GATES_REL
-    if not gp.exists() or yaml is None:
-        return {}
-    gt_map = {
-        "requirements": "S1-requirements", "architecture": "S2-architecture",
-        "interface": "S3-interface", "implementation": "S4-implementation",
-        "quality": "S5-quality", "delivery": "S6-delivery",
-        "integration": "S7-integration", "functional_test": "S8-functional-test",
-        "fix_optimize": "S9-fix-optimize", "performance": "S10-performance",
-        "maintenance": "S11-maintenance",
-    }
-    try:
-        with open(gp, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-        gates = data.get("gates", []) if isinstance(data, dict) else []
-        result = {}
-        for g in gates:
-            if not isinstance(g, dict):
-                continue
-            gt = str(g.get("gate_type", "")).lower()
-            gs = str(g.get("status", ""))
-            if gt in gt_map and gs:
-                phase = gt_map[gt]
-                existing = result.get(phase)
-                if existing is None or gs == "blocked":
-                    result[phase] = gs
-        return result
-    except Exception:
-        return {}

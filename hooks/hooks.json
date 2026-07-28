@@ -7,19 +7,25 @@
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/loop_auto_activate.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/loop_auto_activate.py"
+            ],
             "timeoutMs": 5000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/template_injector.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/template_injector.py"
+            ],
             "timeoutMs": 10000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/session_brief.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/session_brief.py"
+            ],
             "timeoutMs": 10000
           }
         ]
@@ -32,31 +38,57 @@
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/loop_enforcement.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/loop_enforcement.py"
+            ],
             "timeoutMs": 5000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/gate_guard.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/bash_content_guard.py"
+            ],
             "timeoutMs": 5000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/ledger_guard.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/gate_guard.py"
+            ],
             "timeoutMs": 5000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/role_isolation.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/content_guard.py"
+            ],
+            "timeoutMs": 10000
+          },
+          {
+            "type": "process",
+            "command": "python",
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/ledger_guard.py"
+            ],
             "timeoutMs": 5000
           },
           {
             "type": "process",
             "command": "python",
-            "args": ["${ZCODE_PLUGIN_ROOT}/hooks/scripts/path_guard.py"],
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/role_isolation.py"
+            ],
+            "timeoutMs": 5000
+          },
+          {
+            "type": "process",
+            "command": "python",
+            "args": [
+              "${ZCODE_PLUGIN_ROOT}/hooks/scripts/path_guard.py"
+            ],
             "timeoutMs": 5000
           }
         ]

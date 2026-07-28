@@ -71,6 +71,7 @@ def main() -> int:
     return 0 if status in {"PENDING_SUCCESSOR_ACK", "STABLE_FIXTURE_ONLY", "STABLE"} else 2
 
 
+# T-0058: Anchor fixes run best-effort; failures are logged but do not block closeout.
 def _fix_stale_anchors(root: Path, state: dict, base: Path) -> None:
     """Auto-fix anchor files when they contradict state.yaml (v3.5).
 

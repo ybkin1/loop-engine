@@ -106,8 +106,8 @@ def main():
         }
         sys.stdout.write(json.dumps(output, ensure_ascii=False))
     except Exception as e:
-        # 注入失败不阻断会话，只在日志留痕
-        logger.warning("摘要生成失败（%s）。", e)
+        # 注入失败不阻断会话，但治理项目中应以 ERROR 级别记录
+        logger.error("session_brief 摘要生成失败（%s），治理状态注入缺失。", e, exc_info=True)
     return 0
 
 

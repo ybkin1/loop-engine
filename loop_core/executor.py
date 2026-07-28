@@ -115,9 +115,13 @@ class PhaseExecutor:
         mode: LoopMode = LoopMode.FULL,
         *,
         fixture_mode: bool = False,
+        subprocess_runner: Any = None,
     ):
         self.mode = mode
         self.fixture_mode = fixture_mode
+        # Injectable subprocess runner for testability (T-0055E / F-0055-016).
+        # Defaults to subprocess.run; tests can inject a mock.
+        self._subprocess_runner = subprocess_runner if subprocess_runner is not None else subprocess.run
 
     def get_phases(self) -> list[Phase]:
         """Get the list of phases for the current mode."""
@@ -175,9 +179,33 @@ class PhaseExecutor:
         return universal + role_specific.get(role_id, [])
 
     def validate_step(self, step: RoleStep, output: dict) -> StepStatus:
-        """Validate a role's output against its required fields."""
+        """Validate a role's output against its required fields.
+
+        Enhanced with evidence authenticity checks (T-0056):
+        - Reviewer/Quality roles must have reviewer_session_id != developer_session_id
+        - Evidence must not contain simulation markers
+        """
         if not output:
             return StepStatus.FAILED
+
+        # Anti-forgery: detect simulated output (skip in fixture_mode)
+        if not self.fixture_mode:
+            summary = str(output.get("summary", ""))
+            if "Simulated output" in summary or "simulated" in summary.lower():
+                step.status = StepStatus.FAILED
+                step.verdict = "FAKE_EVIDENCE"
+                return StepStatus.FAILED
+
+        # Anti-forgery: independent reviewer must be different session (skip in fixture_mode)
+        if not self.fixture_mode:
+            reviewer_roles = {"independent-reviewer", "quality-engineer", "security-engineer"}
+            if step.role_id in reviewer_roles:
+                reviewer_session = output.get("reviewer_session_id", "")
+                developer_session = output.get("developer_session_id", "")
+                if reviewer_session and developer_session and reviewer_session == developer_session:
+                    step.status = StepStatus.FAILED
+                    step.verdict = "SELF_REVIEW"
+                    return StepStatus.FAILED
 
         verdict = output.get("verdict", "")
         if verdict == "BLOCKED":
@@ -420,9 +448,12 @@ class PhaseExecutor:
             ) from None
 
     def _simulate_role_output(self, role_id: str, output_path: str) -> dict[str, Any]:
-        """Produce a simulated role output when no real agent script exists.
+        """TEST ONLY — Produce a simulated role output for fixture/demo use.
 
-        This is a fallback for testing/demo. In production a real agent is used.
+        WARNING: This function returns fabricated PASS verdicts with no real
+        quality work performed. It MUST only be invoked when fixture_mode=True.
+        Production paths (fixture_mode=False) raise REAL_AGENT_UNAVAILABLE
+        instead of falling back to simulation.
         """
         output: dict[str, Any] = {
             "verdict": "PASS",
@@ -678,7 +709,7 @@ class PhaseExecutor:
             return True
 
         try:
-            result = subprocess.run(
+            result = self._subprocess_runner(
                 [sys.executable, str(checker_script), str(project_root),
                  "--paths", "loop_core,hooks/scripts,tests"],
                 capture_output=True,

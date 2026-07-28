@@ -370,7 +370,8 @@ def _dispatch(tool_name: str, args: dict) -> dict:
         from tool_dependency_analysis import run
         return run(project_root, args.get("rules_file"))
     elif tool_name == "contract_validate":
-        from tool_contract_validate import run
+        from tool_safe_bash import SCHEMA as SAFE_BASH_SCHEMA, handle as safe_bash_handle
+from tool_contract_validate import run
         return run(project_root, args["contract_file"], args.get("check_actual", False))
     elif tool_name == "evidence_verify":
         from tool_evidence_chain import run_verify
@@ -467,9 +468,9 @@ def _dispatch(tool_name: str, args: dict) -> dict:
             return {"ok": False, "error": str(exc)}
 
     if tool_name == "loop_dispatch_agents":
-        project_root = arguments.get("project_root", ".")
-        manifest = arguments.get("manifest", {})
-        max_retries = arguments.get("max_retries", 2)
+        project_root = args.get("project_root", ".")
+        manifest = args.get("manifest", {})
+        max_retries = args.get("max_retries", 2)
         try:
             from tools.mcp_agent_runtime import MCPAgentRuntime
             runtime = MCPAgentRuntime(agents_dir=Path(project_root) / "agents")

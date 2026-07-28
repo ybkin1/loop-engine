@@ -8,7 +8,7 @@ tasks:
   -
     id: T-0002
     title: Unified governance architecture Candidate v0.2.1
-    status: in_progress
+    status: completed
     created_at: "2026-07-06T16:54:41"
     updated_at: "2026-07-06T17:10:25"
     note: handoff generated
@@ -43,14 +43,14 @@ tasks:
   -
     id: T-0007
     title: Real Product Discovery - Server After-Sales Smart Compute Service Tool
-    status: in_progress
+    status: completed
     created_at: "2026-07-07T15:39:31"
     updated_at: "2026-07-07T16:47:44"
     note: handoff generated
   -
     id: T-0008
     title: Loop Engineering Method Repair And One-Person AI Team Workflow Design
-    status: in_progress
+    status: completed
     created_at: "2026-07-07T18:17:41+08:00"
     updated_at: "2026-07-07T18:35:53"
     note: handoff generated
@@ -134,7 +134,7 @@ tasks:
   -
     id: T-0020
     title: Real Project Governance Enforcement Architecture Review
-    status: in_progress
+    status: completed
     created_at: "2026-07-08T20:12:27"
     updated_at: "2026-07-08T20:25:31+08:00"
     note: review-only gate approved by explicit user message; T-0020 review in progress
@@ -263,7 +263,7 @@ tasks:
   -
     id: T-0046
     title: Governance State Reconciliation and Delivery Integrity
-    status: in_progress
+    status: completed
     created_at: "2026-07-24"
     phase: S6-delivery
     loop_mode: FULL
@@ -296,7 +296,7 @@ tasks:
   -
     id: T-0047
     title: Governance Critical Path Hardening — Core Fail-Closed + role_isolation Tests + Negative Path Coverage
-    status: in_progress
+    status: completed
     created_at: "2026-07-24"
     phase: S6-delivery
     loop_mode: FULL
@@ -317,7 +317,7 @@ tasks:
   -
     id: T-0048
     title: Finalize — Atomic Write + Hook Split Completion + Status Marking + Vertical Slice
-    status: in_progress
+    status: completed
     created_at: "2026-07-24"
     phase: S6-delivery
     loop_mode: FULL
@@ -339,7 +339,7 @@ tasks:
   -
     id: T-0049
     title: Root Cause Fix — 3-Layer Architecture Unification + Continuity Bomb Defusal + Deadlock Immunity
-    status: in_progress
+    status: completed
     created_at: "2026-07-24"
     phase: S6-delivery
     loop_mode: FULL
@@ -365,7 +365,7 @@ tasks:
   -
     id: T-0050
     title: Mid-Priority Fixes — Gate Lifecycle Unification + hook_common Completion + task_contract Fix
-    status: in_progress
+    status: completed
     created_at: "2026-07-24"
     phase: S6-delivery
     loop_mode: FULL
@@ -373,7 +373,7 @@ tasks:
   -
     id: T-0051
     title: P0 Runtime Controller + Automatic Project Onboarding
-    status: in_progress
+    status: completed
     created_at: "2026-07-27"
     phase: S6-delivery
     loop_mode: FULL
@@ -399,7 +399,7 @@ tasks:
   -
     id: T-0052
     title: Comprehensive Loop Governance Remediation
-    status: in_progress
+    status: completed
     created_at: "2026-07-27"
     phase: S6-delivery
     loop_mode: FULL
@@ -426,7 +426,7 @@ tasks:
   -
     id: T-0053
     title: Agent Contract Migration + Low-Priority Cleanup
-    status: in_progress
+    status: completed
     created_at: "2026-07-27"
     phase: S6-delivery
     loop_mode: FULL
@@ -445,7 +445,7 @@ tasks:
   -
     id: T-0054
     title: MCP Agent Runtime — 三层代理模型的 MCP 替代方案
-    status: in_progress
+    status: completed
     created_at: "2026-07-27"
     phase: S6-delivery
     loop_mode: FULL
@@ -461,7 +461,148 @@ tasks:
       - .ai/task_graph.yaml
       - .ai/gates.yaml
       - .ai/HANDOFF.md
-    note: "等待用户批准 G-T-0054-MCP-AGENT-RUNTIME"
+    note: "G-T-0054-MCP-AGENT-RUNTIME approved; execution in progress"
+  -
+    id: T-0055
+    title: Loop 角色能力、质量测试体系与 v3.11.2 缺陷治理修复
+    status: completed
+    completed_at: "2026-07-28T16:15:00+08:00"
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0055.md
+      - .ai/evidence/T-0055/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - agents/
+      - loop_core/
+      - hooks/
+      - tools/
+      - scripts/
+      - tests/
+      - docs/
+    note: "T-0055 completed. 7 P1/P2 findings repaired. 7 NOT_VERIFIED items carried forward. Closeout approved by user (G-T-0055-CLOSEOUT-REVIEW)."
+  -
+    id: T-0056
+    title: Loop 工程质量保障层改造 — 机器拦截 + 独立审查 + 证据链
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0056.md
+      - .ai/evidence/T-0056/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/CODING_STANDARDS.md
+      - hooks/scripts/content_guard.py
+      - hooks/scripts/gate_guard.py
+      - hooks/hooks.json
+      - loop_core/executor.py
+      - agents/test-engineer/SKILL.md
+      - tests/
+    note: "消除 AI 自律依赖：content_guard Hook + 消除 simulate + 强制独立审查 + 证据链防伪造 + 编码规范补全"
+  -
+    id: T-0057
+    title: Loop 工程治理恢复 + 激活就绪
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0057.md
+      - .ai/evidence/T-0057/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .zcode/config.json
+    note: "Hook 激活 + 治理漂移关闭 + 标记移除"
+
+  -
+    id: T-0058
+    title: P1 快速修复 + Live-Fire 验证
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0058.md
+      - .ai/evidence/T-0058/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/project_continuity.yaml
+      - .zcode/tools/continuity_producer.py
+      - .zcode/tools/close_session.py
+      - hooks/scripts/
+      - tests/
+    note: "F-0055-012/014/015 fixes + live-fire verification"
+  -
+    id: T-0059
+    title: 残余 NOT_VERIFIED 架构修复
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0059.md
+      - .ai/evidence/T-0059/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .zcode/tools/
+      - loop_core/runtime_controller.py
+      - tools/loop_onboard.py
+      - tests/
+    note: "F-0055-009/010/011/013 architecture fixes"
+
+  -
+    id: T-0060
+    title: Bash 绕过防护 + Live-Fire 验证
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0060.md
+      - .ai/evidence/T-0060/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - hooks/scripts/bash_content_guard.py
+      - hooks/hooks.json
+      - tests/
+    note: "Bash bypass guard + live-fire content_guard verification"
+
+  -
+    id: T-0061
+    title: 角色身份注入 + Bash 完美拦截
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0061.md
+      - .ai/evidence/T-0061/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - loop_core/role_loader.py
+      - tools/tool_safe_bash.py
+      - tools/server.py
+      - tests/
+    note: "Role identity injection via SKILL.md prompt + AST-based safe_bash MCP tool"
+
 edges:
     - from: T-0040
       to: T-0041

@@ -2125,7 +2125,7 @@ gates:
   task_id: T-0046
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-24T00:00:00+08:00'
   requested_by: ai
@@ -2194,7 +2194,7 @@ gates:
   task_id: T-0047
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-24T00:00:00+08:00'
   requested_by: ai
@@ -2252,7 +2252,7 @@ gates:
   task_id: T-0048
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-24T00:00:00+08:00'
   requested_by: ai
@@ -2304,7 +2304,7 @@ gates:
   task_id: T-0049
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-24T00:00:00+08:00'
   approval_evidence: .ai/evidence/T-0049/approval.md
@@ -2356,7 +2356,7 @@ gates:
   task_id: T-0050
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-24T00:00:00+08:00'
   approval_evidence: .ai/evidence/T-0050/approval.md
@@ -2404,7 +2404,7 @@ gates:
   task_id: T-0051
   gate_type: user-implementation
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   approval_text: "用户同意开始 P0 架构修复：自动项目接入、统一运行时状态机、一次批准自动执行、主控业务写入阻断、Developer/Reviewer 隔离和跨会话恢复。"
   recorded_at: '2026-07-27T00:00:00+08:00'
@@ -2467,7 +2467,7 @@ gates:
   approval_actor: user
   approval_source: explicit_user_message
   approval_text: "批准 G-T-0052-COMPREHENSIVE-REMEDIATION"
-  execution_status: in_progress
+  execution_status: completed
   scope: comprehensive Loop governance remediation, including T-0051 residual findings and legacy lab failures
   decision_packet: .ai/evidence/T-0052/gate-request.md
   approval_evidence: .ai/evidence/T-0052/approval.md
@@ -2506,7 +2506,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
-  execution_status: in_progress
+  execution_status: completed
   requested_at: '2026-07-27T00:00:00+08:00'
   recorded_at: '2026-07-27T00:00:00+08:00'
   requested_by: ai
@@ -2551,7 +2551,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
-  execution_status: in_progress
+  execution_status: completed
   requested_at: '2026-07-27T00:00:00+08:00'
   recorded_at: '2026-07-27T00:00:00+08:00'
   requested_by: ai
@@ -2591,3 +2591,687 @@ gates:
     production_data: false
     migration: false
     runtime_behavior: true
+- id: G-T-0055-BASELINE-AUDIT
+  task_id: T-0055
+  gate_type: user-review-only
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_evidence: .ai/evidence/T-0055/approval.md
+  execution_evidence: .ai/evidence/T-0055/commands.md
+  requested_at: '2026-07-28T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: read-only baseline audit for all Loop roles, quality/test/reviewer capability, and v3.11.2 findings
+  allowed_paths:
+  - .ai/tasks/T-0055.md
+  - .ai/evidence/T-0055/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - agents/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  allowed_actions:
+  - read current project and governance context
+  - inventory all 11 roles and role artifacts
+  - audit quality/test/reviewer contracts and execution paths
+  - record v3.11.2 findings without repairing them
+  - create baseline matrices, finding register, evidence authenticity report, and next-gate package
+  - run read-only verification and validate_state.py
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - perform implementation or repair
+  - modify role contracts, SKILL files, runtime code, tests, or quality scripts
+  - change certification status
+  - modify AGENTS.md
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0055/commands.md
+  - .ai/evidence/T-0055/role-inventory.md
+  - .ai/evidence/T-0055/source-of-truth-matrix.md
+  - .ai/evidence/T-0055/quality-test-review-entry-matrix.md
+  - .ai/evidence/T-0055/v3.11.2-finding-register.md
+  - .ai/evidence/T-0055/evidence-authenticity-and-not-verified.md
+  - .ai/evidence/T-0055/next-gate-recommendation.md
+  notes:
+  - This gate is the first gate of the independent T-0055 task family.
+  - T-0054 remains separate and is not expanded by this gate.
+  - Role design must be high capability density without duplicated or encyclopedic text.
+- id: G-T-0055-ROLE-DESIGN
+  task_id: T-0055
+  gate_type: user-design
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: "批准 G-T-0055-ROLE-DESIGN"
+  approval_evidence: .ai/evidence/T-0055/role-design-approval.md
+  execution_evidence: .ai/evidence/T-0055/role-design-commands.md
+  requested_at: '2026-07-28T11:30:00+08:00'
+  recorded_at: '2026-07-28T11:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: candidate design for all 11 roles using a compact canonical capability schema; no certification promotion
+  allowed_paths:
+  - .ai/tasks/T-0055.md
+  - .ai/evidence/T-0055/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - agents/
+  - tests/
+  allowed_actions:
+  - create compact canonical role capability schema
+  - produce 11 role capability design packages
+  - align role responsibilities, checks, challenges, failure semantics, veto/escalation, handoff, freshness, and blind spots
+  - add design-level consistency tests without changing certification status
+  - record evidence and run compile/validation checks
+  forbidden_actions:
+  - change any role certification status
+  - claim capability certification or production admission
+  - implement runtime remediation from the finding register
+  - modify AGENTS.md
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0055/role-design-approval.md
+  - .ai/evidence/T-0055/role-design-commands.md
+  - .ai/evidence/T-0055/canonical-role-capability-schema.md
+  - .ai/evidence/T-0055/role-capability-designs.md
+  - .ai/evidence/T-0055/role-design-consistency-matrix.md
+  - .ai/evidence/T-0055/next-gate-contract-reconciliation.md
+  notes:
+  - The design must maximize capability density and verification value without encyclopedic duplication.
+  - This gate does not authorize implementation of the P1/P2 findings.
+- id: G-T-0055-CONTRACT-RECONCILIATION
+  task_id: T-0055
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: "批准G-T-0055-CONTRACT-RECONCILIATION"
+  approval_evidence: .ai/evidence/T-0055/contract-reconciliation-approval.md
+  execution_evidence: .ai/evidence/T-0055/contract-reconciliation-commands.md
+  requested_at: '2026-07-28T11:45:00+08:00'
+  recorded_at: '2026-07-28T11:45:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  approval_actor: user
+  approval_source: explicit_user_message
+  scope: reconcile role registry, contracts, canonical capability design, challenge definitions, certification records, expiry/revalidation, and admission semantics
+  allowed_paths:
+  - .ai/tasks/T-0055.md
+  - .ai/evidence/T-0055/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - agents/
+  - loop_core/role_capability.py
+  - tests/test_role_capability.py
+  - tests/test_certification.py
+  - tests/test_technical_roles.py
+  allowed_actions:
+  - reconcile the 12-role registry and canonical design references
+  - update role contracts and compact skill projections where required
+  - reconcile role challenges and role_capability.py definitions
+  - reconcile certification persistence, history, expiry, revalidation, and admission states
+  - add focused consistency and negative-path tests
+  - record all changes and run validation evidence
+  forbidden_actions:
+  - modify AGENTS.md
+  - change unrelated runtime behavior or repair v3.11.2 P1/P2 findings
+  - promote or fabricate certification without challenge evidence
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0055/contract-reconciliation-approval.md
+  - .ai/evidence/T-0055/contract-reconciliation-commands.md
+  - .ai/evidence/T-0055/contract-reconciliation-matrix.md
+  - .ai/evidence/T-0055/contract-reconciliation-test-evidence.json
+  - .ai/evidence/T-0055/next-gate-quality-test-foundation.md
+  notes:
+  - This gate is limited to role contract/profile/challenge/certification consistency.
+  - It does not authorize the separate quality/test foundation or P1/P2 remediation gates.
+- id: G-T-0055-AUTONOMOUS-FULL-EXECUTION
+  task_id: T-0055
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: "批准 G-T-0055-AUTONOMOUS-FULL-EXECUTION"
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_evidence: .ai/evidence/T-0055/autonomous-execution-approval.md
+  execution_evidence: .ai/evidence/T-0055/autonomous-execution-log.md
+  requested_at: '2026-07-28T13:30:00+08:00'
+  recorded_at: '2026-07-28T13:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: execute the complete T-0055 lifecycle continuously within the listed paths; internal subtasks and checkpoints do not require repeated user prompts
+  execution_mode: autonomous_within_approved_scope
+  internal_stages:
+  - baseline audit and root-cause verification
+  - compact high-density role design
+  - contract/profile/challenge/certification reconciliation
+  - quality and test foundation repair
+  - v3.11.2 P1 repair
+  - v3.11.2 P2 repair
+  - role challenge and independent revalidation
+  - regression and closeout package
+  allowed_paths:
+  - .ai/tasks/T-0055.md
+  - .ai/evidence/T-0055/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - agents/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  allowed_actions:
+  - execute all internal T-0055 stages without requesting repeated continuation prompts
+  - create internal checkpoints and evidence without converting them into user gates
+  - repair confirmed findings within allowed paths
+  - run focused and full regression tests, compile, quality, security, schema, and evidence checks
+  - pause only for forbidden actions, scope expansion, unresolved professional conflict, product tradeoff, risk acceptance, or final user acceptance
+  - present a single consolidated closeout decision package at the end
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter a real business project
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior outside this task
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat tests, validator, reviewer PASS, or AI recommendation as user acceptance
+  - silently accept P0/P1 risk or suppress NOT_VERIFIED evidence
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0055/autonomous-execution-plan.md
+  - .ai/evidence/T-0055/autonomous-execution-log.md
+  - .ai/evidence/T-0055/autonomous-checkpoints.yaml
+  - .ai/evidence/T-0055/final-closeout-package.md
+  notes:
+  - This gate is proposed to eliminate repeated continuation prompts inside the approved task scope.
+  - User decisions remain required for scope expansion, forbidden effects, unresolved conflicts, risk acceptance, and final acceptance.
+  - Approval of this gate does not authorize production deployment or real-project entry.
+- id: G-T-0055-SOURCE-TRUTH-SYNC-REPAIR
+  task_id: T-0055
+  gate_type: scope-expansion
+  parent_gate_id: G-T-0055-AUTONOMOUS-FULL-EXECUTION
+  status: approved
+  decision: approved
+  execution_status: active
+  approval_text: "批准 G-T-0055-SOURCE-TRUTH-SYNC-REPAIR"
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-28T14:00:00+08:00'
+  requested_by: ai
+  scope: repair plugin cache sync logic — replace mtime with SHA-256, add post-write verification, fix version directory selection, and add sync tests
+  rationale: |
+    Project source files (tools/server.py, loop_core/role_capability.py) were not
+    correctly synced to the ZCode plugin cache because the old logic relied on mtime.
+    A stale cache copy could overwrite the project source-of-truth during hydrate,
+    destroying real diffs and test evidence.  Independent audit confirmed hash
+    mismatches between project sources and cached copies.  The parent gate
+    G-T-0055-AUTONOMOUS-FULL-EXECUTION does not list .zcode/tools/ in allowed_paths,
+    so this scope-expansion gate is required.
+  allowed_paths:
+  - .zcode/tools/sync_plugin_cache.py
+  - tests/test_plugin_cache_sync.py
+  - tools/server.py
+  - loop_core/role_capability.py
+  - tests/test_role_capability.py
+  - .ai/evidence/T-0055/
+  allowed_actions:
+  - establish project working tree as source-of-truth for plugin cache sync
+  - replace mtime-based comparison with SHA-256 content hashing
+  - add post-write hash verification in _copy_verified
+  - fix find_plugin_cache to select correct version directory via .zcode-plugin marker
+  - add tests for stale-mtime, hash mismatch, and idempotent sync
+  - run focused and full regression tests, compile, and validate_state
+  - generate real Git diff and evidence records
+  forbidden_actions:
+  - modify AGENTS.md
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat tests, validator, reviewer PASS, or AI recommendation as user acceptance
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0055/source-truth-sync-repair-evidence.md
+  - .ai/evidence/T-0055/sync-repair-test-output.json
+  notes:
+  - This gate expands G-T-0055-AUTONOMOUS-FULL-EXECUTION to include .zcode/tools/ path.
+  - All original forbidden actions and constraints remain intact.
+  - The runtime_behavior flag is true because the plugin cache influences runtime file loading.
+
+- id: G-T-0055-CLOSEOUT-REVIEW
+  task_id: T-0055
+  gate_type: user-closeout-review
+  parent_gate_id: G-T-0055-AUTONOMOUS-FULL-EXECUTION
+  status: approved
+  decision: approved
+  execution_status: completed
+  approval_text: "批准 G-T-0055-CLOSEOUT-REVIEW — T-0055 验收完成"
+  approval_actor: user
+  approval_source: explicit_user_message
+  recorded_at: '2026-07-28T16:15:00+08:00'
+  requested_at: '2026-07-28T16:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: final closeout review for T-0055 — user must ACCEPT, REJECT, or HOLD
+  review_package: .ai/evidence/T-0055/final-closeout-package.md
+  allowed_paths:
+  - .ai/tasks/T-0055.md
+  - .ai/evidence/T-0055/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/version-manifest.yaml
+  allowed_actions:
+  - review final closeout evidence
+  - decide ACCEPT / REJECT / HOLD
+  - if ACCEPT: mark T-0055 completed, update state/gates/task_graph/HANDOFF
+  - if REJECT: record rejection reason and next repair direction
+  - if HOLD: record hold condition and await further instructions
+  forbidden_actions:
+  - approve this gate without explicit user approval
+  - modify AGENTS.md
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - start new task before T-0055 closeout
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0055/final-closeout-package.md
+  - .ai/evidence/T-0055/independent-review-report.md
+  - .ai/evidence/T-0055/vulnerability-repair-evidence.md
+  - .ai/evidence/T-0055/quality-test-foundation-evidence.md
+  - .ai/evidence/T-0055/source-truth-sync-repair-evidence.md
+  - .ai/evidence/T-0055/autonomous-checkpoints.yaml
+  notes:
+  - This gate is the final closeout for T-0055.
+  - User decision is required: ACCEPT marks task complete, REJECT returns for repair, HOLD pauses.
+  - 7 P1/P2 findings repaired; 7 NOT_VERIFIED items carried forward for future task.
+- id: G-T-0056-CONTENT-QUALITY-ENFORCEMENT
+  task_id: T-0056
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: completed
+  approval_text: "批准 G-T-0056-CONTENT-QUALITY-ENFORCEMENT — Loop 工程质量保障层改造"
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T17:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: >
+    消除"AI 自律"依赖，将内容质量从知识层指导升级为执行层强制。
+    包括：content_guard.py Hook（编码规范+架构合规+密钥扫描）、
+    消除 executor.py simulate 生产路径、gate_guard 强制独立审查证据、
+    test-engineer SKILL.md 补全、证据链防伪造、CODING_STANDARDS 补全。
+  allowed_paths:
+  - .ai/tasks/T-0056.md
+  - .ai/evidence/T-0056/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/CODING_STANDARDS.md
+  - hooks/scripts/content_guard.py
+  - hooks/scripts/gate_guard.py
+  - hooks/hooks.json
+  - loop_core/executor.py
+  - agents/test-engineer/SKILL.md
+  - tests/
+  allowed_actions:
+  - create hooks/scripts/content_guard.py
+  - register content_guard in hooks/hooks.json
+  - modify loop_core/executor.py (eliminate simulate fallback, enhance validate_step)
+  - modify hooks/scripts/gate_guard.py (independent review evidence verification)
+  - modify agents/test-engineer/SKILL.md (complete from skeleton)
+  - modify .ai/CODING_STANDARDS.md (expand from 3 lines)
+  - update governance records
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter a real business project
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior outside this task
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  - treat tests, validator, reviewer PASS, or AI recommendation as user acceptance
+  - silently accept P0/P1 risk or suppress NOT_VERIFIED evidence
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  content_quality:
+    require_independent_review: true
+    require_test_evidence: true
+    coding_standards_check: ruff
+    architecture_compliance: true
+  approval_evidence: .ai/evidence/T-0056/approval.md
+  execution_evidence: .ai/evidence/T-0056/commands.md
+  evidence_required:
+  - .ai/evidence/T-0056/commands.md
+  - .ai/evidence/T-0056/implementation-evidence.md
+  - .ai/evidence/T-0056/test-output.json
+  - .ai/evidence/T-0056/final-closeout-package.md
+  notes:
+  - User approved the complete transformation plan via ExitPlanMode.
+  - This gate authorizes all phases of the content quality enforcement upgrade.
+  - First gate with content_quality machine-enforceable criteria.
+- id: G-T-0057-GOVERNANCE-RECOVERY-AND-ACTIVATION
+  task_id: T-0057
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: completed
+  approval_text: "批准 G-T-0057-GOVERNANCE-RECOVERY-AND-ACTIVATION"
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: Hook activation + governance cleanup + marker removal + P1 assessment
+  approval_evidence: .ai/evidence/T-0057/approval.md
+  execution_evidence: .ai/evidence/T-0057/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0057.md
+  - .ai/evidence/T-0057/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .zcode/config.json
+  - NOT_ACTIVATED
+  - NOT_INSTALLED
+  allowed_actions:
+  - enable hooks in .zcode/config.json
+  - batch close 13 in_progress tasks
+  - batch close 9 gates execution_status
+  - remove NOT_ACTIVATED and NOT_INSTALLED
+  - run regression tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Governance recovery gate. Enables hooks and cleans up historical drift.
+- id: G-T-0058-P1-FIXES-AND-LIVEFIRE
+  task_id: T-0058
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: completed
+  approval_text: "批准 G-T-0058-P1-FIXES-AND-LIVEFIRE"
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T18:31:14+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: P1 NOT_VERIFIED fixes + live-fire verification
+  approval_evidence: .ai/evidence/T-0058/approval.md
+  execution_evidence: .ai/evidence/T-0058/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0058.md
+  - .ai/evidence/T-0058/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/project_continuity.yaml
+  - .zcode/tools/continuity_producer.py
+  - .zcode/tools/close_session.py
+  - hooks/scripts/
+  - tests/
+  allowed_actions:
+  - fix continuity_producer.py (null task + hash cycle guard)
+  - fix close_session.py (exception logging + atomicity)
+  - regenerate project_continuity.yaml
+  - run live-fire tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - User approved plan via ExitPlanMode.
+- id: G-T-0059-ARCHITECTURE-FIXES
+  task_id: T-0059
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T19:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: F-0055-009/010/011/013 architecture fixes
+  approval_evidence: .ai/evidence/T-0059/approval.md
+  execution_evidence: .ai/evidence/T-0059/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0059.md
+  - .ai/evidence/T-0059/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .zcode/tools/governor_lib.py
+  - .zcode/tools/continuity_producer.py
+  - .zcode/tools/continuity_auditor.py
+  - .zcode/tools/transaction_registry.py
+  - loop_core/runtime_controller.py
+  - tools/loop_onboard.py
+  - tests/
+  allowed_actions:
+  - fix onboarding state protection
+  - add schema_version validation
+  - unify projection logic
+  - implement checkpoint acknowledgment
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Final architecture fixes for remaining NOT_VERIFIED findings.
+- id: G-T-0060-BASH-GUARD-AND-LIVEFIRE
+  task_id: T-0060
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T20:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: Bash bypass guard + live-fire verification
+  approval_evidence: .ai/evidence/T-0060/approval.md
+  execution_evidence: .ai/evidence/T-0060/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0060.md
+  - .ai/evidence/T-0060/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - hooks/scripts/bash_content_guard.py
+  - hooks/hooks.json
+  - tests/
+  allowed_actions:
+  - create bash_content_guard.py
+  - register in hooks.json
+  - run live-fire tests
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Final hook: closes Bash bypass vector.
+- id: G-T-0061-ROLE-LOADER-AND-SAFE-BASH
+  task_id: T-0061
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_plan_approval
+  recorded_at: '2026-07-28T20:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: Role identity injection + safe_bash MCP tool
+  approval_evidence: .ai/evidence/T-0061/approval.md
+  execution_evidence: .ai/evidence/T-0061/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0061.md
+  - .ai/evidence/T-0061/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - loop_core/role_loader.py
+  - tools/tool_safe_bash.py
+  - tools/server.py
+  - tests/
+  allowed_actions:
+  - create role_loader.py
+  - create tool_safe_bash.py
+  - register in server.py
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Role loader enables Agent("general-purpose", rolePrompt) pattern.
+  - safe_bash provides AST-level command validation.
