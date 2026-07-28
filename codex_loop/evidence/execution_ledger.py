@@ -274,6 +274,7 @@ class ExecutionLedger:
             "developer_actor_id": None,
             "reviewer_actor_id": None,
             "actors_differ": False,
+            "sessions_differ": False,
             "fingerprints_differ": False,
             "violations": [],
         }
@@ -297,6 +298,12 @@ class ExecutionLedger:
                 result["valid"] = False
                 result["violations"].append(
                     "Same actor_id for dev and reviewer — not independent"
+                )
+            result["sessions_differ"] = d.session_id != r.session_id
+            if not result["sessions_differ"]:
+                result["valid"] = False
+                result["violations"].append(
+                    "Same session for dev and reviewer -- not independently isolated"
                 )
             result["fingerprints_differ"] = (
                 d.prompt_fingerprint != r.prompt_fingerprint

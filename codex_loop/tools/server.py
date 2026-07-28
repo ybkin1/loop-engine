@@ -249,6 +249,39 @@ TOOLS = {
             },
             "required": ["role_id"]
         }
+    },
+    "loop_enforcement_check": {
+        "description": "Check host enforcement level and capabilities",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "host_preset": {"type": "string", "description": "Known host: codex|qoder|zcode|claude_code|standalone"},
+                "constraint_id": {"type": "string", "description": "Specific constraint to check (optional)"}
+            }
+        }
+    },
+    "loop_audit_verify": {
+        "description": "Verify chain-hashed audit ledger integrity",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_root": {"type": "string"}}
+        }
+    },
+    "loop_execution_verify": {
+        "description": "Verify execution ledger chain integrity",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_root": {"type": "string"}}
+        }
+    },
+    "loop_host_status": {
+        "description": "Report host integration capabilities and enforcement level",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "host_preset": {"type": "string", "description": "Known host preset (default: codex)"}
+            }
+        }
     }
 }
 
@@ -360,6 +393,18 @@ def _dispatch(tool_name: str, args: dict) -> dict:
     elif tool_name == "loop_load_context":
         from tool_load_context import run
         return run(args["role_id"], complexity=args.get("complexity", 0.5))
+    elif tool_name == "loop_enforcement_check":
+        from tool_enforcement_check import run
+        return run(project_root, host_preset=args.get("host_preset"), constraint_id=args.get("constraint_id"))
+    elif tool_name == "loop_audit_verify":
+        from tool_audit_verify import run
+        return run(project_root)
+    elif tool_name == "loop_execution_verify":
+        from tool_execution_verify import run
+        return run(project_root)
+    elif tool_name == "loop_host_status":
+        from tool_host_status import run
+        return run(host_preset=args.get("host_preset", "codex"))
 
     return {"error": f"unhandled tool: {tool_name}"}
 

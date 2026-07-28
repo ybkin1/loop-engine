@@ -112,3 +112,11 @@ class AuditLedger:
 
     def recent(self, n: int = 10) -> list[AuditEntry]:
         return self._entries[-n:] if self._entries else []
+
+    def find_by_event(self, event: str) -> list[AuditEntry]:
+        """Find all entries matching a given event type."""
+        return [e for e in self._entries if e.event == event]
+
+    def find_by_actor(self, actor: str) -> list[AuditEntry]:
+        """Find all entries created by a given actor."""
+        return [e for e in self._entries if e.actor == actor]

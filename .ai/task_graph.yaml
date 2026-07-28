@@ -340,4 +340,10 @@ tasks:
   updated_at: '2026-07-27T10:30:00+08:00'
   phase: S5-quality
   note: Closeout completed under G-T-0050-CLOSEOUT-V0-1. 1057/1067 tests pass (98.8%). 4 bare imports fixed. HANDOFF synced. 0 P0 0 P1 remaining. Next: real project entry Gate.
+- id: T-0051
+  title: qoder+zcode精华吸收整合
+  status: active
+  created_at: '2026-07-28T14:00:00+08:00'
+  phase: S4-implementation
+  note: Absorb HOST_PRESETS, chain-hash audit ledger, crossValidate, 13-factor router, MCP tools from qoder+zcode into codex_loop
 edges: []

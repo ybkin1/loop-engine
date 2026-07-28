@@ -68,6 +68,45 @@ class EnforcementResult:
         return True
 
 
+HOST_PRESETS: dict[str, HostCapabilities] = {
+    "codex": HostCapabilities(
+        can_intercept_writes=True,
+        can_intercept_commands=True,
+        can_isolate_agents=True,
+        can_enforce_exit_codes=True,
+        has_hooks_api=True,
+    ),
+    "qoder": HostCapabilities(
+        can_intercept_writes=True,
+        can_intercept_commands=True,
+        can_isolate_agents=False,
+        can_enforce_exit_codes=True,
+        has_hooks_api=True,
+    ),
+    "zcode": HostCapabilities(
+        can_intercept_writes=True,
+        can_intercept_commands=True,
+        can_isolate_agents=True,
+        can_enforce_exit_codes=True,
+        has_hooks_api=True,
+    ),
+    "claude_code": HostCapabilities(
+        can_intercept_writes=True,
+        can_intercept_commands=True,
+        can_isolate_agents=True,
+        can_enforce_exit_codes=True,
+        has_hooks_api=True,
+    ),
+    "standalone": HostCapabilities(
+        can_intercept_writes=False,
+        can_intercept_commands=False,
+        can_isolate_agents=False,
+        can_enforce_exit_codes=False,
+        has_hooks_api=False,
+    ),
+}
+
+
 def validate_host_capabilities(capabilities: HostCapabilities) -> EnforcementResult:
     result = EnforcementResult(level=capabilities.enforcement_level())
     if capabilities.enforcement_level() == EnforcementLevel.STRONG:
