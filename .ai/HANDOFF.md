@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0062
+T-0063
 
-Status: `in_progress`
+Status: `unknown`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0062-SUBAGENT-DISPATCH-ENFORCEMENT
+active_gate: G-T-0063-FULL-ROLE-IDENTITY
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0062-SUBAGENT-DISPATCH-ENFORCEMENT is approved and execution is in progress.
+G-T-0063-FULL-ROLE-IDENTITY is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0062/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0063/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -134,7 +134,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-CONTINUE_APPROVED_EXECUTION
+USER_DECISION_REQUIRED
 
 ## Startup Prompt
 
@@ -175,13 +175,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0062-SUBAGENT-DISPATCH-ENFORCEMENT",
+  "approved_execution_gate_id": "G-T-0063-FULL-ROLE-IDENTITY",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0062-SUBAGENT-DISPATCH-ENFORCEMENT",
-  "current_task_id": "T-0062",
-  "current_task_status": "in_progress",
+  "current_gate_id": "G-T-0063-FULL-ROLE-IDENTITY",
+  "current_task_id": "T-0063",
+  "current_task_status": null,
   "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "next_action": "USER_DECISION_REQUIRED",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```

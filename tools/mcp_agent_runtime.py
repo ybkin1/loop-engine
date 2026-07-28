@@ -138,41 +138,109 @@ def _sanitize_error(msg: str) -> str:
 # ── Role skill loader ────────────────────────────────────────────────────
 
 
-def load_role_skill(agents_dir: Path, role_hint: str) -> str:
-    """Load a role's SKILL.md as system prompt with exact-then-fuzzy match."""
-    # 1. Exact match
+def _find_role_dir(agents_dir: Path, role_hint: str) -> Path | None:
+    """Find a role directory by exact or fuzzy match."""
     role_dir = agents_dir / role_hint
     if role_dir.is_dir():
-        skill = role_dir / "SKILL.md"
-        if skill.is_file():
-            return skill.read_text(encoding="utf-8")
-
-    # 2. Word-boundary fuzzy match (avoid "arch" matching "architect" + "search")
+        return role_dir
     hint_lower = role_hint.lower()
-    candidates = []
     for d in sorted(agents_dir.iterdir()):
         if not d.is_dir() or d.name == "references":
             continue
         name_lower = d.name.lower()
-        # Match whole words: "developer" matches, "dev" doesn't match "developer"
-        if hint_lower in name_lower.split("-"):
-            skill = d / "SKILL.md"
-            if skill.is_file():
-                candidates.append((d.name, skill))
-        elif name_lower == hint_lower:
-            skill = d / "SKILL.md"
-            if skill.is_file():
-                candidates.append((d.name, skill))
+        if hint_lower in name_lower.split("-") or name_lower == hint_lower:
+            return d
+    return None
 
-    if candidates:
-        return candidates[0][1].read_text(encoding="utf-8")
 
-    # 3. Fallback
-    return (
-        f"You are an AI agent with role: {role_hint}. "
-        "Complete the task thoroughly. Return results in structured format "
-        "(JSON preferred). Do not write files; return text only."
-    )
+def load_role_skill(agents_dir: Path, role_hint: str) -> str:
+    """Load a role's SKILL.md as system prompt (backward-compatible wrapper)."""
+    return load_full_role_identity(agents_dir, role_hint)
+
+
+def load_full_role_identity(agents_dir: Path, role_hint: str) -> str:
+    """T-0063: Load COMPLETE role identity from all configuration files.
+
+    Loads and assembles:
+    1. SKILL.md — role capability profile (primary system prompt)
+    2. CONTRACT.yaml — role contract (authority, prohibitions, veto power)
+    3. THINKING_FRAMEWORK.md — reasoning methodology
+    4. INTERNAL_LOOP.md — internal quality loop process
+    5. references/*.md — domain-specific reference materials
+    6. scripts/ — available tools (listed, not loaded)
+
+    The assembled prompt gives the sub-agent its full professional identity.
+    """
+    role_dir = _find_role_dir(agents_dir, role_hint)
+    if not role_dir:
+        return (
+            f"You are an AI agent with role: {role_hint}. "
+            "Complete the task thoroughly. Return results in structured format "
+            "(JSON preferred). Do not write files; return text only."
+        )
+
+    parts = []
+    role_name = role_dir.name
+
+    # 1. SKILL.md — primary identity (MANDATORY)
+    skill_path = role_dir / "SKILL.md"
+    if skill_path.is_file():
+        parts.append(skill_path.read_text(encoding="utf-8"))
+    else:
+        parts.append(f"# {role_name}\n\nYou are the {role_name} role. Complete the assigned task thoroughly.")
+
+    # 2. CONTRACT.yaml — authority and constraints
+    contract_path = role_dir / "CONTRACT.yaml"
+    if contract_path.is_file():
+        try:
+            import yaml
+            contract = yaml.safe_load(contract_path.read_text(encoding="utf-8")) or {}
+            contract_section = "\n\n---\n## ROLE CONTRACT (CONTRACT.yaml)\n"
+            for key in ["identity", "fixed_stance", "responsibilities", "prohibitions",
+                       "veto_power", "quality_standards"]:
+                if key in contract:
+                    val = contract[key]
+                    if isinstance(val, list):
+                        contract_section += f"\n### {key}\n" + "\n".join(f"- {item}" for item in val)
+                    elif isinstance(val, dict):
+                        contract_section += f"\n### {key}\n" + "\n".join(f"- {k}: {v}" for k, v in val.items())
+                    else:
+                        contract_section += f"\n### {key}\n{val}"
+            parts.append(contract_section)
+        except Exception:
+            pass
+
+    # 3. THINKING_FRAMEWORK.md — how to reason
+    thinking_path = role_dir / "THINKING_FRAMEWORK.md"
+    if thinking_path.is_file():
+        parts.append("\n\n---\n## THINKING FRAMEWORK\n" + thinking_path.read_text(encoding="utf-8"))
+
+    # 4. INTERNAL_LOOP.md — quality process
+    loop_path = role_dir / "INTERNAL_LOOP.md"
+    if loop_path.is_file():
+        parts.append("\n\n---\n## INTERNAL QUALITY LOOP\n" + loop_path.read_text(encoding="utf-8"))
+
+    # 5. Reference materials
+    refs_dir = role_dir / "references"
+    if refs_dir.is_dir():
+        ref_section = "\n\n---\n## REFERENCE MATERIALS\n"
+        for ref_file in sorted(refs_dir.iterdir()):
+            if ref_file.suffix == ".md" and ref_file.is_file():
+                try:
+                    ref_section += f"\n### {ref_file.stem}\n{ref_file.read_text(encoding='utf-8')}"
+                except Exception:
+                    ref_section += f"\n### {ref_file.stem}\n(Unable to load)"
+        if "### " in ref_section:  # Only add if we loaded something
+            parts.append(ref_section)
+
+    # 6. Available scripts
+    scripts_dir = role_dir / "scripts"
+    if scripts_dir.is_dir():
+        py_files = [f.stem for f in sorted(scripts_dir.iterdir()) if f.suffix == ".py" and f.name != "__init__.py"]
+        if py_files:
+            parts.append(f"\n\n---\n## AVAILABLE TOOLS (scripts/)\n" + "\n".join(f"- {s}" for s in py_files))
+
+    return "\n".join(parts)
 
 
 # ── MCP Agent Runtime ────────────────────────────────────────────────────

@@ -3325,3 +3325,44 @@ gates:
   notes:
   - This gate enforces that quality checkpoints use real Agent() sub-agent dispatch.
   - The main agent has the Agent tool; it MUST use it, not role-play.
+- id: G-T-0063-FULL-ROLE-IDENTITY
+  task_id: T-0063
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_directive
+  recorded_at: '2026-07-28T22:00:00+08:00'
+  scope: Full role identity loading via MCP agent runtime
+  approval_evidence: .ai/evidence/T-0063/approval.md
+  execution_evidence: .ai/evidence/T-0063/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0063.md
+  - .ai/evidence/T-0063/
+  - tools/mcp_agent_runtime.py
+  - agents/main-thread/SKILL.md
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - tests/
+  allowed_actions:
+  - expand mcp_agent_runtime load_role_skill
+  - update main-thread dispatch protocol
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - load_full_role_identity loads all 6 role configuration sources
+
