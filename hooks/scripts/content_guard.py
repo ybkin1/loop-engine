@@ -64,7 +64,8 @@ def _run_ruff_check(file_path):
         return False, [line.strip() for line in output.split("\n") if line.strip()]
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return True, []
-    except Exception:
+    except Exception as _e:
+        import logging; logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
         return True, []
 
 
@@ -83,7 +84,8 @@ def _check_architecture_compliance(root, target_rel):
         return True, []
     try:
         arch_content = arch_doc.read_text(encoding="utf-8")
-    except Exception:
+    except Exception as _e:
+        import logging; logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
         return True, []
     known_modules = set()
     mod_pat = re.compile(r'[\-*]\s+`?([a-zA-Z_][\w/]*\.py)`?')
@@ -107,7 +109,8 @@ def _check_architecture_compliance(root, target_rel):
 def main():
     try:
         hook_input = read_stdin_json()
-    except Exception:
+    except Exception as _e:
+        import logging; logging.getLogger("content_guard").warning("%s fatal: %s", "content_guard", _e)
         return EXIT_PASS
 
     root = project_root()

@@ -57,7 +57,8 @@ def _is_exempt(command):
 def main():
     try:
         hook_input = read_stdin_json()
-    except Exception:
+    except Exception as _e:
+        import logging; logging.getLogger("content_guard").warning("%s fatal: %s", "bash_content_guard", _e)
         return EXIT_PASS
 
     root = project_root()

@@ -40,3 +40,6 @@ token.*
 # User-specific ZCode config (may contain paths)
 .zcode/config.json
 .zcode/plans/
+
+# Backup files
+*.bak

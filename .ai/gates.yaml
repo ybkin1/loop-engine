@@ -3365,4 +3365,47 @@ gates:
     runtime_behavior: true
   notes:
   - load_full_role_identity loads all 6 role configuration sources
-
+- id: G-T-0064-P0-P2-FIXES
+  task_id: T-0064
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_directive
+  recorded_at: '2026-07-28T23:00:00+08:00'
+  scope: P0-P2 comprehensive fixes
+  approval_evidence: .ai/evidence/T-0064/approval.md
+  execution_evidence: .ai/evidence/T-0064/commands.md
+  allowed_paths:
+  - .ai/tasks/T-0064.md
+  - .ai/evidence/T-0064/
+  - hooks/scripts/
+  - loop_core/
+  - tools/
+  - tests/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .gitignore
+  allowed_actions:
+  - fix governance drift
+  - fix hook exception swallowing
+  - remove bak file
+  - add .bak to .gitignore
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Comprehensive P0-P2 defect repair

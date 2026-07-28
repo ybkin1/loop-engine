@@ -207,8 +207,8 @@ def load_full_role_identity(agents_dir: Path, role_hint: str) -> str:
                     else:
                         contract_section += f"\n### {key}\n{val}"
             parts.append(contract_section)
-        except Exception:
-            pass
+        except Exception as _e:
+            logger.debug("Contract section load skipped: %s", _e)
 
     # 3. THINKING_FRAMEWORK.md — how to reason
     thinking_path = role_dir / "THINKING_FRAMEWORK.md"

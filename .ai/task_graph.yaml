@@ -567,7 +567,7 @@ tasks:
   -
     id: T-0060
     title: Bash 绕过防护 + Live-Fire 验证
-    status: in_progress
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     loop_mode: FULL
@@ -586,7 +586,7 @@ tasks:
   -
     id: T-0061
     title: 角色身份注入 + Bash 完美拦截
-    status: in_progress
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     loop_mode: FULL
@@ -605,8 +605,8 @@ tasks:
 
   -
     id: T-0062
-    title: 强制子代理调度 — 消除角色扮演
-    status: in_progress
+    title: 强制子代理调度
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     loop_mode: FULL
@@ -622,6 +622,31 @@ tasks:
       - .ai/HANDOFF.md
       - tests/
     note: "Main agent MUST use Agent() to spawn sub-agents, not role-play"
+
+  -
+    id: T-0063
+    title: 完整角色身份 + MCP 三层调度
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    note: "load_full_role_identity: 6 config files per role. TOOL_REQUEST protocol."
+  -
+    id: T-0064
+    title: P0-P2 全面缺陷修复
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0064.md
+      - .ai/evidence/T-0064/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - hooks/scripts/
+      - loop_core/
+      - tests/
+    note: "治理漂移修复 + Hook 异常加固 + 测试补全"
 
 edges:
     - from: T-0040

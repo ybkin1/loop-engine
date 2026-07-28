@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0063
+T-0064
 
-Status: `unknown`
+Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0063-FULL-ROLE-IDENTITY
+active_gate: G-T-0064-P0-P2-FIXES
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0063-FULL-ROLE-IDENTITY is approved and execution is in progress.
+G-T-0064-P0-P2-FIXES is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0063/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0064/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -134,7 +134,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-USER_DECISION_REQUIRED
+CONTINUE_APPROVED_EXECUTION
 
 ## Startup Prompt
 
@@ -175,13 +175,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0063-FULL-ROLE-IDENTITY",
+  "approved_execution_gate_id": "G-T-0064-P0-P2-FIXES",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0063-FULL-ROLE-IDENTITY",
-  "current_task_id": "T-0063",
-  "current_task_status": null,
+  "current_gate_id": "G-T-0064-P0-P2-FIXES",
+  "current_task_id": "T-0064",
+  "current_task_status": "in_progress",
   "lifecycle_revision": 0,
-  "next_action": "USER_DECISION_REQUIRED",
+  "next_action": "CONTINUE_APPROVED_EXECUTION",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```
