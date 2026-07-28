@@ -3275,3 +3275,53 @@ gates:
   notes:
   - Role loader enables Agent("general-purpose", rolePrompt) pattern.
   - safe_bash provides AST-level command validation.
+- id: G-T-0062-SUBAGENT-DISPATCH-ENFORCEMENT
+  task_id: T-0062
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  approval_source: explicit_user_directive
+  recorded_at: '2026-07-28T21:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  scope: Enforce Agent() sub-agent dispatch instead of role-playing
+  approval_evidence: .ai/evidence/T-0062/approval.md
+  execution_evidence: .ai/evidence/T-0062/commands.md
+  content_quality:
+    require_subagent_review: true
+    require_independent_review: true
+  allowed_paths:
+  - .ai/tasks/T-0062.md
+  - .ai/evidence/T-0062/
+  - agents/main-thread/SKILL.md
+  - hooks/scripts/role_isolation.py
+  - hooks/scripts/gate_guard.py
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - tests/
+  allowed_actions:
+  - update main-thread SKILL.md with dispatch protocol
+  - enhance role_isolation.py with sub-agent session check
+  - enhance gate_guard.py with sub-agent evidence requirement
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data / migration
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - This gate enforces that quality checkpoints use real Agent() sub-agent dispatch.
+  - The main agent has the Agent tool; it MUST use it, not role-play.

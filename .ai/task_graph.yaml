@@ -603,6 +603,26 @@ tasks:
       - tests/
     note: "Role identity injection via SKILL.md prompt + AST-based safe_bash MCP tool"
 
+  -
+    id: T-0062
+    title: 强制子代理调度 — 消除角色扮演
+    status: in_progress
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0062.md
+      - .ai/evidence/T-0062/
+      - agents/main-thread/SKILL.md
+      - hooks/scripts/role_isolation.py
+      - hooks/scripts/gate_guard.py
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "Main agent MUST use Agent() to spawn sub-agents, not role-play"
+
 edges:
     - from: T-0040
       to: T-0041

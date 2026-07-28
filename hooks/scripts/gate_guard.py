@@ -128,6 +128,21 @@ def main():
 
     if not is_governance_project(root):
         return EXIT_PASS
+    # T-0062: Sub-agent evidence requirement for quality gates
+    gate_list = _load_gate_data(root)
+    for gate in gate_list:
+        if not isinstance(gate, dict):
+            continue
+        cq = gate.get("content_quality", {})
+        if cq and cq.get("require_subagent_review"):
+            review_evidence_path = gate.get("review_evidence", [])
+            if review_evidence_path:
+                for rp in review_evidence_path:
+                    ep = root / rp
+                    if not ep.exists():
+                        logger.warning("[content_quality] Sub-agent review evidence missing: %s", rp)
+                        return EXIT_BLOCK
+
 
     cfg = load_config(root)
     gate_cfg = cfg.get("gate_guard", DEFAULT_CONFIG["gate_guard"])

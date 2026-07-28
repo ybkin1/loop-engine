@@ -129,6 +129,16 @@ def main():
     if not is_governance_project(root):
         return EXIT_PASS
 
+    # T-0062: Sub-agent session independence check
+    # Verify that review evidence comes from a different session
+    review_evidence = hook_input.get("tool_input", {}).get("review_evidence", {})
+    if review_evidence:
+        rev_session = review_evidence.get("reviewer_session_id", "")
+        dev_session = review_evidence.get("developer_session_id", "")
+        if rev_session and dev_session and rev_session == dev_session:
+            logger.warning("[role_isolation] SUBAGENT_VIOLATION: reviewer session == developer session — review evidence not from independent sub-agent")
+            return EXIT_BLOCK
+
     try:
         cfg = load_config(root)
     except Exception:
