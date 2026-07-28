@@ -2563,6 +2563,7 @@ gates:
   approval_evidence: .ai/evidence/T-0054/approval.md
   execution_evidence: .ai/evidence/T-0054/commands.md
   allowed_paths:
+  - docs/
   - tools/
   - loop_core/
   - agents/
