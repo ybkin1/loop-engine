@@ -349,8 +349,9 @@ tasks:
   note: HOST_PRESETS(5), AuditLedger.find_by_event/actor, ExecutionLedger session check, 4 new MCP tools. 13 files +301 lines. All tests pass.
 - id: T-0052
   title: codex_loop深度修复+角色完善
-  status: active
+  status: completed
   created_at: '2026-07-28T17:00:00+08:00'
+  updated_at: '2026-07-28T18:30:00+08:00'
   phase: S4-implementation
   note: Fix session_brief FAIL-CLOSED, load_state alignment, execution_status, version. Deepen quality-engineer, test-engineer, independent-reviewer, main-thread roles.
 edges: []
