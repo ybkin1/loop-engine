@@ -3,8 +3,12 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from codex_loop.governance.governor_lib import GovernanceError, canonical_json, load_yaml, safe_project_path
-
+from codex_loop.governance.governor_lib import (
+    GovernanceError,
+    canonical_json,
+    load_yaml,
+    safe_project_path,
+)
 
 REGISTRY_FIELDS = {
     "schema", "contract_id", "requirements_revision", "project_id", "controller_generation",

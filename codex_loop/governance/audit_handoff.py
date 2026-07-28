@@ -6,8 +6,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from codex_loop.governance.continuity_auditor import audit_handoff_model
-from codex_loop.governance.governor_lib import ai_dir, governance_invariant_errors, project_root_arg, read_text
-
+from codex_loop.governance.governor_lib import (
+    ai_dir,
+    governance_invariant_errors,
+    project_root_arg,
+    read_text,
+)
 
 REQUIRED_HEADINGS = [
     "## Product Direction And Authority", "## Current Phase", "## Current Task",

@@ -7,6 +7,7 @@ import shutil
 import sys
 from pathlib import Path
 
+
 def find_plugin_cache() -> Path | None:
     home = Path.home()
     cache_root = home / ".zcode" / "cli" / "plugins" / "cache" / "zcode-plugins-official"

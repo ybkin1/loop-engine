@@ -15,7 +15,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
 
 
 class PacketType(str, Enum):
@@ -60,7 +59,7 @@ class DecisionRequired:
     question: str              # "Do you approve moving to the architecture phase?"
     options: list[str]         # ["Approve, move to next phase", "Request changes", "Pause project"]
     recommendation: str        # AI's recommended option and why
-    deadline: Optional[str]    # Suggested decision deadline
+    deadline: str | None    # Suggested decision deadline
 
 
 # ── Main Packet ────────────────────────────────────────────────────────────
@@ -86,7 +85,7 @@ class HumanReviewPacket:
     # Decision
     key_choices: list[KeyChoice] = field(default_factory=list)
     risks: list[RiskItem] = field(default_factory=list)
-    decision_required: Optional[DecisionRequired] = None
+    decision_required: DecisionRequired | None = None
 
     # Evidence
     evidence_summary: str = ""

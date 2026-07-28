@@ -23,11 +23,11 @@ import argparse
 import hashlib
 import json
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Optional
 
 # ── Project root detection ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -906,11 +906,11 @@ def load_state(state_file: Path) -> dict:
 
     try:
         import yaml
-        with open(state_file, "r", encoding="utf-8") as f:
+        with open(state_file, encoding="utf-8") as f:
             return yaml.safe_load(f) or {"roles": {}}
     except ImportError:
         # Fallback: parse as JSON if yaml not available
-        with open(state_file, "r", encoding="utf-8") as f:
+        with open(state_file, encoding="utf-8") as f:
             return json.load(f) or {"roles": {}}
     except Exception:
         return {"roles": {}}
@@ -996,7 +996,7 @@ def run_challenge_for_role(
     return result, transition
 
 
-def run_all_challenges(state_file: Optional[Path] = None) -> CertificationRun:
+def run_all_challenges(state_file: Path | None = None) -> CertificationRun:
     """Run certification challenges for all 11 roles."""
     state = load_state(state_file) if state_file else {"roles": {}}
     run_result = CertificationRun()

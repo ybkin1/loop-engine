@@ -12,13 +12,12 @@ Key design:
 """
 from __future__ import annotations
 
+import hashlib
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-import hashlib
-import uuid
 from pathlib import Path
-
 
 # ── Enums ──────────────────────────────────────────────────────────────────
 
@@ -109,7 +108,7 @@ class ApprovalRecord:
         approval_text: str | None = None,
         task_id: str | None = None,
         ttl_days: int = 30,
-    ) -> "ApprovalRecord":
+    ) -> ApprovalRecord:
         """Create a new ApprovalRecord with auto-computed hashes and timestamps.
 
         Args:
@@ -181,7 +180,7 @@ class ApprovalLedger:
         if not gates_path.exists():
             raise FileNotFoundError(f"gates.yaml not found at {gates_path}")
 
-        with open(gates_path, "r", encoding="utf-8") as fh:
+        with open(gates_path, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh) or {}
 
         gates: list[dict] = doc.get("gates", [])
@@ -238,7 +237,7 @@ class ApprovalLedger:
         if not gates_path.exists():
             return None
 
-        with open(gates_path, "r", encoding="utf-8") as fh:
+        with open(gates_path, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh) or {}
 
         gates: list[dict] = doc.get("gates", [])
@@ -290,7 +289,7 @@ class ApprovalLedger:
         if not gates_path.exists():
             return []
 
-        with open(gates_path, "r", encoding="utf-8") as fh:
+        with open(gates_path, encoding="utf-8") as fh:
             doc = yaml.safe_load(fh) or {}
 
         gates: list[dict] = doc.get("gates", [])

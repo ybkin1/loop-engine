@@ -24,7 +24,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 sys.dont_write_bytecode = True
 
@@ -35,7 +35,7 @@ EXIT_BLOCK = 2
 # 0. 工具函数
 # ──────────────────────────────────────────────
 
-def _read_file(path: Path) -> Optional[str]:
+def _read_file(path: Path) -> str | None:
     """安全读取文件内容。"""
     try:
         return path.read_text(encoding="utf-8", errors="replace")
@@ -43,8 +43,8 @@ def _read_file(path: Path) -> Optional[str]:
         return None
 
 
-def _find_files(project_root: Path, extensions: Tuple[str, ...],
-                exclude_dirs: Optional[Set[str]] = None) -> List[Path]:
+def _find_files(project_root: Path, extensions: tuple[str, ...],
+                exclude_dirs: set[str] | None = None) -> list[Path]:
     """递归查找指定扩展名的文件，排除特定目录。"""
     if exclude_dirs is None:
         exclude_dirs = {".git", "node_modules", ".venv", "venv", ".tox",
@@ -63,14 +63,14 @@ def _find_files(project_root: Path, extensions: Tuple[str, ...],
 # 1. 依赖 CVE 扫描
 # ──────────────────────────────────────────────
 
-def _reuse_quality_audit(project_root: Path) -> Optional[Dict[str, Any]]:
+def _reuse_quality_audit(project_root: Path) -> dict[str, Any] | None:
     """尝试复用质量工程师的审计结果（1 小时内有效）。"""
     audit_path = project_root / ".ai" / "evidence" / "quality" / "quality_report.json"
     if not audit_path.is_file():
         return None
     try:
         report = json.loads(audit_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return None
 
     # 检查时间戳
@@ -90,7 +90,7 @@ def _reuse_quality_audit(project_root: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
-def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
+def _run_npm_audit(project_root: Path) -> tuple[dict[str, int], str]:
     """运行 npm audit 并解析结果。"""
     counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
     try:
@@ -127,7 +127,7 @@ def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
         return counts, str(e)
 
 
-def _run_pip_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
+def _run_pip_audit(project_root: Path) -> tuple[dict[str, int], str]:
     """运行 pip-audit 并解析结果。"""
     counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
     req_file = project_root / "requirements.txt"
@@ -177,7 +177,7 @@ def _detect_project_type(project_root: Path) -> str:
     return "unknown"
 
 
-def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
+def run_dependency_scan(project_root: Path) -> dict[str, Any]:
     """
     依赖 CVE 扫描。优先复用质量工程师的结果（1 小时内）。
     若不可用则独立运行 npm audit 或 pip-audit。
@@ -229,7 +229,7 @@ def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
 # ──────────────────────────────────────────────
 
 # 密钥正则模式
-SECRET_PATTERNS: List[Tuple[str, str, str]] = [
+SECRET_PATTERNS: list[tuple[str, str, str]] = [
     # (名称, 正则, 说明)
     ("AWS Access Key", r"AKIA[0-9A-Z]{16}", "AWS Access Key ID (AKIA...)"),
     ("GitHub Token", r"gh[pousr]_[A-Za-z0-9_]{36,255}", "GitHub Personal Access Token"),
@@ -251,7 +251,7 @@ SECRET_PATTERNS: List[Tuple[str, str, str]] = [
 ]
 
 # 排除模式（通常不是真正的密钥）
-EXCLUDE_PATTERNS: List[re.Pattern] = [
+EXCLUDE_PATTERNS: list[re.Pattern] = [
     re.compile(r"example", re.IGNORECASE),
     re.compile(r"placeholder", re.IGNORECASE),
     re.compile(r"your[-_]?(key|token|secret)", re.IGNORECASE),
@@ -278,9 +278,9 @@ def _is_excluded(line: str, match_text: str) -> bool:
     return False
 
 
-def run_secret_scan(project_root: Path) -> Dict[str, Any]:
+def run_secret_scan(project_root: Path) -> dict[str, Any]:
     """内置正则扫描密钥泄露。"""
-    findings: List[Dict[str, Any]] = []
+    findings: list[dict[str, Any]] = []
     # 搜索常见代码文件
     exts = (".py", ".js", ".ts", ".jsx", ".tsx", ".json", ".yaml", ".yml",
             ".toml", ".env", ".cfg", ".ini", ".sh", ".bash", ".zsh",
@@ -327,7 +327,7 @@ def run_secret_scan(project_root: Path) -> Dict[str, Any]:
 # ──────────────────────────────────────────────
 
 # HIGH 风险模式（命中即 BLOCKED）
-HIGH_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
+HIGH_RISK_PATTERNS: list[tuple[str, re.Pattern, str]] = [
     ("os.system()", re.compile(r"os\.system\s*\("), "shell 命令注入面"),
     ("subprocess shell=True", re.compile(r"subprocess\..*?shell\s*=\s*True"), "shell 注入面"),
     ("eval()", re.compile(r"\beval\s*\("), "eval 代码注入"),
@@ -348,7 +348,7 @@ HIGH_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
 ]
 
 # MEDIUM 风险模式（命中为警告）
-MEDIUM_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
+MEDIUM_RISK_PATTERNS: list[tuple[str, re.Pattern, str]] = [
     ("innerHTML assignment", re.compile(r"\.innerHTML\s*="), "DOM XSS (innerHTML)"),
     ("document.write()", re.compile(r"document\.write\s*\("), "DOM XSS (document.write)"),
     ("raw HTML filter", re.compile(r"\|\s*raw\b"), "模板 raw 过滤器"),
@@ -359,14 +359,14 @@ MEDIUM_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
 ]
 
 
-def run_injection_scan(project_root: Path) -> Dict[str, Any]:
+def run_injection_scan(project_root: Path) -> dict[str, Any]:
     """扫描代码中的注入面。"""
     exts = (".py", ".js", ".ts", ".jsx", ".tsx", ".html", ".jinja2",
             ".jinja", ".hbs", ".ejs", ".php", ".rb")
     files = _find_files(project_root, exts)
 
-    high_findings: List[Dict[str, Any]] = []
-    medium_findings: List[Dict[str, Any]] = []
+    high_findings: list[dict[str, Any]] = []
+    medium_findings: list[dict[str, Any]] = []
 
     for fp in files:
         content = _read_file(fp)
@@ -469,7 +469,7 @@ PUBLIC_ROUTE_PATTERNS = [
 ]
 
 
-def run_permission_audit(project_root: Path) -> Dict[str, Any]:
+def run_permission_audit(project_root: Path) -> dict[str, Any]:
     """检查路由文件中每个 POST/PUT/DELETE 端点是否有鉴权中间件。"""
     # 查找可能的路由文件
     route_indicators = ["route", "router", "urls", "api", "endpoint", "controller", "views"]
@@ -493,7 +493,7 @@ def run_permission_audit(project_root: Path) -> Dict[str, Any]:
     # 去重
     route_files = list(dict.fromkeys(route_files))
 
-    findings: List[Dict[str, Any]] = []
+    findings: list[dict[str, Any]] = []
 
     for fp in route_files:
         content = _read_file(fp)
@@ -567,7 +567,7 @@ def run_permission_audit(project_root: Path) -> Dict[str, Any]:
 # 5. 报告生成
 # ──────────────────────────────────────────────
 
-def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir: Path) -> str:
+def generate_report(scans: list[dict[str, Any]], project_root: Path, output_dir: Path) -> str:
     """生成 JSON 报告和 Markdown 摘要。返回 overall 判定。"""
     blocked_by = []
     for scan in scans:
@@ -638,7 +638,7 @@ def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir:
                     for f in scan.get("findings", []):
                         md_lines.append(f"- `{f['file']}:{f['line']}` — {f['rule']}")
                         if len(md_lines) > 30:
-                            md_lines.append(f"- ... 其余 {len(scan['findings']) - len([x for x in scan.get('findings', [])])} 项已折叠")
+                            md_lines.append(f"- ... 其余 {len(scan['findings']) - len(list(scan.get('findings', [])))} 项已折叠")
                             break
                 elif scan["name"] == "injection_scan":
                     for f in scan.get("high_findings", []):
@@ -679,7 +679,7 @@ def main():
 
     print(f"[run_security_scan] 项目: {project_root}", file=sys.stderr)
 
-    scans: List[Dict[str, Any]] = []
+    scans: list[dict[str, Any]] = []
 
     # 1. 依赖 CVE 扫描
     print("[run_security_scan] 1/4 依赖 CVE 扫描...", file=sys.stderr)

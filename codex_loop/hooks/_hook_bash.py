@@ -5,6 +5,7 @@ Extracted from hook_common.py to reduce module size (841→~700 lines).
 Imported by hook_common.py; also usable standalone for new code.
 """
 from __future__ import annotations
+
 import re
 
 # ══════════════════════════════════════════════════════════════════════════

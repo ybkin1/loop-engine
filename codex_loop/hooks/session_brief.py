@@ -125,7 +125,7 @@ def _build_corruption_alert(root, error):
         "[loop-governance] WARN: governance state corrupted",
         f"Error: {error}",
         "gate_guard will BLOCK all writes until state.yaml is repaired.",
-        f"File: {(root / ".ai" / "state.yaml")}",
+        f"File: {(root / '.ai' / 'state.yaml')}",
     ])
 
 

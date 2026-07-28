@@ -14,7 +14,6 @@ import shlex
 import sys
 from pathlib import Path
 
-
 # Ensure codex_loop is importable when run as subprocess
 _hook_root = Path(__file__).resolve().parent.parent.parent  # loop-engine-lab/
 if str(_hook_root) not in sys.path:
@@ -115,7 +114,7 @@ def load_config(root):
     if yaml is None or not cfg_path.exists():
         return DEFAULT_CONFIG
     try:
-        with open(cfg_path, "r", encoding="utf-8") as f:
+        with open(cfg_path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
     except Exception:
         return DEFAULT_CONFIG
@@ -125,7 +124,7 @@ def load_config(root):
 def load_state(root):
     """解析 .ai/state.yaml；失败抛异常由调用方处理。"""
     state_path = root / STATE_REL
-    with open(state_path, "r", encoding="utf-8") as f:
+    with open(state_path, encoding="utf-8") as f:
         text = f.read()
     if yaml is not None:
         return yaml.safe_load(text) or {}
@@ -158,7 +157,7 @@ def pending_gates(root):
     gates_path = root / GATES_REL
     if not gates_path.exists():
         return []
-    with open(gates_path, "r", encoding="utf-8") as f:
+    with open(gates_path, encoding="utf-8") as f:
         text = f.read()
     if yaml is None:
         return _naive_pending_scan(text)
@@ -728,12 +727,20 @@ def auto_sync_to_plugin_cache(project_root_path: Path) -> bool:
 #   _hook_sync.py  — Plugin cache synchronization
 
 try:
+    from _hook_state import (
+        load_gates_for_context as _load_gates_v2,
+    )
+    from _hook_state import (
+        load_phase_gates_for_context as _load_phase_gates_v2,
+    )
     from _hook_state import (  # noqa: E402, F401
         load_state as _load_state_v2,
-        pending_gates as _pending_gates_v2,
+    )
+    from _hook_state import (
         load_tasks_for_context as _load_tasks_v2,
-        load_gates_for_context as _load_gates_v2,
-        load_phase_gates_for_context as _load_phase_gates_v2,
+    )
+    from _hook_state import (
+        pending_gates as _pending_gates_v2,
     )
     _SPLIT_STATE_AVAILABLE = True
 except ImportError:
@@ -742,9 +749,15 @@ except ImportError:
 try:
     from _hook_path import (  # noqa: E402, F401
         extract_target_path as _extract_target_path_v2,
-        normalize_rel as _normalize_rel_v2,
-        matches_protected as _matches_protected_v2,
+    )
+    from _hook_path import (
         is_path_safe as _is_path_safe_v2,
+    )
+    from _hook_path import (
+        matches_protected as _matches_protected_v2,
+    )
+    from _hook_path import (
+        normalize_rel as _normalize_rel_v2,
     )
     _SPLIT_PATH_AVAILABLE = True
 except ImportError:
@@ -753,7 +766,11 @@ except ImportError:
 try:
     from _hook_config import (  # noqa: E402, F401
         DEFAULT_CONFIG as _DEFAULT_CONFIG_V2,
+    )
+    from _hook_config import (
         load_config as _load_config_v2,
+    )
+    from _hook_config import (
         should_fail_closed as _should_fail_closed_v2,
     )
     _SPLIT_CONFIG_AVAILABLE = True

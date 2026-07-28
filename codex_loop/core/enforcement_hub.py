@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Unified EnforcementLevel (v3.5) — single source of truth in enforcement.py
+from codex_loop.core.enforcement import EnforcementLevel
 from codex_loop.core.hard_constraints import (
     ConstraintID,
     ConstraintViolation,
@@ -32,8 +34,6 @@ from codex_loop.core.state_machine import (
     check_self_review,
     resolve_gate_status,
 )
-# Unified EnforcementLevel (v3.5) — single source of truth in enforcement.py
-from codex_loop.core.enforcement import EnforcementLevel
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ class EnforcementHub:
             return self._state_cache
         try:
             import yaml
-            with open(sp, "r", encoding="utf-8") as f:
+            with open(sp, encoding="utf-8") as f:
                 self._state_cache = yaml.safe_load(f) or {}
             self._state_error = None
         except Exception as e:
@@ -182,7 +182,7 @@ class EnforcementHub:
             return self._gates_cache
         try:
             import yaml
-            with open(gp, "r", encoding="utf-8") as f:
+            with open(gp, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._gates_cache = data.get("gates", []) or []
             self._gates_error = None
@@ -201,7 +201,7 @@ class EnforcementHub:
             return self._tasks_cache
         try:
             import yaml
-            with open(tp, "r", encoding="utf-8") as f:
+            with open(tp, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._tasks_cache = data.get("tasks", []) or []
             self._tasks_error = None

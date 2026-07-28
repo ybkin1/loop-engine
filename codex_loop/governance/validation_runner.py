@@ -10,9 +10,18 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from codex_loop.governance.evidence_manifest import CHUNK_BYTES, verify_evidence_manifest, write_manifest_create_only
-from codex_loop.governance.governor_lib import GovernanceError, current_task_id, gates, safe_project_path, task_status
-
+from codex_loop.governance.evidence_manifest import (
+    CHUNK_BYTES,
+    verify_evidence_manifest,
+    write_manifest_create_only,
+)
+from codex_loop.governance.governor_lib import (
+    GovernanceError,
+    current_task_id,
+    gates,
+    safe_project_path,
+    task_status,
+)
 
 OUTPUT_LIMIT = 8 * 1024 * 1024
 RESULT_SCHEMA = "UnittestResultEnvelope/v1"

@@ -5,10 +5,11 @@ import json
 import os
 import secrets
 import tempfile
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 
 class RuntimeState(str, Enum):

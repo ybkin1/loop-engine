@@ -17,7 +17,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-
 # ============================================================================
 # JSON Schema for PROJECT_MAP.yaml
 # ============================================================================

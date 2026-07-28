@@ -30,7 +30,7 @@ def load_state(root: Path) -> dict:
         return {}
     if yaml is not None:
         try:
-            with open(sp, "r", encoding="utf-8") as f:
+            with open(sp, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
             return data if isinstance(data, dict) else {}
         except Exception:
@@ -69,7 +69,7 @@ def load_state_fail_closed(root: Path) -> dict:
         return {}
     try:
         import yaml
-        with open(sp, "r", encoding="utf-8") as f:
+        with open(sp, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return data if isinstance(data, dict) else {}
     except Exception as e:
@@ -94,7 +94,7 @@ def pending_gates(root: Path) -> list[dict]:
         return []
     try:
         if yaml is not None:
-            with open(gp, "r", encoding="utf-8") as f:
+            with open(gp, encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             gates = data.get("gates", []) if isinstance(data, dict) else []
             return [g for g in gates if isinstance(g, dict) and g.get("status") == "pending"]
@@ -111,7 +111,7 @@ def load_tasks_for_context(root: Path) -> list[dict]:
     if not tp.exists() or yaml is None:
         return []
     try:
-        with open(tp, "r", encoding="utf-8") as f:
+        with open(tp, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         return data.get("tasks", []) if isinstance(data, dict) else []
     except Exception:
@@ -124,7 +124,7 @@ def load_gates_for_context(root: Path) -> dict:
     if not gp.exists() or yaml is None:
         return {}
     try:
-        with open(gp, "r", encoding="utf-8") as f:
+        with open(gp, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         gates = data.get("gates", []) if isinstance(data, dict) else []
         return {g["id"]: g["status"] for g in gates if isinstance(g, dict) and g.get("id") and g.get("status")}
@@ -146,7 +146,7 @@ def load_phase_gates_for_context(root: Path) -> dict:
         "maintenance": "S11-maintenance",
     }
     try:
-        with open(gp, "r", encoding="utf-8") as f:
+        with open(gp, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         gates = data.get("gates", []) if isinstance(data, dict) else []
         result = {}

@@ -6,7 +6,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from codex_loop.governance.authority_records import production_capability, require_production_authority
+from codex_loop.governance.authority_records import (
+    production_capability,
+    require_production_authority,
+)
 from codex_loop.governance.governor_lib import GovernanceError
 
 

@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from codex_loop.core.models import ProjectProfile
-from codex_loop.planning.phases import default_phases
 from codex_loop.planning.graph import default_task_graph
+from codex_loop.planning.phases import default_phases
 
 
 class StoreError(ValueError):

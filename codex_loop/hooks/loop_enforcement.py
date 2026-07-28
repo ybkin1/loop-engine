@@ -246,7 +246,7 @@ def check_quality_gate_evidence(root: Path) -> tuple[bool, str]:
 
     try:
         report = json.loads(quality_json.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, IOError) as e:
+    except (OSError, json.JSONDecodeError) as e:
         return False, (
             f"quality_report.json 无法解析：{e}。"
             "请重新运行 quality-engineer 生成有效报告。"
@@ -279,7 +279,7 @@ def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
                 if decision_file.exists():
                     try:
                         decision = json.loads(decision_file.read_text(encoding="utf-8"))
-                    except (json.JSONDecodeError, IOError):
+                    except (OSError, json.JSONDecodeError):
                         continue
                     go_nogo = decision.get("decision")
                     if go_nogo:
@@ -293,7 +293,7 @@ def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
     if cert_file.exists():
         try:
             import yaml  # type: ignore
-            with open(cert_file, "r", encoding="utf-8") as f:
+            with open(cert_file, encoding="utf-8") as f:
                 cert_data = yaml.safe_load(f) or {}
         except Exception:
             cert_data = {}

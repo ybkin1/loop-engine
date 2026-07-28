@@ -58,7 +58,7 @@ def _load_gate_data(root):
         return []
     try:
         import yaml as _yaml
-        with open(gates_path, "r", encoding="utf-8") as f:
+        with open(gates_path, encoding="utf-8") as f:
             data = _yaml.safe_load(f) or {}
         return data.get("gates", []) if isinstance(data.get("gates"), list) else []
     except Exception:

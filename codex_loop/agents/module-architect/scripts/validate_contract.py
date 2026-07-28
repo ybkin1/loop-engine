@@ -34,7 +34,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 sys.dont_write_bytecode = True
 
@@ -69,7 +69,7 @@ IDEMPOTENCY_PATTERN = re.compile(r"^(是|否|[条件].+)$")
 DEPENDENCY_PATTERN = re.compile(r"^.+\(.+\)$")
 
 
-def _check_type_string(type_str: str, path: str) -> List[Dict[str, str]]:
+def _check_type_string(type_str: str, path: str) -> list[dict[str, str]]:
     """检查类型字符串是否使用禁止的模糊类型。"""
     issues = []
     # 直接匹配
@@ -98,9 +98,9 @@ def _check_type_string(type_str: str, path: str) -> List[Dict[str, str]]:
     return issues
 
 
-def validate_contract_schema(contract: Dict[str, Any]) -> List[Dict[str, str]]:
+def validate_contract_schema(contract: dict[str, Any]) -> list[dict[str, str]]:
     """验证 JSON schema 完整性，返回问题列表。"""
-    issues: List[Dict[str, str]] = []
+    issues: list[dict[str, str]] = []
 
     if not isinstance(contract, dict):
         return [{"field": "$", "issue": "contract 必须是 JSON 对象", "severity": "BLOCKED"}]
@@ -263,14 +263,14 @@ def validate_contract_schema(contract: Dict[str, Any]) -> List[Dict[str, str]]:
 # 2. 代码实际导出解析
 # ──────────────────────────────────────────────
 
-def parse_python_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
+def parse_python_exports(filepath: Path) -> dict[str, dict[str, Any]]:
     """
     解析 Python 模块的公共导出。
 
     提取顶级函数定义和 __all__ 声明。
     返回 {name: {params, has_return, has_decorator}}。
     """
-    exports: Dict[str, Dict[str, Any]] = {}
+    exports: dict[str, dict[str, Any]] = {}
     try:
         source = filepath.read_text(encoding="utf-8", errors="replace")
         tree = ast.parse(source, filename=str(filepath))
@@ -278,7 +278,7 @@ def parse_python_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
         return exports
 
     # 查找 __all__
-    all_names: Optional[Set[str]] = None
+    all_names: set[str] | None = None
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
             for target in node.targets:
@@ -327,14 +327,14 @@ def parse_python_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
     return exports
 
 
-def parse_typescript_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
+def parse_typescript_exports(filepath: Path) -> dict[str, dict[str, Any]]:
     """
     解析 TypeScript 模块的导出声明。
 
     使用正则匹配 export function / export const / export class / export default。
     返回 {name: {params, has_return}}。
     """
-    exports: Dict[str, Dict[str, Any]] = {}
+    exports: dict[str, dict[str, Any]] = {}
     try:
         source = filepath.read_text(encoding="utf-8", errors="replace")
     except Exception:
@@ -391,7 +391,7 @@ def parse_typescript_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
     return exports
 
 
-def parse_actual_exports(module_path: Path) -> Dict[str, Dict[str, Any]]:
+def parse_actual_exports(module_path: Path) -> dict[str, dict[str, Any]]:
     """根据文件扩展名选择合适的解析器。"""
     suffix = module_path.suffix.lower()
     if suffix == ".py":
@@ -416,9 +416,9 @@ def parse_actual_exports(module_path: Path) -> Dict[str, Dict[str, Any]]:
 # ──────────────────────────────────────────────
 
 def compare_contract_to_actual(
-    contract: Dict[str, Any],
-    actual_exports: Dict[str, Dict[str, Any]],
-) -> Dict[str, Any]:
+    contract: dict[str, Any],
+    actual_exports: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
     """对比契约声明与实际导出的一致性。"""
     declared = set()
     for exp in contract.get("exports", []):
@@ -509,7 +509,7 @@ def main():
 
     # 加载契约
     try:
-        with open(contract_path, "r", encoding="utf-8") as f:
+        with open(contract_path, encoding="utf-8") as f:
             contract = json.load(f)
     except json.JSONDecodeError as e:
         print(json.dumps({"error": f"契约文件 JSON 格式错误: {e}", "overall": "BLOCKED"}, ensure_ascii=False))

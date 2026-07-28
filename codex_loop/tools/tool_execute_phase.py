@@ -5,8 +5,8 @@ from pathlib import Path
 
 def run(phase_id: str, project_root: str = ".") -> dict:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from codex_loop.core.state_machine import Phase
     from codex_loop.core.executor import PhaseExecutor
+    from codex_loop.core.state_machine import Phase
 
     try:
         phase = Phase(phase_id)

@@ -160,7 +160,7 @@ def main():
         }, indent=2, ensure_ascii=False))
 
     elif args.command == "verify":
-        with open(args.reviewer_output, "r", encoding="utf-8") as f:
+        with open(args.reviewer_output, encoding="utf-8") as f:
             reviewer = json.load(f)
         findings = reviewer.get("findings", [])
         # Rebuild runs from mutation dir

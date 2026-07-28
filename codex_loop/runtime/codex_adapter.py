@@ -123,7 +123,7 @@ class CodexAdapter(HostAdapter):
         evidence_dir = self._ai_dir / "evidence" / "frozen"
         evidence_dir.mkdir(parents=True, exist_ok=True)
         hasher = hashlib.sha256()
-        for name, path in sorted(bindings.items()):
+        for _name, path in sorted(bindings.items()):
             p = self._resolve(path)
             if p.exists():
                 hasher.update(p.read_bytes())
@@ -141,7 +141,7 @@ class CodexAdapter(HostAdapter):
         except json.JSONDecodeError:
             return False
         hasher = hashlib.sha256()
-        for name, path in sorted(record.get("bindings", {}).items()):
+        for _name, path in sorted(record.get("bindings", {}).items()):
             p = self._resolve(path)
             if p.exists():
                 hasher.update(p.read_bytes())
@@ -165,7 +165,7 @@ class CodexAdapter(HostAdapter):
         if not path.exists():
             return {}
         if yaml is not None:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         return {}
 

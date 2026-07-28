@@ -27,7 +27,10 @@ from pathlib import Path
 from typing import Any
 
 from codex_loop.core.state_machine import (
-    Phase, GateStatus, can_enter_phase, can_transition_phase,
+    GateStatus,
+    Phase,
+    can_enter_phase,
+    can_transition_phase,
 )
 from codex_loop.planning.router import LoopMode
 
@@ -232,7 +235,7 @@ class PhaseExecutor:
             return {}
         try:
             import yaml
-            with open(state_path, "r", encoding="utf-8") as f:
+            with open(state_path, encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except ImportError:
             # Fallback: simple line-by-line parser for basic YAML
@@ -672,7 +675,7 @@ class PhaseExecutor:
             import warnings
             warnings.warn(
                 "COMPILE_GATE_UNAVAILABLE: .ai/checkers/compile_gate.py not found. "
-                "Compile check skipped — phase advance allowed."
+                "Compile check skipped — phase advance allowed.", stacklevel=2
             )
             return True
 

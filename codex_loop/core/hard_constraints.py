@@ -6,10 +6,10 @@ import warnings
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from pathlib import PurePosixPath, Path
-from typing import Any, Optional, TypedDict
+from pathlib import Path, PurePosixPath
+from typing import Any, TypedDict
 
-from codex_loop.core.state_machine import Phase, GateStatus, TaskStatus
+from codex_loop.core.state_machine import GateStatus, Phase, TaskStatus
 
 logger = logging.getLogger(__name__)
 
@@ -143,8 +143,8 @@ class EvidenceEnvelope:
     evidence_id: str
     content_hash: str
     created_at: str   # ISO 8601
-    expires_at: Optional[str] = None  # ISO 8601, None = never expires
-    phase: Optional[Phase] = None
+    expires_at: str | None = None  # ISO 8601, None = never expires
+    phase: Phase | None = None
 
     def is_fresh(self) -> bool:
         """Check if this evidence is still within its validity window."""
@@ -541,7 +541,7 @@ class HardConstraints:
             warnings.warn(
                 "C5 verification check called with target_phase=None. "
                 "Verification enforcement is skipped because no target phase "
-                "was provided. This may indicate a missing context in the caller."
+                "was provided. This may indicate a missing context in the caller.", stacklevel=2
             )
             return violations
 
@@ -614,7 +614,7 @@ class HardConstraints:
             warnings.warn(
                 "C6 independent review check called with current_phase=None. "
                 "Review enforcement is skipped because no current phase "
-                "was provided. This may indicate a missing context in the caller."
+                "was provided. This may indicate a missing context in the caller.", stacklevel=2
             )
             return violations
 

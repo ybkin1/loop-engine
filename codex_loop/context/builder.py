@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 from codex_loop.context.policy import assert_no_secret_markers
 from codex_loop.core.contracts import RoleContract

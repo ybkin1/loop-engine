@@ -28,7 +28,6 @@ sys.path.insert(0, str(_SOURCE_ROOT / ".zcode" / "tools"))
 
 from codex_loop.governance.governor_lib import ai_dir, load_yaml  # noqa: E402
 
-
 # ── Public API ──────────────────────────────────────────────────────────
 
 def list_backups(project_root: Path) -> list[Path]:

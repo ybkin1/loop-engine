@@ -6,7 +6,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from codex_loop.governance.continuity_producer import render_handoff
-from codex_loop.governance.governor_lib import GovernanceError, ai_dir, dump_yaml, load_yaml, project_root_arg, transactional_write_texts
+from codex_loop.governance.governor_lib import (
+    GovernanceError,
+    ai_dir,
+    dump_yaml,
+    load_yaml,
+    project_root_arg,
+    transactional_write_texts,
+)
 
 
 def main() -> int:

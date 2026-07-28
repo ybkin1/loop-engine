@@ -23,7 +23,6 @@ from typing import Any
 
 from codex_loop.core.project_map_schema import ProjectMapQuery
 
-
 # ============================================================================
 # RoleProjection
 # ============================================================================

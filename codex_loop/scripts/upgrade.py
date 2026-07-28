@@ -27,12 +27,11 @@ _SOURCE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_SOURCE_ROOT / ".zcode" / "tools"))
 
 from codex_loop.governance.governor_lib import (  # noqa: E402
-    transactional_write_texts,
-    load_yaml,
-    dump_yaml,
     ai_dir,
+    dump_yaml,
+    load_yaml,
+    transactional_write_texts,
 )
-
 
 # ── Migration registry ──────────────────────────────────────────────────
 # Each entry: (from_version, to_version, migration_func)

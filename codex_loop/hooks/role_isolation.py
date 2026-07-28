@@ -36,13 +36,13 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from codex_loop.hooks.hook_common import (  # noqa: E402
     DEFAULT_CONFIG,
+    extract_target_path,
     is_governance_project,
     load_config,
     load_state,
+    normalize_rel,
     project_root,
     read_stdin_json,
-    extract_target_path,
-    normalize_rel,
 )
 
 # ── Governance file exemption — prevents fail-closed deadlock ──────────

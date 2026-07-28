@@ -44,7 +44,7 @@ class FunctionalDesignPacket:
     data: dict[str, Any]
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "FunctionalDesignPacket":
+    def from_dict(cls, data: dict[str, Any]) -> FunctionalDesignPacket:
         missing = [key for key in REQUIRED_SECTIONS if not data.get(key)]
         if missing:
             raise PacketError(f"missing functional design sections: {', '.join(missing)}")

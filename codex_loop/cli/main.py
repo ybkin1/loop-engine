@@ -5,17 +5,16 @@ import json
 from pathlib import Path
 from typing import Any
 
+from codex_loop.context.policy import safe_relative_path
 from codex_loop.core.contracts import RoleRegistry
 from codex_loop.core.models import ProjectProfile
 from codex_loop.core.store import LoopStore
-from codex_loop.context.policy import safe_relative_path
 from codex_loop.materials import MaterialCatalog
 from codex_loop.packets.functional import FunctionalDesignPacket
 from codex_loop.packets.human import render_human_review_packet
 from codex_loop.planning.phases import default_phases
 from codex_loop.quality.checks import check_candidate_store, check_role_prompts, check_role_registry
 from codex_loop.runtime.runner import CodexRuntime, RoleRunRequest
-
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 ROLE_REGISTRY = PACKAGE_ROOT / "roles" / "registry.json"

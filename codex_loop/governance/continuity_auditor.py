@@ -4,7 +4,16 @@ import hashlib
 from pathlib import Path
 
 from codex_loop.governance.evidence_manifest import verify_evidence_manifest
-from codex_loop.governance.governor_lib import GovernanceError, canonical_json, current_task_id, gates, load_yaml, parse_json_block, safe_project_path, task_status
+from codex_loop.governance.governor_lib import (
+    GovernanceError,
+    canonical_json,
+    current_task_id,
+    gates,
+    load_yaml,
+    parse_json_block,
+    safe_project_path,
+    task_status,
+)
 from codex_loop.governance.transaction_registry import load_transaction_registry
 
 

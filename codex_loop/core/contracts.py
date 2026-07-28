@@ -166,9 +166,9 @@ class RoleContract:
 @dataclass(frozen=True)
 class RoleRegistry:
     """Immutable registry of role contracts keyed by role_id."""
-    roles: dict[str, "RoleContract"]  # type: ignore[name-defined]
+    roles: dict[str, RoleContract]  # type: ignore[name-defined]
 
-    def get(self, role_id: str) -> "RoleContract":  # type: ignore[name-defined]
+    def get(self, role_id: str) -> RoleContract:  # type: ignore[name-defined]
         if role_id not in self.roles:
             raise KeyError(f"unknown role: {role_id}")
         return self.roles[role_id]

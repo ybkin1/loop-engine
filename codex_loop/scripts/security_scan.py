@@ -15,7 +15,6 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-
 # Patterns to detect in source code
 SECRET_PATTERNS = [
     (r'(?:api_key|apikey|API_KEY|secret|password|token)\s*=\s*["\'][A-Za-z0-9_\-]{20,}["\']',
@@ -126,7 +125,7 @@ def main():
             ],
         }, indent=2, ensure_ascii=False))
     else:
-        print(f"Files scanned: {len(set(f.file for f in findings))}")
+        print(f"Files scanned: {len({f.file for f in findings})}")
         print(f"Findings: {len(findings)} (P0: {len(p0)}, P1: {len(p1)})")
         for f in p0:
             print(f"  P0 {f.file}:{f.line} — {f.description}")

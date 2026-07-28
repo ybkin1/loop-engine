@@ -27,8 +27,7 @@ from pathlib import Path
 _SOURCE_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_SOURCE_ROOT / ".zcode" / "tools"))
 
-from codex_loop.governance.governor_lib import transactional_write_texts, load_yaml  # noqa: E402
-
+from codex_loop.governance.governor_lib import load_yaml, transactional_write_texts  # noqa: E402
 
 # ── Templates ───────────────────────────────────────────────────────────
 

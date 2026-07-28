@@ -10,7 +10,6 @@ import unittest
 from datetime import datetime
 from pathlib import Path
 
-
 SCHEMA = "UnittestResultEnvelope/v1"
 
 

@@ -130,7 +130,7 @@ class ExecutionLedger:
         if not self.exists:
             return []
         entries: list[dict[str, Any]] = []
-        with open(self._ledger_path, "r", encoding="utf-8") as f:
+        with open(self._ledger_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:

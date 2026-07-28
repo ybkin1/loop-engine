@@ -117,7 +117,7 @@ class MutationSuite:
 
 def parse_reviewer_output(json_path: str) -> dict:
     """Parse the structured JSON output from an independent reviewer."""
-    with open(json_path, "r", encoding="utf-8") as f:
+    with open(json_path, encoding="utf-8") as f:
         return json.load(f)
 
 

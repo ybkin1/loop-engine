@@ -28,7 +28,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 sys.dont_write_bytecode = True
 
@@ -53,7 +53,7 @@ DEFAULT_QUALITY_GATES = {
 
 # --------------- 解析器 ---------------
 
-def parse_lint_output(raw: str, exit_code: int, command: str) -> Tuple[int, str]:
+def parse_lint_output(raw: str, exit_code: int, command: str) -> tuple[int, str]:
     """解析 lint 工具输出，返回 (error_count, raw_snippet)。"""
     raw_clean = raw.strip()
     # ruff --output-format json
@@ -79,7 +79,7 @@ def parse_lint_output(raw: str, exit_code: int, command: str) -> Tuple[int, str]
     return len(lines), raw[:500]
 
 
-def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int, int, str]:
+def parse_test_output(raw: str, exit_code: int, command: str) -> tuple[int, int, int, str]:
     """解析测试输出，返回 (passed, total, coverage_pct, raw_snippet)。"""
     coverage = 0
     passed = 0
@@ -115,7 +115,7 @@ def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int,
     return passed, total, coverage, raw[:500]
 
 
-def parse_audit_output(raw: str, exit_code: int, command: str) -> Dict[str, int]:
+def parse_audit_output(raw: str, exit_code: int, command: str) -> dict[str, int]:
     """解析依赖审计输出，返回 {severity: count}。"""
     raw_clean = raw.strip()
     counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
@@ -159,7 +159,7 @@ def parse_build_output(raw: str, exit_code: int, command: str) -> int:
     return exit_code
 
 
-def parse_compile_output(raw: str, exit_code: int, command: str) -> Tuple[int, int, list]:
+def parse_compile_output(raw: str, exit_code: int, command: str) -> tuple[int, int, list]:
     """解析编译门禁输出，返回 (compiled_count, failed_count, error_list)。"""
     raw_clean = raw.strip()
     if raw_clean.startswith("{"):
@@ -189,7 +189,7 @@ def load_config(project_root: Path) -> dict:
     if not cfg_path.exists():
         return gates
 
-    with open(cfg_path, "r", encoding="utf-8") as f:
+    with open(cfg_path, encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
     qg = raw.get("quality_gates", {})
@@ -216,7 +216,7 @@ def load_config(project_root: Path) -> dict:
     return gates
 
 
-def run_one_check(name: str, command: Optional[str], project_root: Path, timeout: int = 120) -> Dict[str, Any]:
+def run_one_check(name: str, command: str | None, project_root: Path, timeout: int = 120) -> dict[str, Any]:
     """运行一个检查，返回 {exit_code, stdout, stderr}。"""
     if not command:
         return {"exit_code": 0, "stdout": "", "stderr": "", "skipped": True}
@@ -241,7 +241,7 @@ def run_one_check(name: str, command: Optional[str], project_root: Path, timeout
         return {"exit_code": -1, "stdout": "", "stderr": str(e), "skipped": False}
 
 
-def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
+def collect_results(gates: dict, project_root: Path) -> list[dict[str, Any]]:
     """运行所有配置的检查，收集原始结果。"""
     results = []
 
@@ -294,7 +294,7 @@ def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
     return results
 
 
-def generate_report(results: List[Dict[str, Any]], project_root: Path, output_dir: Path) -> Tuple[str, List[str]]:
+def generate_report(results: list[dict[str, Any]], project_root: Path, output_dir: Path) -> tuple[str, list[str]]:
     """生成 quality_report.json 和 quality_summary.md，返回 (overall, blocked_by)。"""
     # ensure scripts dir is importable (caller may be in any cwd)
     sys.path.insert(0, str(Path(__file__).resolve().parent))

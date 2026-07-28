@@ -65,7 +65,12 @@ def benchmark_hook(project_root: Path, hook_script: str, hook_input: dict,
 def benchmark_state_machine(iterations: int = 1000) -> PerfResult:
     """Benchmark state machine transition checks."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from codex_loop.core.state_machine import Phase, can_transition_phase, can_approve_gate, GateStatus
+    from codex_loop.core.state_machine import (
+        GateStatus,
+        Phase,
+        can_approve_gate,
+        can_transition_phase,
+    )
 
     times = []
     for _ in range(iterations):

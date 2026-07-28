@@ -28,7 +28,7 @@ class MaterialCatalog:
         self._by_id = {item.material_id: item for item in materials}
 
     @classmethod
-    def load(cls, path: Path) -> "MaterialCatalog":
+    def load(cls, path: Path) -> MaterialCatalog:
         try:
             import yaml
         except ImportError as exc:

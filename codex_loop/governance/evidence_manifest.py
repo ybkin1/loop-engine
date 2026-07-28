@@ -5,8 +5,13 @@ import os
 import tempfile
 from pathlib import Path, PurePosixPath
 
-from codex_loop.governance.governor_lib import GovernanceError, canonical_json, dump_yaml, load_yaml, safe_project_path
-
+from codex_loop.governance.governor_lib import (
+    GovernanceError,
+    canonical_json,
+    dump_yaml,
+    load_yaml,
+    safe_project_path,
+)
 
 MAX_FILES = 256
 MAX_FILE_BYTES = 16 * 1024 * 1024

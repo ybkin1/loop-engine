@@ -12,7 +12,7 @@ class EnforcementLevel(str, Enum):
     ADVISORY = "ADVISORY"
 
     @property
-    def canonical(self) -> "EnforcementLevel":
+    def canonical(self) -> EnforcementLevel:
         return _CANONICAL.get(self, self)
 
 

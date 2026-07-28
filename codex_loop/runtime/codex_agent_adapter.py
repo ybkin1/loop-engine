@@ -8,7 +8,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from codex_loop.runtime.agent_adapter import (
-    AgentAdapter, AgentInput, AgentOutput, AgentStatus, AgentUnavailableError,
+    AgentAdapter,
+    AgentInput,
+    AgentOutput,
+    AgentStatus,
+    AgentUnavailableError,
 )
 
 

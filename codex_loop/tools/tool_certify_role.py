@@ -7,7 +7,8 @@ def run(role_id: str, project_root: str = ".") -> dict:
     """Run the capability challenge for a role and return results."""
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from codex_loop.core.role_capability import (
-        ROLE_CHALLENGES, load_all_profiles,
+        ROLE_CHALLENGES,
+        load_all_profiles,
     )
 
     if role_id == "all":

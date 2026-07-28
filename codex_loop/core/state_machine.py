@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class Phase(str, Enum):
@@ -124,7 +123,7 @@ def can_approve_gate(
 
 def can_enter_phase(
     phase: Phase,
-    prev_gate_status: Optional[GateStatus],
+    prev_gate_status: GateStatus | None,
     has_blockers: bool,
     reentry: bool = False,
 ) -> StateValidationResult:
@@ -161,7 +160,7 @@ def validate_reentry(
     return StateValidationResult(allowed=len(errors) == 0, errors=errors, warnings=warnings)
 
 
-def check_self_review(developer_id: Optional[str], reviewer_id: Optional[str]) -> StateValidationResult:
+def check_self_review(developer_id: str | None, reviewer_id: str | None) -> StateValidationResult:
     if developer_id and reviewer_id and developer_id == reviewer_id:
         return StateValidationResult(
             allowed=False,
@@ -210,7 +209,7 @@ def resolve_gate_status(current_gate_id: str | None, gates: list[dict]) -> GateS
             break
     if matching_gate is None:
         import warnings as _warnings
-        _warnings.warn(f"STALE_GATE_REFERENCE: current_gate_id '{current_gate_id}' does not match any gate")
+        _warnings.warn(f"STALE_GATE_REFERENCE: current_gate_id '{current_gate_id}' does not match any gate", stacklevel=2)
         return None
     raw_status = matching_gate.get("status", "pending")
     try:
@@ -370,8 +369,8 @@ def evaluate_condition(
         evidence_type = condition.params.get("evidence_type", "")
         if not evidence_dir:
             return False
-        from pathlib import Path as _Path
         import json
+        from pathlib import Path as _Path
         ev_dir = _Path(evidence_dir)
         if not ev_dir.exists():
             return False
@@ -394,8 +393,9 @@ def evaluate_condition(
 
 
 def init_project(root: str, project_name: str) -> dict:
+    from datetime import datetime as _dt
+    from datetime import timezone as _tz
     from pathlib import Path as _Path
-    from datetime import datetime as _dt, timezone as _tz
     root_p = _Path(root)
     ai_dir = root_p / ".ai"
     ai_dir.mkdir(parents=True, exist_ok=True)
@@ -429,8 +429,9 @@ def init_project(root: str, project_name: str) -> dict:
     ]
     gates = {"schema_version": 1, "gates": gate_defs}
     atomic_write_state(root_p, state)
-    import yaml
     import os
+
+    import yaml
     gates_path = ai_dir / "gates.yaml"
     tmp_path = ai_dir / "gates.yaml.tmp"
     tmp_path.write_text(yaml.dump(gates, allow_unicode=True, default_flow_style=False), encoding="utf-8")

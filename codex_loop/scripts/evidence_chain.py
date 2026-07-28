@@ -25,7 +25,7 @@ def load_chain(project_root: Path) -> dict | None:
         if candidate.exists():
             try:
                 import yaml
-                with open(candidate, "r", encoding="utf-8") as f:
+                with open(candidate, encoding="utf-8") as f:
                     return yaml.safe_load(f)
             except Exception:
                 return None

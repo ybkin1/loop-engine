@@ -8,10 +8,11 @@ hashes in project_continuity.yaml become stale. This tool recalculates all hashe
 and updates the manifest atomically (.tmp + os.replace).
 """
 import hashlib
+import json
 import os
 import sys
-import json
 from pathlib import Path
+
 
 def _canonical_json(value) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -22,7 +23,7 @@ def repair_continuity(root: Path) -> dict:
         return {"fixed": 0, "errors": ["project_continuity.yaml not found"]}
     try:
         import yaml as _y
-        with open(pc_path, "r", encoding="utf-8") as f:
+        with open(pc_path, encoding="utf-8") as f:
             data = _y.safe_load(f)
     except Exception as e:
         return {"fixed": 0, "errors": [f"YAML error: {e}"]}
@@ -58,7 +59,8 @@ def main():
         print("Usage: python repair_continuity.py <project_root>"); sys.exit(1)
     root = Path(sys.argv[1]).resolve()
     if not root.is_dir():
-        print(f"ERROR: not a directory: {root}"); sys.exit(1)
+        print(f"ERROR: not a directory: {root}")
+        sys.exit(1)
     result = repair_continuity(root)
     if result["fixed"] > 0:
         print(f"[repair_continuity] Fixed {result['fixed']} drifted hash(es).")

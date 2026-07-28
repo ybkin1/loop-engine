@@ -59,7 +59,7 @@ def _basic_verify(root: Path, strict: bool) -> dict:
 
     try:
         import yaml
-        with open(chain_file, "r", encoding="utf-8") as f:
+        with open(chain_file, encoding="utf-8") as f:
             config = yaml.safe_load(f)
     except Exception as e:
         return {"overall": "BLOCKED", "issues": [f"Cannot read chain.yaml: {e}"]}

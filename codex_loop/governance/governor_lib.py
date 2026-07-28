@@ -10,7 +10,6 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-
 REQUIRED_FILES = [
     "PROJECT.md", "NON_GOALS.md", "ARCHITECTURE.md", "CONTRACTS.md", "CODING_STANDARDS.md",
     "CONVENTIONS.md", "CODEMAP.md", "PROGRESS.md", "QUALITY_GATES.md", "ACCEPTANCE.md",

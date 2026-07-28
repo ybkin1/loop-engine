@@ -5,11 +5,17 @@ from pathlib import Path
 
 from codex_loop.governance.evidence_manifest import verify_evidence_manifest
 from codex_loop.governance.governor_lib import (
-    GovernanceError, canonical_json, current_task_id, gates, load_yaml,
-    now_precise, render_json_block, safe_project_path, task_status,
+    GovernanceError,
+    canonical_json,
+    current_task_id,
+    gates,
+    load_yaml,
+    now_precise,
+    render_json_block,
+    safe_project_path,
+    task_status,
 )
 from codex_loop.governance.transaction_registry import checkpoint_status, load_transaction_registry
-
 
 POSITIVE_E2E_ASSERTIONS = (
     "HANDOFF_GENERATED_FROM_STRUCTURED_STATE",

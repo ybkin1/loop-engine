@@ -17,8 +17,6 @@ import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Optional
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # EvidenceEnvelope
@@ -44,8 +42,8 @@ class EvidenceEnvelope:
     content_hash: str               # 证据内容 SHA256
     created_at: str                 # ISO 8601
     ttl_days: int = 90
-    causal_parent_hash: Optional[str] = None   # 因果链：上一个证据 content_hash
-    evidence_path: Optional[str] = None        # 证据文件路径
+    causal_parent_hash: str | None = None   # 因果链：上一个证据 content_hash
+    evidence_path: str | None = None        # 证据文件路径
     content_type: str = "application/json"
 
     # ── Freshness ────────────────────────────────────────────────────────
@@ -79,8 +77,8 @@ class EvidenceEnvelope:
     @staticmethod
     def wrap(
         content: str,
-        evidence_path: Optional[str] = None,
-        parent_envelope: Optional[EvidenceEnvelope] = None,
+        evidence_path: str | None = None,
+        parent_envelope: EvidenceEnvelope | None = None,
         ttl_days: int = 90,
         content_type: str = "application/json",
     ) -> EvidenceEnvelope:
@@ -101,7 +99,7 @@ class EvidenceEnvelope:
         ).hexdigest()
 
         # Build causal parent hash from parent's content_hash if provided
-        causal_parent_hash: Optional[str] = None
+        causal_parent_hash: str | None = None
         if parent_envelope is not None:
             causal_parent_hash = parent_envelope.content_hash
 
@@ -145,7 +143,7 @@ class EvidenceChain:
         self.evidence_dir.mkdir(parents=True, exist_ok=True)
         self._index_path = self.evidence_dir / self.INDEX_FILENAME
         self._envelopes: dict[str, EvidenceEnvelope] = {}
-        self._chain_head: Optional[str] = None   # envelope_id of latest
+        self._chain_head: str | None = None   # envelope_id of latest
         self._load()
 
     # ── Persistence ──────────────────────────────────────────────────────
@@ -195,8 +193,8 @@ class EvidenceChain:
     def add_evidence(
         self,
         content: str,
-        evidence_path: Optional[str] = None,
-        parent_id: Optional[str] = None,
+        evidence_path: str | None = None,
+        parent_id: str | None = None,
         ttl_days: int = 90,
         content_type: str = "application/json",
     ) -> EvidenceEnvelope:
@@ -217,7 +215,7 @@ class EvidenceChain:
         is used as the parent, creating a linear causal chain.
         """
         # Resolve parent
-        parent_envelope: Optional[EvidenceEnvelope] = None
+        parent_envelope: EvidenceEnvelope | None = None
         if parent_id is not None:
             parent_envelope = self._envelopes.get(parent_id)
         elif self._chain_head is not None:
@@ -238,7 +236,7 @@ class EvidenceChain:
 
     # ── Query ────────────────────────────────────────────────────────────
 
-    def get_envelope(self, envelope_id: str) -> Optional[EvidenceEnvelope]:
+    def get_envelope(self, envelope_id: str) -> EvidenceEnvelope | None:
         """Retrieve a single envelope by ID."""
         return self._envelopes.get(envelope_id)
 
@@ -284,7 +282,7 @@ class EvidenceChain:
 
     # ── Integrity ────────────────────────────────────────────────────────
 
-    def _find_by_content_hash(self, content_hash: str) -> Optional[EvidenceEnvelope]:
+    def _find_by_content_hash(self, content_hash: str) -> EvidenceEnvelope | None:
         """Find an envelope by its content_hash."""
         for env in self._envelopes.values():
             if env.content_hash == content_hash:

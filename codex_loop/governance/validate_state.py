@@ -11,11 +11,16 @@ if str(_project_root) not in sys.path:
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from codex_loop.governance.governor_lib import (
-    GovernanceError, REQUIRED_FILES, ai_dir, current_task_id,
+    REQUIRED_FILES,
+    GovernanceError,
+    ai_dir,
+    current_task_id,
     governance_invariant_errors,
-    load_yaml, pending_gates, project_root_arg, read_text,
+    load_yaml,
+    pending_gates,
+    project_root_arg,
+    read_text,
 )
-
 
 # ── Role Contract Checks ──────────────────────────────────────────────────
 
@@ -235,7 +240,7 @@ def check_cross_role_consistency(root: Path) -> list[str]:
                 all_include_sections.append(sections)
                 covered_dimensions |= sections
             if isinstance(excludes, list):
-                sections = set(str(item).split(".")[0] for item in excludes)
+                sections = {str(item).split(".")[0] for item in excludes}
                 all_exclude_sections.append(sections)
 
     # Dimensions not covered by any role's include_sections
@@ -355,7 +360,7 @@ def main() -> int:
     # 4.5 Task contract checks (self-review prevention + input freezing)
     if task_id:
         try:
-            from task_contract import check_self_review, check_input_freezing, load_task
+            from task_contract import check_input_freezing, check_self_review, load_task
             contract = load_task(root, task_id)
             if contract:
                 errors.extend(check_self_review(contract))

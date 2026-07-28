@@ -40,7 +40,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 sys.dont_write_bytecode = True
 
@@ -52,7 +52,7 @@ EXIT_BLOCK = 2
 # 1. 依赖提取
 # ──────────────────────────────────────────────
 
-def run_madge(project_root: Path) -> Optional[Dict[str, List[str]]]:
+def run_madge(project_root: Path) -> dict[str, list[str]] | None:
     """尝试使用 madge 提取 JS/TS 依赖图。不可用则返回 None。"""
     try:
         result = subprocess.run(
@@ -70,7 +70,7 @@ def run_madge(project_root: Path) -> Optional[Dict[str, List[str]]]:
         return None
 
 
-def _extract_imports_from_file(filepath: Path) -> List[str]:
+def _extract_imports_from_file(filepath: Path) -> list[str]:
     """从单个 Python 文件中提取 import 的模块名。"""
     imports = []
     try:
@@ -111,9 +111,9 @@ def _resolve_import_to_module(imp: str, current_module: str) -> str:
     return imp.split(".")[0]  # 取顶级包名，用于层匹配
 
 
-def _analyze_python_imports(project_root: Path) -> Dict[str, List[str]]:
+def _analyze_python_imports(project_root: Path) -> dict[str, list[str]]:
     """使用 AST 解析 Python 项目的 import 语句构建依赖图。"""
-    deps: Dict[str, List[str]] = defaultdict(list)
+    deps: dict[str, list[str]] = defaultdict(list)
     py_files = list(project_root.rglob("*.py"))
 
     # 排除常见虚拟环境/构建目录
@@ -136,7 +136,7 @@ def _analyze_python_imports(project_root: Path) -> Dict[str, List[str]]:
     return {k: sorted(set(v)) for k, v in deps.items()}
 
 
-def extract_dependency_graph(project_root: Path) -> Dict[str, List[str]]:
+def extract_dependency_graph(project_root: Path) -> dict[str, list[str]]:
     """提取依赖图：优先 madge，回退到 Python AST。"""
     madge_result = run_madge(project_root)
     if madge_result is not None:
@@ -148,7 +148,7 @@ def extract_dependency_graph(project_root: Path) -> Dict[str, List[str]]:
 # 2. 循环依赖检测（DFS）
 # ──────────────────────────────────────────────
 
-def detect_circular_deps(graph: Dict[str, List[str]]) -> List[List[str]]:
+def detect_circular_deps(graph: dict[str, list[str]]) -> list[list[str]]:
     """
     使用 DFS 检测有向图中的所有简单环。
 
@@ -157,9 +157,9 @@ def detect_circular_deps(graph: Dict[str, List[str]]) -> List[List[str]]:
     当遇到 GRAY 节点时，路径中从该节点到当前节点构成一个环。
     """
     WHITE, GRAY, BLACK = 0, 1, 2
-    colors: Dict[str, int] = {node: WHITE for node in graph}
-    stack: List[str] = []
-    cycles: List[List[str]] = []
+    colors: dict[str, int] = dict.fromkeys(graph, WHITE)
+    stack: list[str] = []
+    cycles: list[list[str]] = []
 
     def dfs(node: str):
         colors[node] = GRAY
@@ -207,18 +207,18 @@ def detect_circular_deps(graph: Dict[str, List[str]]) -> List[List[str]]:
 # 3. 边界违规检测
 # ──────────────────────────────────────────────
 
-def load_rules(rules_path: Optional[str]) -> Dict[str, Any]:
+def load_rules(rules_path: str | None) -> dict[str, Any]:
     """加载边界规则文件。"""
     if not rules_path or not os.path.isfile(rules_path):
         return {}
     try:
-        with open(rules_path, "r", encoding="utf-8") as f:
+        with open(rules_path, encoding="utf-8") as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return {}
 
 
-def _classify_module(module_name: str, layers: Dict[str, List[str]]) -> Optional[str]:
+def _classify_module(module_name: str, layers: dict[str, list[str]]) -> str | None:
     """根据层 glob 模式确定模块属于哪个层。"""
     for layer_name, patterns in layers.items():
         for pattern in patterns:
@@ -235,9 +235,9 @@ def _classify_module(module_name: str, layers: Dict[str, List[str]]) -> Optional
 
 
 def detect_boundary_violations(
-    graph: Dict[str, List[str]],
-    rules: Dict[str, Any],
-) -> List[Dict[str, str]]:
+    graph: dict[str, list[str]],
+    rules: dict[str, Any],
+) -> list[dict[str, str]]:
     """检测依赖边界违规。"""
     layers = rules.get("layers", {})
     allowed = rules.get("allowed_deps", {})
@@ -275,9 +275,9 @@ def detect_boundary_violations(
 # 4. Mermaid 图生成
 # ──────────────────────────────────────────────
 
-def generate_mermaid(graph: Dict[str, List[str]],
-                     cycles: List[List[str]],
-                     violations: List[Dict[str, str]]) -> str:
+def generate_mermaid(graph: dict[str, list[str]],
+                     cycles: list[list[str]],
+                     violations: list[dict[str, str]]) -> str:
     """生成 Mermaid 格式的依赖图。"""
     lines = ["graph LR", ""]
 
@@ -329,9 +329,9 @@ def generate_mermaid(graph: Dict[str, List[str]],
 # ──────────────────────────────────────────────
 
 def generate_report(
-    graph: Dict[str, List[str]],
-    cycles: List[List[str]],
-    violations: List[Dict[str, str]],
+    graph: dict[str, list[str]],
+    cycles: list[list[str]],
+    violations: list[dict[str, str]],
     project_root: Path,
     output_dir: Path,
 ) -> str:
@@ -402,7 +402,7 @@ def main():
 
     # 检测边界违规
     rules = load_rules(args.rules)
-    violations: List[Dict[str, str]] = []
+    violations: list[dict[str, str]] = []
     if rules:
         violations = detect_boundary_violations(graph, rules)
         if violations:

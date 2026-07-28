@@ -5,7 +5,6 @@ import hashlib
 
 from codex_loop.governance.governor_lib import GovernanceError, canonical_json
 
-
 CAPABILITY_RESULT = "SECURELY_ISOLATED_AUTHORITY_LIFECYCLE_UNAVAILABLE"
 AUTHORITY_FIELDS = {
     "schema", "event_id", "actor_id", "host_message_id", "host_turn_id",

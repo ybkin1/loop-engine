@@ -18,7 +18,7 @@ def read_cost_log(project_root: Path) -> list[dict]:
     if not log_path.exists():
         return []
     entries = []
-    with open(log_path, "r", encoding="utf-8") as f:
+    with open(log_path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
