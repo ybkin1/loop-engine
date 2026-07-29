@@ -298,7 +298,7 @@ def collect_results(gates: dict, project_root: Path) -> list[dict[str, Any]]:
         structural = run_structural_checks(str(project_root))
         results.extend(structural)
     except Exception as e:
-        results.append({chr(39)+chr(110)+chr(97)+chr(109)+chr(101)+chr(39)+chr(58)+chr(32)+chr(39)+chr(115)+chr(116)+chr(114)+chr(117)+chr(99)+chr(116)+chr(117)+chr(114)+chr(97)+chr(108)+chr(39)+chr(44)+chr(32)+chr(39)+chr(118)+chr(97)+chr(108)+chr(117)+chr(101)+chr(39)+chr(58)+chr(32)+chr(45)+chr(49)+chr(44)+chr(32)+chr(39)+chr(116)+chr(104)+chr(114)+chr(101)+chr(115)+chr(104)+chr(111)+chr(108)+chr(100)+chr(39)+chr(58)+chr(32)+chr(48)+chr(44)+chr(32)+chr(39)+chr(114)+chr(97)+chr(119)+chr(39)+chr(58)+chr(32)+chr(115)+chr(116)+chr(114)+chr(40)+chr(101)+chr(41)+chr(91)+chr(58)+chr(50)+chr(48)+chr(48)+chr(93)+chr(44)+chr(32)+chr(39)+chr(115)+chr(107)+chr(105)+chr(112)+chr(112)+chr(101)+chr(100)+chr(39)+chr(58)+chr(32)+chr(84)+chr(114)+chr(117)+chr(101)+chr(125))
+        results.append(dict(name=chr(39)+chr(115)+chr(116)+chr(114)+chr(117)+chr(99)+chr(116)+chr(117)+chr(114)+chr(97)+chr(108)+chr(39),value=-1,threshold=0,raw=str(e)[:200],skipped=True))
 
     return results
 
