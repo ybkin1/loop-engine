@@ -3585,3 +3585,37 @@ gates:
     runtime_behavior: true
   notes:
   - Closes the root cause of "main agent does everything" - agents were never installed.
+- id: G-T-0071-ONE-CLICK-ONBOARD
+  task_id: T-0071
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  scope: One-click onboarding + auto-update slash commands
+  approval_evidence: .ai/evidence/T-0071/approval.md
+  execution_evidence: .ai/evidence/T-0071/commands.md
+  allowed_paths:
+  - .zcode/commands/
+  - hooks/scripts/session_brief.py
+  - tools/loop_onboard.py
+  - skills/loop-governance/SKILL.md
+  - .ai/
+  - tests/
+  allowed_actions:
+  - create slash commands
+  - update session_brief
+  - update loop_onboard
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Enables natural language onboarding via slash commands and session detection

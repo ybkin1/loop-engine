@@ -103,3 +103,42 @@ Required startup steps:
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else "."
     onboard(target)
+
+def update(root: str | Path) -> None:
+    """Update Loop engineering in an existing project (sync agents + config)."""
+    root = Path(root).resolve()
+    if not (root / ".ai/state.yaml").exists():
+        print("[loop-update] ⚠️ Project not onboarded. Run loop_onboard first.")
+        return
+    
+    # Re-install agents (overwrite existing)
+    source_agents = Path(__file__).resolve().parent.parent / "agents"
+    agents_dir = root / "agents"
+    required_roles = ["developer", "independent-reviewer", "test-engineer",
+                     "quality-engineer", "security-engineer"]
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    updated = 0
+    for role in required_roles:
+        src = source_agents / role
+        dst = agents_dir / role
+        if src.is_dir():
+            if dst.exists():
+                import shutil
+                shutil.rmtree(str(dst))
+            _copy_dir(src, dst)
+            updated += 1
+    
+    print(f"[loop-update] ✅ Updated {updated} agent roles")
+    print(f"[loop-update] ✅ Agents synced from source")
+
+
+if __name__ == "__main__":
+    import argparse
+    p = argparse.ArgumentParser()
+    p.add_argument("project_root", nargs="?", default=".")
+    p.add_argument("--update", action="store_true")
+    args = p.parse_args()
+    if args.update:
+        update(args.project_root)
+    else:
+        onboard(args.project_root)
