@@ -1,0 +1,96 @@
+plan_id: PLAN-20260729-001
+requirement_id: REQ-20260729-001
+status: DRAFT
+tasks:
+- title: '[S1-requirements] User Login Page Enhancement — Requirements'
+  description: 'Phase S1-requirements work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S1-requirements
+  acceptance_criteria:
+  - Phase S1-requirements deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index: []
+- title: '[S2-architecture] User Login Page Enhancement — Architecture'
+  description: 'Phase S2-architecture work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S2-architecture
+  acceptance_criteria:
+  - Phase S2-architecture deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 0
+- title: '[S3-interface] User Login Page Enhancement — Interface'
+  description: 'Phase S3-interface work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S3-interface
+  acceptance_criteria:
+  - Phase S3-interface deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 1
+- title: '[S4-implementation] User Login Page Enhancement — Implementation'
+  description: 'Phase S4-implementation work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S4-implementation
+  acceptance_criteria:
+  - Phase S4-implementation deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 2
+- title: '[S5-quality] User Login Page Enhancement — Quality'
+  description: 'Phase S5-quality work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S5-quality
+  acceptance_criteria:
+  - Phase S5-quality deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 3
+- title: '[S6-delivery] User Login Page Enhancement — Delivery'
+  description: 'Phase S6-delivery work for: Add remember-me and OAuth (Google/GitHub)
+    login, plus mobile responsive layout.'
+  phase: S6-delivery
+  acceptance_criteria:
+  - Phase S6-delivery deliverables complete and verified
+  suggested_roles: []
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 4
+edges:
+- from_task_index: 0
+  to_task_index: 1
+  edge_type: BLOCKS
+- from_task_index: 1
+  to_task_index: 2
+  edge_type: BLOCKS
+- from_task_index: 2
+  to_task_index: 3
+  edge_type: BLOCKS
+- from_task_index: 3
+  to_task_index: 4
+  edge_type: BLOCKS
+- from_task_index: 4
+  to_task_index: 5
+  edge_type: BLOCKS
+estimated_phases:
+- S1-requirements
+- S2-architecture
+- S3-interface
+- S4-implementation
+- S5-quality
+- S6-delivery
+clarification_needed: []
+created_at: '2026-07-29T15:49:36.375041+00:00'
+updated_at: '2026-07-29T15:49:36.375041+00:00'
+version: 1

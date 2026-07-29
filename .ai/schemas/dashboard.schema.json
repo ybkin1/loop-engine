@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/dashboard.schema.json",
+  "title": "Project Status Dashboard",
+  "description": "Structured project health snapshot combining task, gate, phase, and risk data.",
+  "type": "object",
+  "required": ["generated_at", "project_name", "current_phase", "loop_mode", "task_stats", "next_action"],
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "project_name": { "type": "string" },
+    "current_phase": { "type": "string" },
+    "loop_mode": { "type": "string", "enum": ["LIGHTWEIGHT", "STANDARD", "FULL"] },
+    "current_task_id": { "type": "string" },
+    "current_gate_id": { "type": "string" },
+    "active_plan_id": { "type": "string" },
+    "task_stats": {
+      "type": "object",
+      "required": ["total", "completed", "in_progress", "pending", "blocked"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "completed": { "type": "integer", "minimum": 0 },
+        "in_progress": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0 },
+        "blocked": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ready_tasks": { "type": "array", "items": { "type": "string" } },
+    "blocked_tasks": { "type": "array", "items": { "type": "object" } },
+    "next_recommended": { "type": "string" },
+    "pending_gates": { "type": "array", "items": { "type": "object" } },
+    "phase_progress": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 } },
+    "active_risks": { "type": "array", "items": { "type": "string" } },
+    "next_action": { "type": "string" },
+    "inbox_count": { "type": "integer", "minimum": 0 },
+    "health_indicator": { "type": "string", "enum": ["GREEN", "YELLOW", "RED"] }
+  },
+  "additionalProperties": false
+}

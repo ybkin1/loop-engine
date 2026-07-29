@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/requirement.schema.json",
+  "title": "Requirement",
+  "description": "A structured user requirement submitted to the Loop Inbox.",
+  "type": "object",
+  "required": ["requirement_id", "title", "description", "type", "priority", "status", "created_at"],
+  "properties": {
+    "requirement_id": { "type": "string", "pattern": "^REQ-\\d{8}-\\d{3}$" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "minLength": 1 },
+    "type": { "type": "string", "enum": ["FEATURE", "BUG_FIX", "IMPROVEMENT", "QUESTION"] },
+    "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+    "status": { "type": "string", "enum": ["NEW", "CLARIFYING", "ACCEPTED", "DECLINED", "PLANNED"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "string", "enum": ["user", "feedback", "auto"], "default": "user" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "linked_task_ids": { "type": "array", "items": { "type": "string", "pattern": "^T-\\d{4}$" } },
+    "clarification_questions": { "type": "array", "items": { "type": "string" } },
+    "linked_plan_id": { "type": "string", "pattern": "^PLAN-\\d{8}-\\d{3}$" }
+  },
+  "additionalProperties": false
+}

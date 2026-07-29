@@ -1,0 +1,14 @@
+requirement_id: REQ-20260729-002
+title: User Login Page Enhancement
+description: Add remember-me and OAuth (Google/GitHub) login, plus mobile responsive
+  layout.
+type: FEATURE
+priority: P2
+status: ACCEPTED
+tags: []
+source: user
+created_at: '2026-07-29T15:50:49.004946+00:00'
+updated_at: '2026-07-29T15:50:49.051659+00:00'
+linked_task_ids: []
+clarification_questions: []
+linked_plan_id: ''

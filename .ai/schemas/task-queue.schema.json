@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/task-queue.schema.json",
+  "title": "Task Queue Analysis",
+  "description": "Output of the TaskQueue engine: dependency resolution, scheduling recommendations, and blocking analysis.",
+  "type": "object",
+  "required": ["analyzed_at", "topological_order", "ready_tasks", "blocked_tasks"],
+  "properties": {
+    "analyzed_at": { "type": "string", "format": "date-time" },
+    "topological_order": { "type": "array", "items": { "type": "string", "pattern": "^T-\\d{4}$" } },
+    "ready_tasks": { "type": "array", "items": { "type": "string", "pattern": "^T-\\d{4}$" } },
+    "blocked_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "reason", "blocked_by"],
+        "properties": {
+          "task_id": { "type": "string", "pattern": "^T-\\d{4}$" },
+          "reason": { "type": "string", "enum": ["DEPENDENCY", "GATE_PENDING", "PHASE_BLOCKED", "CYCLE_DETECTED"] },
+          "blocked_by": { "type": "array", "items": { "type": "string" } },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "cycles": { "type": "array", "items": { "type": "array", "items": { "type": "string" } } },
+    "critical_path": { "type": "array", "items": { "type": "string" } },
+    "next_recommended": { "type": "string" },
+    "suggested_batch": { "type": "array", "items": { "type": "string" } },
+    "task_stats": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "completed": { "type": "integer", "minimum": 0 },
+        "in_progress": { "type": "integer", "minimum": 0 },
+        "pending": { "type": "integer", "minimum": 0 },
+        "blocked": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "additionalProperties": false
+}

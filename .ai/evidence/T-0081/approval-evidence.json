@@ -1,0 +1,9 @@
+{
+  "schema": "approval-evidence.v1",
+  "task_id": "T-0081",
+  "gate_id": "G-T-0081-AUTOPLAN-IMPL",
+  "approval_method": "ExitPlanMode",
+  "approved_at": "2026-07-29T15:47:30.688Z",
+  "approval_actor": "user",
+  "scope": "AutoPlan product layer phases A+B+C implementation"
+}

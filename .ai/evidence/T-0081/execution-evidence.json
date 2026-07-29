@@ -1,0 +1,28 @@
+{
+  "schema": "execution-evidence.v1",
+  "task_id": "T-0081",
+  "executed_at": "2026-07-29T15:47:30.688Z",
+  "files_created": 20,
+  "tests_passed": 41,
+  "tests_failed": 0,
+  "regression_tests_passed": 229,
+  "regression_tests_failed": 0,
+  "modules": [
+    "inbox",
+    "planner",
+    "task_queue",
+    "status_dashboard"
+  ],
+  "schemas": [
+    "requirement",
+    "plan-draft",
+    "task-queue",
+    "dashboard"
+  ],
+  "mcp_tools": [
+    "tool_inbox",
+    "tool_planner",
+    "tool_task_queue",
+    "tool_dashboard"
+  ]
+}

@@ -20,7 +20,7 @@
         "user-design", "user-approval", "user-implementation",
         "user-quality", "user-delivery", "user-repair",
         "user-activation", "user-installation", "user-review-only",
-        "user-discovery-approval", "user-cleanup"
+        "user-discovery-approval", "user-cleanup", "user-plan-approval"
       ]
     },
     "status": {

@@ -1,0 +1,185 @@
+plan_id: PLAN-20260729-002
+requirement_id: REQ-20260729-002
+status: DRAFT
+tasks:
+- title: '[S1-requirements] 需求澄清与范围定义'
+  description: 'Clarify requirements and define scope boundaries. (from: User Login
+    Page Enhancement)'
+  phase: S1-requirements
+  acceptance_criteria:
+  - All S1-requirements deliverables for '需求澄清与范围定义' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: &id001
+  - product-manager
+  - project-manager
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index: []
+- title: '[S1-requirements] 验收标准制定'
+  description: 'Define acceptance criteria for each feature. (from: User Login Page
+    Enhancement)'
+  phase: S1-requirements
+  acceptance_criteria:
+  - All S1-requirements deliverables for '验收标准制定' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: *id001
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 0
+- title: '[S2-architecture] 系统架构设计'
+  description: 'Design system architecture and component topology. (from: User Login
+    Page Enhancement)'
+  phase: S2-architecture
+  acceptance_criteria:
+  - All S2-architecture deliverables for '系统架构设计' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: &id002
+  - system-architect
+  - module-architect
+  estimated_complexity: HIGH
+  priority: P2
+  depends_on_plan_index:
+  - 1
+- title: '[S2-architecture] 数据模型设计'
+  description: 'Design data models and storage strategy. (from: User Login Page Enhancement)'
+  phase: S2-architecture
+  acceptance_criteria:
+  - All S2-architecture deliverables for '数据模型设计' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: *id002
+  estimated_complexity: HIGH
+  priority: P2
+  depends_on_plan_index:
+  - 1
+- title: '[S3-interface] 接口契约定义'
+  description: 'Define API/interfaces contracts with schemas. (from: User Login Page
+    Enhancement)'
+  phase: S3-interface
+  acceptance_criteria:
+  - All S3-interface deliverables for '接口契约定义' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles:
+  - module-architect
+  - developer
+  estimated_complexity: MEDIUM
+  priority: P2
+  depends_on_plan_index:
+  - 3
+- title: '[S4-implementation] 核心逻辑实现'
+  description: 'Implement core business logic. (from: User Login Page Enhancement)'
+  phase: S4-implementation
+  acceptance_criteria:
+  - All S4-implementation deliverables for '核心逻辑实现' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: &id003
+  - developer
+  estimated_complexity: HIGH
+  priority: P2
+  depends_on_plan_index:
+  - 4
+- title: '[S4-implementation] 单元测试编写'
+  description: 'Write unit tests for all modules. (from: User Login Page Enhancement)'
+  phase: S4-implementation
+  acceptance_criteria:
+  - All S4-implementation deliverables for '单元测试编写' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: *id003
+  estimated_complexity: HIGH
+  priority: P2
+  depends_on_plan_index:
+  - 4
+- title: '[S5-quality] 质量门禁检查'
+  description: 'Run quality gates: lint, typecheck, coverage, security scan. (from:
+    User Login Page Enhancement)'
+  phase: S5-quality
+  acceptance_criteria:
+  - All S5-quality deliverables for '质量门禁检查' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: &id004
+  - quality-engineer
+  - test-engineer
+  - security-engineer
+  estimated_complexity: MEDIUM
+  priority: P1
+  depends_on_plan_index:
+  - 6
+- title: '[S5-quality] 集成测试验证'
+  description: 'Verify integration tests pass. (from: User Login Page Enhancement)'
+  phase: S5-quality
+  acceptance_criteria:
+  - All S5-quality deliverables for '集成测试验证' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: *id004
+  estimated_complexity: MEDIUM
+  priority: P1
+  depends_on_plan_index:
+  - 6
+- title: '[S6-delivery] 部署准备'
+  description: 'Prepare deployment artifacts and documentation. (from: User Login
+    Page Enhancement)'
+  phase: S6-delivery
+  acceptance_criteria:
+  - All S6-delivery deliverables for '部署准备' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: &id005
+  - delivery-manager
+  - release-engineer
+  estimated_complexity: MEDIUM
+  priority: P1
+  depends_on_plan_index:
+  - 8
+- title: '[S6-delivery] 交付验收'
+  description: 'Run delivery gate checks and produce release decision. (from: User
+    Login Page Enhancement)'
+  phase: S6-delivery
+  acceptance_criteria:
+  - All S6-delivery deliverables for '交付验收' complete
+  - Evidence recorded in .ai/evidence/{task_id}/
+  suggested_roles: *id005
+  estimated_complexity: MEDIUM
+  priority: P1
+  depends_on_plan_index:
+  - 8
+edges:
+- from_task_index: 0
+  to_task_index: 1
+  edge_type: BLOCKS
+- from_task_index: 1
+  to_task_index: 2
+  edge_type: BLOCKS
+- from_task_index: 2
+  to_task_index: 3
+  edge_type: BLOCKS
+- from_task_index: 3
+  to_task_index: 4
+  edge_type: BLOCKS
+- from_task_index: 4
+  to_task_index: 5
+  edge_type: BLOCKS
+- from_task_index: 5
+  to_task_index: 6
+  edge_type: BLOCKS
+- from_task_index: 6
+  to_task_index: 7
+  edge_type: BLOCKS
+- from_task_index: 7
+  to_task_index: 8
+  edge_type: BLOCKS
+- from_task_index: 8
+  to_task_index: 9
+  edge_type: BLOCKS
+- from_task_index: 9
+  to_task_index: 10
+  edge_type: BLOCKS
+estimated_phases:
+- S1-requirements
+- S2-architecture
+- S3-interface
+- S4-implementation
+- S5-quality
+- S6-delivery
+clarification_needed: []
+created_at: '2026-07-29T15:50:49.053624+00:00'
+updated_at: '2026-07-29T15:50:49.053624+00:00'
+version: 1
