@@ -77,3 +77,13 @@ pending gates, blockers, and next startup prompt.
 - installed: true
 - engine: codex_loop v3.12.8 (native Codex)
 - supersedes: zcode loop-engine v3.0.0
+
+### Auto-Role Dispatch (v3.12.8)
+
+When a phase requires role agents, the system auto-generates a SubagentManifest:
+1. manifest_generator.generate_manifest(phase, task_id, title, paths)
+2. DispatchRunner.prepare(manifest) -> ExecutionPlan
+3. DispatchRunner.get_spawn_specs(manifest) -> spawn_agent params
+4. For each spec: spawn_agent(agent_type, message, fork_turns)
+5. Collect results -> DispatchRunner.finalize() -> gate presentation
+6. fork_turns policy: dev/test/qa get all context, reviewer gets none
