@@ -1,10 +1,20 @@
+"""
+Contract-to-Test Coverage Verifier.
+
+Reads interface contract files from .ai/evidence/{task_id}/ and verifies
+that every `tests_required` entry has a corresponding test function in the
+project's test files. Returns violations when required tests are missing.
+
+This is a read-only module — it never modifies files.
+"""
 from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 

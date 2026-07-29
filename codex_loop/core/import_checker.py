@@ -16,6 +16,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,7 @@ class ImportChecker:
         return deps
 
     @staticmethod
-    def _load_toml(path: Path) -> dict | None:
+    def _load_toml(path: Path) -> Optional[dict]:
         """Load a TOML file using the best available parser.
 
         Returns None if no parser is available or parsing fails.
@@ -209,7 +210,7 @@ class ImportChecker:
         """
         deps: set[str] = set()
         try:
-            with open(requirements_path, encoding="utf-8") as f:
+            with open(requirements_path, "r", encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     # Skip empty, comments, and pip options
@@ -226,7 +227,7 @@ class ImportChecker:
         return deps
 
     @staticmethod
-    def _extract_package_name(dep_line: str) -> str | None:
+    def _extract_package_name(dep_line: str) -> Optional[str]:
         """Extract the package name from a PEP 508 dependency specification.
 
         Examples:
@@ -360,7 +361,7 @@ class ImportChecker:
         imports_checked = 0
 
         try:
-            with open(file_path, encoding="utf-8") as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 source = f.read()
         except (OSError, UnicodeDecodeError):
             return violations, 0
@@ -438,8 +439,8 @@ class ImportChecker:
     @staticmethod
     def check_directory(
         root: Path,
-        scan_paths: list[Path] | None = None,
-        declared_deps: set[str] | None = None,
+        scan_paths: Optional[list[Path]] = None,
+        declared_deps: Optional[set[str]] = None,
     ) -> ImportCheckResult:
         """Check all .py files in the specified directories for import violations.
 
