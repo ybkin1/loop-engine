@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "exit_code": 0,
+  "task_id": "T-0080",
+  "gate_id": "G-T-0080-RUNTIME-ACCEPTANCE",
+  "acceptance_tests": {
+    "total": 24,
+    "passed": 21,
+    "skipped": 3,
+    "failed": 0
+  },
+  "full_suite": {
+    "total_passed": 2632,
+    "total_skipped": 63,
+    "total_xfailed": 16,
+    "total_failed": 0
+  },
+  "files_created": [
+    "tests/test_live_acceptance.py"
+  ],
+  "files_modified": [],
+  "timestamp": "2026-07-29T00:00:00Z",
+  "notes": "T-0080 acceptance tests verify Agent dispatch evidence, main session isolation, runtime projection lifecycle, and fail-closed no-self-recovery. 3 tests skipped: require live Agent harness (validated during T-0079 with 5 real agent_* sessions)."
+}

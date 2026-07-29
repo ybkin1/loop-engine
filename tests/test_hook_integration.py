@@ -385,7 +385,12 @@ class LoopEnforcementHardConstraintsIntegration(unittest.TestCase):
     SCRIPT = "loop_enforcement.py"
 
     def test_allows_valid_write_with_active_task_and_scope(self):
-        """When HardConstraints passes, write in allowed scope is permitted."""
+        """Write in allowed scope WITHOUT runtime projection is BLOCKED (fail-closed).
+
+        The enforcement hook now requires a runtime projection before considering
+        task scope.  Without the projection, the hook blocks business tool
+        operations even when a task and scope exist.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(
                 tmp,
@@ -395,7 +400,7 @@ class LoopEnforcementHardConstraintsIntegration(unittest.TestCase):
                 task_files={"T-0001.md": TASK_IN_SCOPE},
             )
             r = _run_hook(self.SCRIPT, root, _write_input(str(root / "src" / "main.py")))
-            self.assertEqual(r.returncode, 0, f"Expected pass, got: {r.stderr}")
+            self.assertEqual(r.returncode, 2, f"Expected block, got: {r.stderr}")
 
     def test_blocks_write_when_no_active_task(self):
         """C3: No active task should block writes (HardConstraints C3)."""
@@ -691,7 +696,12 @@ class GracefulDegradationTest(unittest.TestCase):
         )
 
     def test_loop_enforcement_fallback_works(self):
-        """When HardConstraints is unimportable, the hook falls back gracefully."""
+        """When HardConstraints is unimportable, the hook fails closed.
+
+        Without a runtime projection, the enforcement hook blocks even when
+        HardConstraints is broken/unimportable — the fallback path is also
+        fail-closed.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(
                 tmp,
@@ -706,9 +716,9 @@ class GracefulDegradationTest(unittest.TestCase):
             # Should not crash — fallback logic should work
             self.assertNotIn("Traceback", r.stderr,
                              f"Should not crash on ImportError, got: {r.stderr}")
-            # In fallback, task scope check passes (active task + in scope path)
-            self.assertEqual(r.returncode, 0,
-                             f"Fallback should allow valid write, got: {r.stderr}")
+            # Without runtime projection, fallback is also fail-closed
+            self.assertEqual(r.returncode, 2,
+                             f"Fallback should block without runtime projection, got: {r.stderr}")
 
     def test_loop_enforcement_fallback_blocks_out_of_scope(self):
         """Fallback logic still blocks out-of-scope writes when no HardConstraints."""

@@ -130,11 +130,7 @@ def load_role_prompt_with_context(role_id, project_root=".", task_id="", extra_f
     """Load role identity + code context — the ONE method for agent dispatch."""
     identity = load_role_prompt(role_id, task_id)
     context = build_role_context(role_id, project_root, task_id, extra_files)
-    return identity + "
-
----
-
-" + context
+    return identity + "\n\n---\n\n" + context
 # ===== 2. Agent dispatch helper =====
 def build_agent_dispatch_instruction(role_id: str, task_id: str, files: list[str]) -> str:
     """Build the instruction for the MAIN agent to dispatch a sub-agent.

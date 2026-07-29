@@ -11,6 +11,7 @@ import json
 import os
 import secrets
 import tempfile
+import time
 from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
@@ -68,6 +69,10 @@ class RuntimeSnapshot:
     capability_id: str | None
     proposal_hash: str | None
     checkpoint_ref: str | None = None
+    # Dispatch integration fields (optional, added for HostAgentInvoker + DispatchLease integration)
+    child_session: str | None = None
+    actor: str | None = None
+    lease_status: str | None = None
 
 
 GOVERNANCE_FILES = {
@@ -108,13 +113,15 @@ def _atomic_json(path: Path, value: Any) -> None:
 class RuntimeController:
     """Single authority for onboarding, proposal, approval, and authorization."""
 
-    def __init__(self, root: str | Path):
+    def __init__(self, root: str | Path, *, agent_adapter: Any = None):
         self.root = Path(root).resolve()
         self.meta_dir = self.root / ".ai" / "runtime"
         self.snapshot_path = self.meta_dir / "runtime-state.json"
         self.journal_path = self.meta_dir / "runtime-events.jsonl"
         self.capability_path = self.meta_dir / "capability.json"
         self.checkpoint_path = self.meta_dir / "checkpoint.json"
+        self.projection_path = self.meta_dir / "projection.json"
+        self._agent_adapter = agent_adapter
 
     def inspect(self) -> RuntimeState:
         if not self.root.is_dir():
@@ -275,9 +282,185 @@ class RuntimeController:
         self._event("CHECKPOINT_CREATED", checkpoint)
         return self.checkpoint_path
 
+    def dispatch_execution(
+        self,
+        capability: ExecutionCapability,
+        context: ExecutionContext,
+        *,
+        dispatch_prompt: str = "",
+        agent_adapter: Any = None,
+        timeout_seconds: int = 300,
+        gate_id: str | None = None,
+    ) -> RuntimeSnapshot:
+        """Dispatch an Agent sub-session for the given capability and context.
+
+        Uses :class:`DispatchLease` to prevent duplicate dispatch for the same
+        ``(task_id, role_id)`` pair, and :class:`HostAgentInvoker` to attempt
+        the actual Agent launch.
+
+        **Fail-closed**: if no ``agent_adapter`` is available (neither stored
+        nor passed as argument), the dispatch returns ``BLOCKED`` with
+        ``SETUP_INCOMPLETE`` metadata — never a fabricated PASS.
+
+        On successful dispatch, a runtime projection file is written to
+        ``.ai/runtime/projection.json`` for the loop enforcement hook.
+
+        Args:
+            capability:
+                The ``ExecutionCapability`` authorizing this dispatch.
+            context:
+                The ``ExecutionContext`` identifying the caller.
+            dispatch_prompt:
+                The prompt text to send to the Agent sub-session.
+            agent_adapter:
+                Optional Agent adapter override.  Falls back to the one
+                stored on the controller (``self._agent_adapter``).
+            timeout_seconds:
+                Lease timeout in seconds (default 300).
+            gate_id:
+                Optional gate identifier.  Falls back to the gate stored
+                in the current runtime snapshot.
+
+        Returns:
+            ``RuntimeSnapshot`` with ``child_session``, ``actor``, and
+            ``lease_status`` populated from the dispatch attempt.
+        """
+        from loop_core.dispatch_lease import DispatchLease, LeaseStatus
+        from loop_core.host_agent_invoker import HostAgentInvoker, ReceiptStatus
+
+        # ── Resolve adapter ──────────────────────────────────────────────
+        adapter = agent_adapter if agent_adapter is not None else self._agent_adapter
+
+        # ── Resolve gate_id ──────────────────────────────────────────────
+        snapshot_data = self._load_snapshot()
+        resolved_gate_id = gate_id or snapshot_data.get("gate_id") or ""
+
+        # ── Grant dispatch lease (prevents duplicate dispatch) ───────────
+        lease = DispatchLease.grant(
+            execution_id=capability.execution_id,
+            task_id=capability.task_id,
+            role_id=context.role_id,
+            timeout_seconds=timeout_seconds,
+            metadata={
+                "capability_id": capability.capability_id,
+                "gate_id": resolved_gate_id,
+                "actor_id": context.actor_id,
+            },
+        )
+
+        if lease.status == LeaseStatus.CONFLICT:
+            snapshot_data.update({
+                "runtime_state": RuntimeState.DEVELOPER_EXECUTION.value,
+                "task_id": capability.task_id,
+                "execution_id": capability.execution_id,
+                "capability_id": capability.capability_id,
+                "gate_id": resolved_gate_id,
+                "child_session": None,
+                "actor": context.actor_id,
+                "lease_status": LeaseStatus.CONFLICT.value,
+            })
+            self._save_snapshot(snapshot_data)
+            self._event("DISPATCH_CONFLICT", {
+                "execution_id": capability.execution_id,
+                "task_id": capability.task_id,
+                "role_id": context.role_id,
+                "conflict_with": lease.metadata.get("conflict_with", {}),
+            })
+            return self.snapshot()
+
+        # ── Build invoker and attempt dispatch ───────────────────────────
+        invoker = HostAgentInvoker(
+            agent_adapter=adapter,
+            default_timeout_seconds=timeout_seconds,
+        )
+
+        dispatch_payload = {
+            "task_id": capability.task_id,
+            "role_id": context.role_id,
+            "prompt": dispatch_prompt or f"Execute task {capability.task_id}",
+            "gate_id": resolved_gate_id,
+            "execution_id": capability.execution_id,
+            "capability_id": capability.capability_id,
+            "write_scope": list(capability.allowed_paths),
+            "actor_id": context.actor_id,
+        }
+
+        receipt = invoker.launch(
+            dispatch_payload,
+            actor=context.actor_id,
+            execution_mode="ROLE_EXECUTION",
+        )
+
+        # ── Determine runtime state from receipt ─────────────────────────
+        if receipt.status == ReceiptStatus.PASS:
+            runtime_state = RuntimeState.DEVELOPER_EXECUTION.value
+        elif receipt.status == ReceiptStatus.BLOCKED:
+            runtime_state = RuntimeState.USER_APPROVAL_REQUIRED.value
+        else:
+            runtime_state = RuntimeState.DEVELOPER_EXECUTION.value  # ERROR: still in execution context
+
+        # ── Update snapshot ──────────────────────────────────────────────
+        snapshot_data.update({
+            "runtime_state": runtime_state,
+            "task_id": capability.task_id,
+            "gate_id": resolved_gate_id,
+            "execution_id": capability.execution_id,
+            "capability_id": capability.capability_id,
+            "child_session": receipt.child_session,
+            "actor": receipt.actor,
+            "lease_status": lease.status.value if receipt.is_pass() else receipt.status.value,
+        })
+        self._save_snapshot(snapshot_data)
+
+        # ── Write runtime projection on success ──────────────────────────
+        if receipt.is_pass():
+            self._write_runtime_projection(
+                execution_id=capability.execution_id,
+                task_id=capability.task_id,
+                gate_id=resolved_gate_id,
+                child_session=receipt.child_session,
+                actor=receipt.actor,
+            )
+
+        self._event("DISPATCH_ATTEMPTED", {
+            "execution_id": capability.execution_id,
+            "task_id": capability.task_id,
+            "role_id": context.role_id,
+            "receipt_status": receipt.status.value,
+            "child_session": receipt.child_session,
+            "lease_status": lease.status.value,
+        })
+
+        return self.snapshot()
+
+    def _write_runtime_projection(
+        self,
+        execution_id: str,
+        task_id: str,
+        gate_id: str,
+        child_session: str,
+        actor: str,
+    ) -> None:
+        """Write a runtime projection file that the loop enforcement hook reads.
+
+        The projection confirms that a valid Agent sub-session was launched
+        with the correct execution context, and provides the ``child_session``
+        identifier for cross-verification.
+        """
+        projection = {
+            "execution_id": execution_id,
+            "task_id": task_id,
+            "gate_id": gate_id,
+            "child_session": child_session,
+            "actor": actor,
+            "state": "ROLE_EXECUTION",
+            "timestamp": time.time(),
+        }
+        _atomic_json(self.projection_path, projection)
+
     def snapshot(self) -> RuntimeSnapshot:
         data = self._load_snapshot()
-        return RuntimeSnapshot(data.get("runtime_state", RuntimeState.NO_ACTIVE_TASK.value), data.get("task_id"), data.get("gate_id"), data.get("execution_id"), data.get("capability_id"), data.get("proposal_hash"), data.get("checkpoint_ref"))
+        return RuntimeSnapshot(data.get("runtime_state", RuntimeState.NO_ACTIVE_TASK.value), data.get("task_id"), data.get("gate_id"), data.get("execution_id"), data.get("capability_id"), data.get("proposal_hash"), data.get("checkpoint_ref"), data.get("child_session"), data.get("actor"), data.get("lease_status"))
 
     def _ensure_file(self, relative: str, content: str) -> None:
         path = self.root / relative
