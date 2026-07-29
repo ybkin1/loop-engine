@@ -1,7 +1,9 @@
 """DispatchRunner: connects LoopDispatcher -> CodexAgentAdapter -> spawn_agent"""
 from pathlib import Path
-from codex_loop.runtime.dispatcher import LoopDispatcher
+
 from codex_loop.runtime.codex_agent_adapter import CodexAgentAdapter
+from codex_loop.runtime.dispatcher import LoopDispatcher
+
 
 class DispatchRunner:
     """End-to-end Loop dispatch: manifest -> plan -> spawn -> collect -> aggregate"""

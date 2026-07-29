@@ -298,7 +298,7 @@ def collect_results(gates: dict, project_root: Path) -> list[dict[str, Any]]:
         structural = run_structural_checks(str(project_root))
         results.extend(structural)
     except Exception as e:
-        results.append(dict(name=chr(39)+chr(115)+chr(116)+chr(114)+chr(117)+chr(99)+chr(116)+chr(117)+chr(114)+chr(97)+chr(108)+chr(39),value=-1,threshold=0,raw=str(e)[:200],skipped=True))
+        results.append({"name": chr(39)+chr(115)+chr(116)+chr(114)+chr(117)+chr(99)+chr(116)+chr(117)+chr(114)+chr(97)+chr(108)+chr(39),"value": -1,"threshold": 0,"raw": str(e)[:200],"skipped": True})
 
     return results
 

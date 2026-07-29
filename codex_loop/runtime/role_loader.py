@@ -9,7 +9,6 @@ Usage:
 
 import json
 from pathlib import Path
-from typing import Optional
 
 
 def _find_agents_root() -> Path:
@@ -63,7 +62,7 @@ def load_role_contract(role_id: str) -> dict:
 def load_role_prompt(
     role_id: str,
     task_id: str = "",
-    input_files: Optional[list[str]] = None,
+    input_files: list[str] | None = None,
     extra_instructions: str = "",
 ) -> str:
     """Build a complete Agent prompt that loads the role's full identity.
@@ -108,7 +107,7 @@ def load_role_prompt(
     if task_id:
         parts.append(f"\n---\n## TASK CONTEXT\nYou are executing as part of task **{task_id}**.")
     if input_files:
-        parts.append(f"\n## FILES TO REVIEW\n" + "\n".join(f"- {f}" for f in input_files))
+        parts.append("\n## FILES TO REVIEW\n" + "\n".join(f"- {f}" for f in input_files))
     if extra_instructions:
         parts.append(f"\n## ADDITIONAL INSTRUCTIONS\n{extra_instructions}")
 

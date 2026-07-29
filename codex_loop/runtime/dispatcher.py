@@ -13,8 +13,7 @@ It does NOT call Agent() — that remains the host's exclusive capability.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
 
 from loop_core.agent_adapter import AgentAdapter, AgentInput, AgentOutput
 from loop_core.subagent_manifest import (
@@ -200,7 +199,7 @@ class LoopDispatcher:
         results: list[SubagentResult] = []
         outputs: list[AgentOutput] = []
 
-        for step, raw in zip(batch, raw_outputs):
+        for step, raw in zip(batch, raw_outputs, strict=False):
             agent_output = adapter.collect_result(step.agent_input, raw)
 
             status = SubagentStatus.COMPLETED if agent_output.is_clean else SubagentStatus.FAILED
@@ -267,7 +266,7 @@ class LoopDispatcher:
         are included.
         """
         retry_steps: list[ExecutionStep] = []
-        for step, result in zip(batch_result.steps, batch_result.results):
+        for step, result in zip(batch_result.steps, batch_result.results, strict=False):
             if result.status == SubagentStatus.COMPLETED:
                 continue
             if not step.spec.retry_on_failure:

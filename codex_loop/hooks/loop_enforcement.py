@@ -62,7 +62,7 @@ _HardConstraints, _Severity = try_import_hard_constraints()
 _HARD_CONSTRAINTS_AVAILABLE = _HardConstraints is not None
 # v3.1: RuntimeController integration for Codex-native authorization
 try:
-    from codex_loop.runtime.runtime_controller import RuntimeController, ExecutionContext
+    from codex_loop.runtime.runtime_controller import ExecutionContext, RuntimeController
     _RUNTIME_CONTROLLER_AVAILABLE = True
 except ImportError:
     _RUNTIME_CONTROLLER_AVAILABLE = False
@@ -395,11 +395,12 @@ def main():
         if _RUNTIME_CONTROLLER_AVAILABLE and target is not None:
             try:
                 controller = RuntimeController(root)
+                state_early = load_state(root)
                 ctx = ExecutionContext(
                     actor_id=hook_input.get("agent_id", "unknown"),
                     role_id=hook_input.get("role", "unknown"),
                     caller_class=hook_input.get("caller_class", "hook"),
-                    task_id=task_id,
+                    task_id=state_early.get(chr(39)+chr(99)+chr(117)+chr(114)+chr(114)+chr(101)+chr(110)+chr(116)+chr(95)+chr(116)+chr(97)+chr(115)+chr(107)+chr(95)+chr(105)+chr(100)+chr(39)+chr(41)),
                 )
                 allowed, reason = controller.authorize_write(ctx, rel)
                 if not allowed:

@@ -13,7 +13,6 @@ Loop-specific security patterns (hooks isolation, adapter boundaries).
 """
 from __future__ import annotations
 
-import ast
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -70,7 +69,7 @@ _PATH_PATTERNS = [
 
 _ENV_PATTERNS = [
     (re.compile(r'os\.environ\[["\']([^"\']+)["\']\]'),
-     "SS-030", "low", f"Environment variable read — may leak sensitive config"),
+     "SS-030", "low", "Environment variable read — may leak sensitive config"),
 ]
 
 

@@ -1,9 +1,10 @@
+S=chr(39)
 """Structural quality checks wrapper. All 6 modules with correct interfaces."""
-import sys
 from pathlib import Path
 
-def _ok(name,val): return dict(name=name,value=val,threshold=0,raw=str(val))
-def _skip(name,reason): return dict(name=name,value=-1,threshold=0,raw=reason[:200],skipped=True)
+
+def _ok(name,val): return {'name': name,'value': val,'threshold': 0,'raw': str(val)}
+def _skip(name,reason): return {'name': name,'value': -1,'threshold': 0,'raw': reason[:200],'skipped': True}
 
 def run_structural_checks(project_root=None):
     root = Path(project_root) if project_root else Path(__file__).resolve().parent.parent.parent
@@ -13,7 +14,7 @@ def run_structural_checks(project_root=None):
     try:
         from codex_loop.core.static_analyzer import analyze_project
         r = analyze_project(str(root))
-        results.append(dict(name='static_analysis',value=r.errors+warn_val(r),threshold=0,raw=S+chr(101)+chr(114)+chr(114)+chr(111)+chr(114)+chr(115)+chr(61)+S+str(r.errors)+S+chr(32)+chr(119)+chr(97)+chr(114)+chr(110)+chr(105)+chr(110)+chr(103)+chr(115)+chr(61)+S+str(warn_val(r))))
+        results.append({'name': 'static_analysis','value': r.errors+warn_val(r),'threshold': 0,'raw': S+chr(101)+chr(114)+chr(114)+chr(111)+chr(114)+chr(115)+chr(61)+S+str(r.errors)+S+chr(32)+chr(119)+chr(97)+chr(114)+chr(110)+chr(105)+chr(110)+chr(103)+chr(115)+chr(61)+S+str(warn_val(r))})
     except Exception as e:
         results.append(_skip('static_analysis',str(e)))
 
@@ -22,7 +23,7 @@ def run_structural_checks(project_root=None):
         from codex_loop.core.security_scanner import scan_security
         r = scan_security(str(root))
         vulns = int(r.critical) + int(r.high)
-        results.append(dict(name='security_scan',value=vulns,threshold=0,raw=S+chr(99)+chr(114)+chr(105)+chr(116)+chr(105)+chr(99)+chr(97)+chr(108)+chr(61)+S+str(r.critical)+S+chr(32)+chr(104)+chr(105)+chr(103)+chr(104)+chr(61)+S+str(r.high)))
+        results.append({'name': 'security_scan','value': vulns,'threshold': 0,'raw': S+chr(99)+chr(114)+chr(105)+chr(116)+chr(105)+chr(99)+chr(97)+chr(108)+chr(61)+S+str(r.critical)+S+chr(32)+chr(104)+chr(105)+chr(103)+chr(104)+chr(61)+S+str(r.high)})
     except Exception as e:
         results.append(_skip('security_scan',str(e)))
 

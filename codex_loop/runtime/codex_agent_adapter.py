@@ -63,7 +63,6 @@ class CodexAgentAdapter(AgentAdapter):
         Returns AgentOutput with spawn_params dict that host can use:
         spawn_agent(agent_type=output.spawn_params['agent_type'], message=output.spawn_params['message'], fork_turns=output.spawn_params['fork_turns'])
         """
-        role_id = agent_input.role_id
         agent_type = self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, "default")
         spawn_params = {"agent_type": agent_type, "message": agent_input.prompt, "fork_turns": "none"}
         return AgentOutput(
