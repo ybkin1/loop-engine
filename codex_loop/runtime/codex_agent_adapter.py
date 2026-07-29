@@ -46,10 +46,24 @@ class CodexAgentAdapter(AgentAdapter):
             input_fingerprint=agent_input.fingerprint(),
         )
 
+    ROLE_FORK_POLICY = {
+        'independent-reviewer': 'none',  # fresh context for unbiased review
+        'product-manager': 'none',       # only sees requirements
+        'project-manager': 'none',       # only sees task graph
+        'delivery-manager': 'none',       # only sees delivery packet
+    }
+
     def get_spawn_params(self, agent_input):
-        """Return Codex spawn_agent parameters for this role."""
+        """Return Codex spawn_agent params with role-appropriate fork_turns.
+
+        Roles needing code context (developer,test-engineer,quality-engineer,
+        security-engineer,system-architect,module-architect,release-engineer)
+        get fork_turns=chr(39)+chr(97)+chr(108)+chr(108)+chr(39)+chr(32)+chr(35)+chr(32)+chr(102)+chr(117)+chr(108)+chr(108)+chr(32)+chr(99)+chr(111)+chr(100)+chr(101)+chr(32)+chr(99)+chr(111)+chr(110)+chr(116)+chr(101)+chr(120)+chr(116).
+        Review/management roles get fork_turns=chr(39)+chr(110)+chr(111)+chr(110)+chr(101)+chr(39)+chr(32)+chr(35)+chr(32)+chr(102)+chr(114)+chr(101)+chr(115)+chr(104)+chr(32)+chr(112)+chr(101)+chr(114)+chr(115)+chr(112)+chr(101)+chr(99)+chr(116)+chr(105)+chr(118)+chr(101).
+        """
         atype = self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, 'default')
-        return {'agent_type': atype, 'message': agent_input.prompt, 'fork_turns': 'none'}
+        fork = self.ROLE_FORK_POLICY.get(agent_input.role_id, 'all')
+        return {'agent_type': atype, 'message': agent_input.prompt, 'fork_turns': fork}
 
     def launch_agent(self, agent_input):
         inp = self.prepare_launch(agent_input)
