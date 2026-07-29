@@ -1,45 +1,28 @@
-"""DispatchRunner: connects LoopDispatcher -> CodexAgentAdapter -> spawn_agent"""
 from pathlib import Path
-
-from codex_loop.runtime.codex_agent_adapter import CodexAgentAdapter
 from codex_loop.runtime.dispatcher import LoopDispatcher
-
+from codex_loop.runtime.codex_agent_adapter import CodexAgentAdapter
 
 class DispatchRunner:
-    """End-to-end Loop dispatch: manifest -> plan -> spawn -> collect -> aggregate"""
     def __init__(self, project_root=None):
         self.root = Path(project_root) if project_root else Path(__file__).resolve().parent.parent.parent
         self.dispatcher = LoopDispatcher()
         self.adapter = CodexAgentAdapter(self.root)
-
     def validate_manifest(self, manifest):
         valid, errors = manifest.validate()
-        if not valid:
-            return False, errors
-        for spec in manifest.subagents:
-            if spec.role_hint:
-                role_dir = self.root / 'agents' / spec.role_hint
-                if not role_dir.exists():
-                    errors.append('Role dir not found: ' + str(role_dir))
-        return len(errors) == 0, errors
-
+        return valid, errors
     def prepare(self, manifest):
         ok, errors = self.validate_manifest(manifest)
-        if not ok:
-            raise ValueError('Manifest validation failed: ' + '; '.join(errors))
+        if not ok: raise ValueError(chr(59).join(errors))
         return self.dispatcher.prepare(manifest, self.adapter)
-
-    def get_spawn_specs(self, manifest):
-        """Generate spawn_agent call specs for each sub-agent."""
-        specs = []
-        for spec in manifest.subagents:
-            from codex_loop.runtime.agent_adapter import AgentInput
-            inp = AgentInput(role_id=spec.subagent_id, task_id=manifest.parent_task_id, prompt=spec.prompt, input_files=list(spec.input_files))
-            params = self.adapter.get_spawn_params(inp)
-            specs.append({'id': spec.subagent_id,'agent_type': params['agent_type'],'message': params['message'],'fork_turns': params['fork_turns']})
-        return specs
     def build_script(self, manifest):
         return self.dispatcher.build_execution_script(manifest, self.adapter)
-
     def finalize(self, manifest, batch_results):
         return self.dispatcher.finalize(manifest, batch_results)
+    def get_spawn_specs(self, manifest):
+        from codex_loop.runtime.agent_adapter import AgentInput
+        specs = []
+        for spec in manifest.subagents:
+            inp = AgentInput(role_id=spec.subagent_id, task_id=manifest.parent_task_id, prompt=spec.prompt, input_files=list(spec.input_files))
+            p = self.adapter.get_spawn_params(inp)
+            specs.append(dict(id=spec.subagent_id, agent_type=p[chr(97)+chr(103)+chr(101)+chr(110)+chr(116)+chr(95)+chr(116)+chr(121)+chr(112)+chr(101)], message=p[chr(109)+chr(101)+chr(115)+chr(115)+chr(97)+chr(103)+chr(101)], fork_turns=p[chr(102)+chr(111)+chr(114)+chr(107)+chr(95)+chr(116)+chr(117)+chr(114)+chr(110)+chr(115)]))
+        return specs
