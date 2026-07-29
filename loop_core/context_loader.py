@@ -395,15 +395,15 @@ def _parse_yaml(raw: str) -> Any:
         import yaml
         return yaml.safe_load(raw)
     except ImportError:
-        pass
-    except Exception:
-        pass
+                import logging; logging.getLogger("context_loader").debug("YAML not available, falling back to JSON")
+    except Exception as _e:
+                import logging; logging.getLogger("context_loader").debug("Parse error: %s", _e)
 
     # Fall back to JSON
     try:
         return json.loads(raw)
-    except Exception:
-        pass
+    except Exception as _e:
+                import logging; logging.getLogger("context_loader").debug("Parse error: %s", _e)
 
     # Last resort: return raw — the caller will handle it
     return raw

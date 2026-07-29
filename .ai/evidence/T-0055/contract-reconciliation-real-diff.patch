@@ -1,0 +1,92 @@
+diff --git a/loop_core/role_capability.py b/loop_core/role_capability.py
+index d232257..852620f 100644
+--- a/loop_core/role_capability.py
++++ b/loop_core/role_capability.py
+@@ -13,7 +13,7 @@ Key concepts:
+ from __future__ import annotations
+ 
+ from dataclasses import dataclass, field
+-from datetime import datetime, timezone
++from datetime import datetime, timedelta, timezone
+ from enum import Enum
+ from typing import Any
+ 
+@@ -98,6 +98,12 @@ class CapabilityChallenge:
+ 
+ 
+ # Standard challenges per role
++ROLE_IDS: tuple[str, ...] = (
++    "main-thread", "product-manager", "project-manager", "system-architect",
++    "module-architect", "developer", "quality-engineer", "test-engineer",
++    "security-engineer", "independent-reviewer", "delivery-manager", "release-engineer",
++)
++
+ ROLE_CHALLENGES: dict[str, CapabilityChallenge] = {
+     "quality-engineer": CapabilityChallenge(
+         challenge_id="CHALLENGE-QA-001",
+@@ -289,6 +295,9 @@ class RoleCapabilityProfile:
+     role_id: str
+     status: CapabilityStatus = CapabilityStatus.UNCERTIFIED
+     certified_at: str | None = None
++    certification_expires_at: str | None = None
++    revalidation_interval_days: int = 45
++    grace_period_days: int = 7
+     last_challenge_id: str | None = None
+     challenge_attempts: int = 0
+ 
+@@ -415,17 +424,11 @@ def check_role_admission(
+     return True, "Admission approved"
+ 
+ 
+-# ── Default profiles for all 11 roles ────────────────────────────────────
++# ── Default profiles for all registered roles ─────────────────────────────
+ 
+ def create_default_profiles() -> dict[str, RoleCapabilityProfile]:
+-    """Create default (uncertified) profiles for all 11 roles."""
+-    roles = [
+-        "developer", "quality-engineer", "security-engineer",
+-        "independent-reviewer", "system-architect", "module-architect",
+-        "product-manager", "project-manager", "delivery-manager",
+-        "release-engineer", "main-thread",
+-    ]
+-    return {role: RoleCapabilityProfile(role_id=role) for role in roles}
++    """Create default (uncertified) profiles for every canonical role."""
++    return {role: RoleCapabilityProfile(role_id=role) for role in ROLE_IDS}
+ 
+ 
+ # ── Persistence (v3.2) ──────────────────────────────────────────────────
+@@ -454,6 +457,9 @@ def load_profile(role_id: str, project_root: str | _Path) -> RoleCapabilityProfi
+         profile = RoleCapabilityProfile(role_id=role_id)
+         profile.status = CapabilityStatus(data.get("status", "uncertified"))
+         profile.certified_at = data.get("certified_at")
++        profile.certification_expires_at = data.get("certification_expires_at")
++        profile.revalidation_interval_days = int(data.get("revalidation_interval_days", 45))
++        profile.grace_period_days = int(data.get("grace_period_days", 7))
+         profile.last_challenge_id = data.get("last_challenge_id")
+         profile.challenge_attempts = data.get("challenge_attempts", 0)
+         counters = data.get("degradation_counters", {})
+diff --git a/tests/test_role_capability.py b/tests/test_role_capability.py
+index 4b347f9..5394e5e 100644
+--- a/tests/test_role_capability.py
++++ b/tests/test_role_capability.py
+@@ -144,9 +144,9 @@ class TestRoleAdmission:
+ 
+ 
+ class TestDefaultProfiles:
+-    def test_all_11_roles_created(self):
++    def test_all_registered_roles_created(self):
+         profiles = create_default_profiles()
+-        assert len(profiles) == 11
++        assert len(profiles) == 12
+         assert "main-thread" in profiles
+         assert "delivery-manager" in profiles
+ 
+@@ -180,7 +180,7 @@ class TestPersistence:
+         profiles["quality-engineer"].certify()
+         save_all_profiles(profiles, str(tmp_path))
+         loaded = load_all_profiles(str(tmp_path))
+-        assert len(loaded) == 11
++        assert len(loaded) == 12
+         assert loaded["quality-engineer"].status == CapabilityStatus.CERTIFIED
+ 
+     def test_degradation_survives_restart(self, tmp_path):

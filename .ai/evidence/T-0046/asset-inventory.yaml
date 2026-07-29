@@ -1,0 +1,96 @@
+# T-0046 Asset Inventory
+# Classification of untracked/modified files in Git working tree
+
+generated_at: "2026-07-24"
+generated_by: T-0046-reconciliation
+
+## Categories
+
+### Source Code (formal)
+- loop_core/*.py — Core protocol modules
+- src/loop_engine/*.py — Plugin core library
+- hooks/scripts/*.py — Governance hooks
+- .zcode/tools/*.py — Validation and governance tools
+- scripts/*.py — Install/upgrade/rollback scripts
+
+### Formal Tests
+- tests/test_*.py — Test suite
+
+### Governance Evidence
+- .ai/evidence/*/ — Task evidence directories
+- .ai/state.yaml, task_graph.yaml, gates.yaml — Governance state
+- .ai/HANDOFF.md, HANDOFF-NEXT.md — Handoff documents
+
+### Historical Debug Scripts
+- hooks/scripts/loop_enforcement.py.bak — Backup file
+
+### Cache / Generated Artifacts
+- __pycache__/ — Python bytecode cache (ALL directories)
+- *.pyc — Compiled Python files
+- .pytest_cache/ — Pytest cache
+- dist/ — Build output
+
+### Untracked Source Files (to be reviewed)
+- loop_core/approval_ledger.py
+- loop_core/context_controller.py
+- loop_core/context_loader.py
+- loop_core/evidence_chain.py
+- loop_core/human_review_packet.py
+- loop_core/project_map_schema.py
+- loop_core/projection_engine.py
+- loop_core/subagent_manifest.py
+- loop_core/veto_escalation.py
+- tests/test_*.py (multiple new test files)
+- agents/*/CONTRACT.yaml, INTERNAL_LOOP.md, THINKING_FRAMEWORK.md
+
+### Tracked Python Cache (to be removed from index)
+tracked_cache_count: 48
+tracked_cache_files:
+  - .ai/checkers/__pycache__/validate_gate_register.cpython-312.pyc
+  - .zcode/tools/__pycache__/authority_records.cpython-312.pyc
+  - .zcode/tools/__pycache__/continuity_auditor.cpython-312.pyc
+  - .zcode/tools/__pycache__/continuity_producer.cpython-312.pyc
+  - .zcode/tools/__pycache__/evidence_manifest.cpython-312.pyc
+  - .zcode/tools/__pycache__/governor_lib.cpython-312.pyc
+  - .zcode/tools/__pycache__/task_contract.cpython-312.pyc
+  - .zcode/tools/__pycache__/transaction_registry.cpython-312.pyc
+  - agents/quality-engineer/scripts/__pycache__/check_thresholds.cpython-312.pyc
+  - agents/quality-engineer/scripts/__pycache__/run_quality_gates.cpython-312.pyc
+  - archive/lab-evidence/evidence/T-0030/__pycache__/test_project_governor_consistency.cpython-312-pytest-9.0.3.pyc
+  - demo/loop-demo-todo/src/__pycache__/__init__.cpython-312.pyc
+  - demo/loop-demo-todo/src/__pycache__/cli.cpython-312.pyc
+  - demo/loop-demo-todo/src/__pycache__/models.cpython-312.pyc
+  - demo/loop-demo-todo/src/__pycache__/storage.cpython-312.pyc
+  - demo/loop-demo-todo/tests/__pycache__/__init__.cpython-312.pyc
+  - demo/loop-demo-todo/tests/__pycache__/test_todo.cpython-312-pytest-9.0.3.pyc
+  - hooks/scripts/__pycache__/gate_guard.cpython-312.pyc
+  - hooks/scripts/__pycache__/hook_common.cpython-312.pyc
+  - hooks/scripts/__pycache__/loop_auto_activate.cpython-312.pyc
+  - hooks/scripts/__pycache__/loop_enforcement.cpython-312.pyc
+  - hooks/scripts/__pycache__/path_guard.cpython-312.pyc
+  - hooks/scripts/__pycache__/role_isolation.cpython-312.pyc
+  - hooks/scripts/__pycache__/session_brief.cpython-312.pyc
+  - loop_core/__pycache__/__init__.cpython-312.pyc
+  - loop_core/__pycache__/contracts.cpython-312.pyc
+  - loop_core/__pycache__/enforcement.cpython-312.pyc
+  - loop_core/__pycache__/executor.cpython-312.pyc
+  - loop_core/__pycache__/router.cpython-312.pyc
+  - loop_core/__pycache__/state_machine.cpython-312.pyc
+  - loop_engine/__pycache__/degradation.cpython-312.pyc
+  - loop_engine/__pycache__/enforcement_degradation.cpython-312.pyc
+  - loop_engine/adapters/__pycache__/__init__.cpython-312.pyc
+  - loop_engine/adapters/__pycache__/claude_adapter.cpython-312.pyc
+  - loop_engine/adapters/__pycache__/zcode_adapter.cpython-312.pyc
+  - scripts/__pycache__/auto_mutation.cpython-312.pyc
+  - scripts/__pycache__/certification_runner.cpython-312.pyc
+  - scripts/__pycache__/evidence_structured.cpython-312.pyc
+  - scripts/__pycache__/mutation_tester.cpython-312.pyc
+  - scripts/__pycache__/regression_runner.cpython-312.pyc
+  - tests/__pycache__/test_certification.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_check_thresholds.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_enforcement.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_executor.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_hooks.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_loop_core.cpython-312-pytest-9.0.3.pyc
+  - tests/__pycache__/test_quality_gates.cpython-312-pytest-9.0.3.pyc
+  - tests/lab/__pycache__/test_project_governor_consistency.cpython-312-pytest-9.0.3.pyc

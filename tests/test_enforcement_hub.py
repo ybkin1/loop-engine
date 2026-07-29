@@ -415,11 +415,12 @@ class TestQuickCheck:
         assert decision.allowed is True
 
     def test_missing_gates_file_allowed(self, temp_project):
-        """No gates.yaml at all → nothing to block."""
+        """No gates.yaml at all → FAIL CLOSED (governance state corrupted)."""
         _write_state(temp_project, current_phase="S4-implementation")
         _write_tasks(temp_project, [{"id": "T-active", "status": "active"}])
         decision = quick_check(temp_project)
-        assert decision.allowed is True
+        assert decision.allowed is False  # fail-closed on missing gates
+        assert "gates.yaml" in decision.reason
 
 
 # ── EnforcementLevel in decisions ──────────────────────────────────────
@@ -516,3 +517,157 @@ class TestEdgeCases:
         d = hub.check_role_isolation_enforcement("a", "b")
         assert d.checked_at is not None
         assert "T" in d.checked_at  # ISO 8601 format
+
+
+# ── Fail-Closed Corruption Tests (T-0047 Fix 3) ──────────────────────────
+
+
+class TestFailClosedCorruption:
+    """Verify that EnforcementHub FAILS CLOSED when governance files are
+    missing or corrupted — not silently returning 'all good'."""
+
+    def test_should_allow_write_fail_closed_missing_state(self, temp_project):
+        """Missing state.yaml → should_allow_write FAILS CLOSED."""
+        _write_gates(temp_project, [
+            {"id": "G-OK", "gate_type": "implementation", "status": "approved"},
+        ])
+        _write_tasks(temp_project, [
+            {"id": "T-test", "status": "active", "allowed_paths": ["src/"]},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+        assert "state.yaml" in decision.reason
+
+    def test_should_allow_write_fail_closed_missing_gates(self, temp_project):
+        """Missing gates.yaml → should_allow_write FAILS CLOSED."""
+        _write_state(temp_project, current_phase="S4-implementation", loop_mode="FULL")
+        _write_tasks(temp_project, [
+            {"id": "T-test", "status": "active", "allowed_paths": ["src/"]},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+        assert "gates.yaml" in decision.reason
+
+    def test_should_allow_write_fail_closed_missing_tasks(self, temp_project):
+        """Missing task_graph.yaml → should_allow_write FAILS CLOSED."""
+        _write_state(temp_project, current_phase="S4-implementation", loop_mode="FULL")
+        _write_gates(temp_project, [
+            {"id": "G-OK", "gate_type": "implementation", "status": "approved"},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+        assert "task_graph.yaml" in decision.reason
+
+    def test_should_allow_write_fail_closed_corrupt_state(self, temp_project):
+        """Corrupted state.yaml → should_allow_write FAILS CLOSED."""
+        (temp_project / ".ai" / "state.yaml").write_bytes(b"\xff\xfe corrupt \x00\x01")
+        _write_gates(temp_project, [
+            {"id": "G-OK", "gate_type": "implementation", "status": "approved"},
+        ])
+        _write_tasks(temp_project, [
+            {"id": "T-test", "status": "active", "allowed_paths": ["src/"]},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+
+    def test_should_allow_write_fail_closed_corrupt_gates(self, temp_project):
+        """Corrupted gates.yaml → should_allow_write FAILS CLOSED."""
+        _write_state(temp_project, current_phase="S4-implementation", loop_mode="FULL")
+        (temp_project / ".ai" / "gates.yaml").write_bytes(b"\x00\x01\x02 corrupt")
+        _write_tasks(temp_project, [
+            {"id": "T-test", "status": "active", "allowed_paths": ["src/"]},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+
+    def test_quick_check_fail_closed_missing_state(self, temp_project):
+        """Missing state.yaml → quick_check FAILS CLOSED."""
+        _write_gates(temp_project, [
+            {"id": "G-OK", "status": "approved"},
+        ])
+        _write_tasks(temp_project, [
+            {"id": "T-active", "status": "active"},
+        ])
+        decision = quick_check(temp_project)
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+
+    def test_quick_check_fail_closed_corrupt_gates(self, temp_project):
+        """Corrupted gates.yaml → quick_check FAILS CLOSED."""
+        _write_state(temp_project, current_phase="S4-implementation")
+        (temp_project / ".ai" / "gates.yaml").write_bytes(b"\xff\xfe bad yaml")
+        _write_tasks(temp_project, [
+            {"id": "T-active", "status": "active"},
+        ])
+        decision = quick_check(temp_project)
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+
+    def test_phase_advance_fail_closed_corrupt_state(self, temp_project):
+        """Corrupted state.yaml → should_allow_phase_advance FAILS CLOSED."""
+        (temp_project / ".ai" / "state.yaml").write_bytes(b"\x00 corrupt")
+        _write_gates(temp_project, [])
+        _write_tasks(temp_project, [{"id": "T-test", "status": "active"}])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_phase_advance(Phase.S1_REQUIREMENTS)
+        assert decision.allowed is False
+        assert "FAIL CLOSED" in decision.reason
+
+    def test_governance_state_healthy_all_ok(self, temp_project):
+        """With all files valid, _governance_state_healthy returns True."""
+        _write_state(temp_project, current_phase="S4-implementation")
+        _write_gates(temp_project, [
+            {"id": "G-OK", "status": "approved"},
+        ])
+        _write_tasks(temp_project, [{"id": "T-active", "status": "active"}])
+        hub = EnforcementHub(temp_project)
+        assert hub._governance_state_healthy is True
+
+    def test_governance_state_healthy_corrupt(self, temp_project):
+        """With corrupted state, _governance_state_healthy returns False."""
+        (temp_project / ".ai" / "state.yaml").write_bytes(b"\xff corrupt")
+        _write_gates(temp_project, [{"id": "G-OK", "status": "approved"}])
+        _write_tasks(temp_project, [{"id": "T-active", "status": "active"}])
+        hub = EnforcementHub(temp_project)
+        assert hub._governance_state_healthy is False
+
+    def test_governance_error_reason_states_all_errors(self, temp_project):
+        """_governance_error_reason should list all file errors."""
+        # No files at all → all three should error
+        hub = EnforcementHub(temp_project)
+        hub._read_state()  # triggers error
+        hub._read_gates()  # triggers error
+        hub._read_tasks()  # triggers error
+        reason = hub._governance_error_reason()
+        assert "state.yaml" in reason
+        assert "gates.yaml" in reason
+        assert "task_graph.yaml" in reason
+
+    def test_should_allow_write_pass_when_all_healthy(self, temp_project):
+        """When all governance files are valid, should_allow_write works normally.
+        (This is a regression guard — fail-closed must not break normal operation.)"""
+        _write_state(temp_project, current_phase="S4-implementation", loop_mode="FULL")
+        _write_gates(temp_project, [
+            {"id": "G-S1-OK", "gate_type": "requirements", "status": "approved"},
+            {"id": "G-S2-OK", "gate_type": "architecture", "status": "approved"},
+            {"id": "G-S4-OK", "gate_type": "implementation", "status": "approved"},
+        ])
+        _write_tasks(temp_project, [
+            {"id": "T-test", "status": "active", "allowed_paths": ["src/"]},
+        ])
+        hub = EnforcementHub(temp_project)
+        decision = hub.should_allow_write("src/main.py", allowed_paths=["src/"])
+        # Can be allowed or denied depending on other constraints,
+        # but must NOT be a governance corruption error
+        assert "FAIL CLOSED" not in decision.reason, \
+            f"Healthy state should not trigger fail-closed: {decision.reason}"

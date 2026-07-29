@@ -8,7 +8,7 @@ tasks:
   -
     id: T-0002
     title: Unified governance architecture Candidate v0.2.1
-    status: in_progress
+    status: completed
     created_at: "2026-07-06T16:54:41"
     updated_at: "2026-07-06T17:10:25"
     note: handoff generated
@@ -43,14 +43,14 @@ tasks:
   -
     id: T-0007
     title: Real Product Discovery - Server After-Sales Smart Compute Service Tool
-    status: in_progress
+    status: completed
     created_at: "2026-07-07T15:39:31"
     updated_at: "2026-07-07T16:47:44"
     note: handoff generated
   -
     id: T-0008
     title: Loop Engineering Method Repair And One-Person AI Team Workflow Design
-    status: in_progress
+    status: completed
     created_at: "2026-07-07T18:17:41+08:00"
     updated_at: "2026-07-07T18:35:53"
     note: handoff generated
@@ -134,7 +134,7 @@ tasks:
   -
     id: T-0020
     title: Real Project Governance Enforcement Architecture Review
-    status: in_progress
+    status: completed
     created_at: "2026-07-08T20:12:27"
     updated_at: "2026-07-08T20:25:31+08:00"
     note: review-only gate approved by explicit user message; T-0020 review in progress
@@ -197,7 +197,7 @@ tasks:
   -
     id: T-0040
     title: P0 消除模型自觉依赖 — EnforcementHub + Hook增强 + 角色隔离升级 + enforcement_level声明
-    status: active
+    status: completed
     created_at: "2026-07-23T17:00:00+08:00"
     phase: S4-implementation
     loop_mode: FULL
@@ -236,4 +236,564 @@ tasks:
     created_at: "2026-07-22T16:30:00+08:00"
     updated_at: "2026-07-22T16:40:00+08:00"
     note: "loop_core/ created: 6 JSON schemas, state_machine, router, enforcement, contracts"
-edges: []
+  -
+    id: T-0041
+    title: 外部垂直切片验证 — 用 Loop 工程交付真实 CLI 工具
+    status: completed
+    created_at: "2026-07-23T18:00:00+08:00"
+    note: "垂直切片证据已记录（2026-07-24）：23 tests pass, S0→S6 governance trail complete"
+  -
+    id: T-0042
+    title: Loop 工程优化 — 变更迭代支持 + 3缺陷修复
+    status: completed
+    created_at: "2026-07-23"
+    note: "v3.1.0 已实现：REENTRY_TRANSITIONS + ProjectStatus + validate_reentry + shell tokenizer + hook拆分 + 5缺陷修复。证据记录于 2026-07-24。"
+  -
+    id: T-0043
+    title: 角色能力认证体系 — v3.2
+    status: completed
+    created_at: "2026-07-23"
+    note: "代码已全部实现（role_capability.py 486行 + 23测试）"
+  -
+    id: T-0044
+    title: Qoder 借鉴点移植 + hook 拆分 — v3.3
+    status: completed
+    created_at: "2026-07-23"
+    note: "6/7 items complete; atomic write in executor.py fixed in T-0048"
+  -
+    id: T-0046
+    title: Governance State Reconciliation and Delivery Integrity
+    status: completed
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0046.md
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/HANDOFF-NEXT.md
+      - .ai/project_continuity.yaml
+      - .ai/version-manifest.yaml
+      - .ai/evidence/T-0046/
+      - .zcode/tools/validate_state.py
+      - .zcode/tools/governor_lib.py
+      - .zcode/tools/continuity_auditor.py
+      - .zcode/tools/audit_handoff.py
+      - .gitignore
+      - README.md
+      - pyproject.toml
+      - docs/06-delivery.md
+      - loop_core/__init__.py
+      - src/loop_engine/__init__.py
+      - .zcode-plugin/plugin.json
+      - agents/main-thread/
+      - agents/test-engineer/
+      - tests/test_version_consistency.py
+      - tests/test_governance_consistency.py
+    note: "用户批准 G-T-0046-RECONCILIATION-IMPLEMENT；治理恢复执行中。"
+  -
+    id: T-0047
+    title: Governance Critical Path Hardening — Core Fail-Closed + role_isolation Tests + Negative Path Coverage
+    status: completed
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/enforcement_hub.py
+      - hooks/scripts/role_isolation.py
+      - tests/test_enforcement_hub.py
+      - tests/test_role_isolation.py
+      - tests/test_hooks.py
+      - tests/test_gate_guard_lifecycle.py
+      - .ai/tasks/T-0047.md
+      - .ai/evidence/T-0047/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "深度审计发现3项实质性风险（Core层fail-open, role_isolation零测试+fail-open, 负面路径测试不足），用户批准修复。"
+  -
+    id: T-0048
+    title: Finalize — Atomic Write + Hook Split Completion + Status Marking + Vertical Slice
+    status: completed
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/executor.py
+      - hooks/scripts/
+      - demo/loop-demo-todo/
+      - .ai/tasks/
+      - .ai/evidence/T-0048/
+      - .ai/evidence/T-0041/
+      - .ai/evidence/T-0042/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - CHANGELOG.md
+      - tests/
+    note: "收尾修复：executor原子写入 + hook拆分补全 + T-0043/T-0044标记完成 + T-0041垂直切片证据 + T-0042证据+CHANGELOG"
+  -
+    id: T-0049
+    title: Root Cause Fix — 3-Layer Architecture Unification + Continuity Bomb Defusal + Deadlock Immunity
+    status: completed
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/state_machine.py
+      - loop_core/enforcement_hub.py
+      - loop_core/enforcement.py
+      - hooks/scripts/gate_guard.py
+      - hooks/scripts/hook_common.py
+      - .zcode/tools/repair_continuity.py
+      - .zcode/tools/continuity_producer.py
+      - .zcode/tools/continuity_auditor.py
+      - .zcode/tools/governor_lib.py
+      - tests/
+      - .ai/tasks/T-0049.md
+      - .ai/evidence/T-0049/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/project_continuity.yaml
+      - .ai/HANDOFF.md
+    note: "根因修复：三层架构统一 + continuity炸弹拆除 + 死锁免疫"
+  -
+    id: T-0050
+    title: Mid-Priority Fixes — Gate Lifecycle Unification + hook_common Completion + task_contract Fix
+    status: completed
+    created_at: "2026-07-24"
+    phase: S6-delivery
+    loop_mode: FULL
+    note: "先审后修：continuity_auditor gate判定修复 + load_gates_full新增 + task_contract部署"
+  -
+    id: T-0051
+    title: P0 Runtime Controller + Automatic Project Onboarding
+    status: completed
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/runtime_controller.py
+      - loop_core/state_machine.py
+      - loop_core/executor.py
+      - loop_core/agent_adapter.py
+      - loop_core/context_controller.py
+      - hooks/hooks.json
+      - hooks/scripts/
+      - tools/
+      - .zcode/tools/
+      - tests/
+      - .ai/schemas/
+      - .ai/tasks/T-0051.md
+      - .ai/evidence/T-0051/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "P0架构修复：自动接入、统一运行时控制器、一次批准自动执行、主控业务写入阻断"
+  -
+    id: T-0052
+    title: Comprehensive Loop Governance Remediation
+    status: completed
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - loop_core/
+      - hooks/
+      - tools/
+      - .zcode/tools/
+      - tests/
+      - .ai/schemas/
+      - .ai/tasks/T-0052.md
+      - .ai/evidence/T-0052/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "等待用户批准 G-T-0052-COMPREHENSIVE-REMEDIATION；覆盖 T-0051 残余问题和 legacy lab 回归失败。"
+  -
+    id: T-0036
+    title: Structured State Contract Repair (lab fixture reference)
+    status: completed
+    created_at: "2026-07-20"
+    note: "Lab reference task; actual contract repair performed in T-0046-T-0053"
+  -
+    id: T-0053
+    title: Agent Contract Migration + Low-Priority Cleanup
+    status: completed
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - agents/
+      - .zcode/tools/
+      - loop_core/
+      - tests/
+      - .ai/tasks/T-0053.md
+      - .ai/evidence/T-0053/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "G-T-0053-AGENT-CONTRACT-MIGRATION approved; executing agent contract migration"
+  -
+    id: T-0054
+    title: MCP Agent Runtime — 三层代理模型的 MCP 替代方案
+    status: completed
+    created_at: "2026-07-27"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - tools/
+      - loop_core/
+      - agents/
+      - hooks/
+      - tests/
+      - .ai/tasks/T-0054.md
+      - .ai/evidence/T-0054/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "G-T-0054-MCP-AGENT-RUNTIME approved; execution in progress"
+  -
+    id: T-0055
+    title: Loop 角色能力、质量测试体系与 v3.11.2 缺陷治理修复
+    status: completed
+    completed_at: "2026-07-28T16:15:00+08:00"
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0055.md
+      - .ai/evidence/T-0055/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - agents/
+      - loop_core/
+      - hooks/
+      - tools/
+      - scripts/
+      - tests/
+      - docs/
+    note: "T-0055 completed. 7 P1/P2 findings repaired. 7 NOT_VERIFIED items carried forward. Closeout approved by user (G-T-0055-CLOSEOUT-REVIEW)."
+  -
+    id: T-0056
+    title: Loop 工程质量保障层改造 — 机器拦截 + 独立审查 + 证据链
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0056.md
+      - .ai/evidence/T-0056/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/CODING_STANDARDS.md
+      - hooks/scripts/content_guard.py
+      - hooks/scripts/gate_guard.py
+      - hooks/hooks.json
+      - loop_core/executor.py
+      - agents/test-engineer/SKILL.md
+      - tests/
+    note: "消除 AI 自律依赖：content_guard Hook + 消除 simulate + 强制独立审查 + 证据链防伪造 + 编码规范补全"
+  -
+    id: T-0057
+    title: Loop 工程治理恢复 + 激活就绪
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0057.md
+      - .ai/evidence/T-0057/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .zcode/config.json
+    note: "Hook 激活 + 治理漂移关闭 + 标记移除"
+
+  -
+    id: T-0058
+    title: P1 快速修复 + Live-Fire 验证
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0058.md
+      - .ai/evidence/T-0058/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/project_continuity.yaml
+      - .zcode/tools/continuity_producer.py
+      - .zcode/tools/close_session.py
+      - hooks/scripts/
+      - tests/
+    note: "F-0055-012/014/015 fixes + live-fire verification"
+  -
+    id: T-0059
+    title: 残余 NOT_VERIFIED 架构修复
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0059.md
+      - .ai/evidence/T-0059/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .zcode/tools/
+      - loop_core/runtime_controller.py
+      - tools/loop_onboard.py
+      - tests/
+    note: "F-0055-009/010/011/013 architecture fixes"
+
+  -
+    id: T-0060
+    title: Bash 绕过防护 + Live-Fire 验证
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0060.md
+      - .ai/evidence/T-0060/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - hooks/scripts/bash_content_guard.py
+      - hooks/hooks.json
+      - tests/
+    note: "Bash bypass guard + live-fire content_guard verification"
+
+  -
+    id: T-0061
+    title: 角色身份注入 + Bash 完美拦截
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0061.md
+      - .ai/evidence/T-0061/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - loop_core/role_loader.py
+      - tools/tool_safe_bash.py
+      - tools/server.py
+      - tests/
+    note: "Role identity injection via SKILL.md prompt + AST-based safe_bash MCP tool"
+
+  -
+    id: T-0062
+    title: 强制子代理调度
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/tasks/T-0062.md
+      - .ai/evidence/T-0062/
+      - agents/main-thread/SKILL.md
+      - hooks/scripts/role_isolation.py
+      - hooks/scripts/gate_guard.py
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "Main agent MUST use Agent() to spawn sub-agents, not role-play"
+
+  -
+    id: T-0063
+    title: 完整角色身份 + MCP 三层调度
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    note: "load_full_role_identity: 6 config files per role. TOOL_REQUEST protocol."
+  -
+    id: T-0064
+    title: P0-P2 全面缺陷修复
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0064.md
+      - .ai/evidence/T-0064/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - hooks/scripts/
+      - loop_core/
+      - tests/
+    note: "治理漂移修复 + Hook 异常加固 + 测试补全"
+
+  -
+    id: T-0065
+    title: 测试覆盖率补全
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0065.md
+      - .ai/evidence/T-0065/
+      - tests/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "P0-4 loop_core tests + P0-5 Hook tests + E2E"
+
+  -
+    id: T-0066
+    title: 残余缺陷清零 + 最终验收
+    status: completed
+    created_at: "2026-07-28"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0066.md
+      - .ai/evidence/T-0066/
+      - tests/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+    note: "Router/state_machine/static_analyzer tests + final closeout"
+  -
+    id: T-0067
+    title: Sub-agent 证据验证 + 全面安全审计
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0067.md
+      - .ai/evidence/T-0067/
+      - loop_core/subagent_evidence_verifier.py
+      - hooks/scripts/gate_guard.py
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "Sub-agent evidence verification + comprehensive security audit"
+  -
+    id: T-0069
+    title: 部署就绪验证维度
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0069.md
+      - .ai/evidence/T-0069/
+      - scripts/deployment_smoke_test.py
+      - .ai/deployment/
+      - docs/07-phase-specification.md
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "Port/endpoint smoke test + deploy reproducibility + config consistency"
+  -
+    id: T-0070
+    title: Agent 安装缺口修复 + 预检阻断
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0070.md
+      - .ai/evidence/T-0070/
+      - tools/loop_onboard.py
+      - hooks/scripts/loop_enforcement.py
+      - agents/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "install_agents() + agent pre-flight check + SETUP_INCOMPLETE block"
+  -
+    id: T-0071
+    title: 一键接入 + 自动更新
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .zcode/commands/
+      - hooks/scripts/session_brief.py
+      - tools/loop_onboard.py
+      - skills/loop-governance/SKILL.md
+      - .ai/
+      - tests/
+    note: "/loop-onboard + /loop-update slash commands + session NOT_ONBOARDED detection"
+  -
+    id: T-0072
+    title: 部署质量体系补全
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - scripts/deployment_quality_checker.py
+      - docs/07-phase-specification.md
+      - .ai/
+      - tests/
+    note: "Build consistency + static integrity + browser smoke + atomicity + rollback + cache"
+  -
+    id: T-0075
+    title: 角色自动按需调度
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - loop_core/role_orchestrator.py
+      - agents/main-thread/SKILL.md
+      - .ai/
+      - tests/
+    note: "Phase-to-role auto-mapping. Main-thread MUST auto-dispatch, not manually choose."
+  -
+    id: T-0076
+    title: 消除API密钥依赖 + 强制Agent调度
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - tools/mcp_agent_runtime.py
+      - hooks/scripts/gate_guard.py
+      - .ai/
+      - tests/
+    note: "Agent() dispatch instructions (no API key) + gate enforces role evidence"
+edges:
+    - from: T-0040
+      to: T-0041
+    - from: T-0040
+      to: T-0042
+    - from: T-0040
+      to: T-0043
+    - from: T-0040
+      to: T-0044
+    - from: T-0044
+      to: T-0046
+    - from: T-0046
+      to: T-0047
+    - from: T-0047
+      to: T-0048

@@ -730,7 +730,7 @@ def _extract_risk_factors(desc_lower: str) -> dict[str, bool]:
 _NEGATION_PATTERNS: list[str] = [
     r'\b(?:remove|delete|drop|eliminate|get rid of|ditch)\s+(?:the\s+)?',
     r"\b(?:don't|do not|won't|will not)\s+(?:need|use|have|want)\s+(?:a\s+)?(?:the\s+)?",
-    r'\b(?:without|no)\s+(?:a\s+)?(?:the\s+)?',
+    r'\b(?:without|no)\s+(?:a\s+)?(?:the\s+)?(?:any\s+)?',
     r'\bnot\s+(?:using|needing|having)\s+(?:a\s+)?(?:the\s+)?',
 ]
 

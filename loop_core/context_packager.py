@@ -1,0 +1,63 @@
+"""context_packager.py — Build code context for role sub-agents."""
+import subprocess, sys
+from pathlib import Path
+
+ROLE_CONTEXT = {
+    "developer": {"files": ["docs/02-architecture.md", "docs/03-interface-contract.md"], "git_diff": True, "max_content": 5000},
+    "independent-reviewer": {"files": ["docs/02-architecture.md", ".ai/CODING_STANDARDS.md"], "git_diff": True, "max_content": 8000},
+    "test-engineer": {"files": ["docs/03-interface-contract.md"], "git_diff_name_only": True, "max_content": 3000},
+    "quality-engineer": {"files": [], "git_diff_name_only": True, "max_content": 2000},
+    "system-architect": {"files": ["docs/02-architecture.md", "docs/01-requirements.md"], "git_diff_name_only": True, "max_content": 5000},
+    "module-architect": {"files": ["docs/03-interface-contract.md"], "git_diff": True, "max_content": 4000},
+    "product-manager": {"files": ["docs/01-requirements.md"], "git_diff_name_only": True, "max_content": 3000},
+    "project-manager": {"files": [".ai/task_graph.yaml"], "git_diff": True, "max_content": 4000},
+    "delivery-manager": {"files": ["docs/06-delivery.md", "docs/07-phase-specification.md"], "git_diff": True, "max_content": 5000},
+    "release-engineer": {"files": ["docs/06-delivery.md", "pyproject.toml"], "git_diff": True, "max_content": 5000},
+    "security-engineer": {"files": ["pyproject.toml"], "git_diff": True, "max_content": 6000},
+}
+
+def build_context(project_root, role_id, task_id="", extra_files=None):
+    root = Path(project_root)
+    spec = ROLE_CONTEXT.get(role_id, {"files": [], "git_diff_name_only": True, "max_content": 2000})
+    parts = []
+    total = 0
+    MAX = 15000
+    if task_id:
+        tf = root / ".ai/tasks" / (task_id + ".md")
+        if tf.exists():
+            tc = tf.read_text(encoding="utf-8")[:1000]
+            parts.append("## Task Context\n" + tc)
+    try:
+        if spec.get("git_diff"):
+            r = subprocess.run(["git","diff","--stat","HEAD~1"], capture_output=True, text=True, cwd=str(root), timeout=5)
+            if r.returncode == 0 and r.stdout.strip():
+                parts.append("## Changed Files\n" + r.stdout.strip())
+            r2 = subprocess.run(["git","diff","HEAD~1","--","*.py"], capture_output=True, text=True, cwd=str(root), timeout=10)
+            if r2.returncode == 0 and r2.stdout.strip():
+                dt = r2.stdout[:spec["max_content"]]
+                parts.append("## Code Diff\n```diff\n" + dt + "\n```")
+        elif spec.get("git_diff_name_only"):
+            r = subprocess.run(["git","diff","--name-only","HEAD~1"], capture_output=True, text=True, cwd=str(root), timeout=5)
+            if r.returncode == 0 and r.stdout.strip():
+                parts.append("## Changed Files\n" + r.stdout.strip())
+    except Exception:
+        pass
+    for f in spec.get("files", []):
+        fp = root / f
+        if fp.exists() and total < MAX:
+            c = fp.read_text(encoding="utf-8")[:spec["max_content"]]
+            parts.append("## " + f + "\n" + c)
+    if extra_files:
+        for f in extra_files[:5]:
+            fp = root / f
+            if fp.exists() and total < MAX:
+                c = fp.read_text(encoding="utf-8")[:2000]
+                parts.append("## " + f + "\n```\n" + c + "\n```")
+    parts.append("\n---\nUse the above context to complete your role duties.")
+    return "\n\n".join(parts)
+
+if __name__ == "__main__":
+    r = sys.argv[1] if len(sys.argv) > 1 else "."
+    role = sys.argv[2] if len(sys.argv) > 2 else "developer"
+    tid = sys.argv[3] if len(sys.argv) > 3 else ""
+    print(build_context(r, role, tid))

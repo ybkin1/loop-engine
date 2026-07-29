@@ -251,7 +251,81 @@ TOOLS = {
             },
             "required": ["role_id"]
         }
-    }
+    },
+    # v3.6 — canonical runtime controller entry points
+    "loop_onboard_project": {
+        "description": "幂等接入项目并初始化 Loop 运行时（不创建活动任务）",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "intent": {"type": "string"},
+                "idempotency_key": {"type": "string"}
+            },
+            "required": ["project_root"]
+        }
+    },
+    "loop_propose_work_package": {
+        "description": "创建工作包提案并等待用户批准",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "task_id": {"type": "string"},
+                "gate_id": {"type": "string"},
+                "title": {"type": "string"},
+                "allowed_paths": {"type": "array", "items": {"type": "string"}},
+                "non_goals": {"type": "array", "items": {"type": "string"}},
+                "risk_flags": {"type": "object"}
+            },
+            "required": ["project_root", "task_id", "gate_id", "title", "allowed_paths"]
+        }
+    },
+    "loop_approve_and_execute": {
+        "description": "记录用户批准并原子启动执行能力",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "gate_id": {"type": "string"},
+                "approval": {"type": "string"},
+                "user_actor_id": {"type": "string"},
+                "idempotency_key": {"type": "string"}
+            },
+            "required": ["project_root", "gate_id", "approval"]
+        }
+    },
+    "loop_resume_execution": {
+        "description": "使用任务和执行上下文恢复已批准执行",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string"},
+                "actor_id": {"type": "string"},
+                "role_id": {"type": "string"},
+                "caller_class": {"type": "string"},
+                "task_id": {"type": "string"},
+                "execution_id": {"type": "string"},
+                "session_id": {"type": "string"},
+                "capability_id": {"type": "string"}
+            },
+            "required": ["project_root", "actor_id", "role_id", "caller_class", "task_id", "execution_id"]
+        }
+    },
+    # v3.10 — MCP Agent Runtime: bypass ZCode sub-agent limitation
+    "safe_bash": {"name":"safe_bash","description":"Execute safe shell commands with path validation. Blocks file writes outside allowed_paths.","inputSchema":{"type":"object","properties":{"command":{"type":"string","description":"Shell command to execute"},"project_root":{"type":"string"},"allowed_paths":{"type":"array","items":{"type":"string"}},"timeout":{"type":"integer","default":30}},"required":["command"]}},
+        "loop_dispatch_agents": {
+        "description": "按 SubagentManifest 调度所有子代理（通过 LLM API 直接调用），返回聚合结果。不写文件。",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project_root": {"type": "string", "description": "项目根目录"},
+                "manifest": {"type": "object", "description": "SubagentManifest JSON"},
+                "max_retries": {"type": "integer", "description": "每个 subagent 最大重试次数（默认 2）"}
+            },
+            "required": ["project_root", "manifest"]
+        }
+    },
 }
 
 
@@ -298,6 +372,7 @@ def _dispatch(tool_name: str, args: dict) -> dict:
         return run(project_root, args.get("rules_file"))
     elif tool_name == "contract_validate":
         from tool_contract_validate import run
+        return run(project_root, args["contract_file"], args.get("check_actual", False))
         return run(project_root, args["contract_file"], args.get("check_actual", False))
     elif tool_name == "evidence_verify":
         from tool_evidence_chain import run_verify
@@ -362,6 +437,64 @@ def _dispatch(tool_name: str, args: dict) -> dict:
     elif tool_name == "loop_load_context":
         from tool_load_context import run
         return run(args["role_id"], complexity=args.get("complexity", 0.5))
+    # v3.6 — canonical runtime controller
+    elif tool_name in {"loop_onboard_project", "loop_propose_work_package", "loop_approve_and_execute", "loop_resume_execution"}:
+        from loop_core.runtime_controller import ExecutionContext, RuntimeController
+        controller = RuntimeController(project_root)
+        try:
+            if tool_name == "loop_onboard_project":
+                snapshot = controller.onboard_project(
+                    args.get("intent", ""), idempotency_key=args.get("idempotency_key")
+                )
+            elif tool_name == "loop_propose_work_package":
+                snapshot = controller.create_work_package_proposal(
+                    args["task_id"], args["gate_id"], args["title"], args["allowed_paths"],
+                    non_goals=args.get("non_goals"), risk_flags=args.get("risk_flags"),
+                )
+            elif tool_name == "loop_approve_and_execute":
+                snapshot = controller.approve_and_execute(
+                    args["gate_id"], approval=args["approval"],
+                    user_actor_id=args.get("user_actor_id", "user"),
+                    idempotency_key=args.get("idempotency_key"),
+                )
+            else:
+                snapshot = controller.resume_execution(ExecutionContext(
+                    actor_id=args["actor_id"], role_id=args["role_id"],
+                    caller_class=args["caller_class"], task_id=args["task_id"],
+                    execution_id=args["execution_id"], session_id=args.get("session_id"),
+                    capability_id=args.get("capability_id"),
+                ))
+            return {"ok": True, **snapshot.__dict__}
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)[:200]}
+
+    if tool_name == "loop_dispatch_agents":
+        project_root = args.get("project_root", ".")
+        manifest = args.get("manifest", {})
+        max_retries = args.get("max_retries", 2)
+        try:
+            from tools.mcp_agent_runtime import MCPAgentRuntime
+            runtime = MCPAgentRuntime(agents_dir=Path(project_root) / "agents")
+            result = runtime.dispatch_manifest(manifest, max_retries=max_retries)
+            return {
+                "manifest_id": result.manifest_id,
+                "total": result.total,
+                "completed": result.completed,
+                "failed": result.failed,
+                "results": [
+                    {
+                        "subagent_id": r.subagent_id,
+                        "status": r.status,
+                        "output": r.output,
+                        "error": r.error,
+                        "token_count": r.token_count,
+                        "duration_ms": r.duration_ms,
+                    }
+                    for r in result.results
+                ],
+            }
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     return {"error": f"unhandled tool: {tool_name}"}
 

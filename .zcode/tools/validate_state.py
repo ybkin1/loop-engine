@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 import time
 from pathlib import Path
@@ -364,12 +365,28 @@ def main() -> int:
 
     # 5. ProjectContinuity — skip in S0-init (too heavy for fresh project)
     continuity_path = base / "project_continuity.yaml"
+    repair_mode = "--repair" in sys.argv or os.environ.get("LOOP_REPAIR_CONTINUITY") == "1"
     if continuity_path.exists():
         try:
             from continuity_producer import load_project_continuity
             load_project_continuity(root)
         except (GovernanceError, ImportError) as exc:
-            errors.append(f"ProjectContinuity invalid: {exc}")
+            err_code = str(getattr(exc, 'code', ''))
+            # v3.5: REPAIR_MODE — auto-repair continuity drift instead of hard-blocking
+            if repair_mode and "SOURCE_DRIFT" in err_code:
+                try:
+                    from repair_continuity import repair_continuity
+                    result = repair_continuity(root)
+                    if result.get("fixed", 0) > 0:
+                        print(f"[loop-governance] [repair] Auto-repaired {result['fixed']} drifted hash(es).")
+                        # Re-validate after repair
+                        load_project_continuity(root)
+                    else:
+                        errors.append(f"ProjectContinuity invalid: {exc} (auto-repair found nothing to fix)")
+                except Exception as re:
+                    errors.append(f"ProjectContinuity invalid: {exc} (auto-repair failed: {re})")
+            else:
+                errors.append(f"ProjectContinuity invalid: {exc}")
     else:
         print("[loop-governance] [info] ProjectContinuity not yet created (expected in S0-init)")
 
@@ -390,17 +407,26 @@ def main() -> int:
     print(f"[loop-governance] phase: {phase or 'unknown'}")
     print(f"[loop-governance] current_task_id: {task_id or 'none'}")
 
-    blocker_errors = [e for e in errors if not str(e).startswith("[warn]")]
+    blocker_errors = [e for e in errors if not str(e).startswith("[warn]") and not str(e).startswith("[legacy]")]
     warn_errors = [e for e in errors if str(e).startswith("[warn]")]
+    legacy_errors = [e for e in errors if str(e).startswith("[legacy]")]
 
     for error in warn_errors:
         print(error)
+    for error in legacy_errors:
+        print(f"[warn] {error}")
     for error in list(dict.fromkeys(blocker_errors)):
         print(f"[error] {error}")
 
     if blocker_errors:
         return 2
     print("[ok] state is usable")
+
+    # ── Checkpoint hint ───────────────────────────────────────────
+    handoff = read_text(base / "HANDOFF.md")
+    if handoff and "PENDING_SUCCESSOR_ACK" in handoff:
+        print("[info] Checkpoint is PENDING_SUCCESSOR_ACK — successor session should acknowledge before proceeding to next phase.")
+
     return 0
 
 

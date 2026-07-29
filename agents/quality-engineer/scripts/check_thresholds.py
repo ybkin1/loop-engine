@@ -13,7 +13,7 @@ check_thresholds.py — 质量门禁阈值对比工具。
     python check_thresholds.py audit '{"HIGH":1}' '{"HIGH":0}'  # 1 HIGH > 0 → BLOCKED
 
 输出（JSON，一行）：
-    {"check": "lint", "status": "blocked", "value": 5, "threshold": 0, "reason": "5 > 0"}
+    {"check": "lint", "status": "BLOCKED", "value": 5, "threshold": 0, "reason": "5 > 0"}
 
 退出码：0 = 通过了所有给定检查；2 = 有阻断项。
 """
@@ -96,6 +96,7 @@ COMPARATORS = {
     "test": compare_test,
     "audit": compare_audit,
     "build": lambda v, t: (int(v) == 0, "exit code != 0" if int(v) != 0 else "exit 0"),
+    "compile": lambda v, t: (int(v) <= int(t), f"{v} files failed to compile (threshold {t})" if int(v) > int(t) else f"{v} compile errors ≤ {t}"),
 }
 
 
@@ -103,7 +104,7 @@ def check(name, value, threshold):
     """对给定检查项与阈值做比较；未注册的检查名视为 pass。"""
     comparator = COMPARATORS.get(name)
     if comparator is None:
-        return {"name": name, "status": "pass", "value": value, "threshold": threshold, "reason": "unknown check type, skipped"}
+        return {"name": name, "status": "PASS", "value": value, "threshold": threshold, "reason": "unknown check type, skipped"}
 
     try:
         ok, detail = comparator(value, threshold)
@@ -112,7 +113,7 @@ def check(name, value, threshold):
 
     return {
         "name": name,
-        "status": "pass" if ok else "blocked",
+        "status": "PASS" if ok else "BLOCKED",
         "value": value,
         "threshold": threshold,
         "reason": detail,
@@ -131,7 +132,7 @@ def check_all(checks_config, results):
         value = results.get(name, results.get("UNKNOWN"))
         item = check(name, value, threshold)
         items.append(item)
-        if item["status"] == "blocked":
+        if item["status"] == "BLOCKED":
             blocked_by.append(f"{name}: {item['reason']}")
     overall = "PASS" if not blocked_by else "BLOCKED"
     return items, overall, blocked_by
@@ -149,7 +150,7 @@ def main():
 
     item = check(name, value, threshold)
     print(json.dumps(item, ensure_ascii=False))
-    sys.exit(EXIT_BLOCK if item["status"] == "blocked" else EXIT_PASS)
+    sys.exit(EXIT_BLOCK if item["status"] == "BLOCKED" else EXIT_PASS)
 
 
 if __name__ == "__main__":

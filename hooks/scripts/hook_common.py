@@ -37,8 +37,9 @@ DEFAULT_CONFIG = {
         "enabled": True,
         # closed: 状态文件不可读时阻断写入；open: 放行并在 stderr 警告
         "fail_on_state_error": "closed",
-        # pending gate 期间仍允许写入的路径（决策记录豁免，见 references/decision-rules.md）
-        "decision_recording_exempt": [".ai/gates.yaml"],
+        # gate 状态异常（missing/rejected/blocked）时仍允许写入的治理文件路径
+        # 防止 fail-closed 死锁：无法写 gates.yaml/state.yaml 修复状态
+        "decision_recording_exempt": [".ai/gates.yaml", ".ai/state.yaml", ".ai/task_graph.yaml", ".ai/project_continuity.yaml"],
     },
     "path_guard": {
         "enabled": True,
@@ -392,158 +393,11 @@ def is_path_safe(root: Path, target) -> bool:
 
 
 
-# ── Shell Tokenizer ────────────────────────────────────────────────────
-# v3.1: Replaces blind regex matching with proper quote/escape-aware
-# command extraction. Eliminates false positives like \binstall\b
-# matching URL paths and echo arguments.
-
-
-def shell_tokenize(command: str) -> list[str]:
-    """Extract actual command words from a shell command string.
-
-    Handles quotes, escapes, command separators, sudo prefixes,
-    variable assignments, and path prefixes.
-    """
-    if not command or not isinstance(command, str):
-        return []
-    commands: list[str] = []
-    i, n = 0, len(command)
-    current_word: list[str] = []
-    in_sq, in_dq = False, False
-    is_first = True
-    while i < n:
-        ch = command[i]
-        if ch == "'" and not in_dq:
-            in_sq = not in_sq; i += 1; continue
-        if ch == '"' and not in_sq:
-            in_dq = not in_dq; i += 1; continue
-        if in_sq or in_dq:
-            i += 1; continue
-        if ch == '\\' and i + 1 < n:
-            i += 2; continue
-        if ch in (';', '|', '&'):
-            _flush_cmd(current_word, commands, is_first)
-            current_word = []; is_first = True
-            if ch == '&' and i + 1 < n and command[i + 1] == '&': i += 1
-            if ch == '|' and i + 1 < n and command[i + 1] == '|': i += 1
-            i += 1; continue
-        if ch in (' ', '\t', '\n'):
-            if current_word and is_first:
-                _flush_cmd(current_word, commands, is_first); is_first = False
-            elif current_word: current_word = []
-            i += 1; continue
-        current_word.append(ch); i += 1
-    _flush_cmd(current_word, commands, is_first)
-    return commands
-
-
-def _flush_cmd(buf: list[str], cmds: list[str], is_first: bool) -> None:
-    if not buf: return
-    word = ''.join(buf); buf.clear()
-    if not word or not is_first: return
-    if '/' in word: word = word.rsplit('/', 1)[-1]
-    if '=' in word and word.split('=', 1)[0].isidentifier(): return
-    if word in ('sudo', 'exec', 'command', 'nohup', 'time', 'nice', 'env'): return
-    cmds.append(word)
-
-
-# ── Write Command Detection ────────────────────────────────────────────
-
-_WRITE_CMDS: frozenset[str] = frozenset({
-    "tee", "cp", "mv", "mkdir", "touch", "rm", "chmod", "chown",
-    "dd", "install", "ln", "patch", "rsync", "scp",
-    "tar", "unzip", "gunzip", "bunzip2", "openssl",
-    "pip", "pip3", "npm", "yarn", "pnpm", "apt-get", "apt", "yum", "dnf",
-    "brew", "choco", "cargo", "go", "curl", "wget",
-    "sed", "perl", "awk", "git",
-})
-
-_GIT_WRITE: frozenset[str] = frozenset({
-    "add", "commit", "push", "merge", "rebase", "reset", "rm", "mv",
-    "checkout", "switch", "restore", "revert", "cherry-pick",
-    "fetch", "pull", "clone", "branch", "tag", "stash", "clean", "gc",
-    "filter-branch", "am", "apply", "bisect", "config", "submodule",
-    "notes", "worktree",
-})
-
-_RO_CMDS: frozenset[str] = frozenset({
-    "ls", "cat", "head", "tail", "less", "more", "file",
-    "find", "grep", "egrep", "fgrep", "rg", "ag", "ack",
-    "echo", "printf", "pwd", "whoami", "id", "hostname",
-    "uname", "date", "env", "printenv", "which", "where",
-    "type", "command", "stat", "du", "df", "wc", "sort",
-    "uniq", "diff", "cmp", "cut", "tr", "od", "xxd", "strings",
-    "readelf", "objdump",
-    # NOTE: "git" intentionally NOT in _RO_CMDS — write/read is determined
-    # by the git subcommand, checked in is_write_command()
-})
-
-_GIT_RO: frozenset[str] = frozenset({
-    "status", "log", "diff", "show", "blame", "grep",
-    "ls-files", "ls-tree", "ls-remote", "rev-parse", "rev-list",
-    "describe", "name-rev", "shortlog", "reflog", "help", "version",
-    "whatchanged", "cherry", "archive", "cat-file", "check-ignore",
-    "check-ref-format", "branch", "tag",
-})
-
-
-def is_write_command(word: str, full_cmd: str = "") -> bool:
-    if not word or word in _RO_CMDS: return False
-    if word not in _WRITE_CMDS: return False
-    if word in ('curl', 'wget'):
-        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*[oO]', full_cmd))
-    if word == 'git' and full_cmd:
-        m = re.search(r'\bgit\s+([a-z][a-z-]*)', full_cmd)
-        if m:
-            sub = m.group(1)
-            if sub in _GIT_WRITE:
-                return True
-            return False  # Unknown/other git subcommands → not write
-        return False
-    if word in ('sed', 'perl', 'awk'):
-        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*i', full_cmd))
-    if word == 'tar':
-        return bool(full_cmd and re.search(r'(?:^|\s)-[^-]*x', full_cmd))
-    if word == 'openssl':
-        return bool(full_cmd and 'enc' in full_cmd)
-    if word in ('pip', 'pip3', 'npm', 'yarn', 'pnpm', 'apt-get', 'apt', 'yum', 'dnf', 'brew', 'choco', 'cargo', 'go'):
-        return bool(full_cmd and re.search(r'\b(install|add|remove|uninstall|update|upgrade|build|publish)\b', full_cmd)) if full_cmd else True
-    return True
-
-
-def has_write_operations(command: str) -> bool:
-    """Check if command contains file write operations (v3.1 tokenizer-based)."""
-    if not command or not isinstance(command, str): return True
-    if re.search(r'(?:^|\s|[;|&])(?:>>|[12]?>|&>)\s*[^\s;|&<]', command): return True
-    if re.search(r'<<\s*\w+', command): return True
-    if re.search(r'\bfind\b', command) and '-delete' in command: return True
-    for w in shell_tokenize(command):
-        if is_write_command(w, command): return True
-    return False
-
-
-def is_readonly_command(command: str) -> bool:
-    """Check if Bash command is read-only (v3.1 tokenizer-based)."""
-    if not command or not isinstance(command, str): return False
-    cmd = command.strip()
-    if not cmd: return False
-    if has_write_operations(cmd): return False
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-c\b', cmd): return False
-    m = re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-m\s+(\S+)', cmd)
-    if m:
-        mod = m.group(1).lower().rstrip(";")
-        if any(kw in mod for kw in ("pip","install","uninstall","upload","deploy","compile","migrate","generate","init","create","update","setup","wheel","twine","publish","venv","virtualenv","ensurepip","easy_install")): return False
-        if mod == "build" and "--check" not in cmd: return False
-    # Known readonly patterns (from old implementation)
-    if re.search(r'(?:^|[\s;|&])npm\s+.*--dry-run\b', cmd): return True
-    if re.search(r'(?:^|[\s;|&])yarn\s+.*--dry-run\b', cmd): return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+-m\s+)?build\s.*--check\b', cmd): return True
-    if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?\s+(?:-m\s+)?)?pytest\b', cmd): return True
-    for w in shell_tokenize(cmd):
-        if is_write_command(w, cmd): return False
-    return True
-
-
+# ── Bash analysis — imported from _hook_bash ──
+from _hook_bash import (
+    shell_tokenize, is_write_command, has_write_operations, is_readonly_command,
+    _WRITE_CMDS, _GIT_WRITE, _GIT_RO, _RO_CMDS,
+)
 
 def load_tasks_for_context(root: Path) -> list[dict]:
     """从 task_graph.yaml 加载任务列表，格式适配 HardConstraints。
@@ -638,6 +492,35 @@ def load_gates_for_context(root: Path) -> dict:
     except Exception:
         return {}
 
+    return gates
+
+
+def load_gates_full(root: Path) -> dict:
+    """Load full gate data including execution_status (v3.5).
+
+    Returns dict[str, dict] with keys: status, execution_status, task_id.
+    Use this when you need to distinguish in_progress from completed gates.
+    """
+    gates_path = root / GATES_REL
+    if not gates_path.exists():
+        return {}
+
+    gates: dict[str, dict] = {}
+
+    if yaml is not None:
+        try:
+            data = yaml.safe_load(gates_path.read_text(encoding="utf-8")) or {}
+        except Exception:
+            return {}
+        gate_list = data.get("gates", [])
+        if isinstance(gate_list, list):
+            for gate in gate_list:
+                if isinstance(gate, dict) and gate.get("id"):
+                    gates[str(gate["id"])] = {
+                        "status": str(gate.get("status", "")),
+                        "execution_status": str(gate.get("execution_status", "")),
+                        "task_id": str(gate.get("task_id", "")),
+                    }
     return gates
 
 
@@ -834,3 +717,54 @@ def auto_sync_to_plugin_cache(project_root_path: Path) -> bool:
         )
 
     return synced
+
+
+# ── v3.3 Module split: re-export from specialized modules ─────────────
+# The functions above remain for backward compatibility. New code should
+# import directly from the specialized modules:
+#   _hook_bash.py  — Bash command tokenization and analysis
+#   _hook_state.py — Governance state file reading
+#   _hook_path.py  — Path extraction, normalization, validation
+#   _hook_config.py — Configuration loading and fail-closed policy
+#   _hook_sync.py  — Plugin cache synchronization
+
+try:
+    from _hook_state import (  # noqa: E402, F401
+        load_state as _load_state_v2,
+        pending_gates as _pending_gates_v2,
+        load_tasks_for_context as _load_tasks_v2,
+        load_gates_for_context as _load_gates_v2,
+        load_phase_gates_for_context as _load_phase_gates_v2,
+    )
+    _SPLIT_STATE_AVAILABLE = True
+except ImportError:
+    _SPLIT_STATE_AVAILABLE = False
+
+try:
+    from _hook_path import (  # noqa: E402, F401
+        extract_target_path as _extract_target_path_v2,
+        normalize_rel as _normalize_rel_v2,
+        matches_protected as _matches_protected_v2,
+        is_path_safe as _is_path_safe_v2,
+    )
+    _SPLIT_PATH_AVAILABLE = True
+except ImportError:
+    _SPLIT_PATH_AVAILABLE = False
+
+try:
+    from _hook_config import (  # noqa: E402, F401
+        DEFAULT_CONFIG as _DEFAULT_CONFIG_V2,
+        load_config as _load_config_v2,
+        should_fail_closed as _should_fail_closed_v2,
+    )
+    _SPLIT_CONFIG_AVAILABLE = True
+except ImportError:
+    _SPLIT_CONFIG_AVAILABLE = False
+
+try:
+    from _hook_sync import (  # noqa: E402, F401
+        auto_sync_to_plugin_cache as _auto_sync_v2,
+    )
+    _SPLIT_SYNC_AVAILABLE = True
+except ImportError:
+    _SPLIT_SYNC_AVAILABLE = False

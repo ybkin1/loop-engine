@@ -1,0 +1,38 @@
+schema: t0055-autonomous-checkpoints/v1
+checkpoints:
+  - id: CP-T0055-AUTONOMOUS-START
+    status: completed
+    evidence:
+      - .ai/evidence/T-0055/autonomous-execution-approval.md
+      - .ai/evidence/T-0055/autonomous-execution-log.md
+      - .ai/evidence/T-0055/compile-evidence.json
+  - id: CP-T0055-CONTRACT-RECONCILIATION
+    status: completed
+    evidence:
+      - .ai/evidence/T-0055/contract-reconciliation-matrix.md
+      - .ai/evidence/T-0055/contract-reconciliation-real-diff.patch
+      - .ai/evidence/T-0055/contract-reconciliation-test-evidence.json
+    blockers:
+      - CERTIFICATION_EXPIRY_ENFORCEMENT_NOT_VERIFIED
+      - EXPIRY_NEGATIVE_TESTS_NOT_COMPLETE
+next_checkpoint: CERTIFICATION_REVALIDATION_COMPLETE
+
+  - id: CP-T0055-QUALITY-TEST-FOUNDATION
+    status: completed
+    evidence:
+      - .ai/evidence/T-0055/quality-test-foundation-evidence.md
+  - id: CP-T0055-VULNERABILITY-REPAIR
+    status: completed
+    evidence:
+      - .ai/evidence/T-0055/vulnerability-repair-evidence.md
+  - id: CP-T0055-INDEPENDENT-REVIEW
+    status: completed
+    evidence:
+      - .ai/evidence/T-0055/independent-review-report.md
+    next_checkpoint: CLOSEOUT
+  - id: CP-T0055-CLOSEOUT
+    status: pending_user_decision
+    evidence:
+      - .ai/evidence/T-0055/final-closeout-package.md
+    blockers:
+      - USER_ACCEPTANCE_REQUIRED

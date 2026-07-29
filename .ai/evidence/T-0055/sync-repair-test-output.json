@@ -1,0 +1,72 @@
+{
+  "gate_id": "G-T-0055-SOURCE-TRUTH-SYNC-REPAIR",
+  "timestamp": "2026-07-28T14:15:00+08:00",
+  "test_suites": {
+    "test_plugin_cache_sync": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "tests": [
+        {
+          "name": "test_runtime_files_sync_by_hash_even_when_cache_mtime_is_newer",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_runtime_sync_post_write_hash_verification_detects_mismatch",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_runtime_sync_idempotent_no_redundant_writes",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_hook_scripts_sync_by_hash_skips_identical_cache",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_hook_scripts_sync_by_hash_detects_content_change",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_find_plugin_cache_returns_none_when_no_cache",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_find_plugin_cache_selects_version_with_dot_zcode_plugin_marker",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_copy_verified_preserves_file_content",
+          "status": "PASSED"
+        },
+        {
+          "name": "test_sync_skips_missing_source_file",
+          "status": "PASSED"
+        }
+      ]
+    },
+    "test_role_capability": {
+      "total": 28,
+      "passed": 28,
+      "failed": 0
+    },
+    "full_regression": {
+      "total": 2535,
+      "passed": 2459,
+      "skipped": 60,
+      "xfailed": 16,
+      "warnings": 29,
+      "duration_seconds": 94.71
+    }
+  },
+  "validation": {
+    "compile_check": "PASSED — all 3 modified Python files compile without errors",
+    "validate_state": "PASSED — state is usable",
+    "idempotent_sync": "CONFIRMED — second run exits 0 with no output"
+  },
+  "git_diff": {
+    "files_changed": 8,
+    "insertions": 427,
+    "deletions": 37
+  }
+}

@@ -1,9 +1,30 @@
 """
-Loop Core Contracts — Interface that every Host Adapter must implement.
+Loop Core Contracts — Governance platform interface.
 
-This defines the abstract boundary between Loop Core (host-independent)
-and Host Adapter (host-specific). Any AI coding host that wants to implement
-Loop governance must provide an adapter that satisfies this interface.
+HostAdapter is the full governance contract that any AI coding host must
+implement to support Loop engineering.  It covers:
+
+  - Identity & capabilities                  (host_name, capabilities)
+  - File system access                       (read/write/exists)
+  - Command execution                        (execute)
+  - Agent lifecycle                          (launch_agent)
+  - State & gate management                  (load/save state, gates, tasks)
+  - User interaction                         (present_gate, ask_user)
+  - Evidence integrity                       (freeze_evidence, check_freshness)
+
+Relationship with AgentAdapter
+-------------------------------
+AgentAdapter (loop_core/agent_adapter.py) is the minimal agent-execution
+contract — just spawn, monitor, collect.  HostAdapter is the comprehensive
+governance contract that includes agent management as one of its concerns.
+
+A HostAdapter implementation SHOULD compose an AgentAdapter internally for
+agent lifecycle operations.  The two interfaces serve different layers:
+
+    HostAdapter   — governance platform ("what the Loop system needs")
+    AgentAdapter  — agent executor     ("how to spawn and manage an agent")
+
+They are intentionally separate, not conflicting.
 """
 from __future__ import annotations
 

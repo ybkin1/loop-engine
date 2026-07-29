@@ -74,6 +74,34 @@ GOVERNANCE_EXEMPT = [
     ".zcode/config.json",
 ]
 
+# Governance metadata paths: always readable even without active task.
+# Business files and project-level exploration without a task are blocked.
+MINIMAL_METADATA_READ = [
+    ".ai/state.yaml",
+    ".ai/gates.yaml",
+    ".ai/task_graph.yaml",
+    ".ai/HANDOFF.md",
+    ".ai/PROGRESS.md",
+    ".ai/project_continuity.yaml",
+    ".ai/transaction_registry.yaml",
+    ".ai/tasks/",
+    ".ai/evidence/",
+    ".ai/schemas/",
+    ".ai/certifications/",
+    ".ai/runtime/",
+    ".ai/checkers/",
+    ".ai/guards/",
+    "AGENTS.md",
+    ".zcode/config.json",
+    ".zcode/tools/",
+    ".zcode/skills/",
+    "loop_core/",
+    "hooks/",
+    "tools/",
+    "agents/",
+    "tests/",
+]
+
 # Files that the main-thread can always write (evidence, handoff)
 MAIN_THREAD_ALLOWED = [
     ".ai/evidence/",
@@ -139,6 +167,15 @@ def is_governance_write(rel_path: str | None) -> bool:
     return False
 
 
+def is_minimal_metadata_read(rel_path: str) -> bool:
+    """Check if the path is governance metadata always readable without active task."""
+    rel = rel_path.replace("\\", "/")
+    for allowed in MINIMAL_METADATA_READ:
+        if rel == allowed or rel.startswith(allowed.rstrip("/") + "/"):
+            return True
+    return False
+
+
 def is_in_task_scope(rel_path: str | None, contract: dict | None) -> bool:
     """Check if the target path is within the task's allowed scope."""
     if rel_path is None or contract is None:
@@ -147,10 +184,82 @@ def is_in_task_scope(rel_path: str | None, contract: dict | None) -> bool:
     if not allowed:
         return False  # Missing explicit scope is unsafe; fail closed.
     for path in allowed:
-        path = path.replace("\\", "/").lstrip("./")
+        path = path.replace("\\", "/")
+        # Strip only "./" prefix, not individual '.' characters (v3.5 fix)
+        # lstrip("./") would corrupt paths like ".zcode/" -> "zcode/"
+        if path.startswith("./"):
+            path = path[2:]
         if rel_path == path or rel_path.startswith(path.rstrip("/") + "/"):
             return True
     return False
+
+
+# ── C11: File Write Counter ────────────────────────────────────────────
+
+def _read_task_max_files(root: Path, task_id: str) -> int | None:
+    """Parse max_files from the task contract markdown.
+
+    Looks for 'max_files:' field in the task's .md file.
+    Returns None if not specified (no limit).
+    """
+    task_path = root / ".ai" / "tasks" / f"{task_id}.md"
+    if not task_path.is_file():
+        return None
+
+    try:
+        text = task_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("max_files:"):
+            value = stripped.split(":", 1)[1].strip().strip('"').strip("'")
+            try:
+                return int(value)
+            except ValueError:
+                return None
+
+    return None
+
+
+def _get_file_write_count_file(root: Path, task_id: str) -> Path:
+    """Get the path to the file write counter for a task."""
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    return evidence_dir / "file_write_count.json"
+
+
+def _read_file_write_count(root: Path, task_id: str) -> int:
+    """Read the current file write count for a task. Returns 0 if no counter exists."""
+    counter_file = _get_file_write_count_file(root, task_id)
+    if not counter_file.is_file():
+        return 0
+
+    try:
+        data = json.loads(counter_file.read_text(encoding="utf-8"))
+        return data.get("count", 0)
+    except (json.JSONDecodeError, OSError):
+        return 0
+
+
+def _increment_file_write_count(root: Path, task_id: str, file_path: str) -> int:
+    """Increment the file write counter for a task and return the new count.
+
+    Creates the evidence directory if it doesn't exist.
+    """
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+
+    current_count = _read_file_write_count(root, task_id)
+    new_count = current_count + 1
+
+    counter_file = _get_file_write_count_file(root, task_id)
+    counter_file.write_text(
+        json.dumps({"count": new_count, "last_file": file_path}, indent=2),
+        encoding="utf-8",
+    )
+
+    return new_count
 
 
 # ── Phase Gate Enforcement ──
@@ -299,12 +408,46 @@ def main():
             )
             return EXIT_BLOCK
 
-        # ── Bash 只读命令：目标为 None 且命令是只读的 → 直接放行 ──
-        # 注意：ZCode hook_input 中没有 tool_name 字段，直接用 command 判断
+        # ── Bash 命令提取（治理检查延后到 task_id 加载后）──
         command = (hook_input.get("tool_input") or {}).get("command", "")
-        if command and target is None:
-            if is_readonly_command(command):
-                return EXIT_PASS
+
+        # Runtime-managed projects do not permit direct state/evidence edits.
+        # They must use RuntimeController transitions so task activation cannot
+        # be forged by writing current_task_id or a gate file.
+        runtime_projection = root / ".ai" / "runtime" / "runtime-state.json"
+        runtime_managed = runtime_projection.exists()
+        if runtime_managed and rel is not None and is_governance_write(rel):
+            tool_input = hook_input.get("tool_input") or {}
+            recovery = tool_input.get("recovery_mode") == "GOVERNANCE_RECOVERY"
+            caller_class = str(tool_input.get("caller_class") or hook_input.get("caller_class") or "")
+            if not recovery and caller_class != "controller":
+                logger.warning("BLOCKED by RuntimeController: GOVERNANCE_CONTROLLER_ONLY")
+                return EXIT_BLOCK
+
+        # Controller-owned runtime state takes precedence over legacy checks.
+        # A present runtime projection means this project has opted into the
+        # canonical identity/capability policy; missing caller identity fails
+        # closed instead of falling back to prompt-based role claims.
+        if runtime_managed and rel is not None and not is_governance_write(rel):
+            try:
+                from loop_core.runtime_controller import ExecutionContext, RuntimeController
+                tool_input = hook_input.get("tool_input") or {}
+                context = ExecutionContext(
+                    actor_id=str(tool_input.get("actor_id") or hook_input.get("actor_id") or ""),
+                    role_id=str(tool_input.get("role_id") or hook_input.get("role_id") or ""),
+                    caller_class=str(tool_input.get("caller_class") or hook_input.get("caller_class") or ""),
+                    task_id=tool_input.get("task_id") or hook_input.get("task_id"),
+                    execution_id=tool_input.get("execution_id") or hook_input.get("execution_id"),
+                    session_id=tool_input.get("session_id") or hook_input.get("session_id"),
+                    capability_id=tool_input.get("capability_id") or hook_input.get("capability_id"),
+                )
+                allowed, reason = RuntimeController(root).authorize_write(context, rel)
+                if not allowed:
+                    logger.warning("BLOCKED by RuntimeController: %s", reason)
+                    return EXIT_BLOCK
+            except Exception as exc:
+                logger.warning("BLOCKED: RuntimeController unavailable: %s", exc)
+                return EXIT_BLOCK
 
         # Always allow governance file writes
         if is_governance_write(rel):
@@ -318,6 +461,85 @@ def main():
 
         current_phase = state.get("current_phase", "")
         task_id = state.get("current_task_id")
+        tool_name = hook_input.get("tool_name", "")
+        tool_input = hook_input.get("tool_input") or {}
+
+        # ── GOVERNANCE_RECOVERY: 最小化、受限、可审计的恢复通道 ──
+        # 只在 Controller/runtime-state 损坏时使用。
+        # 只能修复治理骨架（.ai/、.zcode/tools/），不能写业务代码。
+        if tool_input.get("recovery_mode") == "GOVERNANCE_RECOVERY":
+            if rel and is_governance_write(rel):
+                logger.info("GOVERNANCE_RECOVERY: allowed governance write to %s", rel)
+                return EXIT_PASS
+            logger.warning("GOVERNANCE_RECOVERY denied: %s is not a governance path", rel or "no target")
+            return EXIT_BLOCK
+
+        # ── Agent/Skill 编排工具豁免（必须在 task_id 检查之前）──
+        # Agent/Skill/Task 不直接写入文件；子代理的每次写入会被独立拦截。
+        # 无 task_id 时仍需允许编排层创建任务/提案。
+        if tool_name in ("Agent", "Skill", "Task") and target is None and not command:
+            return EXIT_PASS
+
+        # ── Git 版本控制豁免 ──
+        # 无任务时：只允许 git add/commit/diff（提交治理记录必须）
+        # 有任务时：所有本地 git 操作放行
+        # git push/pull/fetch/clone 等网络操作始终需 task scope 检查
+        if command:
+            cmd_stripped = (command or "").strip()
+            _GIT_COMMIT_OPS = ("git add", "git commit", "git diff")
+            _GIT_ALL_LOCAL = _GIT_COMMIT_OPS + (
+                "git status", "git log", "git branch", "git checkout",
+                "git switch", "git restore", "git stash", "git tag",
+                "git show", "git config", "git rm", "git mv", "git reset",
+                "git merge", "git rebase",
+            )
+            is_commit_op = any(cmd_stripped.startswith(p) for p in _GIT_COMMIT_OPS)
+            is_local_op = any(cmd_stripped.startswith(p) for p in _GIT_ALL_LOCAL)
+            # Compound commands: cd /x && git ...
+            has_git = " git " in cmd_stripped
+            is_network = any(
+                cmd_stripped.rstrip().endswith(suffix)
+                for suffix in (" push", " pull", " fetch", " clone")
+            )
+            if not is_network:
+                if task_id and is_local_op:
+                    return EXIT_PASS
+                if not task_id and is_commit_op:
+                    return EXIT_PASS
+                if has_git and "cd " in cmd_stripped and not is_network:
+                    return EXIT_PASS
+
+        # ── Read 治理：无任务时只允许治理元数据读取 ──
+        if tool_name == "Read" and not task_id:
+            if rel and is_minimal_metadata_read(rel):
+                return EXIT_PASS
+            logger.warning(
+                "BLOCKED: Read tool without active task. "
+                "Only governance metadata reads (.ai/*, AGENTS.md, .zcode/*) are allowed. "
+                "Target: %s", rel or "no target"
+            )
+            return EXIT_BLOCK
+
+        # ── Bash 只读命令治理：无任务时阻断项目级探索 ──
+        # 但允许目标明确为治理路径（.ai/* .zcode/*）的只读命令。
+        if command and target is None:
+            if is_readonly_command(command):
+                if not task_id:
+                    # Check if the command references governance paths
+                    cmd_lower = (command or "").lower()
+                    gov_ref = any(prefix in cmd_lower for prefix in (
+                        ".ai/", ".zcode/", "agents/", "loop_core/", "hooks/",
+                        "tools/", "agents.md", "readme", "pyproject", "govern",
+                    ))
+                    if gov_ref:
+                        return EXIT_PASS
+                    logger.warning(
+                        "BLOCKED: Readonly Bash command without active task. "
+                        "Project-level exploration requires a task. Command: %s",
+                        command[:200] if command else "",
+                    )
+                    return EXIT_BLOCK
+                return EXIT_PASS
 
         # ── HardConstraints Integration ──
         # 作为补充检查：HardConstraints 检测到 BLOCKER 时直接阻断。
@@ -433,6 +655,24 @@ def main():
                 task_id,
             )
             return EXIT_BLOCK
+
+        # ── C11: File Write Limit Check ──
+        # Governance files are already exempted above (is_governance_write),
+        # so this check only applies to non-governance file writes.
+        if rel is not None:
+            max_files = _read_task_max_files(root, task_id)
+            if max_files is not None:
+                current_count = _read_file_write_count(root, task_id)
+                if current_count >= max_files:
+                    logger.warning(
+                        "BLOCKED: Task '%s' has reached its file write limit "
+                        "(%d/%d files written). "
+                        "Update the task contract's max_files or split the task.",
+                        task_id, current_count, max_files,
+                    )
+                    return EXIT_BLOCK
+                # Increment the counter (write will proceed)
+                _increment_file_write_count(root, task_id, rel)
 
         if not is_in_task_scope(rel, contract):
             logger.warning(

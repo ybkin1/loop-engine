@@ -1,0 +1,10 @@
+7585662 v3.11.2: plugin.json version sync — 3.0.0 → 3.11.2
+8397e80 v3.11.2: loop_onboard.py — one-command project bootstrap
+a86c560 v3.11.1: Deadlock audit — zero self-lock risks confirmed
+c2e5612 v3.11.0: Code quality triad — static analysis + security scan + design review
+e6e3632 v3.10.1: Harden MCP Agent Runtime — production readiness
+42b5d40 v3.10.0: MCP Agent Runtime — bypass ZCode sub-agent limitation
+31b9461 v3.9.1: Deep audit — docstring sync, zero defects confirmed
+e9fa5e6 fix: T-0036 task_graph entry + status alignment
+614bc6b v3.9.0: Recover three-layer quality in two-layer model
+8fde0e3 v3.8.1: Document HostAdapter/AgentAdapter relationship — dual interfaces by design

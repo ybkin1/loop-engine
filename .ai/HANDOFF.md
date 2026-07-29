@@ -1,33 +1,88 @@
 # Handoff
 
+> **权威层级**: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md
+> HANDOFF 是连续性辅助信息，不得重新定义状态。所有状态以机器可读文件为准。
+
 ## Product Direction And Authority
 
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-BEGIN -->
 ```json
 {
   "authorization_boundaries": {
-    "allowed_effects": ["read", "write governance files"],
-    "current_gate_id": "G-T-0040-IMPLEMENT",
-    "forbidden_effects": ["deploy", "rollback", "database", "permission", "secret", "payment", "production_data", "migration"]
+    "allowed_effects": [
+      "read",
+      "write governance files"
+    ],
+    "current_gate_id": null,
+    "forbidden_effects": [
+      "deploy",
+      "rollback",
+      "database",
+      "permission",
+      "secret",
+      "payment",
+      "production_data",
+      "migration"
+    ]
   },
-  "persisted_file_sha256": "FD12C5FDD8118EA2D7F5B0C5AC685C9709FAD0E3FB411A924726AF1E2F2E88BE",
+  "persisted_file_sha256": "35DAF0ED1DBBC743B3945FB105CD286EF6B27917C6765810F2809910CDEFDDCB",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
     "project_id": "loop-engine",
-    "success_signals": ["治理流程可被非技术用户理解", "gate机制有效阻断未授权操作", "证据链完整可审计"]
+    "success_signals": [
+      "治理流程可被非技术用户理解",
+      "gate机制有效阻断未授权操作",
+      "证据链完整可审计"
+    ]
   },
   "project_id": "loop-engine",
   "protected_decisions": [
-    {"authority_ref": "user", "change_policy": "需用户显式gate批准", "decision_id": "MEANS_END_BOUNDARY", "rationale_ref": ".ai/DECISIONS.md", "statement": "AI负责手段，用户负责目标和gate批准"},
-    {"authority_ref": "user", "change_policy": "不可变更", "decision_id": "USER_AUTHORITY", "rationale_ref": ".ai/DECISIONS.md", "statement": "只有用户能批准gate、拒绝gate、请求修复"},
-    {"authority_ref": "user", "change_policy": "需用户显式gate批准", "decision_id": "CODEX_DELIVERY_RESPONSIBILITY", "rationale_ref": ".ai/DECISIONS.md", "statement": "AI负责在批准范围内完成交付"},
-    {"authority_ref": "user", "change_policy": "不可变更", "decision_id": "EVIDENCE_ONLY_BOUNDARY", "rationale_ref": ".ai/DECISIONS.md", "statement": "reviewer PASS、测试通过、validator成功仅为evidence，不替代用户批准"}
+    {
+      "authority_ref": "user",
+      "change_policy": "需用户显式gate批准",
+      "decision_id": "MEANS_END_BOUNDARY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "AI负责手段，用户负责目标和gate批准"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "不可变更",
+      "decision_id": "USER_AUTHORITY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "只有用户能批准gate、拒绝gate、请求修复"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "需用户显式gate批准",
+      "decision_id": "CODEX_DELIVERY_RESPONSIBILITY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "AI负责在批准范围内完成交付"
+    },
+    {
+      "authority_ref": "user",
+      "change_policy": "不可变更",
+      "decision_id": "EVIDENCE_ONLY_BOUNDARY",
+      "rationale_ref": ".ai/DECISIONS.md",
+      "statement": "reviewer PASS、测试通过、validator成功仅为evidence，不替代用户批准"
+    }
   ],
   "schema": "ProjectContinuityProjection/v1",
-  "semantic_sha256": "8F32DFDC8DF0D3B5F6BA4993193CD8DD0CEBC44294317B5A04DAA355C51A8847",
-  "source_sha256": "17EB58373EE234058D5CBFAB013570D6097633A294FBD56774E3499A10765BF3",
-  "user_origin": {"audience": "单人AI辅助软件研发", "capability_assumptions": ["用户无代码能力", "用户无项目管理背景"], "user_authorities": ["批准gate", "拒绝gate", "请求修复", "提出目标"]}
+  "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
+  "source_sha256": "9E30CEB313AC8F5C6CFA0067B91231207BB534A81AA2B849D3336CFB32D7B59A",
+  "user_origin": {
+    "audience": "单人AI辅助软件研发",
+    "capability_assumptions": [
+      "用户无代码能力",
+      "用户无项目管理背景"
+    ],
+    "user_authorities": [
+      "批准gate",
+      "拒绝gate",
+      "请求修复",
+      "提出目标"
+    ]
+  }
 }
 ```
 <!-- PROJECT-GOVERNOR-PROJECT-CONTINUITY-END -->
@@ -38,62 +93,110 @@ S6-delivery
 
 ## Current Task
 
-T-0040: P0 消除模型自觉依赖 — EnforcementHub + Hook 增强 + 角色隔离 HARD 阻断
+T-0072
 
-Status: `completed`
+Status: `in_progress`
 
 ## Current Gate
 
-G-T-0040-IMPLEMENT: approved (2026-07-23)
+pending_gate_status: none (no pending decision required)
+active_gate: G-T-0072-DEPLOY-QUALITY
+active_gate_status: approved / in_progress
 
-## Recent Changes
+current_gate_id is null because no pending decision is required.
+G-T-0072-DEPLOY-QUALITY is approved and execution is in progress.
 
-- **2026-07-23: T-0040 completed — v3.0.0 核心交付**
-  - 新增 `loop_core/enforcement_hub.py` — Hook↔Core 治理决策桥梁
-    - `should_allow_write()` — C4+C3+C7+phase 约束统一检查
-    - `should_allow_phase_advance()` — 阶段推进前置条件验证
-    - `check_role_isolation_enforcement()` — HARD 级自评自审阻断
-    - `check_evidence_freshness_enforcement()` — C8 证据新鲜度检查
-    - `quick_check()` — 轻量整体校验
-    - `EnforcementDecision.to_hook_output()` — 标准 hook JSON 输出
-    - `EnforcementLevel` 枚举 — HARD/PARTIAL/ADVISORY 能力声明
-  - 升级 `hooks/scripts/role_isolation.py` → v2.0 HARD 阻断
-    - FULL mode: 自评自审 → `permissionDecision: "deny"` + `exit 2`
-    - LIGHTWEIGHT/STANDARD: 保持 WARN-only 向后兼容
-  - 新增 `tests/test_enforcement_hub.py` — 39 测试覆盖全 API
-  - 注册 gate `G-T-0040-IMPLEMENT` 定义实现范围
+## Allowed Scope
+
+Defined by the active gate's allowed_paths in gates.yaml.
+
+## Forbidden Scope
+
+Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Verified
 
-- 2116 tests passed (0 regression from v2.0.0 baseline)
-- 39 new enforcement_hub tests all pass
-- role_isolation.py v2.0 logic verified via code review
-- EnforcementHub reads .ai/state.yaml, gates.yaml, task_graph.yaml correctly
+None
 
 ## Unverified
 
-- role_isolation.py HARD blocking live-fire (needs real ZCode session with distinct agent IDs)
-- EnforcementHub hook integration live-fire (needs hook reload)
-- External vertical slice (T-0041) — deferred to v3.1
+- EVIDENCE_MANIFEST_REQUIRED
+- FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
 
 ## Evidence
 
-- `loop_core/enforcement_hub.py` — 390 lines, full EnforcementHub implementation
-- `hooks/scripts/role_isolation.py` — upgraded to v2.0 with HARD blocking
-- `tests/test_enforcement_hub.py` — 39 tests, all passing
-- Full regression: 2116 passed, 61 skipped, 18 xfailed
+Evidence manifest: .ai/evidence/T-0072/evidence-manifest.v1.yaml.
 
-## Pending
+## Integration Impact
 
-- T-0041: 外部垂直切片验证 — 用 loop-engine 交付真实 CLI 工具
-- T-0044: 角色能力认证框架 (role_capability.py)
-- T-0045: 全 11 角色 CONTRACT.yaml 补齐
-- Live-fire verification of hook HARD enforcement
+Checkpoint status: NOT_ESTABLISHED.
+Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-USER_DECISION_REQUIRED — 审查 v3.0.0 T-0040 交付结果，决定是否批准 / 要求修复 / 进入下一阶段
+CONTINUE_APPROVED_EXECUTION
 
 ## Startup Prompt
 
 Use $project-governor, validate structured state, and continue only inside the approved scope.
+
+提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。
+
+## Structured Lifecycle
+
+<!-- PROJECT-GOVERNOR-LIFECYCLE-BEGIN -->
+```json
+{
+  "installation_eligibility": "BLOCKED",
+  "not_authorized": [
+    "INDEPENDENT_REREVIEW_AUTHORIZED",
+    "INSTALLATION_AUTHORIZED",
+    "ACTIVATION_AUTHORIZED",
+    "RUNTIME_TOOL_ENABLEMENT_AUTHORIZED",
+    "DOWNSTREAM_TASK_CREATION_AUTHORIZED",
+    "REAL_PROJECT_ENTRY_AUTHORIZED"
+  ],
+  "not_performed": [
+    "USER_ACCEPTANCE_NOT_PERFORMED",
+    "PRODUCTION_AUTHORITY_LIFECYCLE_UNAVAILABLE"
+  ],
+  "schema": "ProjectLifecycleProjection/v1",
+  "unverified": [
+    "EVIDENCE_MANIFEST_REQUIRED",
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
+  ],
+  "verified": []
+}
+```
+<!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
+
+## Structured Next Action
+
+<!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
+```json
+{
+  "approved_execution_gate_id": "G-T-0072-DEPLOY-QUALITY",
+  "approved_execution_status": "in_progress",
+  "current_gate_id": "G-T-0072-DEPLOY-QUALITY",
+  "current_task_id": "T-0072",
+  "current_task_status": "in_progress",
+  "lifecycle_revision": 0,
+  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "schema": "ProjectGovernorNextAction/v2"
+}
+```
+<!-- PROJECT-GOVERNOR-NEXT-ACTION-END -->
+
+## Checkpoint
+
+<!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
+```json
+{
+  "blockers": [
+    "EVIDENCE_MANIFEST_REQUIRED"
+  ],
+  "checkpoint_status": "NOT_ESTABLISHED",
+  "schema": "Checkpoint/v1.0"
+}
+```
+<!-- PROJECT-GOVERNOR-CHECKPOINT-END -->

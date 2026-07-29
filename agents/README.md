@@ -1,88 +1,27 @@
-# Loop 工程角色体系
+# Loop 工程 Agent 角色目录
 
-## 目录
-
-```
-agents/
-├── README.md                        # 本文件
-│
-├── main-thread/                     # 主控会话（编排者、记录官）
-│   └── SKILL.md
-│
-├── product-manager/                 # 产品经理
-│   └── SKILL.md
-│
-├── project-manager/                 # 项目经理
-│   └── SKILL.md
-│
-├── system-architect/                # 系统架构师
-│   ├── SKILL.md
-│   └── references/
-│       └── architecture-checklist.md
-│
-├── module-architect/                # 模块架构师
-│   ├── SKILL.md
-│   └── references/
-│       └── interface-contract-spec.md
-│
-├── developer/                       # 开发工程师
-│   ├── SKILL.md
-│   └── references/
-│       └── coding-standards.md
-│
-├── quality-engineer/                # 质量工程师（已完成原型）
-│   ├── SKILL.md
-│   ├── references/
-│   │   └── quality-standards.md
-│   └── scripts/
-│       ├── check_thresholds.py
-│       └── run_quality_gates.py
-│
-├── security-engineer/               # 安全工程师
-│   ├── SKILL.md
-│   └── references/
-│       └── security-checklist.md
-│
-├── independent-reviewer/            # 独立代码评审员
-│   ├── SKILL.md
-│   └── references/
-│       └── review-checklist.md
-│
-├── delivery-manager/                # 交付经理
-│   └── SKILL.md
-│
-├── release-engineer/                # 发布/运维工程师
-│   ├── SKILL.md
-│   └── references/
-│       └── deployment-checklist.md
-│
-└── references/                      # 跨角色协议
-    ├── role-conflict-protocol.md    # 角色冲突处理协议
-    ├── handoff-standard.md          # 角色间交接协议标准
-    └── phase-loop-state-machine.md  # 阶段 Loop 正式状态机（12 阶段定义）
-```
-
-## 角色关系
+## 两层架构
 
 ```
-        产品经理（需求）
-             ↓
-        项目经理（计划）
-             ↓
-    系统架构师 → 模块架构师
-                      ↓
-                  开发工程师
-                      ↓
-    ┌────────┬────────┼────────┬────────┐
-   质量工程师  安全工程师  独立评审员  发布工程师
-    └────────┴────────┼────────┴────────┘
-                      ↓
-                  交付经理
-                      ↓
-                 用户 Gate
+用户决策
+  │
+ZCode 会话（永久调度器 — 有 Agent 工具）
+  │
+  ├─ main-thread          军师：出编排计划 + 汇总结果 + 呈现 gate
+  ├─ product-manager      需求分析
+  ├─ project-manager      项目管理
+  ├─ system-architect     系统架构设计
+  ├─ module-architect     模块详细设计
+  ├─ developer            代码实现
+  ├─ quality-engineer     质量门禁
+  ├─ security-engineer    安全审查
+  ├─ independent-reviewer 独立代码评审
+  ├─ delivery-manager     交付管理
+  ├─ release-engineer     发布运维
+  └─ test-engineer        测试工程
 ```
 
-每个箭头 = 一次交接验收。下游有权打回上游。冲突时走 `references/role-conflict-protocol.md`。
+**所有角色平级，由 ZCode 会话统一调度。** 会话根据 main-thread 产出的 SubagentManifest 决定调谁、调几个、并行还是串行。
 
 ## 每个角色的合同标准
 
@@ -92,5 +31,7 @@ agents/
 
 ## 运行方式
 
-每个角色 agent 由主控会话通过 ZCode Agent 工具启动为独立子会话，
-加载自己的 SKILL.md + references + scripts，不能访问其他角色的运行上下文。
+1. 会话拉起 main-thread Agent → 产出 SubagentManifest（编排计划）
+2. 会话按 manifest 并行/串行调用角色 Agent
+3. 每个角色 Agent 加载自己的 SKILL.md + references + scripts，**不能**访问其他角色的运行上下文
+4. 会话收集所有角色产出 → 扔回 main-thread 聚合 → 呈现 gate

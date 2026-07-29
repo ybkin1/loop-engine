@@ -1,0 +1,431 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\Administrator\ZCodeProject\loop-engine
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.13.0, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2466 items
+
+tests\lab\test_project_governor_consistency.py FFFFFFFFFFFFFFFFFFFFFFFFF [  1%]
+FFFFFFsFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                  [  2%]
+tests\seeded_defects\test_defect_detection.py .......................... [  3%]
+..                                                                       [  3%]
+tests\test_agent_adapter.py ............................................ [  5%]
+.........................                                                [  6%]
+tests\test_approval_ledger.py .......................................... [  8%]
+............                                                             [  8%]
+tests\test_bash_readonly.py ............................................ [ 10%]
+................................                                         [ 11%]
+tests\test_bypass_matrix.py ............................................ [ 13%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+...........................xx.x.xxx..............xx..x..xxxxxx.......... [ 22%]
+..                                                                       [ 22%]
+tests\test_certification.py ...............................              [ 23%]
+tests\test_check_thresholds.py ........................                  [ 24%]
+tests\test_context_controller.py ....................................... [ 26%]
+.......                                                                  [ 26%]
+tests\test_context_loader.py ...............................             [ 27%]
+tests\test_contract_freshness.py ..................................      [ 29%]
+tests\test_contract_verifier.py .................................        [ 30%]
+tests\test_cross_layer_safety.py ....................................... [ 32%]
+......                                                                   [ 32%]
+tests\test_deep_qa_probe.py ............................................ [ 34%]
+...X.x................................                                   [ 35%]
+tests\test_enforcement.py ....................                           [ 36%]
+tests\test_enforcement_hub.py .......................................... [ 38%]
+.........                                                                [ 38%]
+tests\test_evidence_chain.py ........................................... [ 40%]
+.................                                                        [ 40%]
+tests\test_execution_ledger.py ..............................            [ 42%]
+tests\test_executor.py .................................                 [ 43%]
+tests\test_gate_guard_lifecycle.py ............                          [ 43%]
+tests\test_governance_consistency.py ............                        [ 44%]
+tests\test_hard_constraints.py ......................................... [ 46%]
+.....................................                                    [ 47%]
+tests\test_hook_integration.py ..............................            [ 48%]
+tests\test_hooks.py ...............                                      [ 49%]
+tests\test_human_review_packet.py ...................................... [ 51%]
+....................................                                     [ 52%]
+tests\test_import_checker.py ...........................                 [ 53%]
+tests\test_intent_router.py ............................................ [ 55%]
+...........................                                              [ 56%]
+tests\test_ledger_guard.py ........                                      [ 56%]
+tests\test_loop_core.py ................................................ [ 58%]
+.                                                                        [ 58%]
+tests\test_management_roles.py ......................................... [ 60%]
+........................................................................ [ 63%]
+............................                                             [ 64%]
+tests\test_operations.py .........................                       [ 65%]
+tests\test_project_map_schema.py ....................................... [ 67%]
+......................                                                   [ 67%]
+tests\test_projection_engine.py .....................................    [ 69%]
+tests\test_quality_engineer_role.py .................................... [ 70%]
+..................                                                       [ 71%]
+tests\test_quality_gates.py ...........                                  [ 72%]
+tests\test_remaining_roles.py .....................................ssss. [ 73%]
+sss.ssss.ssss.........ss.s.ssssss.s.ss.....sss.ssssss.sss.ss.ss.ss...... [ 76%]
+........................................................................ [ 79%]
+........................................................                 [ 81%]
+tests\test_role_capability.py ............................               [ 83%]
+tests\test_role_isolation.py ........                                    [ 83%]
+tests\test_runtime_controller.py ......                                  [ 83%]
+tests\test_state_machine_enhanced.py ................................... [ 85%]
+.....                                                                    [ 85%]
+tests\test_subagent_manifest.py ........................................ [ 86%]
+........................                                                 [ 87%]
+tests\test_technical_roles.py ............................sss.sss....... [ 89%]
+..sss.....sss.sss....................................................... [ 92%]
+............................................                             [ 94%]
+tests\test_version_consistency.py ......                                 [ 94%]
+tests\test_veto_escalation.py .......................................... [ 96%]
+........                                                                 [ 96%]
+tests\vertical_slice\test_vertical_slice.py ............................ [ 97%]
+..........................................................               [100%]
+
+================================== FAILURES ===================================
+_ ProjectGovernorConsistencyTests.test_action_mode_requires_matching_gate_and_explicit_execution _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_checkpoint_missing_authority_hash _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_marker_only_prose _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_missing_structured_field _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_semantic_task_status_mismatch _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_stale_next_action _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_rejects_unknown_structured_field _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_audit_handoff_reports_each_invariant_once _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_candidate_test_runner_has_no_global_project_governor_dependency _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_close_session_preserves_completed_task_graph_status _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_close_session_preserves_each_supported_status _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_close_session_writes_chinese_next_action_and_stable_checkpoint _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_final_validation_manifest_binds_hash_size_and_mtime _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_final_validation_rejects_target_changed_after_snapshot _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_final_validation_snapshot_accepts_inline_action_with_existing_evidence _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_cli_rejects_same_process_chaining _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_create_approve_and_execute_are_distinct_transitions _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_records_rejection_without_execution_authority _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_rejects_execution_without_exact_request _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_rejects_path_escape_before_write _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_governance_action_rejects_reused_request_id_before_write _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_transaction_preserves_concurrent_uncommitted_change _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_transaction_refuses_unresolved_recovery_marker _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_transaction_removes_new_file_after_partial_replace _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_transaction_rolls_back_after_partial_replace _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_validate_state_inventories_non_current_historical_mismatch _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_validate_state_rejects_task_graph_status_mismatch _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ ProjectGovernorConsistencyTests.test_validate_state_requires_execution_evidence_for_in_progress _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_ARCH_001_producer_and_auditor_have_independent_modules _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_AUTH_001_inline_authority_interfaces_are_absent _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_AUTH_005_reports_secure_isolation_not_authority_availability _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_EM_001_bounded_manifest_streams_exact_subjects _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+____ T0036RepairRedContractTests.test_EM_002_missing_manifest_fails_closed ____
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_______ T0036RepairRedContractTests.test_EM_003_manifest_is_create_only _______
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+____ T0036RepairRedContractTests.test_EM_004_tampered_subject_is_rejected _____
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_GATE_001_and_LIFE_001_use_structured_projection _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_GATE_001_current_gate_and_approved_execution_gate_are_distinct _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_GATE_002_independent_auditor_rejects_mutated_projection _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_HASH_001_manifest_file_count_limit_is_enforced _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_HASH_002_per_file_limit_is_enforced_before_hashing _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_HASH_003_traversal_ads_and_case_collisions_are_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+____ T0036RepairRedContractTests.test_HASH_004_symlink_subject_is_rejected ____
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_HASH_005_identity_change_during_streaming_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_LIFE_001_unperformed_lifecycle_never_collapses_to_none _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_PC_002_missing_project_continuity_preserves_handoff _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_PC_003_source_drift_blocks_handoff_replacement _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_PC_004_semantic_hash_mismatch_is_rejected __
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+______ T0036RepairRedContractTests.test_PC_005_unknown_field_is_rejected ______
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_001_self_report_binder_is_replaced_by_controlled_runner _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_002_controlled_runner_executes_real_passing_unittest _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_003_fake_success_text_cannot_override_real_failure _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_004_zero_test_stdout_spoof_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_005_adapter_fingerprint_drift_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_006_missing_or_unknown_result_envelope_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_007_nonce_fingerprint_and_count_mismatch_are_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_008_non_clean_structured_result_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_RUN_009_test_fingerprint_drift_is_rejected _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_TR_001_missing_registry_never_emits_stable_checkpoint _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_TR_002_checkpoint_waits_for_successor_acknowledgment _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_TR_003_fixture_ack_promotes_same_checkpoint_id_only_to_fixture_stable _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+__ T0036RepairRedContractTests.test_TR_004_in_flight_actor_blocks_stability ___
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_TURN_001_three_processes_cannot_advance_authority_lifecycle _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+_ T0036RepairRedContractTests.test_TURN_002_fixture_events_require_hash_lineage_and_later_turn _
+tests\lab\test_project_governor_consistency.py:63: in setUp
+    self.assertEqual(closed.returncode, 0, closed.stdout + closed.stderr)
+E   AssertionError: 2 != 0 : [error] PROJECT_CONTINUITY_HASH_MISMATCH: Continuity semantic hash mismatch
+============================== warnings summary ===============================
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_no_state_file
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_nonexistent_path_write
+tests/test_hard_constraints.py::TestCheckAll::test_fails_with_c4_path_out_of_scope
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_no_active_tasks
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_review_missing_in_s4
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_blocked_gate_exists
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_evidence_stale
+tests/test_hard_constraints.py::TestCheckAll::test_checked_at_is_populated
+tests/test_hard_constraints.py::TestCheckAll::test_warning_violations_do_not_cause_passed_false
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\hard_constraints.py:553: UserWarning: C5 verification check called with target_phase=None. Verification enforcement is skipped because no target phase was provided. This may indicate a missing context in the caller.
+    warnings.warn(
+
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_no_state_file
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_nonexistent_path_write
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\hard_constraints.py:626: UserWarning: C6 independent review check called with current_phase=None. Review enforcement is skipped because no current phase was provided. This may indicate a missing context in the caller.
+    warnings.warn(
+
+tests/test_state_machine_enhanced.py::TestResolveGateStatus::test_gate_id_not_found_returns_none
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\state_machine.py:325: UserWarning: STALE_GATE_REFERENCE: current_gate_id 'G-T-NONEXISTENT' does not match any gate in the authoritative gates list. This may indicate a stale state.yaml reference that needs cleanup.
+    _warnings.warn(
+
+tests/test_state_machine_enhanced.py::TestResolveGateStatus::test_empty_gates_list_with_id_returns_none
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\state_machine.py:325: UserWarning: STALE_GATE_REFERENCE: current_gate_id 'G-T-005' does not match any gate in the authoritative gates list. This may indicate a stale state.yaml reference that needs cleanup.
+    _warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_action_mode_requires_matching_gate_and_explicit_execution
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_checkpoint_missing_authority_hash
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_marker_only_prose
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_missing_structured_field
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_semantic_task_status_mismatch
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_stale_next_action
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_rejects_unknown_structured_field
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_audit_handoff_reports_each_invariant_once
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_candidate_test_runner_has_no_global_project_governor_dependency
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_close_session_preserves_completed_task_graph_status
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_close_session_preserves_each_supported_status
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_close_session_writes_chinese_next_action_and_stable_checkpoint
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_final_validation_manifest_binds_hash_size_and_mtime
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_final_validation_rejects_target_changed_after_snapshot
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_final_validation_snapshot_accepts_inline_action_with_existing_evidence
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_cli_rejects_same_process_chaining
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_create_approve_and_execute_are_distinct_transitions
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_records_rejection_without_execution_authority
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_rejects_execution_without_exact_request
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_rejects_path_escape_before_write
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_governance_action_rejects_reused_request_id_before_write
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_transaction_preserves_concurrent_uncommitted_change
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_transaction_refuses_unresolved_recovery_marker
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_transaction_removes_new_file_after_partial_replace
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_transaction_rolls_back_after_partial_replace
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_validate_state_inventories_non_current_historical_mismatch
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_validate_state_rejects_task_graph_status_mismatch
+FAILED tests/lab/test_project_governor_consistency.py::ProjectGovernorConsistencyTests::test_validate_state_requires_execution_evidence_for_in_progress
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_ARCH_001_producer_and_auditor_have_independent_modules
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_AUTH_001_inline_authority_interfaces_are_absent
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_AUTH_005_reports_secure_isolation_not_authority_availability
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_EM_001_bounded_manifest_streams_exact_subjects
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_EM_002_missing_manifest_fails_closed
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_EM_003_manifest_is_create_only
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_EM_004_tampered_subject_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_GATE_001_and_LIFE_001_use_structured_projection
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_GATE_001_current_gate_and_approved_execution_gate_are_distinct
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_GATE_002_independent_auditor_rejects_mutated_projection
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_HASH_001_manifest_file_count_limit_is_enforced
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_HASH_002_per_file_limit_is_enforced_before_hashing
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_HASH_003_traversal_ads_and_case_collisions_are_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_HASH_004_symlink_subject_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_HASH_005_identity_change_during_streaming_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_LIFE_001_unperformed_lifecycle_never_collapses_to_none
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_PC_002_missing_project_continuity_preserves_handoff
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_PC_003_source_drift_blocks_handoff_replacement
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_PC_004_semantic_hash_mismatch_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_PC_005_unknown_field_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_001_self_report_binder_is_replaced_by_controlled_runner
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_002_controlled_runner_executes_real_passing_unittest
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_003_fake_success_text_cannot_override_real_failure
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_004_zero_test_stdout_spoof_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_005_adapter_fingerprint_drift_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_006_missing_or_unknown_result_envelope_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_007_nonce_fingerprint_and_count_mismatch_are_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_008_non_clean_structured_result_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_RUN_009_test_fingerprint_drift_is_rejected
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TR_001_missing_registry_never_emits_stable_checkpoint
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TR_002_checkpoint_waits_for_successor_acknowledgment
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TR_003_fixture_ack_promotes_same_checkpoint_id_only_to_fixture_stable
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TR_004_in_flight_actor_blocks_stability
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TURN_001_three_processes_cannot_advance_authority_lifecycle
+FAILED tests/lab/test_project_governor_consistency.py::T0036RepairRedContractTests::test_TURN_002_fixture_events_require_hash_lineage_and_later_turn
+= 63 failed, 2325 passed, 61 skipped, 16 xfailed, 1 xpassed, 13 warnings in 56.78s =

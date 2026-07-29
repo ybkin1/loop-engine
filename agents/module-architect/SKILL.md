@@ -135,3 +135,10 @@ validate_contract.py 自检结果、契约 schema 版本快照。
 4. 自检：无模糊类型？无未声明副作用？无边界违规？跑 validate_contract.py --check-schema-only。
 5. 产出 interface-contract.json + contract-summary.md。
 6. 交付。不自检模糊地带——精确描述不了的地方直接报告 BLOCKED。
+
+
+## TOOL_REQUEST Protocol
+When you need contract validation:
+```json
+{"verdict": "NEEDS_TOOL", "tool_requests": [{"id": "req-1", "command": "python agents/module-architect/scripts/validate_contract.py <contract_file>", "reason": "..."}]}
+```

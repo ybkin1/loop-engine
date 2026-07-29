@@ -1,23 +1,89 @@
 {
-  "evidence_id": "EVID-quality-report-s6",
-  "type": "quality_report",
-  "timestamp": "2026-07-23T00:00:00Z",
-  "verdict": "PASS",
-  "bindings": {
-    "requirement_version": "docs/01-requirements.md",
-    "architecture_version": "docs/02-architecture.md",
-    "code_fingerprint": "246 tests pass, lint 0 errors core"
-  },
-  "execution": {
-    "command": "pytest",
-    "args": ["-q", "tests/"],
-    "exit_code": 0,
-    "environment_hash": "python3.12"
-  },
-  "result": {
-    "summary": "246 passed, 1 skipped, 0 failed. Lint: 0 errors in core code (hooks/tools/scripts/src). Security: PyYAML 6.0.3 clean.",
-    "metrics": {"tests_passed": 246, "tests_skipped": 1, "tests_failed": 0, "lint_errors": 0},
-    "issues": []
-  },
-  "freshness": {"is_stale": false, "stale_reason": ""}
+  "schema": "quality_report/v1",
+  "role": "quality-engineer",
+  "timestamp": "2026-07-27T02:49:19.969656+00:00",
+  "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+  "checks": [
+    {
+      "name": "lint",
+      "status": "blocked",
+      "value": 765,
+      "threshold": 0,
+      "reason": "765 > 0",
+      "raw": "[\n  {\n    \"cell\": null,\n    \"code\": \"UP009\",\n    \"end_location\": {\n      \"column\": 24,\n      \"row\": 2\n    },\n    \"filename\": \"C:\\\\Users\\\\Administrator\\\\ZCodeProject\\\\loop-engine\\\\.ai\\\\checkers\\\\compil",
+      "skipped": false
+    },
+    {
+      "name": "typecheck",
+      "status": "blocked",
+      "value": 1,
+      "threshold": 0,
+      "reason": "1 > 0",
+      "raw": "",
+      "skipped": false
+    },
+    {
+      "name": "test",
+      "status": "pass",
+      "value": "0/0",
+      "threshold": 0,
+      "reason": "0 个失败",
+      "raw": "",
+      "skipped": false
+    },
+    {
+      "name": "coverage",
+      "status": "blocked",
+      "value": 0,
+      "threshold": 80,
+      "reason": "0 < 80",
+      "raw": "0%",
+      "skipped": false
+    },
+    {
+      "name": "audit",
+      "status": "pass",
+      "value": {
+        "HIGH": 0,
+        "CRITICAL": 0,
+        "MODERATE": 0,
+        "LOW": 0
+      },
+      "threshold": {
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "reason": "0 HIGH/CRITICAL",
+      "raw": "",
+      "skipped": false
+    },
+    {
+      "name": "build",
+      "status": "blocked",
+      "value": 1,
+      "threshold": 0,
+      "reason": "exit code != 0",
+      "raw": "",
+      "skipped": false
+    },
+    {
+      "name": "compile",
+      "status": "pass",
+      "value": 0,
+      "threshold": 0,
+      "reason": "0 compile errors ≤ 0",
+      "raw": "0 errors",
+      "skipped": false
+    }
+  ],
+  "overall": "BLOCKED",
+  "blocked_by": [
+    "lint: 765 > 0",
+    "typecheck: 1 > 0",
+    "coverage: 0 < 80",
+    "build: exit code != 0"
+  ],
+  "input_hashes": {
+    "source_code": "sha256:3c0fc2e65ef2a1278f74ce49e279ab8335ded55bbdee5f143a92eb6ef003fa97"
+  }
 }

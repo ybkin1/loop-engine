@@ -65,6 +65,20 @@ when_to_use: >
 [error] Pending gate(s) require user decision: <gateID 列表>
 ```
 
+
+
+## 一键接入与更新
+
+当用户在新项目中说「安装 Loop 工程」「接入 Loop」「用 Loop 工程接管」等指令时：
+
+1. 检查 `.ai/state.yaml` 是否存在
+2. 不存在 → 运行 `python tools/loop_onboard.py <project_root>`
+3. 存在 → 报告当前状态
+
+当用户说「更新 Loop 工程」「升级 Loop」时：
+1. 运行 `python tools/loop_onboard.py <project_root> --update`
+2. 同步 agent 角色
+
 ## 禁止动作
 
 - 不要代替用户批准 gate；不要把 evidence 当成用户批准。

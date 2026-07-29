@@ -141,3 +141,26 @@ def checkpoint_status(registry: dict | None, continuity: dict, evidence: dict, t
         "evidence_manifest_hashes": evidence, "task_scope_hash": task_scope_hash,
         "authority_hash": authority_hash, "blockers": [], "fixture_only": data["fixture_only"],
     }
+
+# T-0059 F-0055-013: Checkpoint acknowledgment for session takeover handoff
+def acknowledge_checkpoint(root, checkpoint_id, controller_generation, recovered_state_sha256, session_id=""):
+    """Write a checkpoint acknowledgment to complete the PENDING_SUCCESSOR_ACK protocol."""
+    from datetime import datetime
+    import yaml
+    registry = load_transaction_registry(root)
+    data = registry["data"]
+    ack = {"checkpoint_id": checkpoint_id, "controller_generation": controller_generation,
+           "recovered_state_sha256": recovered_state_sha256,
+           "acknowledged_at": datetime.now().isoformat(), "session_id": session_id}
+    existing = [a for a in data["checkpoint_acknowledgments"] if a.get("checkpoint_id") == checkpoint_id]
+    if not existing:
+        data["checkpoint_acknowledgments"].append(ack)
+        reg_path = root / ".ai/transaction_registry.yaml" if hasattr(root, '__fspath__') else type(root)(".ai/transaction_registry.yaml")
+        try:
+            reg_path = root / ".ai/transaction_registry.yaml"
+        except:
+            reg_path = type(root)(".ai/transaction_registry.yaml")
+        payload = {"schema": registry["schema"], "contract_id": registry["contract_id"], "data": data}
+        with open(str(reg_path), "w", encoding="utf-8") as f:
+            yaml.safe_dump(payload, f, allow_unicode=True, sort_keys=False)
+    return ack

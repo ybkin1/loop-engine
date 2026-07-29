@@ -38,7 +38,17 @@ from hook_common import (  # noqa: E402
     load_state,
     project_root,
     read_stdin_json,
+    extract_target_path,
+    normalize_rel,
 )
+
+# ── Governance file exemption — prevents fail-closed deadlock ──────────
+GOVERNANCE_EXEMPT = [
+    ".ai/gates.yaml",
+    ".ai/state.yaml",
+    ".ai/task_graph.yaml",
+    ".ai/project_continuity.yaml",
+]
 
 EXIT_PASS = 0
 EXIT_BLOCK = 2
@@ -119,6 +129,16 @@ def main():
     if not is_governance_project(root):
         return EXIT_PASS
 
+    # T-0062: Sub-agent session independence check
+    # Verify that review evidence comes from a different session
+    review_evidence = hook_input.get("tool_input", {}).get("review_evidence", {})
+    if review_evidence:
+        rev_session = review_evidence.get("reviewer_session_id", "")
+        dev_session = review_evidence.get("developer_session_id", "")
+        if rev_session and dev_session and rev_session == dev_session:
+            logger.warning("[role_isolation] SUBAGENT_VIOLATION: reviewer session == developer session — review evidence not from independent sub-agent")
+            return EXIT_BLOCK
+
     try:
         cfg = load_config(root)
     except Exception:
@@ -129,12 +149,26 @@ def main():
     if not role_cfg.get("enabled", True):
         return EXIT_PASS
 
-    # Get current state
+    # ── Governance file exemption (v3.5) ────────────────────────────────
+    # Allow writes to governance files even when state is corrupted,
+    # so the user can fix the corruption. Without this, a corrupted
+    # state.yaml triggers a permanent deadlock (blocked writes → can't fix).
+    target = extract_target_path(hook_input)
+    if target:
+        rel = normalize_rel(root, target)
+        if rel and rel.replace("\\", "/") in GOVERNANCE_EXEMPT:
+            return EXIT_PASS
+
+    # Get current state — FAIL CLOSED on error
     try:
         state = load_state(root)
         task_id = state.get("current_task_id")
-    except Exception:
-        task_id = None
+    except Exception as e:
+        emit_deny(
+            f"无法读取治理状态（{e}）。按 fail-closed 策略阻断角色隔离检查；"
+            "请先修复 .ai/state.yaml。"
+        )
+        return EXIT_BLOCK
 
     if not task_id:
         return EXIT_PASS

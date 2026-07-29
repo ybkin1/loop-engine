@@ -31,18 +31,22 @@ from loop_core.state_machine import (
     can_enter_phase,
     can_transition_phase,
     check_phase_constraints,
+    check_role_isolation,
     check_self_review,
+    phase_needs_user_gate,
     resolve_gate_status,
 )
+# Unified EnforcementLevel (v3.5) — single source of truth in enforcement.py
+from loop_core.enforcement import EnforcementLevel
 
 logger = logging.getLogger(__name__)
 
-
-class EnforcementLevel(str, Enum):
-    """What level of enforcement this adapter/host provides."""
-    HARD = "HARD"
-    PARTIAL = "PARTIAL"
-    ADVISORY = "ADVISORY"
+# ── Sentinel values for corrupted governance state ─────────────────────
+# When governance YAML files are missing or unparseable, the system MUST
+# FAIL CLOSED — not silently return empty defaults that bypass all checks.
+# These sentinels propagate through the read methods and are detected by
+# _governance_state_healthy() before any enforcement decision is made.
+_CORRUPT_SENTINEL = object()  # single shared sentinel for all three files
 
 
 @dataclass
@@ -111,6 +115,38 @@ class EnforcementHub:
         self._state_cache: dict[str, Any] | None = None
         self._gates_cache: list[dict] | None = None
         self._tasks_cache: list[dict] | None = None
+        self._state_error: str | None = None
+        self._gates_error: str | None = None
+        self._tasks_error: str | None = None
+
+    @property
+    def _governance_state_healthy(self) -> bool:
+        """True iff governance state is intact OR project is not governed at all.
+
+        If .ai/ directory doesn't exist, this is not a governance project
+        and enforcement is skipped (healthy).  If .ai/ exists but any core
+        YAML file is missing or unparseable, FAIL CLOSED.
+        """
+        ai_dir = self._root / ".ai"
+        if not ai_dir.is_dir():
+            return True  # Not a governance project — nothing to enforce
+
+        # Force read to populate error flags
+        self._read_state()
+        self._read_gates()
+        self._read_tasks()
+        return not (self._state_error or self._gates_error or self._tasks_error)
+
+    def _governance_error_reason(self) -> str:
+        """Human-readable summary of governance file errors."""
+        parts = []
+        if self._state_error:
+            parts.append(f"state.yaml: {self._state_error}")
+        if self._gates_error:
+            parts.append(f"gates.yaml: {self._gates_error}")
+        if self._tasks_error:
+            parts.append(f"task_graph.yaml: {self._tasks_error}")
+        return "; ".join(parts) if parts else "unknown governance error"
 
     @property
     def root(self) -> Path:
@@ -121,17 +157,17 @@ class EnforcementHub:
             return self._state_cache
         sp = self._root / ".ai" / "state.yaml"
         if not sp.exists():
-            return {}
+            self._state_error = "file not found"
+            self._state_cache = {}
+            return self._state_cache
         try:
             import yaml
             with open(sp, "r", encoding="utf-8") as f:
                 self._state_cache = yaml.safe_load(f) or {}
-        except Exception:
+            self._state_error = None
+        except Exception as e:
+            self._state_error = f"parse error: {e}"
             self._state_cache = {}
-            for line in sp.read_text(encoding="utf-8").splitlines():
-                if ":" in line and not line.strip().startswith("#"):
-                    k, _, v = line.partition(":")
-                    self._state_cache[k.strip()] = v.strip().strip('"').strip("'")
         return self._state_cache
 
     def _read_gates(self) -> list[dict]:
@@ -139,6 +175,7 @@ class EnforcementHub:
             return self._gates_cache
         gp = self._root / ".ai" / "gates.yaml"
         if not gp.exists():
+            self._gates_error = "file not found"
             self._gates_cache = []
             return self._gates_cache
         try:
@@ -146,7 +183,9 @@ class EnforcementHub:
             with open(gp, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._gates_cache = data.get("gates", []) or []
-        except Exception:
+            self._gates_error = None
+        except Exception as e:
+            self._gates_error = f"parse error: {e}"
             self._gates_cache = []
         return self._gates_cache
 
@@ -155,6 +194,7 @@ class EnforcementHub:
             return self._tasks_cache
         tp = self._root / ".ai" / "task_graph.yaml"
         if not tp.exists():
+            self._tasks_error = "file not found"
             self._tasks_cache = []
             return self._tasks_cache
         try:
@@ -162,7 +202,9 @@ class EnforcementHub:
             with open(tp, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f) or {}
             self._tasks_cache = data.get("tasks", []) or []
-        except Exception:
+            self._tasks_error = None
+        except Exception as e:
+            self._tasks_error = f"parse error: {e}"
             self._tasks_cache = []
         return self._tasks_cache
 
@@ -202,6 +244,72 @@ class EnforcementHub:
         return {g["id"] for g in self._read_gates()
                 if isinstance(g, dict) and g.get("status") == "approved" and g.get("id")}
 
+    def _has_approved_user_gate(self, phase: Phase) -> bool:
+        """Return whether the target phase has an explicit user-approved gate.
+
+        Cross-validates two independent evidence sources:
+        1. Heuristic: gate_type/approval_actor/approval_source fields in gates.yaml
+        2. Structural: state.yaml current_gate_id points to an approved user gate
+           matching this phase.
+        """
+        phase_value = phase.value.lower()
+        phase_slug = phase_value.split("-", 1)[-1] if "-" in phase_value else phase_value
+
+        # ── Evidence source 1: heuristic gate scan ──
+        heuristic_match = False
+        for gate in self._read_gates():
+            if not isinstance(gate, dict) or gate.get("status") != "approved":
+                continue
+            gate_phase = str(gate.get("phase", "")).lower()
+            gate_type = str(gate.get("gate_type", "")).lower()
+            approval_actor = str(gate.get("approval_actor", "")).lower()
+            approval_source = str(gate.get("approval_source", "")).lower()
+            phase_matches = (
+                gate_phase in {phase_value, phase_slug}
+                or phase_slug in gate_type
+                or phase_value in gate_type
+            )
+            explicit_user = (
+                approval_actor == "user"
+                or approval_source == "explicit_user_message"
+                or gate_type.startswith("user-")
+            )
+            if phase_matches and explicit_user:
+                heuristic_match = True
+                break
+
+        # ── Evidence source 2: cross-reference with state.yaml ──
+        state = self._read_state()
+        current_gate_id = state.get("current_gate_id")
+        current_gate_id = None if current_gate_id in (None, "", "null") else current_gate_id
+        structural_match = False
+        if current_gate_id:
+            cgi = str(current_gate_id)
+            for gate in self._read_gates():
+                if not isinstance(gate, dict) or gate.get("status") != "approved":
+                    continue
+                if str(gate.get("id", "")) != cgi:
+                    continue
+                gate_type = str(gate.get("gate_type", "")).lower()
+                gate_phase = str(gate.get("phase", "")).lower()
+                approval_actor = str(gate.get("approval_actor", "")).lower()
+                approval_source = str(gate.get("approval_source", "")).lower()
+                phase_matches = (
+                    gate_phase in {phase_value, phase_slug}
+                    or phase_slug in gate_type
+                    or phase_value in gate_type
+                )
+                explicit_user = (
+                    approval_actor == "user"
+                    or approval_source == "explicit_user_message"
+                    or gate_type.startswith("user-")
+                )
+                if phase_matches and explicit_user:
+                    structural_match = True
+                break
+
+        return heuristic_match and structural_match
+
     @staticmethod
     def _get_roles_for_phase(phase: Phase | None) -> list[str]:
         """Get required roles for a phase."""
@@ -236,6 +344,8 @@ class EnforcementHub:
             "review_status": self._load_review_status(),
             "evidence_list": self._load_evidence_envelopes(),
             "current_hashes": self._compute_evidence_hashes(),
+            "root": self._root,
+            "scan_paths": [self._root],
         }
         if target_path:
             ctx["target_path"] = target_path
@@ -329,7 +439,19 @@ class EnforcementHub:
 
     def should_allow_write(self, target_path: str,
                            allowed_paths: list[str] | None = None) -> EnforcementDecision:
-        """Check whether a file write should be allowed (C4+C3+C7+phase)."""
+        """Check whether a file write should be allowed (C4+C3+C7+phase).
+
+        FAILS CLOSED: if any governance file (.ai/state.yaml, .ai/gates.yaml,
+        .ai/task_graph.yaml) is missing or unparseable, all writes are denied.
+        """
+        # ── Fail-closed: governance state integrity check ──────────────
+        if not self._governance_state_healthy:
+            return EnforcementDecision(
+                allowed=False,
+                reason=f"Governance state corrupted — FAIL CLOSED: {self._governance_error_reason()}",
+                blocker_count=1,
+            )
+        # ── Normal enforcement ─────────────────────────────────────────
         ctx = self._build_context(target_path=target_path, allowed_paths=allowed_paths or [])
         result = self._hc.check_all(ctx)
         violations = list(result.violations)
@@ -356,7 +478,19 @@ class EnforcementHub:
                                    violations=violations)
 
     def should_allow_phase_advance(self, target_phase: Phase | str) -> EnforcementDecision:
-        """Check whether advancing to a new phase should be allowed."""
+        """Check whether advancing to a new phase should be allowed.
+
+        FAILS CLOSED: if any governance file is missing or unparseable,
+        phase advance is denied.
+        """
+        # ── Fail-closed: governance state integrity check ──────────────
+        if not self._governance_state_healthy:
+            return EnforcementDecision(
+                allowed=False,
+                reason=f"Governance state corrupted — FAIL CLOSED: {self._governance_error_reason()}",
+                blocker_count=1,
+            )
+        # ── Normal enforcement ─────────────────────────────────────────
         if isinstance(target_phase, str):
             try:
                 target_phase = Phase(target_phase)
@@ -391,7 +525,19 @@ class EnforcementHub:
                 ))
         approved = self._get_approved_gate_ids()
         ha = any(t.get("status") in ("active", "in_progress") for t in tasks)
-        pc = check_phase_constraints(target_phase, approved, task_has_active=ha)
+        # Build context early — used by compile check and check_all below
+        ctx = self._build_context(target_phase=target_phase)
+        # Check compile evidence from quality results
+        compile_ok = ctx.get("quality_results", {}).get("compile", "") == "PASS"
+
+        # Determine whether user gate is required and satisfied for this phase
+        user_gate_approved = None  # None = not applicable
+        if phase_needs_user_gate(target_phase):
+            user_gate_approved = self._has_approved_user_gate(target_phase)
+
+        pc = check_phase_constraints(target_phase, approved, task_has_active=ha,
+                                      compile_passed=compile_ok,
+                                      user_gate_approved=user_gate_approved)
         if not pc.allowed:
             for err in pc.errors:
                 violations.append(ConstraintViolation(
@@ -400,7 +546,14 @@ class EnforcementHub:
                     detail="Phase constraint not satisfied",
                     remediation="Satisfy required constraints.",
                 ))
-        ctx = self._build_context(target_phase=target_phase)
+        # C9: Import validity check — enforced on S4→S5 transition
+        if cp == Phase.S4_IMPLEMENTATION and target_phase == Phase.S5_QUALITY:
+            c9_violations = self._hc.check_c9_import_validity(
+                root=self._root,
+                scan_paths=[self._root],
+            )
+            violations.extend(c9_violations)
+
         violations.extend(self._hc.check_all(ctx).violations)
         bc = sum(1 for v in violations if v.severity == Severity.BLOCKER)
         if bc > 0:
@@ -453,8 +606,21 @@ class EnforcementHub:
 
 
 def quick_check(project_root: Path | str) -> EnforcementDecision:
-    """Quick check — are we clear to operate?"""
+    """Quick check — are we clear to operate?
+
+    FAILS CLOSED: if any governance file is missing or unparseable,
+    operation is denied.
+    """
     hub = EnforcementHub(project_root)
+
+    # ── Fail-closed: governance state integrity check ──────────────────
+    if not hub._governance_state_healthy:
+        return EnforcementDecision(
+            allowed=False,
+            reason=f"Governance state corrupted — FAIL CLOSED: {hub._governance_error_reason()}",
+            blocker_count=1,
+        )
+    # ── Normal checks ──────────────────────────────────────────────────
     violations: list[ConstraintViolation] = []
     for g in hub._read_gates():
         if isinstance(g, dict) and g.get("status") == "blocked":

@@ -1,0 +1,67 @@
+# T-0046 Scope Manifest
+
+task_id: T-0046
+gate_id: G-T-0046-RECONCILIATION-IMPLEMENT
+scope_type: governance_reconciliation
+
+allowed_effects:
+  - read
+  - write governance files (.ai/, hooks/scripts/, .zcode/tools/)
+  - update evidence and test files
+  - create new test files
+  - update role contract files
+
+forbidden_effects:
+  - deploy
+  - rollback
+  - database changes
+  - permission changes
+  - secret handling
+  - payment actions
+  - production data modifications
+  - migrations
+  - modify AGENTS.md
+  - install or enable skill/MCP/agent/automation/protocol
+  - enter real business project
+
+files_in_scope:
+  governance:
+    - .ai/state.yaml
+    - .ai/task_graph.yaml
+    - .ai/gates.yaml
+    - .ai/HANDOFF.md
+    - .ai/HANDOFF-NEXT.md
+    - .ai/project_continuity.yaml
+    - .ai/version-manifest.yaml
+  hooks:
+    - hooks/scripts/gate_guard.py
+  tools:
+    - .zcode/tools/validate_state.py
+    - .zcode/tools/governor_lib.py
+    - .zcode/tools/audit_handoff.py
+    - .zcode/tools/continuity_auditor.py
+  tests:
+    - tests/test_gate_guard_lifecycle.py
+    - tests/test_version_consistency.py
+    - tests/test_governance_consistency.py
+  roles:
+    - agents/test-engineer/CONTRACT.yaml
+    - agents/test-engineer/THINKING_FRAMEWORK.md
+    - agents/test-engineer/INTERNAL_LOOP.md
+    - agents/main-thread/THINKING_FRAMEWORK.md
+    - agents/main-thread/INTERNAL_LOOP.md
+  config:
+    - .gitignore
+    - src/loop_engine/__init__.py
+    - docs/06-delivery.md
+    - .zcode-plugin/plugin.json
+
+evidence_outputs:
+  - .ai/evidence/T-0046/commands.md
+  - .ai/evidence/T-0046/test-result.json
+  - .ai/evidence/T-0046/reconciliation-report.json
+  - .ai/evidence/T-0046/reconciliation-report.md
+  - .ai/evidence/T-0046/scope-manifest.yaml
+  - .ai/evidence/T-0046/closeout.md
+  - .ai/evidence/T-0046/asset-inventory.yaml
+  - .ai/evidence/T-0046/historical-task-corrections.md

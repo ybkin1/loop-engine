@@ -144,3 +144,10 @@ implementation_summary.md 的等效 JSON Schema（主控依赖此结构化字段
 6. 全部通过 → 创建代码文件→按契约逐行实现→处理错误路径→创建单元测试→运行通过→lint 0 error
 7. 编写 implementation_summary.md
 8. 交付。不自检质量门禁——那是质量工程师的事。
+
+
+## TOOL_REQUEST Protocol
+When you need linting or compilation:
+```json
+{"verdict": "NEEDS_TOOL", "tool_requests": [{"id": "req-1", "command": "python -m ruff check <file>", "reason": "Check code style"}]}
+```

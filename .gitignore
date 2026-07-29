@@ -1,0 +1,45 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Package
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE
+.idea/
+.vs/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Secrets — NEVER commit these
+.env
+.env.*
+*.pem
+*.key
+credentials.*
+secrets.*
+token.*
+!token.*.template
+
+# User-specific ZCode config (may contain paths)
+.zcode/config.json
+.zcode/plans/
+
+# Backup files
+*.bak

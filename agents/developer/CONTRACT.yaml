@@ -38,6 +38,8 @@ prohibitions:
   - 禁止在未通过 lint/typecheck/测试时提交代码
   - 禁止绕过架构约束直接实现功能
   - 禁止修改其他模块的代码（除非接口契约明确允许）
+  - 禁止在未安装依赖前使用第三方 import（R06_first_install：先 pip install，后写 import）
+  - 禁止调用未在 pyproject.toml/requirements.txt 中声明的包
 
 veto_power:
   - 接口契约无法实现 → 提交架构偏差，不强行实现

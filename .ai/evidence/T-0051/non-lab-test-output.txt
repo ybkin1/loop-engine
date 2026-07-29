@@ -1,0 +1,111 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Users\Administrator\ZCodeProject\loop-engine
+configfile: pyproject.toml
+plugins: anyio-4.13.0, asyncio-1.4.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2402 items
+
+tests\seeded_defects\test_defect_detection.py .......................... [  1%]
+..                                                                       [  1%]
+tests\test_agent_adapter.py ............................................ [  2%]
+.........................                                                [  4%]
+tests\test_approval_ledger.py .......................................... [  5%]
+............                                                             [  6%]
+tests\test_bash_readonly.py ............................................ [  8%]
+................................                                         [  9%]
+tests\test_bypass_matrix.py ............................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+...........................xx.x.xxx..............xx..x..xxxxxx.......... [ 20%]
+..                                                                       [ 20%]
+tests\test_certification.py ...............................              [ 21%]
+tests\test_check_thresholds.py ........................                  [ 22%]
+tests\test_context_controller.py ....................................... [ 24%]
+.......                                                                  [ 24%]
+tests\test_context_loader.py ...............................             [ 25%]
+tests\test_contract_freshness.py ..................................      [ 27%]
+tests\test_contract_verifier.py .................................        [ 28%]
+tests\test_cross_layer_safety.py ....................................... [ 30%]
+......                                                                   [ 30%]
+tests\test_deep_qa_probe.py ............................................ [ 32%]
+...X.x................................                                   [ 33%]
+tests\test_enforcement.py ....................                           [ 34%]
+tests\test_enforcement_hub.py .......................................... [ 36%]
+.........                                                                [ 36%]
+tests\test_evidence_chain.py ........................................... [ 38%]
+.................                                                        [ 39%]
+tests\test_execution_ledger.py ..............................            [ 40%]
+tests\test_executor.py .................................                 [ 42%]
+tests\test_gate_guard_lifecycle.py ............                          [ 42%]
+tests\test_governance_consistency.py ............                        [ 43%]
+tests\test_hard_constraints.py ......................................... [ 44%]
+.....................................                                    [ 46%]
+tests\test_hook_integration.py ..............................            [ 47%]
+tests\test_hooks.py ...............                                      [ 48%]
+tests\test_human_review_packet.py ...................................... [ 49%]
+....................................                                     [ 51%]
+tests\test_import_checker.py ...........................                 [ 52%]
+tests\test_intent_router.py ............................................ [ 54%]
+...........................                                              [ 55%]
+tests\test_ledger_guard.py ........                                      [ 55%]
+tests\test_loop_core.py ................................................ [ 57%]
+.                                                                        [ 57%]
+tests\test_management_roles.py ......................................... [ 59%]
+........................................................................ [ 62%]
+............................                                             [ 63%]
+tests\test_operations.py .........................                       [ 64%]
+tests\test_project_map_schema.py ....................................... [ 66%]
+......................                                                   [ 67%]
+tests\test_projection_engine.py .....................................    [ 68%]
+tests\test_quality_engineer_role.py .................................... [ 70%]
+..................                                                       [ 70%]
+tests\test_quality_gates.py ...........                                  [ 71%]
+tests\test_remaining_roles.py .....................................ssss. [ 73%]
+sss.ssss.ssss.........ss.s.ssssss.s.ss.....sss.ssssss.sss.ss.ss.ss...... [ 76%]
+........................................................................ [ 79%]
+........................................................                 [ 81%]
+tests\test_role_capability.py ............................               [ 82%]
+tests\test_role_isolation.py ........                                    [ 82%]
+tests\test_runtime_controller.py ......                                  [ 83%]
+tests\test_state_machine_enhanced.py ................................... [ 84%]
+.....                                                                    [ 84%]
+tests\test_subagent_manifest.py ........................................ [ 86%]
+........................                                                 [ 87%]
+tests\test_technical_roles.py ............................sss.sss....... [ 89%]
+..sss.....sss.sss....................................................... [ 92%]
+............................................                             [ 94%]
+tests\test_version_consistency.py ......                                 [ 94%]
+tests\test_veto_escalation.py .......................................... [ 96%]
+........                                                                 [ 96%]
+tests\vertical_slice\test_vertical_slice.py ............................ [ 97%]
+..........................................................               [100%]
+
+============================== warnings summary ===============================
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_no_state_file
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_nonexistent_path_write
+tests/test_hard_constraints.py::TestCheckAll::test_fails_with_c4_path_out_of_scope
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_no_active_tasks
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_review_missing_in_s4
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_blocked_gate_exists
+tests/test_hard_constraints.py::TestCheckAll::test_fails_when_evidence_stale
+tests/test_hard_constraints.py::TestCheckAll::test_checked_at_is_populated
+tests/test_hard_constraints.py::TestCheckAll::test_warning_violations_do_not_cause_passed_false
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\hard_constraints.py:553: UserWarning: C5 verification check called with target_phase=None. Verification enforcement is skipped because no target phase was provided. This may indicate a missing context in the caller.
+    warnings.warn(
+
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_no_state_file
+tests/test_deep_qa_probe.py::TestEnforcementHubEdgeCases::test_nonexistent_path_write
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\hard_constraints.py:626: UserWarning: C6 independent review check called with current_phase=None. Review enforcement is skipped because no current phase was provided. This may indicate a missing context in the caller.
+    warnings.warn(
+
+tests/test_state_machine_enhanced.py::TestResolveGateStatus::test_gate_id_not_found_returns_none
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\state_machine.py:325: UserWarning: STALE_GATE_REFERENCE: current_gate_id 'G-T-NONEXISTENT' does not match any gate in the authoritative gates list. This may indicate a stale state.yaml reference that needs cleanup.
+    _warnings.warn(
+
+tests/test_state_machine_enhanced.py::TestResolveGateStatus::test_empty_gates_list_with_id_returns_none
+  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\state_machine.py:325: UserWarning: STALE_GATE_REFERENCE: current_gate_id 'G-T-005' does not match any gate in the authoritative gates list. This may indicate a stale state.yaml reference that needs cleanup.
+    _warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==== 2325 passed, 60 skipped, 16 xfailed, 1 xpassed, 13 warnings in 54.80s ====

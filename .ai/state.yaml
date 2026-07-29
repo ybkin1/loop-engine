@@ -1,12 +1,15 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0045
+current_task_id: T-0077
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-07-23T17:00:00+08:00'
+last_handoff_at: '2026-07-27T23:35:17.181523+08:00'
 notes:
 - loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。
-- T-0040: v3.0.0 消除模型自觉依赖。EnforcementHub + role_isolation HARD阻断。已完成。
-- T-0041: 外部垂直切片验证。loop-demo-todo CLI 工具完整 S1-S6 闭环。已完成。
-- 当前：S6-delivery 最终交付，执行 git commit。
+- T-0040: EnforcementHub + role_isolation HARD阻断 — 用户批准通过，已完成。
+- T-0041: 外部垂直切片验证。保持 active，完成状态待真实证据确认。
+- T-0042/T-0043/T-0044: 历史改进任务已登记，正式验收证据待补。
+- T-0045: 原 state 指针无对应任务文件，已作为治理漂移记录，不伪造恢复。
+- T-0046: 治理状态恢复与交付完整性修复，已完成。
+- T-0047: 治理关键路径硬化 — Core fail-closed + role_isolation 测试 + 负面路径覆盖，执行中。

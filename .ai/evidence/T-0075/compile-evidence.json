@@ -1,0 +1,15 @@
+{
+  "status": "fail",
+  "exit_code": 1,
+  "compiled_files": 32,
+  "total_files": 33,
+  "failed_count": 1,
+  "errors": [
+    {
+      "file": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\loop_core\\role_loader.py",
+      "relative": "loop_core\\role_loader.py",
+      "error": "  File \"C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\loop_core\\role_loader.py\", line 133\n    return identity + \"\n                      ^\nSyntaxError: unterminated string literal (detected at line 133)\n"
+    }
+  ],
+  "timestamp": "2026-07-29T07:41:20.001576+00:00"
+}

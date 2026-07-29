@@ -17,6 +17,21 @@ REQUIRED_FILES = [
     "DECISIONS.md", "KNOWN_ISSUES.md", "state.yaml", "task_graph.yaml", "gates.yaml", "HANDOFF.md",
 ]
 TASK_STATUSES = {"pending", "active", "approved_not_started", "in_progress", "blocked", "completed", "rejected"}
+# T-0046: Standardized error codes
+ERROR_CODES = {
+    "CURRENT_TASK_FILE_MISSING": "Current task file does not exist",
+    "CURRENT_TASK_NOT_IN_GRAPH": "Current task not found in task_graph.yaml",
+    "TASK_GRAPH_NODE_WITHOUT_TASK_FILE": "Task in graph has no corresponding task file",
+    "TASK_STATUS_MISMATCH": "Task file status differs from task_graph status",
+    "GATE_TASK_MISMATCH": "Gate task_id does not match state current_task_id",
+    "GATE_EXECUTION_STATUS_MISSING": "Approved gate missing execution_status",
+    "HANDOFF_STATE_MISMATCH": "HANDOFF.md content differs from state.yaml",
+    "CONTINUITY_SOURCE_DRIFT": "Continuity source file hash differs from recorded",
+}
+
+# Legacy/historical error classification
+LEGACY_ERROR_PREFIXES = ("Historical task",)
+
 
 
 class GovernanceError(RuntimeError):
@@ -32,6 +47,8 @@ def now_precise() -> str:
 def project_root_arg() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("project_root", help="Project root containing .ai")
+    parser.add_argument("--repair", action="store_true",
+                        help="Auto-repair continuity hash drift instead of blocking")
     return parser
 
 
@@ -193,6 +210,14 @@ def load_yaml(path: Path):
         raise
     except Exception as exc:
         raise GovernanceError("YAML_INVALID", f"Invalid YAML: {path}") from exc
+    # T-0059 F-0055-010: Validate schema_version
+    if isinstance(value, dict) and "schema_version" in value:
+        import logging
+        if value.get("schema_version") != 1:
+            logging.getLogger("governor_lib").warning(
+                "Schema version mismatch in %s: expected 1, got %s. Migration may be required.",
+                str(path), value.get("schema_version")
+            )
     return value or {}
 
 
@@ -230,7 +255,39 @@ def evidence_path_exists(base: Path, value) -> bool:
     return (path if path.is_absolute() else base.parent / path).exists()
 
 
+
+# T-0059 F-0055-011: Single source of truth - unified state loading
+def load_unified_state(root):
+    """Load governance state from authoritative sources.
+    Hierarchy: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md (projection)."""
+    base = ai_dir(root)
+    state = load_yaml(base / "state.yaml")
+    all_gates = gates(root)
+    all_tasks = [t for t in task_graph_entries(root) if isinstance(t, dict)]
+    task_id = state.get("current_task_id")
+    task_id = None if task_id in (None, "", "null") else task_id
+    task_status_val = None
+    if task_id:
+        for t in all_tasks:
+            if t.get("id") == task_id:
+                task_status_val = t.get("status")
+                break
+    current_gate_id = state.get("current_gate_id")
+    current_gate_id = None if current_gate_id in (None, "", "null") else current_gate_id
+    approved_gate = None
+    if task_id:
+        matches = [g for g in all_gates if isinstance(g, dict) and g.get("task_id") == task_id and g.get("status") == "approved"]
+        active = [m for m in matches if m.get("execution_status") in {"approved_not_started", "in_progress"}]
+        approved_gate = active[-1] if active else (matches[-1] if matches else None)
+    return {"state": state, "gates": all_gates, "tasks": all_tasks, "task_id": task_id, "task_status": task_status_val, "current_gate_id": current_gate_id, "approved_gate": approved_gate, "phase": state.get("current_phase", "")}
+
 def historical_task_inventory_errors(root: Path, exclude_task_id: str | None = None) -> list[str]:
+    """T-0046: Historical task mismatches are classified as legacy warnings.
+
+    Current task errors are hard errors (handled by governance_invariant_errors).
+    Historical task inconsistencies from before T-0046 are legacy issues
+    that should be recorded as correction evidence, not block current work.
+    """
     errors = []
     graph = load_yaml(ai_dir(root) / "task_graph.yaml").get("tasks", [])
     graph = graph if isinstance(graph, list) else []
@@ -241,11 +298,13 @@ def historical_task_inventory_errors(root: Path, exclude_task_id: str | None = N
         status = task_status_from_text(read_text(path))
         matches = [item for item in graph if isinstance(item, dict) and item.get("id") == task_id]
         if status is None:
-            errors.append(f"Historical task status missing or invalid: {task_id}")
+            # Legacy: task file exists but status is not parseable
+            errors.append(f"[legacy] Historical task status missing or invalid: {task_id}")
         if len(matches) != 1:
             errors.append(f"Historical task must appear exactly once in task graph: {task_id} (found {len(matches)})")
         elif status is not None and matches[0].get("status") != status:
-            errors.append(f"Historical task status mismatch: {task_id} task={status} task_graph={matches[0].get('status', 'missing')}")
+            # Legacy: task file and task_graph disagree on status
+            errors.append(f"[legacy] Historical task status mismatch: {task_id} task={status} task_graph={matches[0].get('status', 'missing')}")
     return errors
 
 
@@ -278,13 +337,37 @@ def governance_invariant_errors(root: Path) -> list[str]:
     current_matches = [gate for gate in gates(root) if gate.get("id") == current_gate_id]
     if current_gate_id and len(current_matches) != 1:
         errors.append(f"current_gate_id does not identify exactly one gate: {current_gate_id}")
-    elif current_matches and (current_matches[0].get("task_id") != task_id or current_matches[0].get("status") != "pending"):
-        errors.append(f"Current gate projection is contradictory: {current_gate_id}")
+    elif current_matches:
+        gate = current_matches[0]
+        gate_status = gate.get("status", "")
+        gate_task_id = gate.get("task_id", "")
+        gate_exec_status = gate.get("execution_status", "")
+        # T-0046 fix: gate lifecycle semantics
+        # current_gate_id must match current task
+        if gate_task_id and gate_task_id != task_id:
+            errors.append(f"GATE_TASK_MISMATCH: current_gate_id {current_gate_id} belongs to {gate_task_id}, not {task_id}")
+        elif gate_status == "pending":
+            pass  # Valid: waiting for user decision
+        elif gate_status == "approved" and gate_exec_status in ("approved_not_started", "in_progress"):
+            pass  # Valid: approved and executing
+        elif gate_status == "approved" and gate_exec_status == "completed":
+            pass  # Valid: approved and completed (not active but not contradictory)
+        elif gate_status == "approved" and not gate_exec_status:
+            pass  # Valid: legacy approved gate
+        elif gate_status in ("rejected", "blocked"):
+            errors.append(f"Current gate is {gate_status}: {current_gate_id}")
+        else:
+            errors.append(f"Current gate projection is contradictory: {current_gate_id}")
     task_pending = [gate for gate in pending_gates(root) if gate.get("task_id") == task_id]
     if task_pending and not current_gate_id:
         errors.append(f"Pending gate for current task is not current_gate_id: {task_pending[0].get('id')}")
+    # T-0046 fix: current_gate_id pointing to approved+in_progress is valid, no pending needed
     if current_gate_id and not task_pending:
-        errors.append(f"current_gate_id has no pending gate for current task: {current_gate_id}")
+        current_gate_obj = current_matches[0] if current_matches else None
+        if current_gate_obj and current_gate_obj.get("status") == "approved":
+            pass  # Approved gate is valid without pending
+        elif current_gate_obj and current_gate_obj.get("status") != "pending":
+            errors.append(f"current_gate_id has no pending gate for current task: {current_gate_id}")
     task_gates = [gate for gate in gates(root) if gate.get("task_id") == task_id]
     approved = [gate for gate in task_gates if gate.get("status") == "approved"]
     if status in {"approved_not_started", "in_progress"}:
@@ -294,5 +377,43 @@ def governance_invariant_errors(root: Path) -> list[str]:
             errors.append(f"{status} requires approval evidence for current task: {task_id}")
     if status == "in_progress" and not any(evidence_path_exists(base, gate.get("execution_evidence")) for gate in approved):
         errors.append(f"in_progress requires execution evidence for current task: {task_id}")
+    # v3.5: Compile evidence check — S4+ tasks must have compile output as evidence
+    current_phase = state.get("current_phase", "")
+    if status == "in_progress" and current_phase in (
+        "S4-implementation", "S5-quality", "S6-delivery",
+        "S7-integration", "S8-functional-test", "S9-fix-optimize",
+        "S10-performance", "S11-maintenance",
+    ):
+        compile_evidence = base / "evidence" / task_id / "compile-evidence.json"
+        if not compile_evidence.exists():
+            errors.append(
+                f"COMPILE_EVIDENCE_MISSING: Task {task_id} at phase {current_phase} "
+                f"requires compile evidence at {compile_evidence.relative_to(base)}. "
+                "Run .ai/checkers/compile_gate.py to generate."
+            )
     errors.extend(historical_task_inventory_errors(root, exclude_task_id=task_id))
+
+    # ── HANDOFF consistency check (v3.5) ─────────────────────────────────
+    handoff_text = read_text(base / "HANDOFF.md")
+    if handoff_text:
+        # Detect stale prose that contradicts structured state
+        stale_patterns = [
+            ("Product implementation has not started", "HANDOFF contains stale 'implementation not started' claim"),
+            ("implementation has not started", "HANDOFF contains stale 'implementation not started' claim"),
+            ("The design baseline is approved, promoted and frozen", "HANDOFF references legacy baseline wording"),
+        ]
+        for pattern, warning in stale_patterns:
+            if pattern.lower() in handoff_text.lower():
+                errors.append(f"[warn] HANDOFF_STALE_CONTENT: {warning}. Run close_session.py to regenerate.")
+
+    # ── PROJECT.md anchor check (v3.5) ───────────────────────────────────
+    project_md = read_text(base / "PROJECT.md")
+    if project_md:
+        impl_started = state.get("implementation_started")
+        if impl_started and "implementation has not started" in project_md.lower():
+            errors.append(
+                "[warn] PROJECT_ANCHOR_STALE: .ai/PROJECT.md claims 'implementation has not started' "
+                "but state.yaml has implementation_started=true. Update PROJECT.md to reflect current phase."
+            )
+
     return errors
