@@ -1,33 +1,60 @@
-# Loop Engine Lab
+# Loop Engine -- Loop Engineering Software Delivery System
 
-本目录是 loop 工程的实验工作台，用于模拟“主线程 + 一次性 subagent + 文档契约 + 评审循环”的工作方式。
 
-当前状态：实验草案，未安装为任何正式协议。
+Codex native plugin. Turns AI coding into a deliverable system with full software engineering discipline.
 
-## 目标
 
-- 让主线程替代用户进行任务编排。
-- 让每个 subagent 只读取自己的上下文包和任务卡。
-- 让候选产物、评审意见、修订产物有固定路径。
-- 防止候选文档被误认为正式协议。
-- 为后续真实 subagent 工具接入预留文件级接口。
+## Version
 
-## 目录
 
-- `stable/`: 当前权威事实与稳定入口文档。
-- `roles/`: 不同 subagent 的角色背景提示词。
-- `templates/`: 任务卡、评审报告、修订任务、交接摘要模板。
-- `registry/`: 文档与 run 注册表。
-- `runs/`: 每一轮 loop 的输入、输出、评审、修订和证据。
-- `archive/`: 旧版本和废弃材料。
-- `materials/`: 正式 Loop 开发前的外部软件工程、提示词工程、Agent、质量和交付素材库候选基线。
+**codex_loop v3.1.0** -- 2026-07-29 (adapted from zcode loop-engine v3.0.0)
 
-素材库当前处于 `candidate / research-baseline-v0.1`：`materials/catalog.yaml` 保存来源与适用边界，`materials/templates/` 保存可组合交付物模板，不能直接视为已批准的运行时规则。后续项目必须先按风险和技术栈选择素材并形成项目配置，再经过用户 Gate 才能进入执行。
 
-## 核心规则
+## Installation
 
-1. subagent 不直接修改 `stable/`。
-2. subagent 只能写入任务卡声明的 `allowed_write` 路径。
-3. `runs/` 中的文件默认都是过程产物，不是权威事实。
-4. 只有主线程可以在通过 gate 后 promotion 到 `stable/`。
-5. 自动评审通过不等于用户批准。
+
+### Codex
+This directory is the Codex plugin workspace. AGENTS.md Loop Governance rules auto-activate here.
+
+
+### Init Target Project
+python codex_loop/scripts/install.py --project-root /path/to/your/project
+
+
+## Architecture
+
+
+| Layer | Component | Function |
+|-------|-----------|----------|
+| Protocol | loop_core/ | Host-independent state machine, hard constraints (C1-C11), gate logic |
+| Enforcement | RuntimeController + hooks | Write interception, gate blocking, role isolation, path protection |
+| Knowledge | Skill + 11 Agents | Governance bootstrap, role collaboration, phase orchestration |
+| Tools | 20 tools | Quality gates, security scan, dependency analysis, contract validation, evidence chain |
+| Commands | 3 slash commands | State validation, evidence chain verify, cost report |
+
+
+## vs zcode
+
+
+| Dimension | zcode v3.0.0 | codex_loop v3.1.0 |
+|-----------|-------------|-------------------|
+| Write enforcement | Hook exit codes | RuntimeController.authorize_write() |
+| Role isolation | ZCode Agent tool | spawn_agent native isolation |
+| Tool invocation | JSON-RPC stdio process | call_tool() direct call |
+| Enforcement level | MEDIUM (no cmd intercept) | STRONG (full intercept) |
+| Plugin cache | Needs auto_sync | No cache issue |
+
+
+## Quality
+
+
+| Gate | Result |
+|------|--------|
+| Test (pytest) | 132 passed |
+| Lint (ruff) | 0 errors |
+
+
+## Dependencies
+
+
+Python 3.10+, PyYAML >= 6.0
