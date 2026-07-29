@@ -7,6 +7,12 @@ ROLE_CONTEXT = {
     "independent-reviewer": {"files": ["docs/02-architecture.md", ".ai/CODING_STANDARDS.md"], "git_diff": True, "max_content": 8000},
     "test-engineer": {"files": ["docs/03-interface-contract.md"], "git_diff_name_only": True, "max_content": 3000},
     "quality-engineer": {"files": [], "git_diff_name_only": True, "max_content": 2000},
+    "system-architect": {"files": ["docs/02-architecture.md", "docs/01-requirements.md"], "git_diff_name_only": True, "max_content": 5000},
+    "module-architect": {"files": ["docs/03-interface-contract.md"], "git_diff": True, "max_content": 4000},
+    "product-manager": {"files": ["docs/01-requirements.md"], "git_diff_name_only": True, "max_content": 3000},
+    "project-manager": {"files": [".ai/task_graph.yaml"], "git_diff": True, "max_content": 4000},
+    "delivery-manager": {"files": ["docs/06-delivery.md", "docs/07-phase-specification.md"], "git_diff": True, "max_content": 5000},
+    "release-engineer": {"files": ["docs/06-delivery.md", "pyproject.toml"], "git_diff": True, "max_content": 5000},
     "security-engineer": {"files": ["pyproject.toml"], "git_diff": True, "max_content": 6000},
 }
 
