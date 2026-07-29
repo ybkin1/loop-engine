@@ -21,8 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from loop_core.project_map_schema import ProjectMapQuery
-
+from codex_loop.core.project_map_schema import ProjectMapQuery
 
 # ============================================================================
 # RoleProjection
