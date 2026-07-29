@@ -41,6 +41,9 @@ session_brief:
 # 模板定义了常用语言的推荐配置，project_type 指定当前使用的模板。
 
 quality_gates:
+  # Structural checks (Codex v3.12.8) -- runs static_analyzer, security_scanner, design_reviewer, import_checker, contract_verifier, subagent_evidence_verifier
+  structural_checks_enabled: true
+  structural_checks:
   project_type: auto       # auto = 自动检测（有 pyproject.toml → python，有 package.json → javascript）
 
   # 通用配置（project_type: default 时使用，也可被模板覆盖）

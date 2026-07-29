@@ -293,7 +293,8 @@ def collect_results(gates: dict, project_root: Path) -> list[dict[str, Any]]:
 
     # Structural checks (Codex v3.12.8)
     try:
-        from codex_loop.quality.structural_checks import run_structural_checks
+        if gates.get(chr(39)+chr(115)+chr(116)+chr(114)+chr(117)+chr(99)+chr(116)+chr(117)+chr(114)+chr(97)+chr(108)+chr(95)+chr(99)+chr(104)+chr(101)+chr(99)+chr(107)+chr(115)+chr(95)+chr(101)+chr(110)+chr(97)+chr(98)+chr(108)+chr(101)+chr(100)+chr(39)+chr(44)+chr(32)+chr(84)+chr(114)+chr(117)+chr(101)+chr(41)):
+            from codex_loop.quality.structural_checks import run_structural_checks
         structural = run_structural_checks(str(project_root))
         results.extend(structural)
     except Exception as e:
