@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 # Patterns that indicate file writes
 WRITE_REDIRECTS = {">", ">>", "1>", "2>", "&>"}
-DANGEROUS_COMMANDS = {"rm", "rmdir", "dd", "mkfs", "shred"}
-FILE_WRITE_COMMANDS = {"cp", "mv", "tee", "touch", "mkdir"}
+DANGEROUS_COMMANDS = {"rm", "rmdir", "dd", "mkfs", "shred", "chmod", "chown", "wget", "curl", "nc", "telnet", "find", "xargs"}
+FILE_WRITE_COMMANDS = {"cp", "mv", "tee", "touch", "mkdir", "dd", "curl", "wget"}
 
 
 def _parse_command(command: str) -> dict:

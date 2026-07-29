@@ -313,7 +313,8 @@ TOOLS = {
         }
     },
     # v3.10 — MCP Agent Runtime: bypass ZCode sub-agent limitation
-    "loop_dispatch_agents": {
+    "safe_bash": SAFE_BASH_SCHEMA if SAFE_BASH_SCHEMA else {"name":"safe_bash","description":"Execute safe shell commands"} ,
+        "loop_dispatch_agents": {
         "description": "按 SubagentManifest 调度所有子代理（通过 LLM API 直接调用），返回聚合结果。不写文件。",
         "inputSchema": {
             "type": "object",
@@ -370,8 +371,8 @@ def _dispatch(tool_name: str, args: dict) -> dict:
         from tool_dependency_analysis import run
         return run(project_root, args.get("rules_file"))
     elif tool_name == "contract_validate":
-        from tool_safe_bash import SCHEMA as SAFE_BASH_SCHEMA, handle as safe_bash_handle
-from tool_contract_validate import run
+        from tool_contract_validate import run
+        return run(project_root, args["contract_file"], args.get("check_actual", False))
         return run(project_root, args["contract_file"], args.get("check_actual", False))
     elif tool_name == "evidence_verify":
         from tool_evidence_chain import run_verify
@@ -465,7 +466,7 @@ from tool_contract_validate import run
                 ))
             return {"ok": True, **snapshot.__dict__}
         except Exception as exc:
-            return {"ok": False, "error": str(exc)}
+            return {"ok": False, "error": str(exc)[:200]}
 
     if tool_name == "loop_dispatch_agents":
         project_root = args.get("project_root", ".")

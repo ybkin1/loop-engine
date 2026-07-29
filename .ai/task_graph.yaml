@@ -667,7 +667,7 @@ tasks:
   -
     id: T-0066
     title: 残余缺陷清零 + 最终验收
-    status: in_progress
+    status: completed
     created_at: "2026-07-28"
     phase: S6-delivery
     allowed_paths:
@@ -679,6 +679,23 @@ tasks:
       - .ai/gates.yaml
       - .ai/HANDOFF.md
     note: "Router/state_machine/static_analyzer tests + final closeout"
+  -
+    id: T-0067
+    title: Sub-agent 证据验证 + 全面安全审计
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0067.md
+      - .ai/evidence/T-0067/
+      - loop_core/subagent_evidence_verifier.py
+      - hooks/scripts/gate_guard.py
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "Sub-agent evidence verification + comprehensive security audit"
 edges:
     - from: T-0040
       to: T-0041

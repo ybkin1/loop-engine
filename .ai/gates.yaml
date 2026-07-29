@@ -3478,3 +3478,40 @@ gates:
     runtime_behavior: true
   notes:
   - Final cleanup task
+- id: G-T-0067-EVIDENCE-VERIFIER
+  task_id: T-0067
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  scope: Sub-agent evidence verification + comprehensive security audit
+  approval_evidence: .ai/evidence/T-0067/approval.md
+  execution_evidence: .ai/evidence/T-0067/commands.md
+  content_quality:
+    require_subagent_review: true
+    require_independent_review: true
+  allowed_paths:
+  - loop_core/subagent_evidence_verifier.py
+  - hooks/scripts/gate_guard.py
+  - .ai/
+  - tests/
+  allowed_actions:
+  - create evidence verifier
+  - enhance gate_guard
+  - run audit
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Final security hardening before production use

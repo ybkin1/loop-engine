@@ -128,6 +128,37 @@ def main():
 
     if not is_governance_project(root):
         return EXIT_PASS
+    
+    # T-0067: Sub-agent evidence verification for quality-gate checkpoints
+    gate_list = _load_gate_data(root)
+    for gate in gate_list:
+        if not isinstance(gate, dict):
+            continue
+        cq = gate.get("content_quality", {})
+        if cq and cq.get("require_subagent_review"):
+            review_evidence_paths = gate.get("review_evidence_paths", [])
+            if review_evidence_paths:
+                import json as _json
+                for rp in review_evidence_paths:
+                    ep = root / rp
+                    if not ep.exists():
+                        logger.warning("[T-0067] Sub-agent review evidence missing: %s", rp)
+                        return EXIT_BLOCK
+                    # Deep verification: check evidence authenticity
+                    try:
+                        content = _json.loads(ep.read_text(encoding="utf-8"))
+                        rev_session = content.get("reviewer_session_id", "")
+                        dev_session = content.get("developer_session_id", "")
+                        if rev_session and dev_session and rev_session == dev_session:
+                            logger.warning("[T-0067] SELF_REVIEW: evidence %s has same reviewer and developer session", rp)
+                            return EXIT_BLOCK
+                        if not rev_session:
+                            logger.warning("[T-0067] MISSING_SESSION: evidence %s has no reviewer_session_id", rp)
+                            return EXIT_BLOCK
+                    except Exception as _ve:
+                        logger.warning("[T-0067] Evidence parse error in %s: %s", rp, _ve)
+                        return EXIT_BLOCK
+
     # T-0062: Sub-agent evidence requirement for quality gates
     gate_list = _load_gate_data(root)
     for gate in gate_list:
