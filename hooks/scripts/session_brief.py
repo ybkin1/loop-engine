@@ -66,6 +66,25 @@ def build_brief(root, cfg):
         f"current_task_id: {state.get('current_task_id') or 'none'}",
         f"current_gate_id: {state.get('current_gate_id') or 'none'}",
     ]
+
+    # T-0068: Human review interrupt — check if current phase requires human review
+    current_phase = state.get("current_phase", "")
+    human_review_phases = {
+        "S1-requirements": "请用户确认需求范围、优先级、验收标准",
+        "S2-architecture": "请用户确认技术选型、模块边界",
+        "S5-quality": "请用户审查质量/测试/安全/Review 四项报告",
+        "S6-delivery": "请用户做最终 GO/NO-GO 决策",
+    }
+    if current_phase in human_review_phases and not pending:
+        lines.append("")
+        lines.append("🤚 人工评审中断（HUMAN REVIEW REQUIRED）")
+        lines.append(f"当前阶段 {current_phase} 要求人工评审: {human_review_phases[current_phase]}")
+        lines.append("在用户完成评审并批准 gate 之前，AI 不得继续推进到下一阶段。")
+        lines.append("将以下内容展示给用户：")
+        lines.append("  1. 本阶段的全部强制产出")
+        lines.append("  2. 子代理审查报告（如有）")
+        lines.append("  3. gate 批准/拒绝/修复的选择")
+
     if pending:
         shown = pending[:limit]
         lines.append(
