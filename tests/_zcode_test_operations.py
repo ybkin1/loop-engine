@@ -1,3 +1,4 @@
+import pytest; pytest.skip('zcode-specific: requires zcode workspace',allow_module_level=True)
 """
 Tests for Loop Engine operations scripts: install, upgrade, rollback.
 
