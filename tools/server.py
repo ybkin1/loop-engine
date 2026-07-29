@@ -313,7 +313,7 @@ TOOLS = {
         }
     },
     # v3.10 — MCP Agent Runtime: bypass ZCode sub-agent limitation
-    "safe_bash": SAFE_BASH_SCHEMA if SAFE_BASH_SCHEMA else {"name":"safe_bash","description":"Execute safe shell commands"} ,
+    "safe_bash": {"name":"safe_bash","description":"Execute safe shell commands with path validation. Blocks file writes outside allowed_paths.","inputSchema":{"type":"object","properties":{"command":{"type":"string","description":"Shell command to execute"},"project_root":{"type":"string"},"allowed_paths":{"type":"array","items":{"type":"string"}},"timeout":{"type":"integer","default":30}},"required":["command"]}},
         "loop_dispatch_agents": {
         "description": "按 SubagentManifest 调度所有子代理（通过 LLM API 直接调用），返回聚合结果。不写文件。",
         "inputSchema": {

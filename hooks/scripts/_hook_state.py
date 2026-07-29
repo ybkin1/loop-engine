@@ -130,6 +130,6 @@ def _fallback_parse(sp: Path) -> dict:
                 if val in ("null", "~", ""):
                     val = None
                 state[key.strip()] = val
-    except Exception:
-        pass
+    except Exception as _e:
+        import logging; logging.getLogger("hook_state").debug("State read degraded: %s", _e)
     return state

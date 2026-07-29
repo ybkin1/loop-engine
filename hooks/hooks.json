@@ -33,7 +33,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Read|Write|Edit|Bash|ApplyPatch|Agent",
+        "matcher": "Read|Write|Edit|Bash|ApplyPatch|Agent|Skill",
         "hooks": [
           {
             "type": "process",
