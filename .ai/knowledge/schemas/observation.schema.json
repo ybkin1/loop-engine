@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/knowledge/observation.schema.json",
+  "title": "Loop Observation",
+  "type": "object",
+  "required": ["observation_id", "symptom", "evidence", "execution_mode", "agent_takeover"],
+  "properties": {
+    "observation_id": {"type": "string"},
+    "symptom": {"type": "string"},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "execution_mode": {"const": "SIMULATED_MAIN_SESSION"},
+    "agent_takeover": {"const": false}
+  },
+  "additionalProperties": true
+}

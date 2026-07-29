@@ -192,7 +192,17 @@ def audit_handoff_model(root: Path, text: str) -> list[str]:
         if exc.code != "TRANSACTION_REGISTRY_MISSING":
             errors.append(f"{exc.code}: {exc}")
     task_path = root / ".ai" / "tasks" / f"{task_id}.md"
-    expected_checkpoint = _expected_checkpoint(registry, continuity_hashes, evidence, _sha(task_path.read_bytes()), _sha(gate or {}))
+    task_sha = ""
+    try:
+        if task_path.is_file():
+            task_sha_val = _sha(task_path.read_bytes())
+        else:
+            task_sha_val = ""
+            errors.append(f"TASK_FILE_MISSING: .ai/tasks/{task_id}.md does not exist — checkpoint integrity cannot be verified")
+    except (OSError, IOError) as exc:
+        task_sha_val = ""
+        errors.append(f"TASK_FILE_UNREADABLE: .ai/tasks/{task_id}.md — {exc}")
+    expected_checkpoint = _expected_checkpoint(registry, continuity_hashes, evidence, task_sha_val, _sha(gate or {}))
     expected_lifecycle = _expected_lifecycle(gate, evidence is not None, evidence_error)
     for label, actual, expected in (
         ("project continuity", actual_orientation, orientation), ("next-action", actual_action, expected_action),

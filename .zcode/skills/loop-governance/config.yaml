@@ -79,6 +79,16 @@ quality_gates:
       audit_command: null
       build_command: null
 
+# ── 运行时交付质量门配置（T-0078 P0） ──
+# 被 scripts/runtime_delivery_gate.py 读取。
+# S6-delivery 阶段强制执行，任何非 PASS 结果都阻断交付。
+
+runtime_delivery:
+  enabled: true
+  service_timeout_seconds: 30
+  browser_timeout_seconds: 15
+  fail_on_degraded: true
+
 # ── 角色能力认证配置 ──
 # 控制角色在生产任务前的认证要求。对应 agents/references/certification-system.md。
 # 认证状态文件维护在 .ai/certifications/state.yaml（由 main-thread 自动管理）。

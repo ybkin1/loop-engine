@@ -27,6 +27,7 @@ class ExecutionStatus(str, Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     VIOLATED = "VIOLATED"
+    EVIDENCE_PRODUCED = "EVIDENCE_PRODUCED"
 
 
 @dataclass
@@ -48,6 +49,7 @@ class ExecutionRecord:
     tool_constraints: list[str] = field(default_factory=list)
     tool_violations: list[str] = field(default_factory=list)
     cross_references: list[dict[str, str]] = field(default_factory=list)
+    evidence_refs: list[str] = field(default_factory=list)
 
     def to_json_row(self) -> str:
         return json.dumps({
@@ -66,6 +68,7 @@ class ExecutionRecord:
             "tool_constraints": self.tool_constraints,
             "tool_violations": self.tool_violations,
             "cross_references": self.cross_references,
+            "evidence_refs": self.evidence_refs,
         }, sort_keys=True, ensure_ascii=False)
 
     @classmethod
@@ -86,6 +89,7 @@ class ExecutionRecord:
             tool_constraints=data.get("tool_constraints", []),
             tool_violations=data.get("tool_violations", []),
             cross_references=data.get("cross_references", []),
+            evidence_refs=data.get("evidence_refs", []),
         )
 
 
@@ -306,3 +310,34 @@ class ExecutionLedger:
                     "Identical fingerprints — input freeze may have failed"
                 )
         return result
+
+    def record_evidence(self, record: ExecutionRecord) -> str:
+        """记录证据产物事件（T-0078 P1: 证据溯源链）。
+        
+        在证据文件被创建时调用，建立 EVIDENCE_PRODUCED 记录，
+        后续可通过 cross_validate 验证证据是否来自真实执行。
+        """
+        return self.append_entry(record)
+    
+    def find_evidence_events(self, task_id: str) -> list[dict]:
+        """查找指定任务的所有证据产物记录。
+        
+        Returns: [{"execution_id": ..., "evidence_refs": [...], ...}]
+        """
+        results = []
+        if not self._ledger_path.is_file():
+            return results
+        for line in self._ledger_path.read_text(encoding="utf-8").strip().split("\n"):
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if entry.get("task_id") == task_id and entry.get("status") == "EVIDENCE_PRODUCED":
+                results.append({
+                    "execution_id": entry.get("execution_id"),
+                    "evidence_refs": entry.get("evidence_refs", []),
+                    "launched_at": entry.get("launched_at"),
+                })
+        return results

@@ -44,22 +44,20 @@ def check_build_consistency(project_root: str, deploy_root: str = None) -> dict:
     
     # Check that HTML references match build output
     static_dir = root / ".next" / "static"
-    if static_dir.exists():
+    if not static_dir.exists():
+        results["checks"].append({"check": "static_dir", "status": "MISSING", "detail": str(static_dir)})
+        results["consistent"] = False
+    else:
         # Find all JS/CSS files in static/
-        static_files = set()
-        for f in static_dir.rglob("*"):
-            if f.is_file() and f.suffix in ('.js', '.css'):
-                static_files.add(f.name)
-        
+        static_files = {f.name for f in static_dir.rglob("*") if f.is_file() and f.suffix in ('.js', '.css')}
+
         # Parse HTML files for resource references
-        server_dir = root / ".next" / "server"
         for html_file in root.rglob("*.html"):
             try:
                 content = html_file.read_text(encoding="utf-8")
-                # Extract src/href references
-                refs = re.findall(r'(?:src|href)=["\']([^"\']*\.(?:js|css))["\']', content)
+                refs = re.findall(r'(?:src|href)=["\']([^"\']*\.(?:js|css)(?:\?[^"\']*)?)["\']', content)
                 for ref in refs:
-                    filename = ref.split("/")[-1]
+                    filename = ref.split("/")[-1].split("?", 1)[0]
                     if filename and filename not in static_files:
                         results["checks"].append({
                             "check": "resource_missing",
@@ -68,8 +66,14 @@ def check_build_consistency(project_root: str, deploy_root: str = None) -> dict:
                             "status": "MISSING"
                         })
                         results["consistent"] = False
-            except Exception:
-                pass
+            except (OSError, UnicodeDecodeError) as exc:
+                results["checks"].append({"check": "html_read", "file": str(html_file), "status": "ERROR", "detail": str(exc)})
+                results["consistent"] = False
+    if deploy_root:
+        deployed_id = Path(deploy_root) / ".next" / "BUILD_ID"
+        if not deployed_id.exists() or deployed_id.read_text(encoding="utf-8").strip() != build_id:
+            results["checks"].append({"check": "deploy_build_id", "status": "MISMATCH"})
+            results["consistent"] = False
     
     results["checks"].append({"check": "build_id", "status": "OK", "build_id": build_id})
     return results
@@ -181,7 +185,7 @@ def check_rollback_readiness(deploy_path: str) -> dict:
     
     # Check for previous build backup
     prev_build = root / ".next.old"
-    if prev_build.exists():
+    if prev_build.is_dir() and (prev_build / "BUILD_ID").is_file():
         results["checks"].append({"check": "prev_build_backup", "status": "OK"})
         results["rollback_ready"] = True
     else:

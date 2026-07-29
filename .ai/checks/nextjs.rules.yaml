@@ -1,0 +1,64 @@
+# Next.js 语义检查规则 (T-0078 P0)
+schema_version: 1
+framework: nextjs
+rules:
+  - id: NX-001
+    severity: BLOCKER
+    pattern: "request\\.headers\\.get\\s*\\(\\s*['\"]authorization['\"]\\s*\\)"
+    glob: "**/middleware.ts"
+    message: >
+      BROWSER PAGE NAVIGATION DOES NOT SEND Authorization HEADER.
+      This header only exists in fetch/axios API calls.
+      Use cookie-based authentication for middleware route protection.
+    fix_suggestion: >
+      Replace with cookie-based auth: use next/headers cookies() API.
+    knowledge_case: KC-0002
+  - id: NX-002
+    severity: BLOCKER
+    pattern: "<Suspense\\s+fallback\\s*=\\s*\\{[\\s]*null[\\s]*\\}"
+    glob: "**/page.tsx"
+    message: >
+      Suspense fallback={null} on a page shows blank white screen
+      during SSR when BAILOUT is triggered in production builds.
+    fix_suggestion: >
+      Replace with <Suspense fallback={<LoadingSkeleton />}>
+    knowledge_case: KC-0001
+  - id: NX-003
+    severity: WARNING
+    pattern: "<Suspense\\s+fallback\\s*=\\s*\\{[\\s]*null[\\s]*\\}"
+    glob: "**/*.tsx"
+    exclude_glob: "**/page.tsx"
+    message: "Suspense fallback={null} may cause blank UI during loading."
+    fix_suggestion: "Consider a minimal loading indicator."
+  - id: NX-004
+    severity: BLOCKER
+    pattern: "useSearchParams\\s*\\("
+    glob: "**/page.tsx"
+    require_suspense_boundary: true
+    message: >
+      useSearchParams() in a page without Suspense boundary triggers
+      BAILOUT_TO_CLIENT_SIDE_RENDERING in production.
+    fix_suggestion: >
+      Wrap in <Suspense fallback={<Loading />}><SearchComponent /></Suspense>
+    knowledge_case: KC-0001
+  - id: NX-005
+    severity: WARNING
+    pattern: "process\\.env\\.NODE_ENV\\s*===\\s*['\"]development['\"]"
+    glob: "**/*.{ts,tsx}"
+    message: >
+      NODE_ENV branching hides production-only bugs.
+      Ensure E2E tests run against next build && next start.
+    fix_suggestion: "Avoid development-only code paths in component behavior."
+  - id: NX-006
+    severity: WARNING
+    pattern: "throw new Error"
+    glob: "**/page.tsx"
+    require_error_boundary: true
+    message: "Throwing in page without error.tsx boundary crashes in production."
+    fix_suggestion: "Create error.tsx file or use ErrorBoundary."
+  - id: NX-007
+    severity: WARNING
+    pattern: "nohup|&>/dev/null|disown"
+    glob: "**/deploy*.{sh,yml,yaml}"
+    message: "nohup-based process management has no auto-restart or health checks."
+    fix_suggestion: "Use PM2, systemd, or Docker instead."

@@ -1,0 +1,29 @@
+[
+  {
+    "case_id": "KC-0078-001",
+    "title": "Runtime gate must block skipped checks",
+    "observation": {"observation_id": "OBS-0078-001", "symptom": "Optional runtime checks were skipped", "evidence": ["scripts/runtime_delivery_gate.py"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "diagnosis": {"diagnosis_id": "DIA-0078-001", "root_causes": ["Skipped checks were not delivery evidence"], "recommended_actions": ["Treat SKIPPED and NOT_RUN as blocking"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "resolution": ["Fail closed and emit repair tasks"],
+    "execution_mode": "SIMULATED_MAIN_SESSION",
+    "agent_takeover": false
+  },
+  {
+    "case_id": "KC-0078-002",
+    "title": "Deployment rollback evidence is required",
+    "observation": {"observation_id": "OBS-0078-002", "symptom": "A deployment had no previous build backup", "evidence": ["scripts/deployment_quality_checker.py"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "diagnosis": {"diagnosis_id": "DIA-0078-002", "root_causes": ["Rollback readiness was not established"], "recommended_actions": ["Require a retained previous build"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "resolution": ["Block delivery when rollback is unavailable"],
+    "execution_mode": "SIMULATED_MAIN_SESSION",
+    "agent_takeover": false
+  },
+  {
+    "case_id": "KC-0078-003",
+    "title": "Knowledge context must be bounded",
+    "observation": {"observation_id": "OBS-0078-003", "symptom": "Role context omitted relevant knowledge cases", "evidence": ["loop_core/context_packager.py"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "diagnosis": {"diagnosis_id": "DIA-0078-003", "root_causes": ["Context packager had no knowledge loader"], "recommended_actions": ["Load bounded knowledge cases for each role"], "execution_mode": "SIMULATED_MAIN_SESSION", "agent_takeover": false},
+    "resolution": ["Include up to three knowledge cases within the context budget"],
+    "execution_mode": "SIMULATED_MAIN_SESSION",
+    "agent_takeover": false
+  }
+]

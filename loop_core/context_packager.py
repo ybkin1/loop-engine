@@ -1,4 +1,5 @@
 """context_packager.py — Build code context for role sub-agents."""
+import json
 import subprocess, sys
 from pathlib import Path
 
@@ -53,6 +54,16 @@ def build_context(project_root, role_id, task_id="", extra_files=None):
             if fp.exists() and total < MAX:
                 c = fp.read_text(encoding="utf-8")[:2000]
                 parts.append("## " + f + "\n```\n" + c + "\n```")
+    knowledge = root / ".ai" / "knowledge" / "cases.json"
+    if knowledge.exists() and total < MAX:
+        try:
+            cases = json.loads(knowledge.read_text(encoding="utf-8"))
+            selected = cases[:3] if isinstance(cases, list) else []
+            if selected:
+                parts.append("## Knowledge Cases\n" + json.dumps(selected, ensure_ascii=False, indent=2)[:3000])
+        except (OSError, json.JSONDecodeError):
+            pass
+    parts.append("execution_mode: SIMULATED_MAIN_SESSION\nagent_takeover: false")
     parts.append("\n---\nUse the above context to complete your role duties.")
     return "\n\n".join(parts)
 

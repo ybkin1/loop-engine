@@ -1,0 +1,24 @@
+{
+  "case_id": "KC-0004",
+  "type": "design_flaw",
+  "title": "Loop 质量模型重结构轻实质 — 治理结构完美但代码质量漏检",
+  "description": "Loop 所有自动化检查都在 YAML格式/文件存在/SHA256/Gate结构 层面，而实际缺陷（middleware 逻辑错误、Suspense BAILOUT、PM2 裸奔）全在 代码逻辑/证据真实性/环境对等性 层面。两个项目（Harness MVP + loop-engine自身）出现相同模式。",
+  "symptoms": [
+    "治理校验全部 PASS（gate register, task graph, evidence directory, SHA256）",
+    "实际软件无法使用（白屏、登录失败、进程裸奔）",
+    "证据文件存在但内容不真实（lint 没跑但标记 PASS）",
+    "E2E 在 dev 模式通过但生产模式失败",
+    "质量门禁策略在全部开发完成后才创建"
+  ],
+  "root_cause": "Loop 治理把自动化检查全部投向可轻松验证的结构性项目，没有强制机制检查代码逻辑正确性、证据真实性和环境对等性。",
+  "affected_checks": ["evidence.authenticity", "browser.production_smoke", "code.semantic_rules"],
+  "fix": "新增三层机制：(1) 证据真实性校验(execution_evidence) (2) 语义规则系统(domain-specific code checks) (3) 生产构建后强制浏览器验证(--production-mode)",
+  "fix_task_id": "T-0078",
+  "verified": true,
+  "severity": "BLOCKER",
+  "tags": ["governance", "quality-model", "structural-bias", "evidence-fabrication", "dev-prod-gap"],
+  "reuse_count": 0,
+  "created_at": "2026-07-29",
+  "related_case_ids": ["KC-0001", "KC-0002", "KC-0003"],
+  "deprecated": false
+}

@@ -1,0 +1,12 @@
+{
+  "status": "NOT_APPLICABLE",
+  "exit_code": 0,
+  "compiled_files": 0,
+  "total_files": 0,
+  "failed_count": 0,
+  "errors": [],
+  "timestamp": "2026-07-29T20:00:00.000000+08:00",
+  "note": "T-0078 is a governance repair and evidence task. Compile gate is not applicable: the task modifies governance/config/test files only. No source code compilation was performed or required. This file exists only to satisfy evidence completeness; compiled_files: 0 does not indicate compilation failure.",
+  "execution_mode": "SIMULATED_MAIN_SESSION",
+  "agent_takeover": false
+}

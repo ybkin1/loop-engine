@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/knowledge/knowledge-case.schema.json",
+  "title": "Loop Knowledge Case",
+  "type": "object",
+  "required": ["case_id", "title", "observation", "diagnosis", "resolution", "execution_mode", "agent_takeover"],
+  "properties": {
+    "case_id": {"type": "string"},
+    "title": {"type": "string"},
+    "observation": {"type": "object"},
+    "diagnosis": {"type": "object"},
+    "resolution": {"type": "array", "items": {"type": "string"}},
+    "execution_mode": {"const": "SIMULATED_MAIN_SESSION"},
+    "agent_takeover": {"const": false}
+  },
+  "additionalProperties": true
+}

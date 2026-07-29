@@ -1,0 +1,47 @@
+{
+  "cases": [
+    {
+      "case_id": "KC-0078-001",
+      "title": "Runtime gate must block skipped checks",
+      "severity": "WARNING",
+      "tags": ["runtime", "gate", "delivery"],
+      "deprecated": false
+    },
+    {
+      "case_id": "KC-0078-002",
+      "title": "Deployment rollback evidence is required",
+      "severity": "WARNING",
+      "tags": ["deployment", "rollback", "delivery"],
+      "deprecated": false
+    },
+    {
+      "case_id": "KC-0078-003",
+      "title": "Knowledge context must be bounded",
+      "severity": "WARNING",
+      "tags": ["knowledge", "context", "packager"],
+      "deprecated": false
+    },
+    {
+      "case_id": "KC-0004",
+      "title": "Loop 质量模型重结构轻实质 — 治理结构完美但代码质量漏检",
+      "severity": "BLOCKER",
+      "tags": ["governance", "quality-model", "structural-bias", "evidence-fabrication", "dev-prod-gap"],
+      "deprecated": false
+    }
+  ],
+  "index_by_tag": {
+    "runtime": ["KC-0078-001"],
+    "gate": ["KC-0078-001"],
+    "delivery": ["KC-0078-001", "KC-0078-002"],
+    "deployment": ["KC-0078-002"],
+    "rollback": ["KC-0078-002"],
+    "knowledge": ["KC-0078-003"],
+    "context": ["KC-0078-003"],
+    "packager": ["KC-0078-003"],
+    "governance": ["KC-0004"],
+    "quality-model": ["KC-0004"],
+    "structural-bias": ["KC-0004"],
+    "evidence-fabrication": ["KC-0004"],
+    "dev-prod-gap": ["KC-0004"]
+  }
+}

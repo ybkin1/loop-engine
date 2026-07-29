@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine/dispatch-runtime-contract.schema.json",
+  "title": "Dispatch Runtime Contract",
+  "description": "Evidence-layer contract for dispatch and runtime delivery. This schema does not start agents.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "execution_id",
+    "task_id",
+    "gate_id",
+    "state",
+    "takeover",
+    "dispatch_receipt"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "dispatch-runtime-contract.v1"
+    },
+    "execution_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "gate_id": { "type": "string", "minLength": 1 },
+    "state": {
+      "type": "string",
+      "enum": [
+        "DISPATCH_REQUIRED",
+        "MAIN_THREAD_RUNNING",
+        "ROLE_EXECUTION",
+        "AGGREGATION_REQUIRED",
+        "SETUP_INCOMPLETE",
+        "BLOCKED"
+      ]
+    },
+    "takeover": {
+      "type": "boolean",
+      "description": "True only when a complete dispatch receipt has status PASS."
+    },
+    "dispatch_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host_invoker",
+        "child_session",
+        "actor",
+        "input_hash",
+        "status"
+      ],
+      "properties": {
+        "host_invoker": { "type": "string", "minLength": 1 },
+        "child_session": { "type": "string", "minLength": 1 },
+        "actor": { "type": "string", "minLength": 1 },
+        "input_hash": { "type": "string", "minLength": 1 },
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "BLOCKED", "ERROR", "NOT_RUN"]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "takeover": { "const": true } },
+        "required": ["takeover"]
+      },
+      "then": {
+        "properties": {
+          "dispatch_receipt": {
+            "properties": { "status": { "const": "PASS" } },
+            "required": ["status"]
+          }
+        }
+      }
+    }
+  ]
+}

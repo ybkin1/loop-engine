@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/knowledge/diagnosis.schema.json",
+  "title": "Loop Diagnosis",
+  "type": "object",
+  "required": ["diagnosis_id", "root_causes", "recommended_actions", "execution_mode", "agent_takeover"],
+  "properties": {
+    "diagnosis_id": {"type": "string"},
+    "root_causes": {"type": "array", "items": {"type": "string"}},
+    "recommended_actions": {"type": "array", "items": {"type": "string"}},
+    "execution_mode": {"const": "SIMULATED_MAIN_SESSION"},
+    "agent_takeover": {"const": false}
+  },
+  "additionalProperties": true
+}

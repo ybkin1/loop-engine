@@ -190,7 +190,116 @@ def main():
         print(json.dumps({"hookSpecificOutput": {"permissionDecision": "deny", "permissionDecisionReason": msg}}))
         return EXIT_BLOCK
 
+    # T-0078 P0: 语义规则检查
+    try:
+        semantic_rules = load_semantic_rules(root)
+        if semantic_rules and target:
+            target_path = str(Path(root) / target) if not Path(target).is_absolute() else target
+            rel_path = str(Path(target_path).relative_to(root)) if target_path.startswith(str(root)) else target
+            content_to_check = hook_input.get("tool_input", {}).get("content", "")
+            if content_to_check:
+                findings = check_semantic_rules(content_to_check, rel_path, semantic_rules)
+                suspense_findings = check_suspense_boundary(content_to_check, rel_path, semantic_rules)
+                all_findings = findings + suspense_findings
+                blockers = [f for f in all_findings if f["severity"] == "BLOCKER"]
+                warnings = [f for f in all_findings if f["severity"] == "WARNING"]
+                for w in warnings:
+                    logger.warning("[SEMANTIC] %s: %s (fix: %s)", w["rule_id"], w["message"][:120], w.get("fix_suggestion", "")[:80])
+                for b in blockers:
+                    logger.error("[SEMANTIC BLOCKER] %s: %s (fix: %s)", b["rule_id"], b["message"][:120], b.get("fix_suggestion", "")[:80])
+                if blockers:
+                    logger.warning("BLOCKED: 语义规则检查发现 %d 个 BLOCKER", len(blockers))
+                    return EXIT_BLOCK
+    except Exception as e:
+        logger.debug("语义规则检查异常（非阻塞）: %s", e)
+
     return EXIT_PASS
+
+
+def load_semantic_rules(project_root: Path) -> dict:
+    """加载 .ai/checks/ 目录下的语义检查规则文件。
+    
+    T-0078 P0: Domain-specific code logic checks.
+    返回 {framework_name: {rules: [...], config: {...}}}
+    """
+    rules_dir = project_root / ".ai" / "checks"
+    if not rules_dir.is_dir():
+        return {}
+    import yaml
+    result = {}
+    for rule_file in sorted(rules_dir.glob("*.rules.yaml")):
+        try:
+            data = yaml.safe_load(rule_file.read_text(encoding="utf-8"))
+            if isinstance(data, dict) and "rules" in data:
+                framework = rule_file.stem.replace(".rules", "")
+                result[framework] = data
+        except Exception:
+            continue
+    return result
+
+
+def check_semantic_rules(content: str, file_path: str, rules: dict) -> list[dict]:
+    """对文件内容运行语义规则检查。
+    
+    T-0078 P0: 返回匹配的规则列表 [{rule_id, severity, message, fix_suggestion}]
+    """
+    import re
+    from fnmatch import fnmatch
+    findings = []
+    for framework, rule_set in rules.items():
+        for rule in rule_set.get("rules", []):
+            glob_pattern = rule.get("glob", "**/*")
+            # 匹配文件路径
+            if not fnmatch(file_path.replace("\\", "/"), glob_pattern):
+                continue
+            # 排除 glob
+            exclude = rule.get("exclude_glob")
+            if exclude and fnmatch(file_path.replace("\\", "/"), exclude):
+                continue
+            # 模式匹配
+            pattern = rule.get("pattern")
+            if not pattern:
+                continue
+            try:
+                if re.search(pattern, content):
+                    findings.append({
+                        "rule_id": rule["id"],
+                        "severity": rule.get("severity", "WARNING"),
+                        "message": " ".join(rule.get("message", "").split()),
+                        "fix_suggestion": rule.get("fix_suggestion", ""),
+                        "knowledge_case": rule.get("knowledge_case"),
+                    })
+            except re.error:
+                continue
+    return findings
+
+
+def check_suspense_boundary(content: str, file_path: str, rules: dict) -> list[dict]:
+    """检查 useSearchParams 是否有 Suspense 包裹 (NX-004)。"""
+    import re
+    from fnmatch import fnmatch
+    findings = []
+    for framework, rule_set in rules.items():
+        for rule in rule_set.get("rules", []):
+            if not rule.get("require_suspense_boundary"):
+                continue
+            glob_pattern = rule.get("glob", "**/*")
+            if not fnmatch(file_path.replace("\\", "/"), glob_pattern):
+                continue
+            pattern = rule.get("pattern")
+            if not pattern:
+                continue
+            if re.search(pattern, content):
+                # 检查同一文件中是否有 Suspense 包裹
+                if "<Suspense" not in content:
+                    findings.append({
+                        "rule_id": rule["id"],
+                        "severity": rule.get("severity", "BLOCKER"),
+                        "message": " ".join(rule.get("message", "").split()),
+                        "fix_suggestion": rule.get("fix_suggestion", ""),
+                        "knowledge_case": rule.get("knowledge_case"),
+                    })
+    return findings
 
 
 if __name__ == "__main__":
