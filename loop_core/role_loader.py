@@ -118,6 +118,23 @@ def load_role_prompt(
     return "\n".join(parts)
 
 
+
+
+# T-0074: Context-aware role dispatch
+def build_role_context(role_id, project_root=".", task_id="", extra_files=None):
+    """Build code context for a role sub-agent."""
+    from loop_core.context_packager import build_context
+    return build_context(project_root, role_id, task_id, extra_files)
+
+def load_role_prompt_with_context(role_id, project_root=".", task_id="", extra_files=None):
+    """Load role identity + code context — the ONE method for agent dispatch."""
+    identity = load_role_prompt(role_id, task_id)
+    context = build_role_context(role_id, project_root, task_id, extra_files)
+    return identity + "
+
+---
+
+" + context
 # ===== 2. Agent dispatch helper =====
 def build_agent_dispatch_instruction(role_id: str, task_id: str, files: list[str]) -> str:
     """Build the instruction for the MAIN agent to dispatch a sub-agent.
