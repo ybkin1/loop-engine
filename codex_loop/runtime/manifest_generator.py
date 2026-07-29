@@ -60,7 +60,8 @@ def _build_prompt(role_id, task_id, task_title, allowed_paths, contract):
     resp = contract.get("responsibilities", [])
     forb = contract.get("prohibitions", [])
     paths = ", ".join(allowed_paths) if allowed_paths else "project scope"
-    return " | ".join([
+    ctx = _load_context(role_id, task_id, allowed_paths)
+    base = " | ".join([
         "Role: " + str(title),
         "Task: " + task_title + " (" + task_id + ")",
         "Paths: " + paths,
@@ -68,6 +69,9 @@ def _build_prompt(role_id, task_id, task_title, allowed_paths, contract):
         "Do NOT: " + "; ".join(forb),
         "Output structured JSON per contract schema.",
     ])
+    if ctx:
+        return base + "\n\n--- REVIEW MATERIALS ---\n" + ctx
+    return base
 
 def _get_dependencies(all_roles, current_role):
     deps = []
@@ -78,3 +82,25 @@ def _get_dependencies(all_roles, current_role):
             if r in all_roles:
                 deps.append(r)
     return deps
+
+
+def _load_context(role_id, task_id, allowed_paths):
+    ctx = []
+    try:
+        from pathlib import Path
+        root = Path(__file__).resolve().parent.parent.parent
+        tf = root / ".ai" / "tasks" / (task_id + ".md")
+        if tf.exists():
+            ctx.append("TASK: " + tf.read_text(encoding="utf-8")[:2000])
+        sf = root / ".ai" / "state.yaml"
+        if sf.exists():
+            ctx.append("STATE: " + sf.read_text(encoding="utf-8"))
+        if role_id == "independent-reviewer" and allowed_paths:
+            for ap in allowed_paths[:3]:
+                p = root / ap
+                if p.is_file() and p.exists():
+                    content = p.read_text(encoding="utf-8")[:3000]
+                    ctx.append("FILE " + ap + ":\n" + content)
+    except Exception as e:
+        ctx.append("Context load error: " + str(e))
+    return "\n\n".join(ctx)
