@@ -1,7 +1,9 @@
 """
-server.py — Loop 工程 MCP 工具服务器。
+server.py — Loop 工程工具服务器（Codex 原生 + ZCode 兼容）。
 
-通过 MCP stdio JSON-RPC 协议暴露工具给 ZCode LLM agent 调用。
+暴露 Loop 工程工具给 Agent 调用。支持两种模式：
+1. Codex 原生: call_tool(name, args) 直接调用
+2. ZCode 兼容: MCP stdio JSON-RPC 协议 (main() 入口)
 每个工具对应一个 role 脚本的薄包装，返回结构化 JSON。
 
 工具清单（tools/list）：
@@ -409,8 +411,13 @@ def _dispatch(tool_name: str, args: dict) -> dict:
     return {"error": f"unhandled tool: {tool_name}"}
 
 
+def call_tool(tool_name: str, args: dict) -> dict:
+    """Codex-native direct tool invocation. No JSON-RPC wrapper."""
+    return _dispatch(tool_name, args)
+
+
 def main():
-    """MCP stdio 主循环——读取 JSON-RPC 请求，写回响应。"""
+    """MCP stdio 主循环（ZCode 兼容模式，Codex 下不需要此入口）。"""
     for line in sys.stdin:
         line = line.strip()
         if not line:

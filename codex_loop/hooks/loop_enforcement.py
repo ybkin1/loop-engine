@@ -60,6 +60,14 @@ except ImportError:
 
 _HardConstraints, _Severity = try_import_hard_constraints()
 _HARD_CONSTRAINTS_AVAILABLE = _HardConstraints is not None
+# v3.1: RuntimeController integration for Codex-native authorization
+try:
+    from codex_loop.runtime.runtime_controller import RuntimeController, ExecutionContext
+    _RUNTIME_CONTROLLER_AVAILABLE = True
+except ImportError:
+    _RUNTIME_CONTROLLER_AVAILABLE = False
+    RuntimeController = None
+    ExecutionContext = None
 
 EXIT_PASS = 0
 EXIT_BLOCK = 2
@@ -382,6 +390,23 @@ def main():
         # Always allow governance file writes
         if is_governance_write(rel):
             return EXIT_PASS
+
+        # -- RuntimeController authorization (Codex-native, v3.1) --
+        if _RUNTIME_CONTROLLER_AVAILABLE and target is not None:
+            try:
+                controller = RuntimeController(root)
+                ctx = ExecutionContext(
+                    actor_id=hook_input.get("agent_id", "unknown"),
+                    role_id=hook_input.get("role", "unknown"),
+                    caller_class=hook_input.get("caller_class", "hook"),
+                    task_id=task_id,
+                )
+                allowed, reason = controller.authorize_write(ctx, rel)
+                if not allowed:
+                    logger.warning("BLOCKED by RuntimeController: %s", reason)
+                    return EXIT_BLOCK
+            except Exception:
+                pass
 
         # ── Load state for both HardConstraints and fallback ──
         try:

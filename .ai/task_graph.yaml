@@ -369,3 +369,8 @@ tasks:
   note: quality-engineer lint/test + test-engineer execution + independent-reviewer full module review
 -  status: completed
 edges: []
+- id: T-0055
+  title: zcode->codex_loop deep migration (Phase A/B/C)
+  status: completed
+  phase: S4-implementation
+  note: 10 files +101/-31, 132 tests pass. server.py call_tool, commands paths fixed, RuntimeController import, AGENTS.md v3.1.0, zcode residuals deprecated.

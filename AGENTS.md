@@ -75,5 +75,5 @@ pending gates, blockers, and next startup prompt.
 - approved: true
 - active: true
 - installed: true
-- engine: zcode loop-engine v3.0.0 adapted for Codex
-- supersedes: unified-governance-architecture.v0.2.1
+- engine: codex_loop v3.1.0 (native Codex)
+- supersedes: zcode loop-engine v3.0.0

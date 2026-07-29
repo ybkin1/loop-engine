@@ -15,7 +15,7 @@ allowed-tools: [Bash, Read]
 
 ## 执行
 
-调用 `.zcode/tools/validate_state.py`（使用 `python` 执行）：
+调用 `codex_loop/governance/validate_state.py`（使用 `python` 执行）：
 - exit 0 → 状态可用
 - exit 2 → 存在 pending gate 或其他阻塞
 

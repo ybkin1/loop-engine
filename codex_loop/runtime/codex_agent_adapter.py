@@ -17,6 +17,10 @@ from codex_loop.runtime.agent_adapter import (
 
 
 class CodexAgentAdapter(AgentAdapter):
+    """Codex native agent adapter with role contract validation and audit logging.
+
+    Role lifecycle: validate -> launch -> track -> collect
+    Each spawn is recorded with chain-hash for audit integrity."""
     """Codex native agent adapter using multi_agent_v1_spawn_agent.
 
     Codex provides built-in sub-agent spawning via:
