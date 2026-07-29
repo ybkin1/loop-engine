@@ -3551,3 +3551,37 @@ gates:
     runtime_behavior: true
   notes:
   - Closes the "dev != prod" quality gap. Deployment verification is now a S6 gate requirement.
+- id: G-T-0070-AGENT-INSTALL-FIX
+  task_id: T-0070
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  scope: Fix agent installation gap in onboarding + add pre-flight block
+  approval_evidence: .ai/evidence/T-0070/approval.md
+  execution_evidence: .ai/evidence/T-0070/commands.md
+  allowed_paths:
+  - tools/loop_onboard.py
+  - hooks/scripts/loop_enforcement.py
+  - agents/
+  - .ai/
+  - tests/
+  allowed_actions:
+  - add install_agents to onboarding
+  - add agent pre-flight check to enforcement
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Closes the root cause of "main agent does everything" - agents were never installed.

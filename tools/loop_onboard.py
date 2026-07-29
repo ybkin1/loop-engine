@@ -20,6 +20,19 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
+def _copy_dir(src: Path, dst: Path) -> None:
+    """Recursively copy a directory, skipping __pycache__."""
+    dst.mkdir(parents=True, exist_ok=True)
+    for item in src.iterdir():
+        if item.name == "__pycache__":
+            continue
+        target = dst / item.name
+        if item.is_dir():
+            _copy_dir(item, target)
+        else:
+            target.write_bytes(item.read_bytes())
+
+
 def onboard(root: str | Path) -> None:
     """One-shot project onboarding."""
     root = Path(root).resolve()
@@ -57,6 +70,29 @@ Required startup steps:
 - Treat reviewer PASS, validator success, tests, and AI recommendations as
   evidence only, not user approval.
 """, encoding="utf-8")
+
+
+    # T-0070: Install agent roles if agents/ directory is empty or missing
+    agents_dir = root / "agents"
+    source_agents = Path(__file__).resolve().parent.parent / "agents"
+    if source_agents.exists() and source_agents.is_dir():
+        required_roles = ["developer", "independent-reviewer", "test-engineer",
+                         "quality-engineer", "security-engineer"]
+        agents_dir.mkdir(parents=True, exist_ok=True)
+        installed = 0
+        for role in required_roles:
+            src = source_agents / role
+            dst = agents_dir / role
+            if src.is_dir() and not dst.exists():
+                _copy_dir(src, dst)
+                installed += 1
+        if installed > 0:
+            print(f"[loop-onboard] ✅ Installed {installed} agent roles to agents/")
+        missing = [r for r in required_roles if not (agents_dir / r / "SKILL.md").exists()]
+        if missing:
+            print(f"[loop-onboard] ⚠️ Missing agents: {missing}. Run 'loop_onboard --install-agents' to retry.")
+    else:
+        print("[loop-onboard] ⚠️ Source agents directory not found. Agents not installed.")
 
     print(f"[loop-onboard] ✅ {root.name} 已接入 Loop 工程")
     print(f"[loop-onboard]    loop_mode: FULL")

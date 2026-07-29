@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0069
+T-0070
 
 Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0069-DEPLOYMENT-VERIFICATION
+active_gate: G-T-0070-AGENT-INSTALL-FIX
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0069-DEPLOYMENT-VERIFICATION is approved and execution is in progress.
+G-T-0070-AGENT-INSTALL-FIX is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0069/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0070/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0069-DEPLOYMENT-VERIFICATION",
+  "approved_execution_gate_id": "G-T-0070-AGENT-INSTALL-FIX",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0069-DEPLOYMENT-VERIFICATION",
-  "current_task_id": "T-0069",
+  "current_gate_id": "G-T-0070-AGENT-INSTALL-FIX",
+  "current_task_id": "T-0070",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",

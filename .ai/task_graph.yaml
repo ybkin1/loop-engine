@@ -714,6 +714,24 @@ tasks:
       - .ai/HANDOFF.md
       - tests/
     note: "Port/endpoint smoke test + deploy reproducibility + config consistency"
+  -
+    id: T-0070
+    title: Agent 安装缺口修复 + 预检阻断
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - .ai/tasks/T-0070.md
+      - .ai/evidence/T-0070/
+      - tools/loop_onboard.py
+      - hooks/scripts/loop_enforcement.py
+      - agents/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - tests/
+    note: "install_agents() + agent pre-flight check + SETUP_INCOMPLETE block"
 edges:
     - from: T-0040
       to: T-0041
