@@ -75,5 +75,5 @@ pending gates, blockers, and next startup prompt.
 - approved: true
 - active: true
 - installed: true
-- engine: codex_loop v3.1.0 (native Codex)
+- engine: codex_loop v3.12.8 (native Codex)
 - supersedes: zcode loop-engine v3.0.0

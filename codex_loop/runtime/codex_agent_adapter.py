@@ -58,13 +58,20 @@ class CodexAgentAdapter(AgentAdapter):
         self._project_root = Path(project_root) if project_root else None
 
     def launch_agent(self, agent_input: AgentInput) -> AgentOutput:
-        self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, "default")
+        """Prepare spawn parameters for Codex multi_agent_v1_spawn_agent.
+
+        Returns AgentOutput with spawn_params dict that host can use:
+        spawn_agent(agent_type=output.spawn_params['agent_type'], message=output.spawn_params['message'], fork_turns=output.spawn_params['fork_turns'])
+        """
+        role_id = agent_input.role_id
+        agent_type = self.ROLE_TO_AGENT_TYPE.get(agent_input.role_id, "default")
+        spawn_params = {"agent_type": agent_type, "message": agent_input.prompt, "fork_turns": "none"}
         return AgentOutput(
             actor_id=f"codex-actor-{agent_input.role_id}",
             session_id=f"codex-sess-{agent_input.task_id}",
             role_id=agent_input.role_id,
             task_id=agent_input.task_id,
-            status=AgentStatus.LAUNCHING,
+            status=AgentStatus.LAUNCHING, spawn_params=spawn_params,
             input_fingerprint=agent_input.fingerprint(),
         )
 

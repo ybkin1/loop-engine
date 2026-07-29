@@ -1,3 +1,6 @@
+# WARNING: This module has diverged from codex_loop/core/contracts.py
+# codex_loop/core/contracts.py is the authoritative version for Codex.
+# This copy is kept for zcode backward compatibility only.
 """
 Loop Core Contracts — Interface that every Host Adapter must implement.
 

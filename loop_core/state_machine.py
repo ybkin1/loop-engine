@@ -1,3 +1,6 @@
+# WARNING: This module has diverged from codex_loop/core/state_machine.py
+# codex_loop/core/state_machine.py is the authoritative version for Codex.
+# This copy is kept for zcode backward compatibility only.
 """
 Loop Core State Machine — Host-independent phase transitions and gate logic.
 

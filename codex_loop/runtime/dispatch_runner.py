@@ -27,6 +27,15 @@ class DispatchRunner:
             raise ValueError('Manifest validation failed: ' + '; '.join(errors))
         return self.dispatcher.prepare(manifest, self.adapter)
 
+    def get_spawn_specs(self, manifest):
+        """Generate spawn_agent call specs for each sub-agent."""
+        specs = []
+        for spec in manifest.subagents:
+            from codex_loop.runtime.agent_adapter import AgentInput
+            inp = AgentInput(role_id=spec.subagent_id, task_id=manifest.parent_task_id, prompt=spec.prompt, input_files=list(spec.input_files))
+            params = self.adapter.get_spawn_params(inp)
+            specs.append({'id': spec.subagent_id,'agent_type': params['agent_type'],'message': params['message'],'fork_turns': params['fork_turns']})
+        return specs
     def build_script(self, manifest):
         return self.dispatcher.build_execution_script(manifest, self.adapter)
 

@@ -1,3 +1,6 @@
+# WARNING: This module has diverged from codex_loop/core/enforcement_hub.py
+# codex_loop/core/enforcement_hub.py is the authoritative version for Codex.
+# This copy is kept for zcode backward compatibility only.
 """
 EnforcementHub — Bridge between Hook system and Loop Core governance state.
 

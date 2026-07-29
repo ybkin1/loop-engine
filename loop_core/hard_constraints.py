@@ -1,3 +1,6 @@
+# WARNING: This module has diverged from codex_loop/core/hard_constraints.py
+# codex_loop/core/hard_constraints.py is the authoritative version for Codex.
+# This copy is kept for zcode backward compatibility only.
 """
 Loop Core Hard Constraints — Machine-enforced control gates.
 

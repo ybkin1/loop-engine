@@ -1,5 +1,5 @@
 # loop-governance 行为配置
-# 安装位置：.zcode/skills/loop-governance/config.yaml
+# 安装位置：codex_loop/skills/loop-governance/config.yaml
 # 三个 hook 脚本每次运行时读取本文件；缺失或损坏时回退到 hook_common.py 的默认值。
 
 version: 1
@@ -27,8 +27,8 @@ path_guard:
     - AGENTS.md
     - stable/
     - registry/
-    - .zcode/config.json
-    - .zcode/tools/
+    - .codex-plugin/plugin.json
+    - codex_loop/governance/
 
 session_brief:
   enabled: true

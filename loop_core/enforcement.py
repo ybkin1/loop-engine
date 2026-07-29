@@ -1,3 +1,6 @@
+# WARNING: This module has diverged from codex_loop/core/enforcement.py
+# codex_loop/core/enforcement.py is the authoritative version for Codex.
+# This copy is kept for zcode backward compatibility only.
 """
 Loop Core Enforcement — Host capability grading and hard constraint validation.
 
