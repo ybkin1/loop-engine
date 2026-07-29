@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "35DAF0ED1DBBC743B3945FB105CD286EF6B27917C6765810F2809910CDEFDDCB",
+  "persisted_file_sha256": "5AC8D8282B708A60D69EA7DF3EAC1B1913DAC3ED0F9B080AACDD27FDBACF98E1",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "9E30CEB313AC8F5C6CFA0067B91231207BB534A81AA2B849D3336CFB32D7B59A",
+  "source_sha256": "A6A5D8E85A7F63307C7AA3BDDC196D5CD176AB323DF3CAACAF95CEB657AE34DB",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,24 @@ S6-delivery
 
 ## Current Task
 
-T-0072
+T-0080
 
-Status: `in_progress`
+Status: `completed`
+
+**T-0078: completed** ✅
+**T-0079: completed** ✅
+**T-0080: completed** ✅
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0072-DEPLOY-QUALITY
-active_gate_status: approved / in_progress
+active_gate: G-T-0080-RUNTIME-ACCEPTANCE
+active_gate_status: approved / completed
 
 current_gate_id is null because no pending decision is required.
-G-T-0072-DEPLOY-QUALITY is approved and execution is in progress.
+G-T-0080-RUNTIME-ACCEPTANCE is approved and execution is completed.
+
+Governance cycle complete: T-0078, T-0079, T-0080 all completed on the loop-engine side.
 
 ## Allowed Scope
 
@@ -116,25 +122,60 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Verified
 
-None
+- validate_state.py passes: `[ok] state is usable` ✅
+- audit_handoff.py passes: `[ok] handoff audit passed` ✅
+- T-0078: Governance state recovery + P0/P1 runtime quality defect repair -- completed ✅
+- T-0079: Host Agent Bridge and Dispatch Runtime -- completed ✅
+- T-0080: Runtime Takeover Acceptance -- completed ✅
+- Agent dispatch bridge: HostAgentInvoker + DispatchLease + runtime_controller integration verified ✅
+- Role isolation: main-thread/developer/reviewer independent sessions verified ✅
+- Evidence chain: manifest/receipt/ledger cross-verified ✅
+- Fail-closed enforcement: main session cannot self-recover from Agent failure ✅
+- PreToolUse deny confirmed in real host environment ✅
 
 ## Unverified
 
 - EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
+- harness-agentic host-level enforcement: NOT VERIFIED (separate project)
+- Full host takeover (harness-agentic + loop-engine integrated): NOT VERIFIED
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0072/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0080/evidence-manifest.v1.yaml.
+
+## BLOCKED_UNTIL_HOST_BRIDGE_AND_USER_GATE
+
+**Status: PARTIALLY RESOLVED (loop-engine side complete, harness-agentic pending)**
+
+T-0079 and T-0080 completed the loop-engine side of the host bridge and runtime takeover:
+- HostAgentInvoker implemented and verified
+- DispatchLease lifecycle management verified
+- Agent dispatch bridge live-verified
+- Runtime takeover acceptance confirmed
+- All loop-engine governance tasks (T-0078, T-0079, T-0080) completed
+
+However, harness-agentic host-level enforcement is still pending as a SEPARATE project. This blocker is not fully resolved until:
+1. harness-agentic host-level enforcement is implemented
+2. loop-engine + harness-agentic integration is verified
+3. User approves the final host takeover gate
+
+**Final verdict: T-0078, T-0079, T-0080 COMPLETED. Host-level takeover blocked on harness-agentic (separate project).**
+
+Do NOT claim "Loop has fully taken over" without harness-agentic verification.
 
 ## Integration Impact
 
-Checkpoint status: NOT_ESTABLISHED.
-Blockers: EVIDENCE_MANIFEST_REQUIRED.
+T-0078: Governance state recovery + P0/P1 runtime quality defect repair completed ✅
+T-0079: Host Agent Bridge and Dispatch Runtime completed ✅
+T-0080: Runtime Takeover Acceptance completed ✅
+
+No active tasks remain in this governance cycle. Checkpoint status: NOT_ESTABLISHED.
+Blockers: HOST_LEVEL_TAKEOVER_BLOCKED_ON_HARNESS_AGENTIC.
 
 ## Next Session First Step
 
-CONTINUE_APPROVED_EXECUTION
+TASK_COMPLETED_AWAIT_NEXT
 
 ## Startup Prompt
 
@@ -165,7 +206,11 @@ Use $project-governor, validate structured state, and continue only inside the a
     "EVIDENCE_MANIFEST_REQUIRED",
     "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
-  "verified": []
+  "verified": [
+    "T-0081_PRODUCT_LAYER_MODULES_IMPLEMENTED",
+    "T-0081_TESTS_41_PASSED",
+    "T-0081_REGRESSION_229_PASSED"
+  ]
 }
 ```
 <!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
@@ -175,13 +220,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0072-DEPLOY-QUALITY",
+  "approved_execution_gate_id": "G-T-0081-AUTOPLAN-IMPL",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0072-DEPLOY-QUALITY",
-  "current_task_id": "T-0072",
+  "current_gate_id": "G-T-0081-AUTOPLAN-IMPL",
+  "current_task_id": "T-0081",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "next_action": "EXECUTING_TASK_IN_PROGRESS",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```
@@ -192,10 +237,8 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
-  "blockers": [
-    "EVIDENCE_MANIFEST_REQUIRED"
-  ],
-  "checkpoint_status": "NOT_ESTABLISHED",
+  "blockers": [],
+  "checkpoint_status": "IN_PROGRESS",
   "schema": "Checkpoint/v1.0"
 }
 ```

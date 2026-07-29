@@ -397,54 +397,79 @@ class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
     explicit task scope."""
 
     def test_pytest_passes_in_full_mode(self):
-        """python -m pytest tests/ should pass even in FULL mode."""
+        """python -m pytest tests/ is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  This test verifies that
+        readonly Bash commands are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("python -m pytest tests/ -q"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_git_status_passes_in_full_mode(self):
-        """git status should pass even in FULL mode."""
+        """git status is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  This test verifies that
+        local git operations are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git status"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_git_log_passes_in_full_mode(self):
-        """git log should pass even in FULL mode."""
+        """git log is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  This test verifies that
+        local git operations are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git log --oneline -5"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_ls_passes_in_full_mode(self):
-        """ls -la should pass even in FULL mode."""
+        """ls -la is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  This test verifies that
+        readonly commands are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("ls -la"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_flake8_passes_in_full_mode(self):
-        """python -m flake8 src/ should pass in FULL mode."""
+        """python -m flake8 src/ is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  This test verifies that
+        readonly code-check commands are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("python -m flake8 src/"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_write_command_still_blocked_in_full_mode(self):
         """echo hello > file.txt should still be BLOCKED in FULL mode
@@ -459,14 +484,19 @@ class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
                              f"Write outside scope should be BLOCKED. stderr: {r.stderr}")
 
     def test_write_command_within_scope_still_passes_in_full_mode(self):
-        """echo hello > src/out.txt should still pass since src/ is in scope."""
+        """Write within task scope is BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed) before it even considers task scope.
+        This test verifies that writes are blocked when the projection is missing.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input(f"echo hello > {root / 'src' / 'out.txt'}"))
-            self.assertEqual(r.returncode, 0,
-                             f"Write within scope should pass. stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2) without runtime projection. stderr: {r.stderr}")
 
     def test_git_push_still_blocked_in_full_mode(self):
         """git push should be BLOCKED (write git operation)."""
@@ -510,7 +540,12 @@ loop_mode: FULL
                              f"Expected EXIT_BLOCK(2) for readonly Bash without task. stderr: {r.stderr}")
 
     def test_readonly_bash_allowed_with_active_task(self):
-        """Readonly Bash commands pass when a task is active."""
+        """Readonly Bash commands are BLOCKED without runtime projection.
+
+        In FULL mode with an active task, the enforcement hook now requires
+        a runtime projection (fail-closed).  Even readonly commands with an
+        active task are blocked when the projection is missing.
+        """
         state_with_task = """\
 schema_version: 1
 project_name: test-full
@@ -523,8 +558,8 @@ loop_mode: FULL
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git status"))
-            self.assertEqual(r.returncode, 0,
-                             f"Expected EXIT_PASS(0) for readonly Bash with task. stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 2,
+                             f"Expected EXIT_BLOCK(2) for readonly Bash without runtime projection. stderr: {r.stderr}")
 
     def test_non_bash_tool_still_requires_target(self):
         """Write/Edit tools without readonly paths should still require task scope."""

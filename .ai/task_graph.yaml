@@ -1,6 +1,120 @@
 schema_version: 1
 tasks:
   -
+    id: T-0078
+    title: Loop 工程治理状态恢复 + P0/P1 运行时质量缺陷修复
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - .ai/HANDOFF.md
+      - .ai/tasks/T-0078.md
+      - .ai/evidence/T-0078/
+      - .ai/KNOWN_ISSUES.md
+      - .ai/DECISIONS.md
+      - .ai/schemas/
+      - .ai/knowledge/
+      - .zcode/tools/continuity_auditor.py
+      - .zcode/tools/validate_state.py
+      - .zcode/skills/loop-governance/config.yaml
+      - hooks/scripts/loop_enforcement.py
+      - hooks/scripts/gate_guard.py
+      - hooks/hooks.json
+      - scripts/runtime_delivery_gate.py
+      - scripts/deployment_quality_checker.py
+      - agents/quality-engineer/scripts/run_quality_gates.py
+      - agents/quality-engineer/scripts/check_thresholds.py
+      - loop_core/context_packager.py
+      - loop_core/schemas/
+      - tests/test_deployment_quality_checker.py
+      - tests/test_runtime_delivery_gate.py
+      - .ai/evidence/quality/quality_report.json
+    note: "四阶段：状态恢复→P0 Runtime Gate→P1加固→六层闭环知识沉淀；gate G-T-0078-REPAIR approved"
+  -
+    id: T-0079
+    title: Loop Engine Host Agent Bridge and Dispatch Runtime
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    loop_mode: FULL
+    depends_on: T-0078
+    allowed_paths:
+      - loop_core/role_loader.py
+      - loop_core/runtime_controller.py
+      - loop_core/agent_adapter.py
+      - loop_core/host_agent_invoker.py
+      - loop_core/dispatch_lease.py
+      - hooks/scripts/loop_enforcement.py
+      - tests/test_hook_integration.py
+      - tests/test_runtime_controller.py
+      - tests/test_role_loader.py
+      - .ai/tasks/T-0079.md
+      - .ai/evidence/T-0079/
+      - .ai/
+      - tests/
+    note: "Fix role_loader.py syntax + Agent dispatch bridge + test suite repair. Approved G-T-0079-HOST-BRIDGE."
+  -
+    id: T-0080
+    title: Loop Engine Runtime Takeover Acceptance
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    loop_mode: FULL
+    depends_on: T-0079
+    allowed_paths:
+      - loop_core/runtime_controller.py
+      - loop_core/host_agent_invoker.py
+      - hooks/hooks.json
+      - hooks/scripts/
+      - tests/test_live_acceptance.py
+      - tests/
+      - .ai/tasks/T-0080.md
+      - .ai/evidence/T-0080/
+      - .ai/
+    note: "Live verification of real Agent dispatch completed. Approved G-T-0080-RUNTIME-ACCEPTANCE."
+  -
+    id: T-0081
+    title: AutoPlan 产品层 — 需求收件箱 + 计划生成 + 任务队列 + 仪表盘
+    status: completed
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    loop_mode: FULL
+    allowed_paths:
+      - .ai/schemas/requirement.schema.json
+      - .ai/schemas/plan-draft.schema.json
+      - .ai/schemas/task-queue.schema.json
+      - .ai/schemas/dashboard.schema.json
+      - .ai/inbox/
+      - .ai/plans/
+      - .ai/status/
+      - .ai/tasks/T-0081.md
+      - .ai/evidence/T-0081/
+      - .ai/state.yaml
+      - .ai/task_graph.yaml
+      - .ai/gates.yaml
+      - loop_core/inbox.py
+      - loop_core/planner.py
+      - loop_core/task_queue.py
+      - loop_core/status_dashboard.py
+      - loop_core/state_machine.py
+      - loop_core/schemas/gate.schema.json
+      - hooks/scripts/session_brief.py
+      - tools/tool_inbox.py
+      - tools/tool_planner.py
+      - tools/tool_task_queue.py
+      - tools/tool_dashboard.py
+      - tests/test_inbox.py
+      - tests/test_planner.py
+      - tests/test_task_queue.py
+      - tests/test_status_dashboard.py
+      - tests/test_product_layer_integration.py
+    note: "用户批准 ExitPlanMode。阶段 A+B+C 完成：4 Schema + 4 模块 + 4 MCP 工具 + 41 测试通过 + 229 回归通过。阶段 D 待 Host Bridge 稳定后执行。"
+
+  -
     id: T-0001
     title: Initial loop governance design
     status: active
@@ -15,7 +129,7 @@ tasks:
   -
     id: T-0003
     title: Design Activation / Installation Plan
-    status: active
+    status: completed
     created_at: "2026-07-06T18:40:47"
     updated_at: "2026-07-06T18:48:30"
     note: state synchronized after explicit user gate
@@ -36,7 +150,7 @@ tasks:
   -
     id: T-0006
     title: Real Product Delivery Entry Design
-    status: active
+    status: completed
     created_at: "2026-07-07T14:22:05"
     updated_at: "2026-07-07T14:22:05"
     note: first product discovery protocol / real-project application candidate design
@@ -699,7 +813,7 @@ tasks:
   -
     id: T-0069
     title: 部署就绪验证维度
-    status: in_progress
+    status: completed
     created_at: "2026-07-29"
     phase: S6-delivery
     allowed_paths:
@@ -749,7 +863,7 @@ tasks:
   -
     id: T-0072
     title: 部署质量体系补全
-    status: in_progress
+    status: completed
     created_at: "2026-07-29"
     phase: S6-delivery
     allowed_paths:
@@ -773,7 +887,7 @@ tasks:
   -
     id: T-0076
     title: 消除API密钥依赖 + 强制Agent调度
-    status: in_progress
+    status: completed
     created_at: "2026-07-29"
     phase: S6-delivery
     allowed_paths:

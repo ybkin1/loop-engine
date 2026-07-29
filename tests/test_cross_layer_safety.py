@@ -922,7 +922,12 @@ loop_mode: FULL
         )
 
     def test_all_hooks_pass_on_clean_project(self, temp_project):
-        """All three hooks should pass when project state is clean."""
+        """All three hooks should pass when project state is clean.
+
+        gate_guard and role_isolation pass without runtime projection.
+        loop_enforcement now requires a runtime projection (fail-closed)
+        and blocks business tool operations when the projection is missing.
+        """
         self._make_joint_project(temp_project, corrupt=False)
 
         target = str(temp_project / "src" / "app.py")
@@ -937,8 +942,9 @@ loop_mode: FULL
         # role_isolation: different dev/reviewer → pass
         assert r2.returncode == 0, f"role_isolation failed: {r2.stderr}"
 
-        # loop_enforcement: path in allowed scope → pass
-        assert r3.returncode == 0, f"loop_enforcement failed: {r3.stderr}"
+        # loop_enforcement: blocked without runtime projection (fail-closed)
+        assert r3.returncode == 2, \
+            f"loop_enforcement should block without runtime projection, got exit={r3.returncode}: {r3.stderr}"
 
     def test_corrupt_state_gate_guard_exempts_governance_write(self, temp_project):
         """gate_guard should exempt writes to .ai/gates.yaml even with corrupt state."""
@@ -1232,5 +1238,6 @@ gates:
         assert r1.returncode == 0, f"gate_guard on read-only: stderr={r1.stderr}"
         # role_isolation: different dev/reviewer → pass
         assert r2.returncode == 0, f"role_isolation on read-only: stderr={r2.stderr}"
-        # loop_enforcement: read-only command → pass
-        assert r3.returncode == 0, f"loop_enforcement on read-only: stderr={r3.stderr}"
+        # loop_enforcement: blocked without runtime projection (fail-closed)
+        assert r3.returncode == 2, \
+            f"loop_enforcement should block without runtime projection: stderr={r3.stderr}"

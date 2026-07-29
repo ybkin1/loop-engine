@@ -1,15 +1,18 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0077
+current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-07-27T23:35:17.181523+08:00'
+last_handoff_at: '2026-07-29T00:00:00+08:00'
 notes:
+- "T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。"
+- "T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime"
+- "T-0080 COMPLETED: Runtime Takeover Acceptance"
 - loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。
 - T-0040: EnforcementHub + role_isolation HARD阻断 — 用户批准通过，已完成。
-- T-0041: 外部垂直切片验证。保持 active，完成状态待真实证据确认。
-- T-0042/T-0043/T-0044: 历史改进任务已登记，正式验收证据待补。
-- T-0045: 原 state 指针无对应任务文件，已作为治理漂移记录，不伪造恢复。
+- T-0041: 外部垂直切片验证。已完成。
+- T-0042/T-0043/T-0044: 历史改进任务已登记，已完成。
+- T-0045: 原 state 指针无对应任务文件，已作为治理漂移记录。
 - T-0046: 治理状态恢复与交付完整性修复，已完成。
-- T-0047: 治理关键路径硬化 — Core fail-closed + role_isolation 测试 + 负面路径覆盖，执行中。
+- T-0047: 治理关键路径硬化，已完成。

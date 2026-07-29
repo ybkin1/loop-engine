@@ -94,6 +94,22 @@ Required startup steps:
     else:
         print("[loop-onboard] ⚠️ Source agents directory not found. Agents not installed.")
 
+    # T-0078 P1: S0 阶段强制激活质量门禁配置
+    # 如果项目没有 quality_gates 配置，从模板复制
+    skill_config = root / ".zcode" / "skills" / "loop-governance" / "config.yaml"
+    if not skill_config.exists():
+        # 从 loop-engine 自身复制模板
+        template_config = Path(__file__).resolve().parent.parent / ".zcode" / "skills" / "loop-governance" / "config.yaml"
+        if template_config.exists():
+            import shutil
+            skill_config.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(template_config, skill_config)
+            print("[loop-governance] [onboard] Quality gate config template copied from loop-engine")
+    
+    # 确保 .ai/checks/ 目录存在（语义规则目录）
+    checks_dir = root / ".ai" / "checks"
+    checks_dir.mkdir(parents=True, exist_ok=True)
+
     print(f"[loop-onboard] ✅ {root.name} 已接入 Loop 工程")
     print(f"[loop-onboard]    loop_mode: FULL")
     print(f"[loop-onboard]    state:     NO_ACTIVE_TASK")
