@@ -758,6 +758,18 @@ tasks:
       - .ai/
       - tests/
     note: "Build consistency + static integrity + browser smoke + atomicity + rollback + cache"
+  -
+    id: T-0075
+    title: 角色自动按需调度
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - loop_core/role_orchestrator.py
+      - agents/main-thread/SKILL.md
+      - .ai/
+      - tests/
+    note: "Phase-to-role auto-mapping. Main-thread MUST auto-dispatch, not manually choose."
 edges:
     - from: T-0040
       to: T-0041
