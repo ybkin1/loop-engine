@@ -761,7 +761,7 @@ tasks:
   -
     id: T-0075
     title: 角色自动按需调度
-    status: in_progress
+    status: completed
     created_at: "2026-07-29"
     phase: S6-delivery
     allowed_paths:
@@ -770,6 +770,18 @@ tasks:
       - .ai/
       - tests/
     note: "Phase-to-role auto-mapping. Main-thread MUST auto-dispatch, not manually choose."
+  -
+    id: T-0076
+    title: 消除API密钥依赖 + 强制Agent调度
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - tools/mcp_agent_runtime.py
+      - hooks/scripts/gate_guard.py
+      - .ai/
+      - tests/
+    note: "Agent() dispatch instructions (no API key) + gate enforces role evidence"
 edges:
     - from: T-0040
       to: T-0041

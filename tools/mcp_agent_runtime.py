@@ -405,3 +405,39 @@ class MCPAgentRuntime:
             total_tokens=total_tokens, total_duration_ms=duration_ms,
             budget_exceeded=budget_exceeded, results=results,
         )
+
+
+# T-0076: Agent dispatch instruction generator — uses ZCode Agent tool, not LLM API
+def build_agent_dispatch_instructions(manifest: dict, project_root: str = ".") -> str:
+    """Build a prompt instructing the main session to dispatch sub-agents using Agent().
+    
+    This eliminates the LLM_API_KEY dependency. The main session uses ZCode's
+    own model via the Agent() tool instead of making separate API calls.
+    """
+    subagents = manifest.get("subagents", [])
+    if not subagents:
+        return "No sub-agents to dispatch."
+    
+    lines = [
+        "# LOOP GOVERNANCE — AUTO DISPATCH REQUIRED",
+        f"",
+        f"You MUST dispatch the following {len(subagents)} role(s) using the Agent tool.",
+        f"Do NOT role-play these roles yourself. Each must be an independent Agent() call.",
+        f"",
+    ]
+    
+    for i, sa in enumerate(subagents, 1):
+        role = sa.get("role_hint", "unknown")
+        sid = sa.get("subagent_id", f"agent-{i}")
+        prompt = sa.get("prompt", "")[:200]
+        lines.append(f"## Role {i}: {role}")
+        lines.append(f"Call: Agent(subagent_type=\"general-purpose\", prompt=\"\"\"{prompt}...\"\"\")")
+        lines.append(f"")
+    
+    lines.append("## After all agents complete:")
+    lines.append("1. Collect structured output from each")
+    lines.append("2. Verify reviewer_session_id != developer_session_id")
+    lines.append("3. Store evidence in .ai/evidence/{task_id}/role-outputs/")
+    lines.append("4. Present gate to user for approval")
+    
+    return "\n".join(lines)
