@@ -85,6 +85,32 @@ def build_brief(root, cfg):
         lines.append("  2. 子代理审查报告（如有）")
         lines.append("  3. gate 批准/拒绝/修复的选择")
 
+
+    # T-0076 Layer 4: Check if current phase has required role evidence
+    current_phase = state.get("current_phase", "")
+    quality_phases = {"S5-quality", "S6-delivery"}
+    if current_phase in quality_phases:
+        try:
+            from loop_core.role_orchestrator import get_roles_for_phase
+            required = get_roles_for_phase(current_phase)
+            task_id = state.get("current_task_id", "")
+            missing = []
+            for r in required:
+                if r == "main-thread":
+                    continue
+                ev = root / ".ai/evidence" / task_id / "role-outputs" / f"{r}.json"
+                if not ev.exists():
+                    missing.append(r)
+            if missing:
+                lines.append("")
+                lines.append("=== MISSING ROLE EVIDENCE (Layer 4) ===")
+                lines.append(f"Phase {current_phase} requires roles: {', '.join(required)}")
+                lines.append(f"Missing evidence for: {', '.join(missing)}")
+                lines.append("The main agent MUST dispatch these roles via Agent() before advancing.")
+                lines.append("Without role evidence, the gate cannot be approved.")
+        except ImportError:
+            pass
+
     if pending:
         shown = pending[:limit]
         lines.append(
