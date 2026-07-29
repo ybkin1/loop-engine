@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0067
+T-0069
 
 Status: `in_progress`
 
 ## Current Gate
 
-pending_gate_status: G-T-0066-FINAL-CLEANUP (awaiting user decision)
-active_gate: G-T-0067-EVIDENCE-VERIFIER
+pending_gate_status: none (no pending decision required)
+active_gate: G-T-0069-DEPLOYMENT-VERIFICATION
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0067-EVIDENCE-VERIFIER is approved and execution is in progress.
+G-T-0069-DEPLOYMENT-VERIFICATION is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0067/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0069/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0067-EVIDENCE-VERIFIER",
+  "approved_execution_gate_id": "G-T-0069-DEPLOYMENT-VERIFICATION",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0066-FINAL-CLEANUP",
-  "current_task_id": "T-0067",
+  "current_gate_id": "G-T-0069-DEPLOYMENT-VERIFICATION",
+  "current_task_id": "T-0069",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",

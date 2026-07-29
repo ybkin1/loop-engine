@@ -3515,3 +3515,39 @@ gates:
     runtime_behavior: true
   notes:
   - Final security hardening before production use
+- id: G-T-0069-DEPLOYMENT-VERIFICATION
+  task_id: T-0069
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  approval_actor: user
+  scope: Deployment smoke test — port reachability, endpoint response, config consistency, reproducibility
+  approval_evidence: .ai/evidence/T-0069/approval.md
+  execution_evidence: .ai/evidence/T-0069/commands.md
+  content_quality:
+    require_deployment_verification: true
+  allowed_paths:
+  - scripts/deployment_smoke_test.py
+  - .ai/deployment/
+  - docs/
+  - .ai/
+  - tests/
+  allowed_actions:
+  - create deployment smoke test framework
+  - update S6 phase spec
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Closes the "dev != prod" quality gap. Deployment verification is now a S6 gate requirement.
