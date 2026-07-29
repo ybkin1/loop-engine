@@ -3619,3 +3619,35 @@ gates:
     runtime_behavior: true
   notes:
   - Enables natural language onboarding via slash commands and session detection
+- id: G-T-0072-DEPLOY-QUALITY
+  task_id: T-0072
+  gate_type: user-implementation
+  status: approved
+  decision: approved
+  execution_status: in_progress
+  approval_text: approved
+  scope: Deployment quality — build consistency, static integrity, browser smoke, atomicity, rollback, cache
+  approval_evidence: .ai/evidence/T-0072/approval.md
+  execution_evidence: .ai/evidence/T-0072/commands.md
+  allowed_paths:
+  - scripts/deployment_quality_checker.py
+  - docs/07-phase-specification.md
+  - .ai/
+  - tests/
+  allowed_actions:
+  - create deployment quality checker
+  - update S6 phase spec
+  forbidden_actions:
+  - modify AGENTS.md
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  notes:
+  - Closes the build-passed != deployment-healthy gap

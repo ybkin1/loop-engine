@@ -90,7 +90,7 @@
 | **入口条件** | S5 质量全部通过 |
 | **角色** | delivery-manager（交付完整性）、release-engineer（部署/回滚） |
 | **强制产出** | 交付清单、部署方案、回滚方案、版本号一致性验证 |
-| **退出条件** | 交付清单全部打勾 + validate_state 通过 + deployment_smoke_test 通过 |
+| **退出条件** | 交付清单全部打勾 + validate_state 通过 + deployment_smoke_test 通过 + deployment_quality_checker 通过（构建一致性+资源完整性+部署原子性+回滚就绪+缓存安全） |
 | **🤚 人工评审** | **必须**——用户最终接受。这是项目级 GO/NO-GO 决策 |
 
 ---

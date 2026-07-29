@@ -1,8 +1,8 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0071
-current_gate_id: G-T-0071-ONE-CLICK-ONBOARD
+current_task_id: T-0072
+current_gate_id: G-T-0072-DEPLOY-QUALITY
 loop_mode: FULL
 last_handoff_at: '2026-07-27T23:35:17.181523+08:00'
 notes:

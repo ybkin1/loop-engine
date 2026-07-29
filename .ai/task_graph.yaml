@@ -735,7 +735,7 @@ tasks:
   -
     id: T-0071
     title: 一键接入 + 自动更新
-    status: in_progress
+    status: completed
     created_at: "2026-07-29"
     phase: S6-delivery
     allowed_paths:
@@ -746,6 +746,18 @@ tasks:
       - .ai/
       - tests/
     note: "/loop-onboard + /loop-update slash commands + session NOT_ONBOARDED detection"
+  -
+    id: T-0072
+    title: 部署质量体系补全
+    status: in_progress
+    created_at: "2026-07-29"
+    phase: S6-delivery
+    allowed_paths:
+      - scripts/deployment_quality_checker.py
+      - docs/07-phase-specification.md
+      - .ai/
+      - tests/
+    note: "Build consistency + static integrity + browser smoke + atomicity + rollback + cache"
 edges:
     - from: T-0040
       to: T-0041
