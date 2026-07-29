@@ -1,22 +1,17 @@
-﻿schema_version: 1
+schema_version: 1
 project_name: "Qoder 一人研发团队式 Loop 软件交付系统"
 current_phase: P6-delivery
-current_task_id: T-0004
+current_task_id: T-0007
 current_gate_id: gate-delivery
-last_handoff_at: "2026-07-28T00:00:00"
+active_role: null
+last_handoff_at: "2026-07-29T00:00:00"
 integrated_skills:
-  - archlet       # 架构治理与可视化 [ACTIVE]
-  - loopany       # 持久记忆与自我改进 [ACTIVE]
-  - tools-registry # 团队工具与密钥管理 [ACTIVE]
-  - loopbase      # 跨会话记忆与可观测性 [ACTIVE]
+  - archlet
+  - loopany
+  - tools-registry
+  - loopbase
 skill_status: active
 notes:
-  - Project initialized on 2026-07-18 as a Qoder adaptation of the original Codex loop-engine-lab.
-  - 2026-07-20: Integrated 4 Crewlet/superdesigndev skills (archlet, loopany, tools-registry, loopbase).
-  - 2026-07-22: Phase 0 cleanup — fixed corrupted state.yaml, removed duplicate documents.
-  - 2026-07-28: R11 orchestrator takeover — repaired governance files, activated Loop governance.
-  - 2026-07-28: User approved 4 auxiliary skills → ACTIVE. Direction = A(vertical slice) + B(core enhancement).
-  - 2026-07-28: T-0001 交付 — RoleExecutionHook 系统（P1→P6 全流程验证通过）。
-  - 2026-07-28: T-0002 交付 — enforcement_hub 完整性哈希循环依赖修复 + 3 个新测试。
-  - 2026-07-28: T-0003 交付 — context_loader(token预算+缓存) + execution_ledger(活跃追踪+统计) + 10 个新测试。
-  - 2026-07-28: T-0004 交付 — freshness 批量检查 + 摘要统计 + 治理仪表板支持。
+  - T-0005 — ZCode Loop工程引入。验收通过。
+  - T-0006 — 结构性加固(阶段映射统一+合同测试+攻击面+管线测试)。435测试通过。
+  - T-0007 — 闭环修复(PhaseExecutor→HardConstraints+SubagentManifest+12阶段端到端)。442测试通过。

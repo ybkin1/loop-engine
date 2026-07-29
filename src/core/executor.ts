@@ -18,6 +18,12 @@ import {
   LoopError,
 } from "./state-machine.js";
 
+import { rolesForPhase, PHASE_GATE, normPhase } from "./phase_registry.js";
+import { HardConstraints } from "./hard_constraints.js";
+import type { ConstraintContext } from "./hard_constraints.js";
+import { createManifest, planExecution, validateResult, buildExecutionResult, computeManifestHash } from "./subagent_manifest.js";
+import type { SubagentManifest, SubagentSpec, SubagentResult } from "../types/index.js";
+
 import type {
   ProjectState,
   GatesRegistry,
@@ -84,16 +90,18 @@ export interface ExecutorOptions {
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
-// ── Phase → Role mapping ─────────────────────────────────
+// ── Phase → Role mapping (derived from phase_registry) ───
 
-export const PHASE_ROLES: Record<string, string[]> = {
-  requirements: ["R01"],
-  architecture: ["R04", "R08"],
-  planning: ["R05"],
-  implementation: ["R06"],
-  review: ["R09", "R07", "R08"],
-  delivery: ["R03", "R10"],
-};
+export const PHASE_ROLES: Record<string, string[]> = {};
+for (const phase of [
+  "requirements", "architecture", "planning",
+  "implementation", "review", "delivery",
+  "S0-init", "S1-requirements", "S2-architecture", "S3-interface",
+  "S4-implementation", "S5-quality", "S6-delivery", "S7-integration",
+  "S8-functional-test", "S9-fix-optimize", "S10-performance", "S11-maintenance",
+]) {
+  PHASE_ROLES[phase] = rolesForPhase(phase);
+}
 
 // ── Interfaces ───────────────────────────────────────────
 
@@ -163,17 +171,6 @@ const ROLE_REQUIRED_FIELDS: Record<string, string[]> = {
   R10: ["ops_runbook", "monitoring_config"],
 };
 
-// ── Phase → Gate mapping ─────────────────────────────────
-
-const PHASE_GATE: Record<string, string> = {
-  requirements: "gate-requirements",
-  architecture: "gate-architecture",
-  planning: "gate-planning",
-  implementation: "gate-implementation",
-  review: "gate-review",
-  delivery: "gate-delivery",
-};
-
 // ── PhaseExecutor ────────────────────────────────────────
 
 export class PhaseExecutor {
@@ -234,6 +231,9 @@ export class PhaseExecutor {
     const startedAt = new Date();
     const errors: string[] = [];
 
+    // Normalize phase name so legacy/P-prefix names map correctly
+    const canonicalPhase = normPhase(phaseId);
+
     // ── 1. Validate current phase ──────────────────────
     let state: ProjectState;
     try {
@@ -245,10 +245,12 @@ export class PhaseExecutor {
         phaseId,
       );
     }
-    if (state.current_phase !== phaseId) {
+    // Accept both legacy and canonical phase names in state comparison
+    const stateCanonical = normPhase(state.current_phase);
+    if (stateCanonical !== canonicalPhase) {
       throw new LoopError(
         "PHASE_MISMATCH",
-        `Cannot execute phase '${phaseId}': current phase is '${state.current_phase}'`,
+        `Cannot execute phase '${phaseId}': current phase is '${state.current_phase}' (normalized: ${stateCanonical}, expected: ${canonicalPhase})`,
         phaseId,
       );
     }
@@ -265,11 +267,22 @@ export class PhaseExecutor {
     // ── 4. Finalize plan status ────────────────────────
     const completedAt = new Date();
     plan.completed_at = completedAt.toISOString();
-    const allSucceeded = stepsFailed === 0 && stepsCompleted === plan.steps.length;
+    const allStepsSucceeded = stepsFailed === 0 && stepsCompleted === plan.steps.length;
+    let allSucceeded = allStepsSucceeded;
     plan.status = allSucceeded ? StepStatus.COMPLETE : StepStatus.FAILED;
     await this.persistState(plan);
 
-    // ── 5. Advance gate if all steps succeeded ─────────
+    // ── 5. Run hard constraints before advancing gate ───
+    if (allSucceeded) {
+      const constraintResult = await this._checkConstraints(state, phaseId, canonicalPhase, errors);
+      if (!constraintResult.passed) {
+        // Constraints blocked — mark as failed, don't advance gate
+        errors.push(`Hard constraints BLOCKED phase advance: ${constraintResult.violations.filter(v => v.severity === "BLOCKER").map(v => v.constraint_id).join(", ")}`);
+        allSucceeded = false;
+      }
+    }
+
+    // ── 6. Advance gate if all steps + constraints passed ─
     if (allSucceeded) {
       await this._tryAdvanceGate(plan.gate_id, errors);
     }
@@ -307,17 +320,12 @@ export class PhaseExecutor {
       return this._executeWithHook(step, hook, phaseId ?? "unknown", startedAt, inputHashes);
     }
 
-    // Fallback: simulated execution
-    const output: Record<string, unknown> = {};
-    for (const field of step.required_fields) {
-      output[field] = `generated_by_${step.role_id}`;
-    }
-
+    // Fallback: no hook registered — cannot execute role
     const durationMs = Date.now() - startedAt;
     return {
       role_id: step.role_id,
-      status: StepStatus.COMPLETE,
-      output,
+      status: StepStatus.FAILED,
+      error: `No execution hook registered for role '${step.role_id}'. Register a hook via HookRegistry before executing this role.`,
       duration_ms: durationMs,
     };
   }
@@ -411,7 +419,65 @@ export class PhaseExecutor {
     await saveState(this.projectRoot, state);
   }
 
-  // ── Private helpers ──────────────────────────────────
+  // ── SubagentManifest integration (T-0007-B) ──────────
+
+  /**
+   * Decompose a role's work into parallel sub-agents using the
+   * SubagentManifest protocol. The host is responsible for
+   * actually launching the sub-agents; this method provides
+   * the execution plan and validation framework.
+   */
+  buildManifestFromRole(
+    roleId: string,
+    phaseId: string,
+    subagents: SubagentSpec[],
+    aggregationPrompt: string,
+    maxParallel = 3,
+  ): SubagentManifest {
+    return createManifest(roleId, `Phase ${phaseId} - ${roleId}`, subagents, aggregationPrompt, maxParallel);
+  }
+
+  /**
+   * Plan parallel execution of a manifest into batches.
+   */
+  planParallelExecution(manifest: SubagentManifest): SubagentSpec[][] {
+    return planExecution(manifest);
+  }
+
+  /**
+   * Validate and aggregate subagent results into a final execution result.
+   * Checks each result against the original spec's schema and produces
+   * a combined output with content hash for evidence binding.
+   */
+  aggregateManifestResults(
+    manifest: SubagentManifest,
+    results: SubagentResult[],
+  ) {
+    // Validate each result against its spec
+    const specMap = new Map(manifest.subagents.map(s => [s.subagent_id, s]));
+    const errors: string[] = [];
+    for (const r of results) {
+      const spec = specMap.get(r.subagent_id);
+      if (!spec) {
+        errors.push(`Unknown subagent: ${r.subagent_id}`);
+        continue;
+      }
+      const validation = validateResult(spec, r);
+      if (!validation.is_valid) {
+        errors.push(`[${r.subagent_id}] ${validation.message}`);
+      }
+    }
+
+    const execResult = buildExecutionResult(manifest, results);
+    const hash = computeManifestHash(manifest);
+
+    return {
+      result: execResult,
+      errors,
+      manifest_hash: hash,
+      all_valid: errors.length === 0 && execResult.failed === 0,
+    };
+  }
 
   /**
    * Execute all steps in a plan sequentially, tracking completion/failure counts.
@@ -518,6 +584,44 @@ export class PhaseExecutor {
     step.error = retryResult.error ?? "Retry failed";
     errors.push(`[${step.role_id}] Retry ${step.retries} failed: ${step.error}`);
     return false;
+  }
+
+  /**
+   * Run HardConstraints check before gate advance.
+   * Maps phase execution state to ConstraintContext and runs all C1-C8.
+   */
+  private async _checkConstraints(
+    state: ProjectState,
+    phaseId: string,
+    canonicalPhase: string,
+    errors: string[],
+  ) {
+    const hc = new HardConstraints();
+
+    // Build constraint context from current project state
+    const gates = await loadGates(this.projectRoot);
+    const phaseGateMap: Record<string, string> = {};
+    if (gates?.gates) {
+      for (const g of gates.gates) {
+        const gid = g.gate_id ?? "";
+        const gs = (g.status ?? "pending").toUpperCase();
+        phaseGateMap[gid] = gs;
+      }
+    }
+
+    const ctx: ConstraintContext = {
+      current_phase: canonicalPhase,
+      target_phase: canonicalPhase,
+      phase_gates: phaseGateMap,
+      tasks: [{ id: state.current_task_id ?? "unknown", status: "active" }],
+      gates: gates?.gates?.map(g => ({ id: g.gate_id ?? "", status: g.status ?? "pending" })) ?? [],
+    };
+
+    const result = hc.checkAll(ctx);
+    for (const v of result.violations) {
+      errors.push(`[${v.constraint_id}] ${v.severity}: ${v.message}`);
+    }
+    return result;
   }
 
   /**

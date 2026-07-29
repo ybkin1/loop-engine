@@ -1,3 +1,32 @@
 ﻿schema_version: 1
-tasks: []
-edges: []
+tasks:
+  - id: T-0007
+    title: "闭环修复: PhaseExecutor管线+SubagentManifest集成+12阶段端到端"
+    status: active
+    priority: P0
+    created_at: "2026-07-29"
+    acceptance_criteria:
+      - "AC1: PhaseExecutor.executePhase 调用 HardConstraints.checkAll 后再推进门禁"
+      - "AC2: PhaseExecutor 支持 SubagentManifest 并行子代理调度"
+      - "AC3: 12阶段端到端集成测试全部通过"
+      - "AC4: executePhase 接受所有阶段名变体(legacy/S-prefix/P-prefix)"
+    subtasks:
+      - id: T-0007-A
+        title: "PhaseExecutor管线接入HardConstraints约束检查"
+        status: pending
+      - id: T-0007-B
+        title: "SubagentManifest集成到PhaseExecutor.executeRole"
+        status: pending
+      - id: T-0007-C
+        title: "12阶段端到端集成测试"
+        status: pending
+      - id: T-0007-D
+        title: "executePhase接受所有阶段名变体"
+        status: pending
+edges:
+  - from: T-0007-A
+    to: T-0007-B
+  - from: T-0007-A
+    to: T-0007-C
+  - from: T-0007-D
+    to: T-0007-C

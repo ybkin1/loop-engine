@@ -8,6 +8,8 @@
  * Ported from ZCode loop_core/hard_constraints.py.
  */
 
+import { normPhase } from "./phase_registry.js";
+
 // ── Constraint IDs ────────────────────────────────────────────────────────────
 
 /** Identifiers for the 8 hard constraints. */
@@ -217,7 +219,8 @@ export class HardConstraints {
    */
   checkC1(context: ConstraintContext): ConstraintViolation[] {
     const { target_phase, phase_gates } = context;
-    if (!target_phase || !PHASES_REQUIRING_S1.has(target_phase)) return [];
+    const phase = normPhase(target_phase ?? "");
+    if (!phase || !PHASES_REQUIRING_S1.has(phase)) return [];
     if (!phase_gates) {
       return [{
         constraint_id: ConstraintID.C1,
@@ -246,7 +249,8 @@ export class HardConstraints {
    */
   checkC2(context: ConstraintContext): ConstraintViolation[] {
     const { target_phase, phase_gates } = context;
-    if (!target_phase || !PHASES_REQUIRING_S2.has(target_phase)) return [];
+    const phase = normPhase(target_phase ?? "");
+    if (!phase || !PHASES_REQUIRING_S2.has(phase)) return [];
     if (!phase_gates) {
       return [{
         constraint_id: ConstraintID.C2,
@@ -305,6 +309,16 @@ export class HardConstraints {
     const { target_path, allowed_paths, tasks } = context;
     if (!target_path) return [];
 
+    // Reject path traversal attempts
+    if (target_path.includes("..")) {
+      return [{
+        constraint_id: ConstraintID.C4,
+        severity: Severity.BLOCKER,
+        message: `Path traversal detected in target_path "${target_path}": ".." is not permitted.`,
+        remediation: "Use absolute paths or paths relative to the project root only.",
+      }];
+    }
+
     // Collect allowed paths from both explicit allowed_paths and task definitions
     const allAllowed: string[] = [...(allowed_paths ?? [])];
     if (tasks) {
@@ -351,7 +365,8 @@ export class HardConstraints {
    */
   checkC5(context: ConstraintContext): ConstraintViolation[] {
     const { target_phase, quality_results } = context;
-    if (target_phase !== "S6") return [];
+    const phase = normPhase(target_phase ?? "");
+    if (phase !== "S6") return [];
 
     if (!quality_results) {
       return [{
@@ -385,7 +400,8 @@ export class HardConstraints {
    */
   checkC6(context: ConstraintContext): ConstraintViolation[] {
     const { current_phase, review_status } = context;
-    if (current_phase !== "S4") return [];
+    const phase = normPhase(current_phase ?? "");
+    if (phase !== "S4") return [];
 
     if (!review_status) {
       return [{

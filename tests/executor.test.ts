@@ -20,20 +20,20 @@ describe('StepStatus', () => {
 // ── PHASE_ROLES mapping ─────────────────────────────────────────
 
 describe('PHASE_ROLES', () => {
-  it('requirements → ["R01"]', () => {
-    expect(PHASE_ROLES['requirements']).toEqual(['R01']);
+  it('requirements → ["R01", "R02"] (lead + participant from unified registry)', () => {
+    expect(PHASE_ROLES['requirements']).toEqual(['R01', 'R02']);
   });
 
-  it('architecture → ["R04", "R08"]', () => {
-    expect(PHASE_ROLES['architecture']).toEqual(['R04', 'R08']);
+  it('architecture → ["R04", "R01", "R08"]', () => {
+    expect(PHASE_ROLES['architecture']).toEqual(['R04', 'R01', 'R08']);
   });
 
-  it('review → ["R09", "R07", "R08"]', () => {
-    expect(PHASE_ROLES['review']).toEqual(['R09', 'R07', 'R08']);
+  it('review → ["R07", "R06", "R08"]', () => {
+    expect(PHASE_ROLES['review']).toEqual(['R07', 'R06', 'R08']);
   });
 
-  it('delivery → ["R03", "R10"]', () => {
-    expect(PHASE_ROLES['delivery']).toEqual(['R03', 'R10']);
+  it('delivery → ["R03", "R10", "R08"]', () => {
+    expect(PHASE_ROLES['delivery']).toEqual(['R03', 'R10', 'R08']);
   });
 });
 
@@ -55,7 +55,7 @@ describe('PhaseExecutor', () => {
   it('planPhase 创建正确的 steps (requirements)', () => {
     const plan = executor.planPhase('requirements');
     expect(plan.phase_id).toBe('requirements');
-    expect(plan.steps).toHaveLength(1);
+    expect(plan.steps).toHaveLength(2);
     expect(plan.steps[0].role_id).toBe('R01');
     expect(plan.steps[0].status).toBe(StepStatus.PENDING);
     expect(plan.gate_id).toBe('gate-requirements');
@@ -143,25 +143,23 @@ describe('PhaseExecutor', () => {
     await expect(emptyExecutor.executePhase('requirements')).rejects.toThrow(/STATE_LOAD_FAILED|failed to load/i);
   });
 
-  it('executeRole 返回 COMPLETE 状态和预期输出', async () => {
+  it('executeRole 无 hook → 返回 FAILED（不再是模拟假成功）', async () => {
     const plan = executor.planPhase('requirements');
     const step = plan.steps[0]; // R01
     const result = await executor.executeRole(step);
-    expect(result.status).toBe(StepStatus.COMPLETE);
+    expect(result.status).toBe(StepStatus.FAILED);
     expect(result.role_id).toBe('R01');
-    expect(result.output).toBeDefined();
-    // Should populate required fields
-    expect(result.output!['requirements_doc']).toBeTruthy();
-    expect(result.output!['acceptance_criteria']).toBeTruthy();
+    expect(result.error).toContain('No execution hook registered');
   });
 
   it('planPhase 创建的计划包含正确的 gate_id', () => {
     const plan = executor.planPhase('architecture');
     expect(plan.gate_id).toBe('gate-architecture');
     expect(plan.status).toBe(StepStatus.PENDING);
-    expect(plan.steps).toHaveLength(2);
+    expect(plan.steps).toHaveLength(3);
     expect(plan.steps[0].role_id).toBe('R04');
-    expect(plan.steps[1].role_id).toBe('R08');
+    expect(plan.steps[1].role_id).toBe('R01');
+    expect(plan.steps[2].role_id).toBe('R08');
   });
 });
 
@@ -202,12 +200,12 @@ describe('PhaseExecutor with hooks', () => {
     if (existsSync(tmpDir)) rmSync(tmpDir, { recursive: true });
   });
 
-  it('无 hook 时回退到模拟执行', async () => {
+  it('无 hook 时返回 FAILED（不再模拟假成功）', async () => {
     const executor = new PhaseExecutor(tmpDir);
     const plan = executor.planPhase('requirements');
     const result = await executor.executeRole(plan.steps[0]);
-    expect(result.status).toBe(StepStatus.COMPLETE);
-    expect(result.output!['requirements_doc']).toBe('generated_by_R01');
+    expect(result.status).toBe(StepStatus.FAILED);
+    expect(result.error).toContain('No execution hook registered');
   });
 
   it('注册 hook 后调用 hook 执行', async () => {

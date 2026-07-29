@@ -64,9 +64,29 @@ Loop 工程的主编排入口。负责创建 run、生成任务卡、调度 suba
 调度方式：使用 Agent tool，`subagent_type: "GeneralPurpose"`，在 prompt 中包含：
 1. 角色 brief 内容
 2. 任务卡内容
-3. must_read 文件列表
+3. **角色上下文文件** (`.ai/role-context/<role_id>.md`) — MUST_READ
 4. allowed_write 路径
 5. 明确的输出要求
+
+**角色上下文生成协议** (平台限制绕过)：
+Qoder 的 Agent tool 子代理不继承主会话的文件上下文。因此 R11 在激活任何角色前，
+必须调用 `generateRoleContext(projectRoot, roleId)` 生成该角色的上下文文件，
+并作为 Agent tool 的 `must_read` 传入。
+
+上下文包含：
+- 角色契约 (CONTRACT.yaml)
+- 项目结构 (src/tests/scripts/docs/ 文件列表)
+- 治理状态 (state.yaml 摘要)
+- **代码角色 (R06-R09)**：实际源码内容 (≤50KB, 每文件≤5KB)
+- **文档角色 (R01-R05,R10)**：架构/设计/规范文档内容
+- 角色思维框架
+
+上下文文件生成命令：
+```typescript
+import { generateRoleContext } from "../src/core/role_context.js";
+const ctx = generateRoleContext(projectRoot, "R06");
+// ctx.context_file → .ai/role-context/R06.md
+```
 
 ### 4. 检查输出
 

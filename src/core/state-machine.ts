@@ -6,6 +6,7 @@ import type {
   ProjectState, PhaseRecord, GateDefinition, GatesRegistry,
   GateCheckResult, GateAdvanceResult
 } from "../types/index.js";
+import { rolesForPhase, PHASE_ROLE_MAP, NORM_PHASES } from "./phase_registry.js";
 
 // ── Error ──────────────────────────────────────────────
 export class LoopError extends Error {
@@ -86,6 +87,19 @@ const DEFAULT_PHASES: PhaseRecord[] = [
   { phase_id: "delivery",     entered_at: "", exited_at: null, status: "skipped" },
 ];
 
+/**
+ * Extended 12-phase system aligned with ZCode loop_core/state_machine.py.
+ * Uses the canonical NORM_PHASES from phase_registry.ts.
+ */
+export const EXTENDED_PHASES: PhaseRecord[] = NORM_PHASES.map((id, i) => ({
+  phase_id: id,
+  entered_at: "",
+  exited_at: null,
+  status: i === 0 ? "active" as const : "pending" as const,
+  roles_active: rolesForPhase(id),
+  gate_id: `gate-${id}`,
+}));
+
 const PHASE_GATES: Record<string, { id: string; name: string; conditions: GateDefinition["conditions"] }> = {
   requirements: {
     id: "gate-requirements",
@@ -141,6 +155,97 @@ const PHASE_GATES: Record<string, { id: string; name: string; conditions: GateDe
   },
 };
 
+/**
+ * Extended phase gates for the 12-phase system.
+ * Aligned with ZCode loop_core/state_machine.py init_project().
+ */
+export const EXTENDED_PHASE_GATES: Record<string, { id: string; name: string; conditions: GateDefinition["conditions"] }> = {
+  "S1-requirements": {
+    id: "gate-S1-requirements",
+    name: "需求基线 Gate",
+    conditions: [
+      { condition_id: "req-baselined", type: "role_required", description: "R01 需求已基线化", params: { role_id: "R01", status: "completed" } },
+      { condition_id: "acceptance-defined", type: "evidence_required", description: "验收标准已定义", params: { evidence_type: "acceptance_criteria" } },
+    ],
+  },
+  "S2-architecture": {
+    id: "gate-S2-architecture",
+    name: "架构设计 Gate",
+    conditions: [
+      { condition_id: "arch-complete", type: "role_required", description: "R04 架构设计完成", params: { role_id: "R04", status: "completed" } },
+      { condition_id: "security-boundary", type: "evidence_required", description: "安全边界已定义", params: { evidence_type: "security_boundary" } },
+    ],
+  },
+  "S3-interface": {
+    id: "gate-S3-interface",
+    name: "接口设计 Gate",
+    conditions: [
+      { condition_id: "interface-complete", type: "role_required", description: "R05 接口设计完成", params: { role_id: "R05", status: "completed" } },
+    ],
+  },
+  "S4-implementation": {
+    id: "gate-S4-implementation",
+    name: "实现完成 Gate",
+    conditions: [
+      { condition_id: "code-complete", type: "role_required", description: "R06 实现完成", params: { role_id: "R06", status: "completed" } },
+      { condition_id: "tests-pass", type: "evidence_required", description: "测试全部通过", params: { evidence_type: "test_result" } },
+      { condition_id: "review-pass", type: "role_required", description: "R09 独立评审通过", params: { role_id: "R09", status: "completed" } },
+    ],
+  },
+  "S5-quality": {
+    id: "gate-S5-quality",
+    name: "质量 Gate",
+    conditions: [
+      { condition_id: "qa-pass", type: "role_required", description: "R07 质量通过", params: { role_id: "R07", status: "completed" } },
+      { condition_id: "security-pass", type: "role_required", description: "R08 安全通过", params: { role_id: "R08", status: "completed" } },
+    ],
+  },
+  "S6-delivery": {
+    id: "gate-S6-delivery",
+    name: "交付 Gate",
+    conditions: [
+      { condition_id: "delivery-ready", type: "role_required", description: "R03 交付就绪", params: { role_id: "R03", status: "completed" } },
+      { condition_id: "human-approval", type: "manual_approval", description: "用户验收通过", params: {} },
+    ],
+  },
+  "S7-integration": {
+    id: "gate-S7-integration",
+    name: "集成 Gate",
+    conditions: [
+      { condition_id: "integration-pass", type: "evidence_required", description: "集成测试通过", params: { evidence_type: "integration_test" } },
+    ],
+  },
+  "S8-functional-test": {
+    id: "gate-S8-functional-test",
+    name: "功能测试 Gate",
+    conditions: [
+      { condition_id: "functional-pass", type: "evidence_required", description: "功能测试通过", params: { evidence_type: "functional_test" } },
+    ],
+  },
+  "S9-fix-optimize": {
+    id: "gate-S9-fix-optimize",
+    name: "修复优化 Gate",
+    conditions: [
+      { condition_id: "defects-fixed", type: "evidence_required", description: "缺陷已修复", params: { evidence_type: "rework_tracker" } },
+      { condition_id: "regression-pass", type: "evidence_required", description: "回归测试通过", params: { evidence_type: "regression_test" } },
+    ],
+  },
+  "S10-performance": {
+    id: "gate-S10-performance",
+    name: "压力测试 Gate",
+    conditions: [
+      { condition_id: "perf-pass", type: "evidence_required", description: "性能指标达标", params: { evidence_type: "stress_test" } },
+    ],
+  },
+  "S11-maintenance": {
+    id: "gate-S11-maintenance",
+    name: "维护 Gate",
+    conditions: [
+      { condition_id: "ops-ready", type: "role_required", description: "R10 运维就绪", params: { role_id: "R10", status: "completed" } },
+    ],
+  },
+};
+
 // ── Init ───────────────────────────────────────────────
 export async function initProject(root: string, projectName: string): Promise<ProjectState> {
   const dir = aiPath(root);
@@ -164,6 +269,51 @@ export async function initProject(root: string, projectName: string): Promise<Pr
   const gates: GatesRegistry = {
     schema_version: 1,
     gates: Object.values(PHASE_GATES).map(g => ({
+      gate_id: g.id,
+      name: g.name,
+      description: `${g.name} — 阶段推进条件`,
+      conditions: g.conditions,
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    })),
+  };
+
+  await saveState(root, state);
+  await saveGates(root, gates);
+  return state;
+}
+
+/**
+ * Initialize a project with the extended 12-phase system.
+ * Used for FULL loop_mode projects that need complete governance.
+ */
+export async function initProjectExtended(root: string, projectName: string, loopMode: "FULL" | "STANDARD" = "FULL"): Promise<ProjectState> {
+  const dir = aiPath(root);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (!existsSync(evidencePath(root))) mkdirSync(evidencePath(root), { recursive: true });
+
+  const now = new Date().toISOString();
+  const state: ProjectState = {
+    schema_version: 2,
+    project_name: projectName,
+    current_phase: "S1-requirements",
+    current_task_id: null,
+    current_gate_id: "gate-S1-requirements",
+    active_role: null,
+    role_activated_at: null,
+    completed_roles: [],
+    last_handoff_at: now,
+    phases: EXTENDED_PHASES.map(p => ({ ...p, entered_at: p.phase_id === "S1-requirements" ? now : "" })),
+    loop_mode: loopMode,
+    project_status: "draft",
+    iteration: 1,
+  };
+
+  const gates: GatesRegistry = {
+    schema_version: 2,
+    gates: Object.values(EXTENDED_PHASE_GATES).map(g => ({
       gate_id: g.id,
       name: g.name,
       description: `${g.name} — 阶段推进条件`,

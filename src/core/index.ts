@@ -14,12 +14,15 @@
 export {
   LoopError,
   initProject,
+  initProjectExtended,
   loadState,
   saveState,
   checkGate,
   advanceGate,
   computeHash,
   validateProjectRoot,
+  EXTENDED_PHASES,
+  EXTENDED_PHASE_GATES,
 } from "./state-machine.js";
 
 // ── Role Engine ───────────────────────────────────────────────────────────────
@@ -210,3 +213,28 @@ export type {
   DecisionRequired,
   HumanReviewPacket,
 } from "./human_review_packet.js";
+
+// ── Subagent Manifest (P1-A upgrade) ────────────────────────────────────────
+export {
+  createManifest,
+  createSubagentSpec,
+  planExecution,
+  validateResult,
+  aggregateResults,
+  buildExecutionResult,
+  computeManifestHash,
+} from "./subagent_manifest.js";
+
+// ── Phase Registry (T-0006-A: single source of truth) ──────────────────────
+export {
+  NORM_PHASES,
+  PHASE_ROLE_MAP,
+  rolesForPhase,
+  PHASE_GATE,
+  normPhase,
+} from "./phase_registry.js";
+export type { NormPhase } from "./phase_registry.js";
+
+// ── Role Context Protocol (platform limitation workaround) ──────────────────
+export { generateRoleContext } from "./role_context.js";
+export type { RoleContextResult } from "./role_context.js";

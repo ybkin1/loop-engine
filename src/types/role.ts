@@ -1,5 +1,39 @@
 export type RoleStatus = "inactive" | "active" | "completed" | "blocked";
 
+/**
+ * Role Contract — aligned with ZCode agents CONTRACT.yaml design.
+ * Defines identity, responsibilities, prohibitions, veto power,
+ * and quality standards for each role.
+ */
+export interface RoleIdentity {
+  title: string;
+  experience: string;
+  expertise: string[];
+  known_blind_spots: string[];
+}
+
+export interface RoleContract {
+  role_id: string;
+  identity: RoleIdentity;
+  /** Immutable principles the role always holds */
+  fixed_stance: string[];
+  responsibilities: string[];
+  prohibitions: string[];
+  /** Situations where this role can veto */
+  veto_power: string[];
+  input_artifacts: string[];
+  output_artifacts: string[];
+  quality_standards: string[];
+  /** Escalation rules when veto conflicts arise */
+  veto_escalation: string[];
+  /** Context projection rules for this role */
+  projection_rules?: {
+    include_sections: string[];
+    exclude_sections: string[];
+    role_dimensions: string[];
+  };
+}
+
 export interface RoleSpec {
   role_id: string;
   name: string;
@@ -15,6 +49,8 @@ export interface RoleSpec {
     forbidden_operations: string[];
   };
   handoff_artifacts: string[];
+  /** Full role contract (P0-A upgrade) */
+  contract?: RoleContract;
 }
 
 export interface RoleActivation {

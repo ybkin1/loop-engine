@@ -6,50 +6,50 @@
 
 ## Current Task
 
-Task: `T-0001 RoleExecutionHook 系统`
+Task: `T-0005 ZCode Loop工程设计引入Qoder — 全面升级`
 
 Status: `DELIVERED — 待用户验收`
 
 Current gate: `gate-delivery`
 
-## Main Controller Orientation
-
-The controlling north star is not governance self-operation. The purpose of this project is to help a non-technical user with no project-management background use Qoder to produce real software products that are usable, verifiable, deployable, acceptable, maintainable, and sustainably iterable.
-
-## T-0001 交付物
+## T-0005 交付物
 
 | 产出 | 状态 |
 |------|------|
-| `RoleExecutionHook` 接口 | 已实现 |
-| `HookRegistry` 注册表 | 已实现 |
-| `ExecutorOptions` 超时配置 | 已实现 |
-| `PhaseExecutor` 向后兼容扩展 | 已实现 |
-| 定时器泄漏修复（P1 评审问题） | 已修复 |
-| 7 个新单元测试 | 全部通过 |
-| barrel 导出更新 | 已完成 |
+| **P0-A: 角色契约体系** | 11个角色 CONTRACT.yaml 已创建 |
+| **P0-B: 扩展阶段状态机** | 12阶段 + PHASE_ROLE_MAP + initProjectExtended |
+| **P1-A: SubagentManifest协议** | 类型+核心模块+barrel导出 |
+| **P1-B: MCP工具扩展** | 4个新工具 (30总计) |
+| **P2-A: 思维框架** | thinking-framework.md |
+| **P2-B: 角色隔离增强** | can_isolate_agents=true |
 
 ## 验证证据
 
 - TypeScript 编译：0 错误
-- 测试套件：17 文件 / 411 测试全部通过
-- 独立代码评审：P0=0, P1=0（已修复）, P2=2（已记录）
+- 测试套件：17 文件 / 424 测试全部通过
+- 角色隔离 Hook：实际生效（写入拦截验证）
 
-## 已知遗留（P2 级，不阻塞交付）
+## 新增文件清单
 
-1. `enforcement_hub.ts` 完整性哈希循环依赖（预存问题，非本次引入）
-2. barrel 导出变更未做 major 版本升级（项目仍在 0.1.0）
+```
+src/types/subagent.ts          — SubagentManifest 类型
+src/core/subagent_manifest.ts  — 子代理调度协议
+src/types/state.ts             — 12阶段+LoopMode类型
+src/types/role.ts              — RoleContract类型
+.ai/registry/R01~R11.yaml     — 11个角色契约
+.ai/thinking-framework.md     — 角色思维框架
+```
 
-## Allowed Scope
+## 修改文件清单
 
-- 用户验收后进入下一个任务
-- 可开始 enforcement_hub 修复
-- 可将 Loop 工程应用到真实外部项目
-
-## Forbidden Scope
-
-- Do not infer user acceptance from any review, validator, audit, or AI statement.
-- Do not deploy to external systems without explicit authorization.
+```
+src/core/state-machine.ts      — EXTENDED_PHASES + PHASE_ROLE_MAP + initProjectExtended
+src/core/enforcement.ts        — can_isolate_agents=true
+src/core/index.ts              — barrel导出更新
+src/server/tools.ts            — 4个新MCP工具
+src/types/index.ts             — 类型导出更新
+```
 
 ## Next Session First Step
 
-读取用户指令，确认 T-0001 验收状态，然后按用户方向推进。
+用户验收 T-0005 交付物。验收通过后可进入下一个任务。

@@ -1,6 +1,7 @@
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { initProject, checkGate, advanceGate, loadState, computeHash, validateProjectRoot } from "../core/state-machine.js";
+import { initProject, initProjectExtended, checkGate, advanceGate, loadState, computeHash, validateProjectRoot } from "../core/state-machine.js";
+import { PHASE_ROLE_MAP } from "../core/phase_registry.js";
 import { activateRole, getRoleStatus } from "../core/role-engine.js";
 import { submitEvidence, verifyEvidence } from "../core/evidence.js";
 import { createHandoff, getHandoffHistory } from "../core/handoff.js";
@@ -69,6 +70,11 @@ export function registerTools(server: Server): void {
       { name: "loop_governance_status", description: "Get full governance status summary (HEALTHY/DEGRADED/BLOCKED)", inputSchema: { type: "object", properties: { project_root: { type: "string" } } } },
       { name: "loop_load_context", description: "Load progressive role context based on task complexity", inputSchema: { type: "object", properties: { role_id: { type: "string" }, complexity: { type: "number", description: "Task complexity 0.0-1.0" } }, required: ["role_id"] } },
       { name: "loop_review_packet", description: "Generate a human-readable review packet for gate approval or veto escalation", inputSchema: { type: "object", properties: { project_root: { type: "string" }, packet_type: { type: "string", description: "GATE_APPROVAL | VETO_ESCALATION | CHANGE_REQUEST" }, phase: { type: "string", description: "Phase ID (for GATE_APPROVAL)" }, task_id: { type: "string" }, artifacts: { type: "array", items: { type: "string" } }, vetos: { type: "array", items: { type: "object" } }, description: { type: "string" } }, required: ["packet_type"] } },
+      // ── T-0005 升级新增工具 ──
+      { name: "loop_init_extended", description: "Initialize project with extended 12-phase governance (FULL loop mode)", inputSchema: { type: "object", properties: { project_root: { type: "string" }, project_name: { type: "string" }, loop_mode: { type: "string", description: "FULL | STANDARD" } }, required: ["project_name"] } },
+      { name: "loop_phase_roles", description: "Get role mapping for extended 12-phase system", inputSchema: { type: "object", properties: { phase_id: { type: "string", description: "Phase ID (e.g. S4-implementation)" } } } },
+      { name: "loop_dependency_analysis", description: "Analyze project dependency graph and detect circular dependencies", inputSchema: { type: "object", properties: { project_root: { type: "string" }, entry_dir: { type: "string", description: "Directory to analyze (default: src)" } } } },
+      { name: "loop_contract_validate", description: "Validate role contract schema and consistency", inputSchema: { type: "object", properties: { project_root: { type: "string" }, role_id: { type: "string", description: "Role ID to validate (or 'all')" } }, required: ["role_id"] } },
     ],
   }));
 
@@ -411,6 +417,116 @@ export function registerTools(server: Server): void {
 
           const markdown = toMarkdown(packet);
           return textReply(markdown);
+        }
+
+        // ── T-0005 升级新增工具 ──
+
+        case "loop_init_extended": {
+          const loopMode = (args?.loop_mode as "FULL" | "STANDARD") || "FULL";
+          const state = await initProjectExtended(root, (args?.project_name as string) ?? "unnamed", loopMode);
+          return textReply(
+            `Project initialized (EXTENDED 12-phase):\n` +
+            `  Name: ${state.project_name}\n` +
+            `  Phase: ${state.current_phase}\n` +
+            `  Gate: ${state.current_gate_id}\n` +
+            `  Loop Mode: ${state.loop_mode}\n` +
+            `  Phases: ${state.phases.length}`
+          );
+        }
+
+        case "loop_phase_roles": {
+          const phaseId = args?.phase_id as string | undefined;
+          if (phaseId) {
+            const mapping = PHASE_ROLE_MAP[phaseId];
+            if (!mapping) return textReply(`Unknown phase: ${phaseId}. Available: ${Object.keys(PHASE_ROLE_MAP).join(", ")}`);
+            return textReply(JSON.stringify({ phase_id: phaseId, ...mapping }, null, 2));
+          }
+          return textReply(JSON.stringify(PHASE_ROLE_MAP, null, 2));
+        }
+
+        case "loop_dependency_analysis": {
+          const { readdirSync, readFileSync, existsSync } = await import("node:fs");
+          const entryDir = (args?.entry_dir as string) || "src";
+          const srcPath = join(root, entryDir);
+          if (!existsSync(srcPath)) return textReply(`Directory not found: ${entryDir}`);
+
+          // Simple import graph analysis
+          const files = readdirSync(srcPath, { recursive: true }) as string[];
+          const tsFiles = files.filter(f => String(f).endsWith(".ts") && !String(f).endsWith(".d.ts"));
+          const graph: Record<string, string[]> = {};
+          const cycles: string[][] = [];
+
+          for (const file of tsFiles) {
+            const filePath = join(srcPath, String(file));
+            const content = readFileSync(filePath, "utf-8");
+            const imports = [...content.matchAll(/from\s+["'](.+?)["']/g)].map(m => m[1]);
+            graph[String(file)] = imports.filter(i => i.startsWith("."));
+          }
+
+          // Detect circular dependencies (simple DFS)
+          const visited = new Set<string>();
+          const inStack = new Set<string>();
+          function dfs(node: string, path: string[]): void {
+            if (inStack.has(node)) {
+              const cycleStart = path.indexOf(node);
+              cycles.push(path.slice(cycleStart).concat(node));
+              return;
+            }
+            if (visited.has(node)) return;
+            visited.add(node);
+            inStack.add(node);
+            path.push(node);
+            for (const dep of graph[node] || []) {
+              const resolved = dep.replace(/^\.\//, "").replace(/\.js$/, ".ts");
+              if (graph[resolved] !== undefined) dfs(resolved, [...path]);
+            }
+            inStack.delete(node);
+          }
+          for (const file of Object.keys(graph)) dfs(file, []);
+
+          return textReply(JSON.stringify({
+            entry_dir: entryDir,
+            total_files: tsFiles.length,
+            modules: Object.keys(graph).length,
+            circular_dependencies: cycles,
+            status: cycles.length === 0 ? "HEALTHY" : "WARNING",
+          }, null, 2));
+        }
+
+        case "loop_contract_validate": {
+          const { readFileSync, readdirSync, existsSync } = await import("node:fs");
+          const { parseDocument } = await import("yaml");
+          const registryDir = join(root, ".ai", "registry");
+          if (!existsSync(registryDir)) return textReply("Registry directory not found: .ai/registry/");
+
+          const roleId = args!.role_id as string;
+          const files = roleId === "all"
+            ? (readdirSync(registryDir) as string[]).filter(f => f.endsWith(".yaml"))
+            : [`${roleId}.yaml`];
+
+          const results: Array<{ role_id: string; valid: boolean; errors: string[] }> = [];
+          const requiredFields = ["role_id", "name", "identity", "fixed_stance", "responsibilities", "prohibitions", "veto_power"];
+
+          for (const file of files) {
+            const filePath = join(registryDir, file);
+            if (!existsSync(filePath)) {
+              results.push({ role_id: file.replace(".yaml", ""), valid: false, errors: ["File not found"] });
+              continue;
+            }
+            const raw = readFileSync(filePath, "utf-8");
+            const contract = parseDocument(raw).toJSON() as Record<string, unknown>;
+            const errors: string[] = [];
+            for (const field of requiredFields) {
+              if (!contract[field]) errors.push(`Missing required field: ${field}`);
+            }
+            results.push({ role_id: (contract.role_id as string) || file.replace(".yaml", ""), valid: errors.length === 0, errors });
+          }
+
+          const allValid = results.every(r => r.valid);
+          return textReply(
+            `Contract validation: ${allValid ? "ALL VALID" : "ISSUES FOUND"}\n` +
+            results.map(r => `  ${r.valid ? "✓" : "✗"} ${r.role_id}${r.errors.length ? ": " + r.errors.join("; ") : ""}`).join("\n")
+          );
         }
 
         default:

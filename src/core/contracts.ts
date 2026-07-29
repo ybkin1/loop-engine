@@ -150,7 +150,50 @@ export class HostAdapterQoder implements IHostAdapter {
 
   // ── Command execution ─────────────────────────────────────────────────
 
+  /**
+   * Whitelist of commands permitted for execution via the adapter.
+   * Only read-only or governance-related commands are allowed.
+   * This prevents shell injection through the adapter interface.
+   */
+  private static readonly COMMAND_WHITELIST = new Set([
+    /^npx\s+tsc\s+--noEmit\b/i,
+    /^npx\s+vitest\s+(run|test)\b/i,
+    /^npx\s+eslint\b/i,
+    /^npm\s+(test|run\s+test|run\s+lint|run\s+build)\b/i,
+    /^git\s+(status|log|diff|show)\b/i,
+    /^node\s+-[ev]\b/i,
+    /^python\d?\s+(-c|-m\s+compileall)\b/i,
+    // Safe read-only commands
+    /^echo\s+/i,
+    /^dir\b/i,
+    /^ls\b/i,
+    /^cat\s+/i,
+    /^type\s+/i,
+    /^where\s+/i,
+    /^which\s+/i,
+    /^whoami\b/i,
+    /^date\b/i,
+    /^Get-ChildItem\b/i,
+    /^Select-String\b/i,
+  ]);
+
   async execute(command: string, cwd?: string): Promise<ExecResult> {
+    const normalizedCmd = command.trim();
+
+    // Reject commands with shell redirection or pipe operators (bypass attempt)
+    if (/\||&|;|>>|>/.test(normalizedCmd) && !/^echo\s+\S+\s*$/.test(normalizedCmd)) {
+      return { exit_code: -1, stdout: "", stderr: `Command rejected by whitelist: redirect/pipe detected in ${normalizedCmd.slice(0, 80)}` };
+    }
+
+    // Command validation — reject any command not matching whitelist patterns
+    let allowed = false;
+    for (const pattern of HostAdapterQoder.COMMAND_WHITELIST) {
+      if (pattern.test(normalizedCmd)) { allowed = true; break; }
+    }
+    if (!allowed) {
+      return { exit_code: -1, stdout: "", stderr: `Command rejected by whitelist: ${normalizedCmd.slice(0, 80)}` };
+    }
+
     try {
       const isWindows = process.platform === "win32";
       const shell = isWindows ? "cmd.exe" : "sh";

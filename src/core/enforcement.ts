@@ -231,7 +231,7 @@ export const HOST_PRESETS: Record<string, HostCapabilities> = {
   qoder: {
     can_intercept_writes: true,     // PreToolUse: gate-guard, path-guard, role-isolation, ledger-guard
     can_intercept_commands: true,   // PreToolUse: gate-guard (Bash matcher)
-    can_isolate_agents: false,      // Skills share same context
+    can_isolate_agents: true,       // Agent tool provides isolated context (P2-B upgrade)
     can_enforce_exit_codes: true,   // PreToolUse exit 2 blocks execution
     has_hooks_api: true,            // 7 hooks in settings.json
   },
