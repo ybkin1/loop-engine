@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0085",
+  "gate_id": "G-T-0085-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-07-31T00:00:00+08:00",
+  "phases_completed": [
+    "C9 classification (237 items)",
+    "C9 import_checker fix (237->0)",
+    "C5 phase-advance wiring",
+    "C10/C11 context activation",
+    "C5 hub defect fix",
+    "constraint matrix (21 tests)"
+  ],
+  "evidence_type": "execution"
+}

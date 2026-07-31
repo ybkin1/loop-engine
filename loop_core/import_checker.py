@@ -61,6 +61,30 @@ except AttributeError:
     })
 
 
+# ── Import name → PyPI distribution name map (T-0085 A2 fix) ────────────────
+# The import name inside `import X` does NOT always equal the declared
+# distribution name. The canonical example is `import yaml` coming from the
+# PyYAML distribution; the same applies to cv2/opencv-python, PIL/Pillow, etc.
+# Without this map the checker flags such imports as undeclared even when the
+# distribution IS declared. Keys and values are stored lowercase.
+IMPORT_NAME_TO_PACKAGE: dict[str, str] = {
+    "yaml": "pyyaml",
+    "cv2": "opencv-python",
+    "pil": "pillow",
+    "sklearn": "scikit-learn",
+    "bs4": "beautifulsoup4",
+    "dateutil": "python-dateutil",
+    "jwt": "pyjwt",
+    "dotenv": "python-dotenv",
+    "zmq": "pyzmq",
+    "skimage": "scikit-image",
+    "crypto": "pycryptodome",
+    "serial": "pyserial",
+    "ruamel": "ruamel.yaml",
+    "yaml_include": "pyyaml-include",
+}
+
+
 # ── Data Classes ────────────────────────────────────────────────────────────
 
 
@@ -113,8 +137,11 @@ class ImportChecker:
     Rules:
         - Stdlib imports (os, sys, pathlib, …) are always valid.
         - Relative imports (``from .module import X``) are always valid.
-        - Project-local imports (top-level matches a directory in scan_paths)
-          are always valid.
+        - Project-local imports (top-level matches a directory or .py file
+          ANYWHERE in the repo, not just at root) are always valid.
+        - Import names are resolved through a known import-name →
+          distribution-name map (e.g. ``yaml`` → ``pyyaml``) before being
+          compared against declared dependencies.
         - All other third-party imports MUST appear in declared dependencies.
 
     Usage::
@@ -279,22 +306,85 @@ class ImportChecker:
         return import_name.split(".")[0]
 
     @staticmethod
+    def _resolve_package_name(top_level: str) -> str:
+        """Map an import name to its canonical PyPI distribution name.
+
+        Returns the lowercase distribution name to compare against declared
+        deps (e.g. ``"yaml"`` -> ``"pyyaml"``, ``"PIL"`` -> ``"pillow"``).
+        Unmapped names are returned lowercased as-is.
+        """
+        return IMPORT_NAME_TO_PACKAGE.get(top_level.lower(), top_level).lower()
+
+    @staticmethod
     def _is_stdlib_module(module_name: str) -> bool:
         """Check if a top-level module name is in the Python standard library."""
         return module_name in _STDLIB_MODULES
 
+    # Project-local module names are computed once per check_directory call
+    # (NOT cached module-wide). A module-level cache keyed by root goes stale
+    # the moment a new .py file/dir is created after the first scan, causing
+    # false-positive "undeclared" flags for brand-new local modules (T-0085
+    # conditional-GO fix). A tree-walk fingerprint cannot avoid the walk, so
+    # the honest design is: one fresh walk per scan, threaded through
+    # _scan_file — correct, and one walk per C9 check instead of one walk per
+    # import statement.
+
     @staticmethod
+    def _collect_local_module_names(root: Path) -> frozenset[str]:
+        """Collect every top-level module name that exists anywhere in-repo.
+
+        Walks the whole project tree (skipping hidden dirs and __pycache__)
+        and collects:
+          - every directory's first path segment (``hooks/scripts/...`` adds
+            ``hooks``; a root-level ``my_package/`` adds ``my_package``)
+          - every ``*.py`` file stem (``archive/lab-candidates/scripts/
+            governor_lib.py`` adds ``governor_lib``)
+
+        This is the T-0085 A3 fix: project-local detection previously only
+        looked directly under root/scan_paths, so any module nested under
+        hooks/, tools/, agents/, scripts/, archive/, ... was falsely flagged
+        as undeclared third-party.
+
+        No module-level cache: the repo tree is walked fresh on every call so
+        files created after a previous scan are recognized (see class note).
+        """
+        names: set[str] = set()
+        try:
+            for dirpath, dirnames, filenames in os.walk(root):
+                dirnames[:] = [
+                    d for d in dirnames
+                    if not d.startswith(".") and d != "__pycache__"
+                ]
+                rel = Path(dirpath).relative_to(root)
+                if rel != Path("."):
+                    names.add(rel.parts[0])
+                for filename in filenames:
+                    if filename.endswith(".py"):
+                        stem = filename[:-3]
+                        names.add(stem)
+                        names.add(stem.lower())
+        except (OSError, ValueError):
+            pass
+        return frozenset(names)
+
+    @classmethod
     def _is_project_local_module(
-        top_level_name: str, root: Path, scan_paths: list[Path],
+        cls, top_level_name: str, root: Path, scan_paths: list[Path],
+        local_module_names: Optional[frozenset[str]] = None,
     ) -> bool:
         """Check if a top-level module name corresponds to a local project package.
 
-        A module is considered project-local if any of these exist directly
-        under the project root or a scan path:
-            - ``<name>/`` directory (with or without __init__.py)
-            - ``<name>.py`` file
+        A module is considered project-local if:
+            1. ``<name>/`` directory or ``<name>.py`` exists directly under
+               the project root or a scan path (original check), OR
+            2. ANY of its top-level segments matches an in-repo top-level
+               directory (hooks/, tools/, agents/, archive/, scripts/, ...),
+               OR a ``<name>.py`` file exists anywhere in-repo (T-0085 A3).
+
+        ``local_module_names`` is the precomputed in-repo name set from
+        ``_collect_local_module_names`` (computed ONCE per check_directory
+        call); when None it is computed here on demand.
         """
-        # Normalize to match file-system names
         normalized = top_level_name.lower()
 
         def _exists_as_local(base: Path) -> bool:
@@ -305,11 +395,14 @@ class ImportChecker:
                 if (pkg_dir / "__init__.py").exists():
                     return True
                 # Check if it's a namespace package (has any .py file inside)
-                for _child in pkg_dir.iterdir():
-                    if _child.suffix == ".py":
-                        return True
-                    if _child.is_dir() and not _child.name.startswith("."):
-                        return True  # nested package, likely a real package
+                try:
+                    for _child in pkg_dir.iterdir():
+                        if _child.suffix == ".py":
+                            return True
+                        if _child.is_dir() and not _child.name.startswith("."):
+                            return True  # nested package, likely a real package
+                except OSError:
+                    pass
                 return False
             # Check as a single-file module
             mod_file = base / f"{top_level_name}.py"
@@ -341,6 +434,13 @@ class ImportChecker:
         if _exists_as_local_lower(root):
             return True
 
+        # T-0085 A3: module exists anywhere in the repo tree (nested dirs,
+        # non-root .py files such as hooks/scripts/hook_common.py).
+        if local_module_names is None:
+            local_module_names = cls._collect_local_module_names(root)
+        if top_level_name in local_module_names or normalized in local_module_names:
+            return True
+
         return False
 
     # ── File Scanning ────────────────────────────────────────────────────
@@ -351,8 +451,18 @@ class ImportChecker:
         declared_deps: set[str],
         root: Path,
         scan_paths: list[Path],
+        local_module_names: Optional[frozenset[str]] = None,
     ) -> tuple[list[ImportViolation], int]:
         """Scan a single Python file for import violations.
+
+        Args:
+            file_path: The .py file to scan.
+            declared_deps: Declared dependency names (lowercase).
+            root: Project root (for project-local detection).
+            scan_paths: Directories considered in-scope.
+            local_module_names: Precomputed in-repo module name set from
+                _collect_local_module_names (computed once per scan so files
+                created after a previous scan are recognized).
 
         Returns:
             Tuple of (violations, total_imports_checked).
@@ -387,11 +497,18 @@ class ImportChecker:
                         continue
 
                     # Project-local imports are always valid
-                    if ImportChecker._is_project_local_module(top_level, root, scan_paths):
+                    if ImportChecker._is_project_local_module(
+                        top_level, root, scan_paths, local_module_names,
+                    ):
                         continue
 
-                    # Check against declared dependencies (case-insensitive)
-                    declared = top_level.lower() in declared_deps
+                    # Check against declared dependencies (case-insensitive,
+                    # resolved through the import-name → distribution-name
+                    # map, e.g. `import yaml` → `pyyaml` — T-0085 A2 fix)
+                    declared = (
+                        top_level.lower() in declared_deps
+                        or ImportChecker._resolve_package_name(top_level) in declared_deps
+                    )
                     if not declared:
                         violations.append(ImportViolation(
                             file_path=str(file_path),
@@ -406,8 +523,15 @@ class ImportChecker:
                 module = node.module
 
                 # Relative imports (from . import X, from ..sibling import Y)
-                if module is None or module.startswith("."):
-                    continue  # always valid
+                # are always valid. T-0085 A1 fix: on Python 3.8+ the AST
+                # strips leading dots — node.module has NO '.' prefix; the
+                # relative depth lives in node.level. Checking
+                # module.startswith(".") was dead code and flagged real
+                # relative imports as undeclared.
+                if node.level > 0:
+                    continue  # always valid (project-local by definition)
+                if module is None:
+                    continue  # `from import X` is invalid syntax; never parsed
 
                 imports_checked += 1
                 top_level = ImportChecker._get_top_level_module(module)
@@ -417,11 +541,18 @@ class ImportChecker:
                     continue
 
                 # Project-local imports are always valid
-                if ImportChecker._is_project_local_module(top_level, root, scan_paths):
+                if ImportChecker._is_project_local_module(
+                    top_level, root, scan_paths, local_module_names,
+                ):
                     continue
 
-                # Check against declared dependencies (case-insensitive)
-                declared = top_level.lower() in declared_deps
+                # Check against declared dependencies (case-insensitive,
+                # resolved through the import-name → distribution-name map,
+                # e.g. `yaml` → `pyyaml` — T-0085 A2 fix)
+                declared = (
+                    top_level.lower() in declared_deps
+                    or ImportChecker._resolve_package_name(top_level) in declared_deps
+                )
                 if not declared:
                     violations.append(ImportViolation(
                         file_path=str(file_path),
@@ -469,6 +600,14 @@ class ImportChecker:
         total_imports = 0
         warnings: list[str] = []
 
+        # Compute the in-repo module name set ONCE per scan (fresh tree
+        # snapshot — no module-level cache, see _collect_local_module_names)
+        # and thread it through every _scan_file call. This both avoids a
+        # full-tree walk per import statement AND guarantees files created
+        # after a previous scan are recognized as project-local (T-0085
+        # conditional-GO fix: the old module-level cache never invalidated).
+        local_module_names = ImportChecker._collect_local_module_names(root)
+
         # Warn if no dependency files were found
         pyproject = root / "pyproject.toml"
         requirements = root / "requirements.txt"
@@ -499,6 +638,7 @@ class ImportChecker:
                         file_path = Path(dirpath) / filename
                         file_violations, file_imports = ImportChecker._scan_file(
                             file_path, declared_deps, root, scan_paths,
+                            local_module_names,
                         )
                         all_violations.extend(file_violations)
                         total_imports += file_imports

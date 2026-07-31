@@ -4103,3 +4103,56 @@ gates:
   - guard death test evidence
   - fail-closed verification evidence
   - acceptance evidence
+
+- id: G-T-0085-REQUIREMENTS
+  task_id: T-0085
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-31T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0085 硬约束内核剩余激活任务需求
+  approval_evidence: .ai/evidence/T-0085/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0085/execution-evidence.json
+  scope: >-
+    T-0085 硬约束内核剩余激活 — C5 阶段推进域激活 + C9 依赖债分类修复 +
+    约束覆盖验证矩阵（C1-C11 触发/放行测试）+ 无约束弱化保证。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0085/
+  high_risk_flags:
+  - C5 激活可能影响阶段推进流程
+  - C9 映射修复需逐项验证避免误判
+  evidence_required:
+  - constraint coverage matrix (C1-C11)
+  - C9 debt classification report
+  - C5 activation tests
+  - full regression results
+  - acceptance evidence

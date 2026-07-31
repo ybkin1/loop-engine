@@ -1,8 +1,8 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0083
-current_gate_id: G-T-0083-REQUIREMENTS
+current_task_id: T-0085
+current_gate_id: G-T-0085-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-07-29T00:00:00+08:00'
 notes:
@@ -19,3 +19,4 @@ notes:
 - "T-0081 completed. State converged for governance takeover. RuntimeController legacy mode confirmed."
 - "T-0082 ACTIVE: Phase 0 baseline audit dispatched to quality-engineer sub-agent. G-T-0082-REQUIREMENTS approved."
 - "T-0082 COMPLETED 2026-07-31: 7阶段治理接管完成，12/12 AC 验收通过，v3.12.22 (1fa9bfc) 提交。下一任务待用户发起。"
+- "T-0083 COMPLETED 2026-07-31: 元治理层完成（调研+差距分析+Guard Health+fail-closed+B1-B7），10/10 AC GO，v3.12.23 (5f7b0c8) 提交。"

@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0085",
+  "gate_id": "G-T-0085-REQUIREMENTS",
+  "gate_type": "user-approval",
+  "status": "approved",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "批准 T-0085 硬约束内核剩余激活任务需求",
+  "recorded_at": "2026-07-31T00:00:00+08:00",
+  "evidence_type": "approval"
+}

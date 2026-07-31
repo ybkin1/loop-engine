@@ -87,6 +87,12 @@ class ConstraintContext(TypedDict, total=False):
     review_status: dict[str, Any]
     evidence_list: list[EvidenceEnvelope]
     current_hashes: dict[str, str]
+    root: Path | str
+    scan_paths: list[Path | str]
+    # C10/C11 are gated on task_id (T-0085 Fix 3: now supplied by
+    # EnforcementHub._build_context from state.current_task_id).
+    task_id: str | None
+    max_files: int
 
 
 class ConstraintID(str, Enum):

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -31,6 +32,8 @@ from loop_core.state_machine import (
     can_approve_gate, can_enter_phase, can_transition_phase,
 )
 from loop_core.router import LoopMode
+
+logger = logging.getLogger(__name__)
 
 
 class StepStatus(str, Enum):
@@ -684,10 +687,63 @@ class PhaseExecutor:
             else:
                 plan.status = StepStatus.COMPLETE
 
+        # Step 6b (T-0085 AC-02): Phase-advance gate — EnforcementHub.
+        # Before persisting the new phase, consult the full hard-constraint
+        # kernel (C5 verification, C1/C2 baselines, C6 review, C8 freshness,
+        # C9 imports, C10/C11) via EnforcementHub.should_allow_phase_advance.
+        # If BLOCKED, return a blocked plan WITHOUT writing .ai/state.yaml —
+        # the phase must not advance. Skipped only in fixture_mode (TEST-ONLY
+        # simulation harness) and reentry (re-running the CURRENT phase is not
+        # an advance). The write path (hooks) is untouched.
+        if not self.fixture_mode and not reentry:
+            gate_allowed, gate_reason = self._check_phase_advance_gate(project_root, phase)
+            if not gate_allowed:
+                logger.warning("PHASE_ADVANCE_BLOCKED: %s", gate_reason)
+                plan.status = StepStatus.BLOCKED
+                plan.steps.append(RoleStep(
+                    role_id="phase-advance-gate",
+                    status=StepStatus.BLOCKED,
+                    verdict=gate_reason,
+                ))
+                return plan  # do NOT persist — state.yaml stays at current phase
+
         # Step 7: Persist state
         self.persist_state(plan, project_root)
 
         return plan
+
+    def _check_phase_advance_gate(
+        self, project_root: Path, target_phase: Phase,
+    ) -> tuple[bool, str]:
+        """T-0085 AC-02: EnforcementHub phase-advance gate.
+
+        Runs the full hard-constraint kernel for the transition
+        (C1/C2/C5/C6/C7/C8/C9/C10/C11 via check_all + transition/entry
+        checks). Fail-closed (T-0083 semantics): if the gate cannot be
+        evaluated at all, phase advance is DENIED unless config.yaml
+        explicitly sets hooks.fail_closed_on_error=false (DEBUG ONLY).
+
+        Returns (allowed, reason).
+        """
+        try:
+            from loop_core.enforcement_hub import EnforcementHub
+            hub = EnforcementHub(project_root)
+            decision = hub.should_allow_phase_advance(target_phase)
+            if decision.allowed:
+                return True, decision.reason
+            return False, decision.reason
+        except Exception as exc:
+            try:
+                from hooks.scripts.hook_common import should_fail_closed
+                fail_closed = should_fail_closed(Path(project_root))
+            except Exception:
+                # T-0083: fail-closed default when the helper is unavailable
+                fail_closed = True
+            if fail_closed:
+                logger.warning("PHASE_ADVANCE_BLOCKED (fail-closed): %s", exc)
+                return False, f"PHASE_ADVANCE_GATE_ERROR (fail-closed): {exc}"
+            logger.warning("[warn] phase-advance gate skipped (fail-open DEBUG): %s", exc)
+            return True, f"phase-advance gate skipped (fail-open DEBUG): {exc}"
 
     def _run_compile_gate_check(self, project_root: Path) -> bool:
         """Run the CompileGate checker on the project's core directories.

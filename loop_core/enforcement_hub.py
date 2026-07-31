@@ -346,12 +346,35 @@ class EnforcementHub:
             "current_hashes": self._compute_evidence_hashes(),
             "root": self._root,
             "scan_paths": [self._root],
+            # T-0085 (Fix 3): check_all gates C10/C11 behind context["task_id"];
+            # without it they returned early in every integration path. Wire
+            # the active task id from state so C10 (contract tests) and C11
+            # (file limit) actually run through should_allow_write /
+            # should_allow_phase_advance. Both are SOFT (WARNING) by default.
+            "task_id": self._read_state().get("current_task_id"),
+            # C11 file limit: project-tunable via state.yaml (max_files key);
+            # default 10. Coerced to int with a fail-safe default so a corrupt
+            # value never disables the check (a bad value keeps the default).
+            "max_files": self._state_max_files(),
         }
         if target_path:
             ctx["target_path"] = target_path
         if allowed_paths is not None:
             ctx["allowed_paths"] = allowed_paths
         return ctx
+
+    def _state_max_files(self) -> int:
+        """C11 max_files from state.yaml, fail-safe to the default (10).
+
+        A non-numeric or non-positive value keeps the default — a corrupt
+        value must never silently disable the file-limit check.
+        """
+        raw = self._read_state().get("max_files", 10)
+        try:
+            value = int(raw)
+        except (TypeError, ValueError):
+            return 10
+        return value if value > 0 else 10
 
     def _load_quality_results(self) -> dict[str, Any]:
         ed = self._root / ".ai" / "evidence"
@@ -527,8 +550,18 @@ class EnforcementHub:
         ha = any(t.get("status") in ("active", "in_progress") for t in tasks)
         # Build context early — used by compile check and check_all below
         ctx = self._build_context(target_phase=target_phase)
+        qr = ctx.get("quality_results", {})
         # Check compile evidence from quality results
-        compile_ok = ctx.get("quality_results", {}).get("compile", "") == "PASS"
+        compile_ok = qr.get("compile", "") == "PASS"
+        # T-0085 C5 hub fix: deterministic verification (tests/lint/build all
+        # PASS) for the S6 phase-constraint 'C5-no-verification'. Mirrors the
+        # check_c5_verification kernel semantics exactly (hard_constraints.py):
+        # ALL of test/lint/build must equal "PASS" — any missing or non-PASS
+        # evidence fails closed (verification_passed=False) and blocks.
+        verification_passed = all(
+            qr.get(check_name) == "PASS"
+            for check_name in ("test", "lint", "build")
+        )
 
         # Determine whether user gate is required and satisfied for this phase
         user_gate_approved = None  # None = not applicable
@@ -537,6 +570,7 @@ class EnforcementHub:
 
         pc = check_phase_constraints(target_phase, approved, task_has_active=ha,
                                       compile_passed=compile_ok,
+                                      verification_passed=verification_passed,
                                       user_gate_approved=user_gate_approved)
         if not pc.allowed:
             for err in pc.errors:
@@ -546,15 +580,31 @@ class EnforcementHub:
                     detail="Phase constraint not satisfied",
                     remediation="Satisfy required constraints.",
                 ))
-        # C9: Import validity check — enforced on S4→S5 transition
-        if cp == Phase.S4_IMPLEMENTATION and target_phase == Phase.S5_QUALITY:
-            c9_violations = self._hc.check_c9_import_validity(
+        # C9: Import validity check — enforced on S4→S5 transition.
+        # T-0085 conditional-GO fix (C9 dedup): the explicit branch below runs
+        # the kernel check, but check_all ALSO runs C9 whenever
+        # context.current_phase is S4/S5 (hard_constraints.py check_all) — so
+        # the same undeclared import would otherwise be reported TWICE and
+        # blocker_count doubled (over-blocking direction). The explicit branch
+        # is the single source of C9 for S4→S5; C9 is dropped from the
+        # check_all aggregation here so each undeclared import produces exactly
+        # ONE C9 violation.
+        ran_explicit_c9 = (
+            cp == Phase.S4_IMPLEMENTATION and target_phase == Phase.S5_QUALITY
+        )
+        if ran_explicit_c9:
+            violations.extend(self._hc.check_c9_import_validity(
                 root=self._root,
                 scan_paths=[self._root],
-            )
-            violations.extend(c9_violations)
+            ))
 
-        violations.extend(self._hc.check_all(ctx).violations)
+        check_all_violations = self._hc.check_all(ctx).violations
+        if ran_explicit_c9:
+            check_all_violations = [
+                v for v in check_all_violations
+                if v.constraint_id != ConstraintID.C9_IMPORT_NOT_DECLARED
+            ]
+        violations.extend(check_all_violations)
         bc = sum(1 for v in violations if v.severity == Severity.BLOCKER)
         if bc > 0:
             msgs = [v.message for v in violations if v.severity == Severity.BLOCKER]

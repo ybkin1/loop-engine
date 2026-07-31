@@ -1,0 +1,1187 @@
+[
+ {
+  "module": "yaml",
+  "file": "agents\\quality-engineer\\scripts\\run_quality_gates.py",
+  "line": null
+ },
+ {
+  "module": "check_thresholds",
+  "file": "agents\\quality-engineer\\scripts\\run_quality_gates.py",
+  "line": null
+ },
+ {
+  "module": "continuity_auditor",
+  "file": "archive\\lab-candidates\\scripts\\audit_handoff.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\audit_handoff.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\authority_records.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "archive\\lab-candidates\\scripts\\close_session.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\close_session.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\close_session.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+  "line": null
+ },
+ {
+  "module": "transaction_registry",
+  "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "archive\\lab-candidates\\scripts\\continuity_producer.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\continuity_producer.py",
+  "line": null
+ },
+ {
+  "module": "transaction_registry",
+  "file": "archive\\lab-candidates\\scripts\\continuity_producer.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\evidence_manifest.py",
+  "line": null
+ },
+ {
+  "module": "authority_records",
+  "file": "archive\\lab-candidates\\scripts\\governance_action.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\governance_action.py",
+  "line": null
+ },
+ {
+  "module": "validation_runner",
+  "file": "archive\\lab-candidates\\scripts\\governance_action.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "archive\\lab-candidates\\scripts\\governor_lib.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\transaction_registry.py",
+  "line": null
+ },
+ {
+  "module": "continuity_auditor",
+  "file": "archive\\lab-candidates\\scripts\\validate_state.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "archive\\lab-candidates\\scripts\\validate_state.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\validate_state.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "archive\\lab-candidates\\scripts\\validation_runner.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-candidates\\scripts\\validation_runner.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\implementation-backup\\audit_handoff.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\implementation-backup\\close_session.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\implementation-backup\\governor_lib.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0030\\implementation-backup\\validate_state.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\audit_handoff.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\close_session.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\governance_action.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\governor_lib.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\validate_state.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\tests\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\tests\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\tests\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\tests\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\bash_content_guard.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\content_guard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\content_guard.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\gate_guard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\gate_guard.py",
+  "line": null
+ },
+ {
+  "module": "_hook_bash",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "_hook_state",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "_hook_path",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "_hook_config",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "_hook_sync",
+  "file": "hooks\\scripts\\hook_common.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\ledger_guard.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\loop_auto_activate.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\loop_enforcement.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\loop_enforcement.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\loop_enforcement.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\path_guard.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\role_isolation.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\session_brief.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "hooks\\scripts\\template_injector.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\_hook_config.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "hooks\\scripts\\_hook_state.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\context_controller.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\context_loader.py",
+  "line": null
+ },
+ {
+  "module": "enforcement",
+  "file": "loop_core\\contracts.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\contract_verifier.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\enforcement_hub.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\enforcement_hub.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\enforcement_hub.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\executor.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\inbox.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\inbox.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\planner.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\planner.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\projection_engine.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\project_map_schema.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\role_loader.py",
+  "line": null
+ },
+ {
+  "module": "verdicts",
+  "file": "loop_core\\security_scanner.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\state_machine.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\state_machine.py",
+  "line": null
+ },
+ {
+  "module": "verdicts",
+  "file": "loop_core\\static_analyzer.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\status_dashboard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\status_dashboard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\status_dashboard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\task_queue.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_core\\task_queue.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "loop_engine\\adapters\\zcode_adapter.py",
+  "line": null
+ },
+ {
+  "module": "zcode_adapter",
+  "file": "loop_engine\\adapters\\__init__.py",
+  "line": null
+ },
+ {
+  "module": "claude_adapter",
+  "file": "loop_engine\\adapters\\__init__.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\certification_runner.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\certification_runner.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\evidence_chain.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\gen_continuity.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "scripts\\install.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "scripts\\rollback.py",
+  "line": null
+ },
+ {
+  "module": "playwright.sync_api",
+  "file": "scripts\\runtime_delivery_gate.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\task_contract.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "scripts\\upgrade.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "scripts\\role_checkers\\scope_drift_detector.py",
+  "line": null
+ },
+ {
+  "module": "server",
+  "file": "tests\\deep_probe_v35.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\deep_probe_v35.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\deep_probe_v35.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_approval_ledger.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_bash_readonly.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_bypass_matrix.py",
+  "line": null
+ },
+ {
+  "module": "certification_runner",
+  "file": "tests\\test_certification.py",
+  "line": null
+ },
+ {
+  "module": "check_thresholds",
+  "file": "tests\\test_check_thresholds.py",
+  "line": null
+ },
+ {
+  "module": "validate_state",
+  "file": "tests\\test_contract_freshness.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_contract_freshness.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "_hook_path",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "_hook_path",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "_hook_path",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_cross_layer_safety.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_deep_qa_probe.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_enforcement_hub.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_enforcement_hub.py",
+  "line": null
+ },
+ {
+  "module": "gate_guard",
+  "file": "tests\\test_gate_guard_lifecycle.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_governance_consistency.py",
+  "line": null
+ },
+ {
+  "module": "bash_content_guard",
+  "file": "tests\\test_guard_health.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_hook_integration.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_hook_integration.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_hook_integration.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_hook_integration.py",
+  "line": null
+ },
+ {
+  "module": "hook_common",
+  "file": "tests\\test_hook_integration.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_management_roles.py",
+  "line": null
+ },
+ {
+  "module": "loop_enforcement",
+  "file": "tests\\test_mcp_capability.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\test_operations.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_product_layer_integration.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_quality_engineer_role.py",
+  "line": null
+ },
+ {
+  "module": "run_quality_gates",
+  "file": "tests\\test_quality_gates.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_remaining_roles.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_status_dashboard.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_task_queue.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_task_queue.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\test_technical_roles.py",
+  "line": null
+ },
+ {
+  "module": "authority_records",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "authority_records",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "validation_runner",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "validation_runner",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "validation_runner",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "transaction_registry",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "transaction_registry",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "transaction_registry",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "evidence_manifest",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "continuity_producer",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "governor_lib",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "validation_runner",
+  "file": "tests\\lab\\test_project_governor_consistency.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tests\\vertical_slice\\test_vertical_slice.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tools\\loop_vertical_slice.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tools\\mcp_agent_runtime.py",
+  "line": null
+ },
+ {
+  "module": "tool_quality_gates",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_security_scan",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_dependency_analysis",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_contract_validate",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_evidence_chain",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_evidence_chain",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_cost_tracker",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_certify_role",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_governance_status",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_state",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_review_packet",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_audit_log",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_route_intent",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_constraint_check",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_execute_phase",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_execution_log",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_veto_escalate",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_evidence_submit",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_handoff",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "tool_load_context",
+  "file": "tools\\server.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tools\\tool_evidence_chain.py",
+  "line": null
+ },
+ {
+  "module": "yaml",
+  "file": "tools\\tool_load_context.py",
+  "line": null
+ }
+]

@@ -1,0 +1,178 @@
+{
+ "A2-package-name-mapping": {
+  "count": 71,
+  "examples": [
+   {
+    "file": "agents\\quality-engineer\\scripts\\run_quality_gates.py",
+    "line": 235,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\governor_lib.py",
+    "line": 166,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "archive\\lab-evidence\\evidence\\T-0030\\implementation-backup\\governor_lib.py",
+    "line": 90,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "archive\\lab-evidence\\evidence\\T-0036\\repair-preimages\\scripts\\governor_lib.py",
+    "line": 694,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\content_guard.py",
+    "line": 328,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\gate_guard.py",
+    "line": 62,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\hook_common.py",
+    "line": 23,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\loop_enforcement.py",
+    "line": 808,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\_hook_config.py",
+    "line": 16,
+    "import": "yaml",
+    "top": "yaml"
+   },
+   {
+    "file": "hooks\\scripts\\_hook_state.py",
+    "line": 23,
+    "import": "yaml",
+    "top": "yaml"
+   }
+  ]
+ },
+ "A3-nested-project-local": {
+  "count": 160,
+  "examples": [
+   {
+    "file": "agents\\quality-engineer\\scripts\\run_quality_gates.py",
+    "line": 550,
+    "import": "check_thresholds",
+    "top": "check_thresholds"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\audit_handoff.py",
+    "line": 8,
+    "import": "continuity_auditor",
+    "top": "continuity_auditor"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\audit_handoff.py",
+    "line": 9,
+    "import": "governor_lib",
+    "top": "governor_lib"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\authority_records.py",
+    "line": 6,
+    "import": "governor_lib",
+    "top": "governor_lib"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\close_session.py",
+    "line": 8,
+    "import": "continuity_producer",
+    "top": "continuity_producer"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\close_session.py",
+    "line": 9,
+    "import": "governor_lib",
+    "top": "governor_lib"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\close_session.py",
+    "line": 24,
+    "import": "governor_lib",
+    "top": "governor_lib"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+    "line": 6,
+    "import": "evidence_manifest",
+    "top": "evidence_manifest"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+    "line": 7,
+    "import": "governor_lib",
+    "top": "governor_lib"
+   },
+   {
+    "file": "archive\\lab-candidates\\scripts\\continuity_auditor.py",
+    "line": 8,
+    "import": "transaction_registry",
+    "top": "transaction_registry"
+   }
+  ]
+ },
+ "A1-relative-import-bug": {
+  "count": 5,
+  "examples": [
+   {
+    "file": "loop_core\\contracts.py",
+    "line": 35,
+    "import": "enforcement",
+    "top": "enforcement"
+   },
+   {
+    "file": "loop_core\\security_scanner.py",
+    "line": 26,
+    "import": "verdicts",
+    "top": "verdicts"
+   },
+   {
+    "file": "loop_core\\static_analyzer.py",
+    "line": 25,
+    "import": "verdicts",
+    "top": "verdicts"
+   },
+   {
+    "file": "loop_engine\\adapters\\__init__.py",
+    "line": 4,
+    "import": "zcode_adapter",
+    "top": "zcode_adapter"
+   },
+   {
+    "file": "loop_engine\\adapters\\__init__.py",
+    "line": 5,
+    "import": "claude_adapter",
+    "top": "claude_adapter"
+   }
+  ]
+ },
+ "C-optional-lazy-thirdparty": {
+  "count": 1,
+  "examples": [
+   {
+    "file": "scripts\\runtime_delivery_gate.py",
+    "line": 357,
+    "import": "playwright.sync_api",
+    "top": "playwright"
+   }
+  ]
+ }
+}

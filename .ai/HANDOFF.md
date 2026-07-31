@@ -1,6 +1,6 @@
 # Handoff
 
-> **T-0083 ACTIVE. 真实工程实践调研 + 差距分析完成。元治理层实施中（Guard Health Check + fail-closed 默认化）。**
+> **T-0085 ACTIVE. 硬约束内核剩余激活：C9 237->0 + C5 阶段推进接线 + 约束矩阵 21 测试. 真实工程实践调研 + 差距分析完成。元治理层实施中（Guard Health Check + fail-closed 默认化）。**
 
 > **权威层级**: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md
 > HANDOFF 是连续性辅助信息，不得重新定义状态。所有状态以机器可读文件为准。
@@ -27,7 +27,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "81399E8F43E12076ABCBFD6DEE5E625F07D95C7717DEFB858A570E2281F78F3E",
+  "persisted_file_sha256": "71D8118121FC81A0783AC0DC09619DE308E79B939558722D485E0F8EBBA430D9",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -71,7 +71,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "9ACCECEE3A289D28C8BD0D2E416E3C766A137DEEBF0C7404BB9EA63B2C04F13D",
+  "source_sha256": "6FDB66C6AE8463FA0BC134F2FE8C89D7E2A8262F595D4F478FC10B38F938533F",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -94,7 +94,7 @@
 S1-requirements (T-0083: 真实工程实践调研 + 差距分析完成，元治理层实施中)
 
 ## Current Task
-
+T-0085
 T-0083
 
 Status: `in_progress`
@@ -110,7 +110,7 @@ T-0083 scope: Loop 元治理层 — 真实工程实践对标 + Guard Health Chec
 **T-0082: completed** -- Governance takeover (RuntimeController, quality chain, role isolation, side-effect auth, quality gates, acceptance); 12/12 AC passed, v3.12.22 (1fa9bfc) committed
 
 ## Current Gate
-
+G-T-0085-REQUIREMENTS
 G-T-0083-REQUIREMENTS
 
 Status: `approved`
@@ -190,7 +190,7 @@ However, harness-agentic host-level enforcement is still pending as a SEPARATE p
 2. loop-engine + harness-agentic integration is verified
 3. User approves the final host takeover gate
 
-**Final verdict: T-0078, T-0079, T-0080, T-0081, T-0082 COMPLETED. T-0083 ACTIVE. Host-level takeover blocked on harness-agentic (separate project).**
+**Final verdict: T-0078, T-0079, T-0080, T-0081, T-0082 COMPLETED. T-0085 ACTIVE. 硬约束内核剩余激活：C9 237->0 + C5 阶段推进接线 + 约束矩阵 21 测试. Host-level takeover blocked on harness-agentic (separate project).**
 
 Do NOT claim "Loop has fully taken over" without harness-agentic verification.
 
@@ -215,7 +215,7 @@ Continue T-0083 元治理层实施：Guard Health Check 常态化 + fail-closed 
 
 Use $project-governor, validate structured state, and continue only inside the approved scope.
 
-提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。T-0083 ACTIVE. 真实工程实践调研 + 差距分析完成；元治理层实施中（Guard Health Check + fail-closed 默认化 + 自举审计回路）。
+提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。T-0085 ACTIVE. 硬约束内核剩余激活：C9 237->0 + C5 阶段推进接线 + 约束矩阵 21 测试. 真实工程实践调研 + 差距分析完成；元治理层实施中（Guard Health Check + fail-closed 默认化 + 自举审计回路）。
 
 ## Structured Lifecycle
 
@@ -251,10 +251,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0083-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0085-REQUIREMENTS",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0083-REQUIREMENTS",
-  "current_task_id": "T-0083",
+  "current_gate_id": "G-T-0085-REQUIREMENTS",
+  "current_task_id": "T-0085",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",
@@ -268,29 +268,29 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
-  "authority_hash": "65F30EE70940B88B6BFF0AC3675D1160EBB57409625C9EB6BD06FD68E74D028B",
+  "authority_hash": "E0247C33B4A89BD90AFC071A7420B8C6197FF4C541320B71BFD8385CEDA78F1E",
   "blockers": [],
-  "checkpoint_id": "CP-1CEB6811C333BB4257B28552",
+  "checkpoint_id": "CP-32A9EE6D0490AF6C6105CEA8",
   "checkpoint_status": "PENDING_SUCCESSOR_ACK",
   "contract_id": "PCC-2026-07-16-R1",
   "controller_generation": 1,
   "evidence_manifest_hashes": {
-    "file_count": 19,
-    "manifest_file_sha256": "6C566174983D8CCE3802D369A8928865E02C0B57ECEB3FAD9D6ED6E88BA30FD9",
-    "ordered_entries_sha256": "C28C90CB515929F9CD0DF6EF0310E827D1F2E5C35148E5F7EADD2AE9C2A19736",
-    "semantic_sha256": "50B23D7E44F97829A5855904368692895D7241D42A7C045681C9078799B9B112",
-    "total_bytes": 357745
+    "file_count": 14,
+    "manifest_file_sha256": "23286BED3BFD31BDE06DD379A978BEDB0ABDEFCA507769E17341E7BBF003422C",
+    "ordered_entries_sha256": "C0F0ECCDDB56E45FE36902265BDE9D91C825B05A13BAEEA6FA4ADD380F2C159F",
+    "semantic_sha256": "8B997223E58FCAD6BCE7A20269D3F691B539FB4A0B98477995B96B3056425D0E",
+    "total_bytes": 98181
   },
   "fixture_only": false,
   "project_continuity_hashes": {
-    "file_sha256": "81399E8F43E12076ABCBFD6DEE5E625F07D95C7717DEFB858A570E2281F78F3E",
+    "file_sha256": "71D8118121FC81A0783AC0DC09619DE308E79B939558722D485E0F8EBBA430D9",
     "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-    "source_sha256": "9ACCECEE3A289D28C8BD0D2E416E3C766A137DEEBF0C7404BB9EA63B2C04F13D"
+    "source_sha256": "6FDB66C6AE8463FA0BC134F2FE8C89D7E2A8262F595D4F478FC10B38F938533F"
   },
-  "recovered_state_sha256": "8DD1933F681D63AC506C3B9B2C0AFACC6B9F849A33EF3761768793EC6363AFC7",
+  "recovered_state_sha256": "488C23B54B9DAC7EB1602A067B74A7B5101F1B4EB43435EDFECCF627AFCB82B1",
   "requirements_revision": "T-0034-REQ-2026-07-16-R1",
   "schema": "Checkpoint/v1.0",
-  "task_scope_hash": "FCB09756E40064CAC2BC7622475F2D981854C41D2C57978D1401584DC93374F4",
+  "task_scope_hash": "4AE1AB2641DDA8EA7F9487CE0E209AFA5E871E1FACDC90D478E8B86053214F24",
   "transaction_registry_hashes": {
     "checkpoint_semantic_sha256": "5C99D5C2425154741AE25217E824B17AFD734D3AA776286F4ED7A94647901BCE",
     "file_sha256": "0D99CF029CBF0D360725195E8B0825832E019976EEF988A9EFFDD2F7B01301CE",

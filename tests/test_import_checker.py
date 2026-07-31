@@ -525,3 +525,66 @@ class TestEdgeCases:
         # numpy is declared, pandas is not
         assert len(result.violations) == 1
         assert result.violations[0].import_name == "pandas"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Cache freshness (T-0085 conditional-GO item 3)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestLocalModuleCacheFreshness:
+    """The project-local module snapshot must be per-scan, not a module-level
+    cache: files created after the first scan per root must be recognized on
+    the next scan instead of being falsely flagged as undeclared."""
+
+    def test_new_module_created_after_first_scan_is_local(self, temp_project):
+        """Run C9 twice in the same process; a nested .py file created between
+        the runs must be treated as project-local on the second run.
+
+        The module is created NESTED (src/nested/freshmod.py) so detection
+        requires the tree-walk snapshot — the exact code path the old
+        _LOCAL_MODULE_CACHE served with a never-invalidated per-root value.
+        """
+        _write_pyproject(temp_project, dependencies=[])
+        _write_file(temp_project / "src" / "__init__.py", "")
+        _write_file(temp_project / "src" / "main.py", "import freshmod\n")
+
+        # Run 1: freshmod does not exist yet -> undeclared
+        first = ImportChecker.check_directory(
+            root=temp_project,
+            scan_paths=[temp_project / "src"],
+        )
+        assert any(v.import_name == "freshmod" for v in first.violations), \
+            [v.import_name for v in first.violations]
+
+        # Create the module AFTER the first scan (same root, same process)
+        _write_file(temp_project / "src" / "nested" / "freshmod.py", "VALUE = 1\n")
+
+        # Run 2: freshmod must now be recognized as project-local
+        second = ImportChecker.check_directory(
+            root=temp_project,
+            scan_paths=[temp_project / "src"],
+        )
+        assert not any(v.import_name == "freshmod" for v in second.violations), \
+            [v.import_name for v in second.violations]
+
+    def test_new_module_recognized_through_c9_kernel(self, temp_project):
+        """Reviewer probe shape: run the C9 kernel check
+        (HardConstraints.check_c9_import_validity, the entry point
+        EnforcementHub uses) before and after creating a new nested module —
+        the second run must NOT flag it as undeclared."""
+        _write_pyproject(temp_project, dependencies=[])
+        _write_file(temp_project / "src" / "__init__.py", "")
+        _write_file(temp_project / "src" / "app.py", "import newmod\n")
+
+        hc = HardConstraints()
+        first = hc.check_c9_import_validity(
+            root=temp_project, scan_paths=[temp_project / "src"])
+        assert any("newmod" in v.message for v in first), [v.message for v in first]
+
+        _write_file(temp_project / "src" / "sub" / "newmod.py", "VALUE = 1\n")
+
+        second = hc.check_c9_import_validity(
+            root=temp_project, scan_paths=[temp_project / "src"])
+        assert not any("newmod" in v.message for v in second), \
+            [v.message for v in second]

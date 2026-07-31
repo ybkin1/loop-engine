@@ -1,0 +1,102 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0085-C0F0ECCD
+task_id: T-0085
+gate_id: G-T-0085-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0085
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0085/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: E6086CCF179BBF4FCDA1A88552622B1054CC35EA081ABBA678165ACF469D3C69
+  size: 9054
+  mtime_ns: 1785512744724928500
+- path: .ai/evidence/T-0085/acceptance/regression-results.md
+  role: result
+  required: true
+  sha256: 913B1A14AAE6AFDFB8B361EE189BD491B81AAE8AAC0131A0843B88C864342A14
+  size: 7056
+  mtime_ns: 1785512666767463300
+- path: .ai/evidence/T-0085/approval-evidence.json
+  role: result
+  required: true
+  sha256: D18EB915986A25129DADD314D4ACAC82EE4E158600711A6473FD8155D776DD22
+  size: 356
+  mtime_ns: 1785512697698451700
+- path: .ai/evidence/T-0085/c9-debt/c9-buckets.json
+  role: result
+  required: true
+  sha256: D8C7C54CF21A3680FEDDA79F679054AA9B81F32750920C78A50825CF7E1D9542
+  size: 4076
+  mtime_ns: 1785510791503510800
+- path: .ai/evidence/T-0085/c9-debt/c9-classification.md
+  role: result
+  required: true
+  sha256: 8BA0C2B3009329BBD71033D8742B5A632F9351BA7415C67E62ED0F0E1BADFF52
+  size: 7461
+  mtime_ns: 1785510831532613200
+- path: .ai/evidence/T-0085/c9-debt/c9-fix-report.md
+  role: result
+  required: true
+  sha256: 0C2F09D011BF8E6459A885E032D62BEE41E44D52A1E492FEE3989495E0CEADE8
+  size: 9658
+  mtime_ns: 1785511798617694800
+- path: .ai/evidence/T-0085/c9-debt/c9-raw-findings.json
+  role: result
+  required: true
+  sha256: AF55E7C39AE012C59DE755134090CFDDDA034AE2B66BCC16431C0A1B87AF2B51
+  size: 25266
+  mtime_ns: 1785510649633777500
+- path: .ai/evidence/T-0085/c9-debt/classify_c9.py
+  role: result
+  required: true
+  sha256: 4905D79C6AA93DDC2049BAB9F746F4C277EFA9C0750A3751E658D334AD30B577
+  size: 4297
+  mtime_ns: 1785510786701042100
+- path: .ai/evidence/T-0085/commands.md
+  role: result
+  required: true
+  sha256: 482845E491109077E6ED8E5B2E78E63BD2BE8F5280729FFFFDF8A13C3FF8D557
+  size: 3488
+  mtime_ns: 1785512748303208000
+- path: .ai/evidence/T-0085/compile-evidence.json
+  role: result
+  required: true
+  sha256: 79BFB7F52CAD98F01111637A583D880215F547392C9DECBA865EF80D4FE29477
+  size: 181
+  mtime_ns: 1785512602697215800
+- path: .ai/evidence/T-0085/constraint-matrix/c5-activation-point.md
+  role: result
+  required: true
+  sha256: 6259DB50DAE09070A605B54538FF97659AA762025EAC04002CCD0F6D67544AF7
+  size: 8130
+  mtime_ns: 1785511052357865100
+- path: .ai/evidence/T-0085/constraint-matrix/coverage-inventory.md
+  role: result
+  required: true
+  sha256: 1072E36E4790FC0391C0D876DA2A9823B552987FFB0B6CA235ABA7ADA075A70E
+  size: 7349
+  mtime_ns: 1785511031986100000
+- path: .ai/evidence/T-0085/constraint-matrix/phase-advance-matrix.md
+  role: result
+  required: true
+  sha256: 15C25E6438CFF6C22B6F3230B2E0782D2F7E72707CCE2794F5874D3ED8A6B5D8
+  size: 11399
+  mtime_ns: 1785512057645909300
+- path: .ai/evidence/T-0085/execution-evidence.json
+  role: result
+  required: true
+  sha256: 2D880037386A063DA6433E31823A32D9712427F6827F33E3EF9FA8FF4340D2E3
+  size: 410
+  mtime_ns: 1785512697699450300
+file_count: 14
+total_bytes: 98181
+ordered_entries_sha256: C0F0ECCDDB56E45FE36902265BDE9D91C825B05A13BAEEA6FA4ADD380F2C159F
+semantic_sha256: 8B997223E58FCAD6BCE7A20269D3F691B539FB4A0B98477995B96B3056425D0E
+created_at: '2026-07-31T00:00:00+08:00'
+created_by: governance-controller
