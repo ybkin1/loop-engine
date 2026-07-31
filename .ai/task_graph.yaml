@@ -924,8 +924,8 @@ tasks:
   -
     id: T-0085
     title: 硬约束内核剩余激活 — C5 阶段推进域 + C9 依赖债 + 约束覆盖验证
-    phase: S4-implementation
-    status: in_progress
+    phase: S6-delivery
+    status: completed
     description: >-
       C5 验证门阶段推进域激活、C9 依赖债分类修复（237 项）、
       约束覆盖矩阵（C1-C11 触发/放行测试）、硬约束上下文补全。
