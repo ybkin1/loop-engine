@@ -4268,4 +4268,65 @@ gates:
   - requirement registry document
   - full regression results
   - acceptance evidence
+- id: G-T-0088-REQUIREMENTS
+  task_id: T-0088
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0088 需求
+  approval_evidence: .ai/evidence/T-0088/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0088/execution-evidence.json
+  scope: >-
+    T-0088 上下文与路由升级 — U3 context_loader 预算触发压缩 + 层级摘要 +
+    evidence 引用截断修复；U5 intent_router 粘性规则 + 多意图任务帧 + fail-safe
+    降级；U6 human_review_packet resume payload（gate 暂停可恢复上下文）。
+    基于 T-0086 staffdeck-benchmark U3/U5/U6。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0089+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0088/
+  high_risk_flags:
+  - 压缩仅作用于加载视图，不得修改原始证据文件
+  - 路由 fail-safe 降级仅指保持现状，不放松约束裁决
+  evidence_required:
+  - context compression budget-trigger tests
+  - hierarchical summary tests
+  - citation truncation repair tests
+  - router stickiness / task-frames / fail-safe tests
+  - resume payload tests
+  - full regression results
+  - acceptance evidence
 

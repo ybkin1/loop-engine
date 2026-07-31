@@ -9,12 +9,19 @@ can make an informed GO/NOGO decision without asking the AI follow-up questions.
 Referenced by:
 - veto_escalation.py — builds escalation packets from veto conflicts
 - state_machine.py — Phase enum used for phase tagging
+
+U6 (T-0088): when a gate decision is paused, the packet may carry a
+machine-consumable ResumePayload (snapshot + recovery data taken verbatim
+from state.yaml / task_graph.yaml / gates.yaml) so the loop can later
+resume the decision context instead of re-asking. Default behavior is
+unchanged — no payload unless the caller attaches one.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 
 
@@ -63,6 +70,451 @@ class DecisionRequired:
     deadline: Optional[str]    # Suggested decision deadline
 
 
+# ── Resume Payload (U6 — gate pause / machine-resumable context) ──────────
+
+RESUME_PAYLOAD_SCHEMA = "resume_payload"
+RESUME_PAYLOAD_SCHEMA_VERSION = 1
+RESUME_PAYLOAD_PRESENTATION_VERSION = 1
+
+
+class ResumePayloadError(Exception):
+    """Base error for resume-payload build / resume failures.
+
+    Raised when authoritative sources are missing/unparseable or when
+    requested snapshot fields do not match the authoritative state at
+    build time.
+    """
+
+
+class StateDriftError(ResumePayloadError):
+    """Raised when a payload no longer matches the CURRENT authoritative state.
+
+    The machine never guesses: if task / gate / phase do not match the
+    current state.yaml / task_graph.yaml / gates.yaml, resuming is refused
+    with an explicit "状态已漂移" error instead of fabricating a context.
+    """
+
+
+@dataclass
+class DecisionPoint:
+    """The exact decision the user was facing when the gate was paused."""
+    decision_type: str             # PacketType value, e.g. "gate_approval"
+    presentation_version: int      # version of the decision presentation
+    packet_id: str | None = None   # link back to the originating packet
+
+    def to_dict(self) -> dict:
+        return {
+            "decision_type": self.decision_type,
+            "presentation_version": self.presentation_version,
+            "packet_id": self.packet_id,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> DecisionPoint:
+        if not isinstance(data, dict):
+            raise ResumePayloadError(f"invalid decision_point: {data!r}")
+        decision_type = data.get("decision_type")
+        presentation_version = data.get("presentation_version")
+        if not decision_type or not isinstance(presentation_version, int):
+            raise ResumePayloadError(
+                "invalid decision_point: missing 'decision_type' or "
+                "'presentation_version'"
+            )
+        return cls(
+            decision_type=str(decision_type),
+            presentation_version=presentation_version,
+            packet_id=data.get("packet_id"),
+        )
+
+
+@dataclass
+class ResumeSnapshot:
+    """Frozen snapshot of the decision point, captured at gate pause."""
+    task_id: str
+    gate_id: str
+    phase: str
+    decision_point: DecisionPoint
+    context_pointers: list[str] = field(default_factory=list)
+    sources: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return {
+            "task_id": self.task_id,
+            "gate_id": self.gate_id,
+            "phase": self.phase,
+            "decision_point": self.decision_point.to_dict(),
+            "context_pointers": list(self.context_pointers),
+            "sources": dict(self.sources),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> ResumeSnapshot:
+        if not isinstance(data, dict):
+            raise ResumePayloadError(f"invalid snapshot: {data!r}")
+        for required in ("task_id", "gate_id", "phase", "decision_point"):
+            if required not in data:
+                raise ResumePayloadError(f"invalid snapshot: missing '{required}'")
+        return cls(
+            task_id=str(data["task_id"]),
+            gate_id=str(data["gate_id"]),
+            phase=str(data["phase"]),
+            decision_point=DecisionPoint.from_dict(data["decision_point"]),
+            context_pointers=[str(p) for p in data.get("context_pointers", [])],
+            sources=dict(data.get("sources", {})),
+        )
+
+
+@dataclass
+class ResumePayload:
+    """Machine-consumable resume payload attached to a HumanReviewPacket.
+
+    JSON-serializable (to_dict / from_dict / to_json / from_json). Carries
+    a snapshot of the paused decision point plus recovery data taken
+    verbatim from the authoritative state files (state.yaml /
+    task_graph.yaml / gates.yaml) — never fabricated.
+    """
+    schema: str = RESUME_PAYLOAD_SCHEMA
+    schema_version: int = RESUME_PAYLOAD_SCHEMA_VERSION
+    generated_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+    snapshot: ResumeSnapshot | None = None
+    recovery: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return {
+            "schema": self.schema,
+            "schema_version": self.schema_version,
+            "generated_at": self.generated_at,
+            "snapshot": self.snapshot.to_dict() if self.snapshot else None,
+            "recovery": dict(self.recovery),
+        }
+
+    def to_json(self) -> str:
+        import json
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=2)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> ResumePayload:
+        if not isinstance(data, dict):
+            raise ResumePayloadError(f"invalid resume payload: {data!r}")
+        if data.get("schema") != RESUME_PAYLOAD_SCHEMA:
+            raise ResumePayloadError(
+                f"unsupported payload schema: {data.get('schema')!r}"
+            )
+        if data.get("schema_version") != RESUME_PAYLOAD_SCHEMA_VERSION:
+            raise ResumePayloadError(
+                f"unsupported payload schema_version: {data.get('schema_version')!r}"
+            )
+        snapshot = data.get("snapshot")
+        if not isinstance(snapshot, dict):
+            raise ResumePayloadError("invalid resume payload: missing snapshot")
+        return cls(
+            schema=str(data["schema"]),
+            schema_version=int(data["schema_version"]),
+            generated_at=str(data.get("generated_at", "")),
+            snapshot=ResumeSnapshot.from_dict(snapshot),
+            recovery=dict(data.get("recovery", {})),
+        )
+
+    @classmethod
+    def from_json(cls, text: str) -> ResumePayload:
+        import json
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise ResumePayloadError(f"invalid resume payload JSON: {exc}") from exc
+        return cls.from_dict(data)
+
+
+@dataclass
+class ResumeContext:
+    """The resumable decision context returned by resume_from_payload()."""
+    task_id: str
+    gate_id: str
+    phase: str
+    decision_point: DecisionPoint
+    task: dict
+    gate: dict
+    pending_tasks: list[dict]
+    context_pointers: list[str]
+    sources: dict
+    resumed_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+
+
+# ── Resume Payload Build / Resume ─────────────────────────────────────────
+
+
+def _load_authoritative_yaml(project_root: str | Path, filename: str) -> dict:
+    """Load one authoritative governance YAML file; fail-closed on absence."""
+    import yaml
+
+    path = Path(project_root) / ".ai" / filename
+    if not path.exists():
+        raise ResumePayloadError(f"来源文件缺失 (source file missing): {path}")
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except Exception as exc:  # noqa: BLE001 — fail-closed on any parse issue
+        raise ResumePayloadError(
+            f"无法解析来源文件 (unparseable source) {path}: {exc}"
+        ) from exc
+    if not isinstance(data, dict):
+        raise ResumePayloadError(
+            f"来源文件格式错误 (source is not a mapping): {path}"
+        )
+    return data
+
+
+def _find_task(task_graph: dict, task_id: str) -> dict | None:
+    for task in task_graph.get("tasks", []):
+        if isinstance(task, dict) and task.get("id") == task_id:
+            return task
+    return None
+
+
+def _find_gate(gates: dict, gate_id: str) -> dict | None:
+    for gate in gates.get("gates", []):
+        if isinstance(gate, dict) and gate.get("id") == gate_id:
+            return gate
+    return None
+
+
+_TASK_RECOVERY_FIELDS = ("id", "title", "status", "phase", "priority", "note")
+_GATE_RECOVERY_FIELDS = (
+    "id", "task_id", "gate_type", "status", "decision",
+    "recorded_at", "approval_actor", "approval_source", "evidence",
+)
+
+
+def _task_recovery_record(task: dict) -> dict:
+    """Copy the task record verbatim from task_graph.yaml (subset of fields)."""
+    record = {k: task[k] for k in _TASK_RECOVERY_FIELDS if k in task}
+    if "depends_on" in task:
+        record["depends_on"] = list(task["depends_on"])
+    if "gates" in task:
+        record["gates"] = list(task["gates"])
+    return record
+
+
+def _gate_recovery_record(gate: dict) -> dict:
+    """Copy the gate record verbatim from gates.yaml (subset of fields)."""
+    return {k: gate[k] for k in _GATE_RECOVERY_FIELDS if k in gate}
+
+
+def _pending_tasks(task_graph: dict) -> list[dict]:
+    """Tasks not yet completed/blocked, taken verbatim from task_graph.yaml."""
+    pending: list[dict] = []
+    for task in task_graph.get("tasks", []):
+        if not isinstance(task, dict):
+            continue
+        status = str(task.get("status", "")).lower()
+        if status in ("pending", "in_progress", "active"):
+            pending.append({
+                "id": task.get("id"),
+                "title": task.get("title"),
+                "status": task.get("status"),
+                "priority": task.get("priority"),
+            })
+    pending.sort(key=lambda rec: str(rec.get("id") or ""))
+    return pending
+
+
+def build_resume_payload(
+    project_root: str | Path,
+    *,
+    task_id: str,
+    gate_id: str,
+    phase: str,
+    decision_type: str | PacketType,
+    presentation_version: int = RESUME_PAYLOAD_PRESENTATION_VERSION,
+    packet_id: str | None = None,
+) -> ResumePayload:
+    """Build a resume payload from authoritative state — never fabricated.
+
+    Validation performed at build time (fail-closed):
+    - state.yaml / task_graph.yaml / gates.yaml all exist and parse
+    - state.yaml current task / gate / phase match the requested snapshot
+    - task_graph.yaml contains the task
+    - gates.yaml contains the gate, bound to that task
+
+    Raises ResumePayloadError when any validation fails.
+    """
+    root = Path(project_root)
+    state = _load_authoritative_yaml(root, "state.yaml")
+    task_graph = _load_authoritative_yaml(root, "task_graph.yaml")
+    gates = _load_authoritative_yaml(root, "gates.yaml")
+
+    # state.yaml field consistency — the authoritative pointer must agree
+    actual_task = state.get("current_task_id")
+    actual_gate = state.get("current_gate_id")
+    actual_phase = state.get("current_phase")
+    if actual_task != task_id:
+        raise ResumePayloadError(
+            f"state.yaml 字段不一致: current_task_id={actual_task!r} "
+            f"!= 请求 {task_id!r}"
+        )
+    if actual_gate != gate_id:
+        raise ResumePayloadError(
+            f"state.yaml 字段不一致: current_gate_id={actual_gate!r} "
+            f"!= 请求 {gate_id!r}"
+        )
+    if actual_phase != phase:
+        raise ResumePayloadError(
+            f"state.yaml 字段不一致: current_phase={actual_phase!r} "
+            f"!= 请求 {phase!r}"
+        )
+
+    # task_graph.yaml consistency
+    task = _find_task(task_graph, task_id)
+    if task is None:
+        raise ResumePayloadError(f"task_graph.yaml 中不存在任务: {task_id}")
+
+    # gates.yaml consistency
+    gate = _find_gate(gates, gate_id)
+    if gate is None:
+        raise ResumePayloadError(f"gates.yaml 中不存在 gate: {gate_id}")
+    if gate.get("task_id") != task_id:
+        raise ResumePayloadError(
+            f"gates.yaml 字段不一致: gate {gate_id} 绑定 task "
+            f"{gate.get('task_id')!r} != 请求 {task_id!r}"
+        )
+
+    decision = DecisionPoint(
+        decision_type=(
+            decision_type.value
+            if isinstance(decision_type, PacketType)
+            else str(decision_type)
+        ),
+        presentation_version=presentation_version,
+        packet_id=packet_id,
+    )
+
+    sources = {
+        "state.yaml": str(root / ".ai" / "state.yaml"),
+        "task_graph.yaml": str(root / ".ai" / "task_graph.yaml"),
+        "gates.yaml": str(root / ".ai" / "gates.yaml"),
+    }
+
+    # Context pointers: the authoritative sources plus task file / evidence
+    # dir — only paths that actually exist are pointed to.
+    context_pointers = list(sources.values())
+    task_file = root / ".ai" / "tasks" / f"{task_id}.md"
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    for pointer in (task_file, evidence_dir):
+        if pointer.exists():
+            context_pointers.append(str(pointer))
+
+    recovery = {
+        "task": _task_recovery_record(task),
+        "gate": _gate_recovery_record(gate),
+        "phase": phase,
+        "pending_tasks": _pending_tasks(task_graph),
+    }
+
+    return ResumePayload(
+        snapshot=ResumeSnapshot(
+            task_id=task_id,
+            gate_id=gate_id,
+            phase=phase,
+            decision_point=decision,
+            context_pointers=context_pointers,
+            sources=sources,
+        ),
+        recovery=recovery,
+    )
+
+
+def resume_from_payload(
+    payload: ResumePayload | dict,
+    project_root: str | Path,
+) -> ResumeContext:
+    """Resume a paused decision context from its resume payload.
+
+    Verifies the payload against the CURRENT authoritative state:
+    - state.yaml current task / gate / phase must match the payload snapshot
+    - the task must still exist in task_graph.yaml
+    - the gate must still exist, be bound to the task, and still be
+      awaiting a decision (status == "pending")
+
+    Any mismatch raises StateDriftError (状态已漂移) — the machine never
+    guesses. Returns a ResumeContext with recovery data refreshed from the
+    current authoritative state.
+    """
+    if isinstance(payload, dict):
+        payload = ResumePayload.from_dict(payload)
+    if not isinstance(payload, ResumePayload):
+        raise ResumePayloadError(f"无效 resume payload: {type(payload).__name__}")
+    if payload.snapshot is None:
+        raise ResumePayloadError("无效 resume payload: 缺少 snapshot")
+
+    root = Path(project_root)
+    snap = payload.snapshot
+    state = _load_authoritative_yaml(root, "state.yaml")
+    task_graph = _load_authoritative_yaml(root, "task_graph.yaml")
+    gates = _load_authoritative_yaml(root, "gates.yaml")
+
+    # 1. state.yaml drift checks — task / gate / phase
+    actual_task = state.get("current_task_id")
+    actual_gate = state.get("current_gate_id")
+    actual_phase = state.get("current_phase")
+    if actual_task != snap.task_id:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): state.yaml current_task_id="
+            f"{actual_task!r} != payload task_id={snap.task_id!r} — 无法恢复，不猜测"
+        )
+    if actual_gate != snap.gate_id:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): state.yaml current_gate_id="
+            f"{actual_gate!r} != payload gate_id={snap.gate_id!r} — 无法恢复，不猜测"
+        )
+    if actual_phase != snap.phase:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): state.yaml current_phase="
+            f"{actual_phase!r} != payload phase={snap.phase!r} — 无法恢复，不猜测"
+        )
+
+    # 2. the task must still exist
+    task = _find_task(task_graph, snap.task_id)
+    if task is None:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): task_graph.yaml 中已不存在任务 "
+            f"{snap.task_id} — 无法恢复"
+        )
+
+    # 3. the gate must still exist, be bound to the task, and still be pending
+    gate = _find_gate(gates, snap.gate_id)
+    if gate is None:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): gates.yaml 中已不存在 gate "
+            f"{snap.gate_id} — 无法恢复"
+        )
+    if gate.get("task_id") != snap.task_id:
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): gate {snap.gate_id} 现绑定 task "
+            f"{gate.get('task_id')!r} != payload task_id={snap.task_id!r} — 无法恢复"
+        )
+    if str(gate.get("status", "")).lower() != "pending":
+        raise StateDriftError(
+            f"状态已漂移 (STATE_DRIFT): gate {snap.gate_id} 已裁决 "
+            f"(status={gate.get('status')!r}) — 决策已完成，无需恢复"
+        )
+
+    return ResumeContext(
+        task_id=snap.task_id,
+        gate_id=snap.gate_id,
+        phase=snap.phase,
+        decision_point=snap.decision_point,
+        task=_task_recovery_record(task),
+        gate=_gate_recovery_record(gate),
+        pending_tasks=_pending_tasks(task_graph),
+        context_pointers=list(snap.context_pointers),
+        sources=dict(snap.sources),
+    )
+
+
 # ── Main Packet ────────────────────────────────────────────────────────────
 
 
@@ -97,6 +549,10 @@ class HumanReviewPacket:
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
     expires_at: str = ""
+
+    # Machine continuity (U6): optional resume payload attached at gate
+    # pause. Default None — the human-facing packet is unchanged.
+    resume_payload: ResumePayload | None = None
 
     # ── Output Methods ──────────────────────────────────────────────────
 
@@ -417,6 +873,7 @@ class HumanReviewPacketBuilder:
         artifacts: dict,
         review_results: dict,
         quality_report: dict,
+        resume_payload: ResumePayload | None = None,
     ) -> HumanReviewPacket:
         """Build a gate-approval packet from phase-completion data.
 
@@ -426,6 +883,9 @@ class HumanReviewPacketBuilder:
             artifacts: Dict of artifact_name -> description for this phase.
             review_results: Dict of reviewer_role -> verdict summary.
             quality_report: Dict with keys like "pass", "checks", "warnings".
+            resume_payload: Optional ResumePayload (U6) attached for machine
+                            resumability after a pause decision. Default None
+                            keeps the packet fully backward compatible.
 
         Returns:
             A HumanReviewPacket ready to present to the user.
@@ -549,12 +1009,14 @@ class HumanReviewPacketBuilder:
             who_reviewed=who_reviewed,
             vetoes=[],
             expires_at=expires,
+            resume_payload=resume_payload,
         )
 
     @staticmethod
     def from_veto_escalation(
         vetoes: list,
         task_id: str,
+        resume_payload: ResumePayload | None = None,
     ) -> HumanReviewPacket:
         """Build a veto-escalation packet when reviewers disagree.
 
@@ -562,6 +1024,8 @@ class HumanReviewPacketBuilder:
             vetoes: List of veto records, each a dict with keys like
                     "vetoed_by", "reason", "phase", "evidence".
             task_id: The task being blocked by the veto.
+            resume_payload: Optional ResumePayload (U6) attached for machine
+                            resumability after a pause decision.
 
         Returns:
             A HumanReviewPacket explaining the deadlock and what the user
@@ -682,6 +1146,7 @@ class HumanReviewPacketBuilder:
             who_reviewed=veto_authors,
             vetoes=veto_reasons,
             expires_at=expires,
+            resume_payload=resume_payload,
         )
 
     @staticmethod

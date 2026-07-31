@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-01T07:18:26.488282+08:00'
+last_handoff_at: '2026-08-01T07:53:34.023479+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -33,3 +33,6 @@ notes:
 - 'T-0087 COMPLETED 2026-08-01: 运行时契约化 — U1 checkers/guards 注册表化（register/seal/快照/fail-closed
   重水合 + guard_health 三类检测）+ U2 vertical_slice 契约平面化（4 平面 golden + 12 需求注册表 + conformance
   门禁），7/7 AC，独立审查 GO，全量 2914 passed。下一任务待用户发起。'
+- 'T-0088 COMPLETED 2026-08-01: 上下文与路由升级 — U3 上下文预算压缩（触发/层级/引用修复）+ U5
+  路由粘性/任务帧/fail-safe + U6 resume payload（漂移 fail-closed），7/7 AC，独立审查 GO，
+  全量 3014 passed。下一任务待用户发起。'

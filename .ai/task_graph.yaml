@@ -958,6 +958,19 @@ tasks:
       - T-0086
     gates:
       - G-T-0087-REQUIREMENTS
+  -
+    id: T-0088
+    title: 上下文与路由升级 — U3 上下文预算压缩 + U5 路由粘性/任务帧 + U6 人工接管 resume
+    phase: S6-delivery
+    status: completed
+    description: >-
+      context_loader 预算触发压缩 + 层级摘要 + evidence 引用截断修复；
+      intent_router 粘性规则 + 多意图任务帧 + fail-safe 降级；
+      human_review_packet resume payload（gate 暂停可恢复上下文）。
+    depends_on:
+      - T-0087
+    gates:
+      - G-T-0088-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -977,3 +990,5 @@ edges:
       to: T-0086
     - from: T-0086
       to: T-0087
+    - from: T-0087
+      to: T-0088

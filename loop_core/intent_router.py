@@ -472,6 +472,34 @@ class IntentRouter:
 
         return result
 
+    def route_upgrade(
+        self,
+        description: str,
+        active_task: ActiveTaskSnapshot | None = None,
+        additional_context: dict | None = None,
+    ) -> RoutedIntent:
+        """U5 upgraded routing: sticky rules + multi-intent task frames.
+
+        When an active task exists (``active_task`` with status
+        active/in_progress) the result sticks to that task's domain
+        (``sticky=True`` + ``sticky_basis``) instead of re-asking what to
+        do; explicit intent-switch or completion signals invalidate the
+        stickiness.  Multiple intents in one input are split into an
+        ordered :class:`TaskFrame` list (main frame = first intent).
+
+        Fail-safe: this method never raises.  Any internal error returns
+        a ``degraded=True`` result that keeps the status quo (continue
+        the active task, or default LIGHTWEIGHT) and guesses no new
+        intents.  The degradation applies to the routing recommendation
+        only — constraint/hook enforcement stays fail-closed.
+        """
+        try:
+            return _route_internal(self, description, active_task, additional_context)
+        except Exception as exc:  # fail-safe: keep status quo, never raise
+            return _degraded_result(
+                description, active_task, f"{type(exc).__name__}: {exc}"
+            )
+
     @staticmethod
     def should_escalate(
         risk_factors: dict[str, bool] | None = None,
@@ -920,4 +948,537 @@ def _analysis_to_profile(analysis: IntentAnalysis) -> ProjectProfile:
         requires_monitoring_rollback=rf.get("requires_monitoring_rollback", False),
         requires_ongoing_iteration=rf.get("requires_ongoing_iteration", False),
         has_high_uncertainty=rf.get("has_high_uncertainty", False),
+    )
+
+
+# ===========================================================================
+# U5 Routing Upgrade (T-0088) — sticky routing + task frames + fail-safe
+#
+# Benchmark source: StaffDeck backend/app/core/router.py (T-0086,
+# staffdeck-benchmark.md U5): "9 决策类型 + 粘性规则（active 技能沿用）+
+# task_frames 单轮多任务编排 + 非法目标降级".
+#
+# This section is purely incremental:
+#   - `IntentRouter.analyze()` / `IntentRouter.route()` / `IntentAnalysis`
+#     are NOT modified (backward compatible).
+#   - New entry points: `IntentRouter.route_upgrade()` (instance),
+#     `route_user_input()` (module-level), `analyse_intent()` (fills the
+#     entry point inbox.py already imports).
+#   - New structures: `ActiveTaskSnapshot`, `TaskFrame`, `RoutedIntent`,
+#     `IntentBrief`.
+#
+# Fail-safe semantics: `route_upgrade()` never raises.  On any internal
+# error it returns a `RoutedIntent(degraded=True)` that keeps the status
+# quo — continue the active task if one exists, otherwise default to
+# LIGHTWEIGHT — and never guesses new intents (task_frames stays empty).
+# This affects ONLY the routing recommendation ("keep current state"): it
+# does not relax any constraint adjudication — hook-level fail-closed
+# enforcement (C1-C11, path/scope/verdict checks) is untouched.
+# ===========================================================================
+
+# Max task frames produced in one round (defensive cap)
+_MAX_TASK_FRAMES: int = 5
+
+# Explicit invalidation conditions for sticky routing: a new-task marker
+# or a task-completion/closure marker overrides the default "continue the
+# active task" behaviour.  Heuristic list — kept explicit and documented.
+INTENT_SWITCH_KEYWORDS: list[str] = [
+    # --- new-task markers ---
+    "new task", "start a new task", "start another task", "another task",
+    "other task", "different task", "separate task", "unrelated task",
+    "next task", "switch task", "switch to",
+    "新任务", "开始新任务", "换个任务", "另一个任务", "其他任务",
+    "别的任务", "下一个任务", "切换任务", "换一个任务", "换一项工作",
+    # --- completion / closure markers ---
+    "task is done", "task is complete", "task done", "task completed",
+    "mark complete", "mark as complete", "mark completed",
+    "mark as completed", "close the task", "close task",
+    "cancel the task", "abort the task",
+    "任务完成", "任务已完成", "任务结束", "结束任务", "关闭任务",
+    "取消任务", "终止任务", "收尾任务", "已完成", "完成了",
+]
+
+_TASK_ID_RE = re.compile(r"\bT-\d{4}\b", re.IGNORECASE)
+
+
+@dataclass
+class ActiveTaskSnapshot:
+    """Immutable snapshot of the active task used for sticky routing.
+
+    Built from state.task_graph.yaml entries via :meth:`from_task` (or
+    directly by callers).  Only the fields the router needs are kept —
+    this is a routing input, not an authority on task state.
+    """
+
+    task_id: str
+    status: str = "active"
+    title: str = ""
+    domain: str = ""
+    description: str = ""
+    loop_mode: LoopMode = LoopMode.LIGHTWEIGHT
+
+    @property
+    def is_active(self) -> bool:
+        """True when the task can still receive work (sticky applies)."""
+        return self.status in ("active", "in_progress", "ACTIVE", "IN_PROGRESS")
+
+    @staticmethod
+    def from_task(task: dict) -> "ActiveTaskSnapshot":
+        """Build a snapshot from a task_graph.yaml task entry (dict).
+
+        Unknown/missing loop_mode falls back to LIGHTWEIGHT; unknown status
+        defaults to "active" (the router never hard-fails on shape drift).
+        """
+        raw_mode = task.get("loop_mode") or task.get("mode")
+        mode = LoopMode.LIGHTWEIGHT
+        if isinstance(raw_mode, str):
+            mode = {m.name: m for m in LoopMode}.get(
+                raw_mode.upper(), LoopMode.LIGHTWEIGHT
+            )
+        return ActiveTaskSnapshot(
+            task_id=str(task.get("id") or task.get("task_id") or ""),
+            status=str(task.get("status") or "active"),
+            title=str(task.get("title") or ""),
+            domain=str(task.get("domain") or ""),
+            description=str(task.get("description") or ""),
+            loop_mode=mode,
+        )
+
+
+@dataclass
+class TaskFrame:
+    """One task frame in a multi-intent round (U5).
+
+    The main frame (``is_main=True``, ``frame_id == 0``) expresses the
+    first intent and carries the sticky target when sticky routing
+    applies.  Follow-up frames are new tasks to orchestrate in order
+    after the main one (their ``task_id`` is None until created).
+
+    The frame shape is compatible with task files / task_graph.yaml
+    entries: see :meth:`to_task_dict`.
+    """
+
+    frame_id: int
+    intent: str
+    task_id: str | None
+    domain: str
+    complexity_score: float
+    recommended_mode: LoopMode
+    change_type: ChangeType
+    confidence: float
+    reasoning: str
+    is_main: bool
+    detected_domains: list[str] = field(default_factory=list)
+    suggested_phases: list[str] = field(default_factory=list)
+
+    def to_task_dict(self) -> dict:
+        """Return a dict compatible with task_graph.yaml task entries.
+
+        Maps task_id/intent/domain/complexity onto the task-file shape
+        (id/title/status/phase/loop_mode + routing estimates).  The
+        ``phase`` follows the change-type entry-phase table used across
+        the codebase.
+        """
+        return {
+            "id": self.task_id,
+            "title": self.intent,
+            "status": "planned",
+            "phase": CHANGE_TYPE_TO_ENTRY_PHASE.get(self.change_type, "S0-init"),
+            "loop_mode": self.recommended_mode.name,
+            "domains": list(self.detected_domains),
+            "complexity_score": round(self.complexity_score, 3),
+        }
+
+
+@dataclass
+class RoutedIntent:
+    """Output of the upgraded routing entry point (U5).
+
+    Backward-compatible core: ``analysis`` is the primary
+    :class:`IntentAnalysis` (frame 0) and ``route_result`` is the
+    canonical :class:`RouteResult` for it — existing callers can keep
+    using those two fields unchanged.
+
+    Incremental fields:
+      - ``sticky`` / ``sticky_basis`` / ``sticky_task_id`` — sticky
+        routing marker + evidence.
+      - ``task_frames`` — ordered frames for multi-intent rounds (main
+        frame first).
+      - ``degraded`` / ``degraded_reason`` — fail-safe degradation flag
+        (keep-status-quo result; no new intents guessed).
+    """
+
+    analysis: IntentAnalysis | None
+    route_result: RouteResult | None
+    sticky: bool = False
+    sticky_basis: str = ""
+    sticky_task_id: str | None = None
+    task_frames: list[TaskFrame] = field(default_factory=list)
+    intents: list[str] = field(default_factory=list)
+    degraded: bool = False
+    degraded_reason: str = ""
+
+    @property
+    def main_frame(self) -> TaskFrame | None:
+        """The main (first) task frame, if any."""
+        return self.task_frames[0] if self.task_frames else None
+
+
+def split_intents(description: str, max_frames: int = _MAX_TASK_FRAMES) -> list[str]:
+    """Heuristically split one user input into multiple intents (U5).
+
+    Conservative, explicit-marker-only splitting (no sentence-level
+    splitting) to avoid fragmenting a single intent into noise:
+
+    - semicolons (``；`` / ``;``)
+    - numbered task lists (``1. ... 2. ...``)
+    - English sequential/additive connectors (``then``, ``after that``,
+      ``afterwards``, ``next``, ``finally``, ``also``, ``additionally``,
+      ``moreover``, ``meanwhile``)
+    - Chinese connectors when preceded by punctuation (``，然后``,
+      ``。接下来``, ``；之后``, ...): ``然后/接下来/之后/接着/其次/再次/
+      最后/同时/另外/此外/除此之外``
+    - a sentence break followed by an action starter (``。新增``,
+      ``。修复``, ``。写``, ...)
+
+    Returns the ordered intents (max ``max_frames``), or ``[]`` for
+    empty/invalid input.
+    """
+    if not isinstance(description, str) or not description.strip():
+        return []
+    parts: list[str] = []
+    for raw in _INTENT_SPLIT_RE.split(description):
+        part = re.sub(r"^\d+\.\s*", "", raw.strip())
+        # Drop leading Chinese connectors left over from a split (e.g. a
+        # segment that began right after a semicolon).
+        part = re.sub(
+            r"^(?:然后|接下来|之后|接着|其次|再次|最后|同时|另外|此外|除此之外)\s*",
+            "", part,
+        )
+        part = part.strip(" \t，。；;,.：:、")
+        if part:
+            parts.append(part)
+        if len(parts) >= max_frames:
+            break
+    return parts
+
+
+# Split markers — see split_intents() docstring.  The Chinese connector
+# branch requires a preceding punctuation char (lookbehind) so phrases
+# like "登录之后" (temporal reference inside one intent) are NOT split;
+# the sentence-break branch uses a zero-width lookahead so the action
+# verb ("新增" in "。新增...") stays attached to the follow-up frame.
+_INTENT_SPLIT_RE = re.compile(
+    r"[；;]"
+    r"|(?:\s+\d+\.\s+)"
+    r"|(?i:\s+(?:then|after\s+that|afterwards|next|finally|also|additionally|moreover|meanwhile)\s*[,，]?\s+)"
+    r"|(?<=[，。；,.;：:、])(?:然后|接下来|之后|接着|其次|再次|最后|同时|另外|此外|除此之外)"
+    r"|(?<=。)(?=新增|添加|加|修复|重构|实现|部署|优化|更新|写|创建|移除|删除|升级|支持|增加|设计)"
+)
+
+
+def detect_intent_switch(description: str) -> tuple[bool, str]:
+    """Detect explicit intent-switch / task-completion signals (U5).
+
+    These are the explicit invalidation conditions for sticky routing:
+    a new-task marker or a completion/closure marker overrides the
+    default "continue the active task" behaviour, allowing the route to
+    cut out of the active task domain.
+
+    Returns ``(switched, reason)``.
+    """
+    desc_lower = description.lower()
+    for kw in INTENT_SWITCH_KEYWORDS:
+        if kw in desc_lower:
+            return True, f"intent-switch marker {kw!r} detected"
+    return False, ""
+
+
+def _other_task_refs(desc_lower: str, active_task_id: str) -> list[str]:
+    """Task ids mentioned in the input that differ from the active task."""
+    seen: list[str] = []
+    for m in _TASK_ID_RE.finditer(desc_lower):
+        tid = m.group(0).upper()
+        if tid != active_task_id.upper() and tid not in seen:
+            seen.append(tid)
+    return seen
+
+
+# Completion/closure verbs used by _active_task_completion_signal()
+_COMPLETION_VERBS: list[str] = [
+    "complete", "completed", "done", "finished", "close", "closed",
+    "abort", "cancel", "canceled", "cancelled",
+    "结束", "完成", "关闭", "取消", "终止", "收尾",
+]
+
+
+def _active_task_completion_signal(desc_lower: str, active_task_id: str) -> str:
+    """Detect "mark <active task> complete"-style closure signals.
+
+    When the active task id is mentioned together with a
+    completion/closure verb in its vicinity (proximity window), the
+    active task is being closed and stickiness must not apply.  Returns
+    the evidence string, or "" when no signal is found.
+    """
+    upper = desc_lower.upper()
+    task_pos = upper.find(active_task_id.upper())
+    if task_pos < 0:
+        return ""
+    window = desc_lower[max(0, task_pos - 20): task_pos + len(active_task_id) + 40]
+    for verb in _COMPLETION_VERBS:
+        if verb in window:
+            return (
+                f"active task {active_task_id} referenced together with "
+                f"completion/closure marker {verb!r}"
+            )
+    return ""
+
+
+def _status_quo_route_result(mode: LoopMode) -> RouteResult:
+    """RouteResult for the fail-safe status-quo path (no intent guessed)."""
+    if mode == LoopMode.LIGHTWEIGHT:
+        return RouteResult(
+            mode=LoopMode.LIGHTWEIGHT,
+            risk_level=RiskLevel.LOW,
+            reason="Fail-safe status quo: keep lightweight routing, no new intent guessed.",
+            recommended_phases=["S0-init", "S4-implementation", "S6-delivery"],
+        )
+    if mode == LoopMode.STANDARD:
+        return RouteResult(
+            mode=LoopMode.STANDARD,
+            risk_level=RiskLevel.MEDIUM,
+            reason="Fail-safe status quo: keep standard routing, no new intent guessed.",
+            recommended_phases=[
+                "S0-init", "S1-requirements", "S2-architecture",
+                "S4-implementation", "S5-quality", "S6-delivery",
+            ],
+        )
+    return RouteResult(
+        mode=LoopMode.FULL,
+        risk_level=RiskLevel.HIGH,
+        reason="Fail-safe status quo: keep full routing, no new intent guessed.",
+        recommended_phases=[
+            "S0-init", "S1-requirements", "S2-architecture", "S3-interface",
+            "S4-implementation", "S5-quality", "S6-delivery",
+            "S7-integration", "S8-functional-test", "S9-fix-optimize",
+            "S10-performance", "S11-maintenance",
+        ],
+    )
+
+
+def _degraded_result(
+    description: str,
+    active_task: ActiveTaskSnapshot | None,
+    reason: str,
+) -> RoutedIntent:
+    """Fail-safe degraded result: keep the status quo, guess nothing new.
+
+    - With an active task → keep routing to that task (sticky) and keep
+      its loop mode.
+    - Without an active task → default LIGHTWEIGHT routing.
+
+    Never raises and never fabricates new intents (``task_frames`` stays
+    empty).  This is a routing-only degradation — constraint adjudication
+    in the hook layer is untouched (fail-closed semantics unchanged).
+    """
+    if active_task is not None and active_task.is_active and active_task.task_id:
+        mode = active_task.loop_mode or LoopMode.LIGHTWEIGHT
+        return RoutedIntent(
+            analysis=None,
+            route_result=_status_quo_route_result(mode),
+            sticky=True,
+            sticky_basis=(
+                f"Fail-safe: keeping active task {active_task.task_id} "
+                f"(routing error: {reason})"
+            ),
+            sticky_task_id=active_task.task_id,
+            task_frames=[],
+            intents=[],
+            degraded=True,
+            degraded_reason=f"Fail-safe degradation — {reason}",
+        )
+    return RoutedIntent(
+        analysis=None,
+        route_result=_status_quo_route_result(LoopMode.LIGHTWEIGHT),
+        sticky=False,
+        sticky_basis="",
+        sticky_task_id=None,
+        task_frames=[],
+        intents=[],
+        degraded=True,
+        degraded_reason=f"Fail-safe degradation — {reason}",
+    )
+
+
+def _route_internal(
+    router: IntentRouter,
+    description: str,
+    active_task: ActiveTaskSnapshot | None,
+    additional_context: dict | None,
+) -> RoutedIntent:
+    """Core U5 routing logic; exceptions propagate to the fail-safe caller."""
+    if not isinstance(description, str):
+        raise TypeError(
+            f"description must be a str, got {type(description).__name__}"
+        )
+
+    desc_lower = description.lower()
+
+    # ---- sticky decision ------------------------------------------------
+    switched, switch_reason = detect_intent_switch(desc_lower)
+    if not switched and active_task is not None and active_task.task_id:
+        other_ids = _other_task_refs(desc_lower, active_task.task_id)
+        if other_ids:
+            switched = True
+            switch_reason = (
+                "description references a different task id "
+                f"({', '.join(other_ids)})"
+            )
+        else:
+            completion_reason = _active_task_completion_signal(
+                desc_lower, active_task.task_id
+            )
+            if completion_reason:
+                switched = True
+                switch_reason = completion_reason
+
+    sticky = False
+    sticky_basis = ""
+    sticky_task_id: str | None = None
+    if active_task is not None and active_task.task_id:
+        if active_task.is_active and not switched:
+            sticky = True
+            sticky_task_id = active_task.task_id
+            sticky_basis = (
+                f"Active task {active_task.task_id} (status={active_task.status}) "
+                "— continuing its domain without re-asking what to do"
+            )
+        elif not active_task.is_active:
+            sticky_basis = (
+                f"Sticky not applied: task {active_task.task_id} status="
+                f"{active_task.status!r} is not active "
+                "(completion/closure invalidates stickiness)"
+            )
+        else:
+            sticky_basis = f"Sticky invalidated: {switch_reason}"
+
+    # ---- multi-intent frame split --------------------------------------
+    intents = split_intents(description, max_frames=_MAX_TASK_FRAMES)
+    if not intents:
+        intents = [description]
+
+    frames: list[TaskFrame] = []
+    primary_analysis: IntentAnalysis | None = None
+    primary_route: RouteResult | None = None
+
+    for idx, intent in enumerate(intents):
+        analysis = router.analyze(intent, additional_context)
+        if idx == 0:
+            primary_analysis = analysis
+            primary_route = router.route(analysis)
+
+        if idx == 0 and sticky:
+            frame_task_id: str | None = sticky_task_id
+        else:
+            frame_task_id = None  # follow-up frames are new tasks
+        if idx == 0 and sticky and active_task is not None and active_task.domain:
+            domain: str = active_task.domain
+        else:
+            domain = analysis.detected_domains[0] if analysis.detected_domains else "unknown"
+
+        frames.append(
+            TaskFrame(
+                frame_id=idx,
+                intent=intent,
+                task_id=frame_task_id,
+                domain=domain,
+                complexity_score=analysis.complexity_score,
+                recommended_mode=analysis.recommended_mode,
+                change_type=analysis.change_type,
+                confidence=analysis.confidence,
+                reasoning=analysis.reasoning,
+                is_main=(idx == 0),
+                detected_domains=list(analysis.detected_domains),
+                suggested_phases=list(analysis.suggested_phases),
+            )
+        )
+
+    return RoutedIntent(
+        analysis=primary_analysis,
+        route_result=primary_route,
+        sticky=sticky,
+        sticky_basis=sticky_basis,
+        sticky_task_id=sticky_task_id,
+        task_frames=frames,
+        intents=intents,
+        degraded=False,
+        degraded_reason="",
+    )
+
+
+@dataclass
+class IntentBrief:
+    """Lightweight analysis summary for inbox integration (U5 back-compat).
+
+    Provides exactly the two attributes ``loop_core/inbox.py`` consumes:
+    ``domains`` (list[str]) and ``risk_level`` (uppercase name matching
+    the inbox priority mapping: LOW/MEDIUM/HIGH/CRITICAL).
+    """
+
+    domains: list[str]
+    risk_level: str
+    recommended_mode: LoopMode
+
+
+def analyse_intent(description: str) -> IntentBrief:
+    """Analyse a user description and return a lightweight brief.
+
+    Backward-compatibility entry point for ``loop_core/inbox.py``, which
+    already imports ``analyse_intent`` from this module.  Runs the full
+    IntentRouter pipeline and maps the result onto the inbox contract
+    (``domains`` + ``risk_level``).  Never raises: on any failure it
+    returns a MEDIUM-risk empty brief so the inbox keeps working.
+    """
+    try:
+        router = IntentRouter()
+        analysis = router.analyze(description)
+        result = router.route(analysis)
+        return IntentBrief(
+            domains=list(analysis.detected_domains),
+            risk_level=result.risk_level.name,
+            recommended_mode=analysis.recommended_mode,
+        )
+    except Exception:
+        return IntentBrief(
+            domains=[],
+            risk_level="MEDIUM",
+            recommended_mode=LoopMode.STANDARD,
+        )
+
+
+def route_user_input(
+    description: str,
+    active_task: ActiveTaskSnapshot | None = None,
+    additional_context: dict | None = None,
+    router: IntentRouter | None = None,
+) -> RoutedIntent:
+    """Module-level U5 entry point: sticky routing + task frames + fail-safe.
+
+    Parameters:
+        description: Natural-language user input (may contain several
+            intents, which are split into ordered task frames).
+        active_task: Optional :class:`ActiveTaskSnapshot` of the current
+            active task (state.current_task_id + task_graph entry).  When
+            present and active, routing sticks to its domain unless an
+            explicit intent-switch/completion signal invalidates it.
+        additional_context: Passed through to ``analyze()``.
+        router: Optional IntentRouter instance (defaults to a fresh one).
+
+    Returns:
+        :class:`RoutedIntent`.  Never raises: internal failures produce a
+        fail-safe degraded result that keeps the status quo (continue the
+        active task, or default LIGHTWEIGHT) and guesses no new intents.
+    """
+    return (router or IntentRouter()).route_upgrade(
+        description, active_task, additional_context
     )
