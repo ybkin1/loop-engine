@@ -1,4 +1,10 @@
-"""quality_gates_run — Run quality gates (lint/typecheck/test/coverage/audit/build)."""
+"""quality_gates_run — Run quality gates (lint/typecheck/test/coverage/audit/build).
+
+DEPRECATED: This is a thin subprocess wrapper around
+agents/quality-engineer/scripts/run_quality_gates.py. For in-process analysis,
+use loop_core.static_analyzer.analyze_project() directly.
+This wrapper maintained for backward compatibility only.
+"""
 import json
 import subprocess
 import sys

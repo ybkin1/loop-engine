@@ -321,7 +321,22 @@ def check_cross_role_consistency(root: Path) -> list[str]:
 
 def main() -> int:
     args = project_root_arg().parse_args()
-    root = Path(args.project_root).resolve()
+    # Normalize the path defensively: os.path.normpath handles any shell-level
+    # escaping artifacts (e.g. backslash-stripping, colon mangling in MSYS2/Git Bash)
+    # before Path.resolve() canonicalises it into an absolute form.
+    raw = os.path.normpath(args.project_root)
+    root = Path(raw).resolve()
+    # Guard: reject malformed paths that survived argparse but would corrupt
+    # downstream path joins (e.g. double-concatenation when drive letter is lost).
+    if not root.is_absolute():
+        print(f"[error] project_root is not an absolute path: {root}", file=sys.stderr)
+        return 2
+    if not root.is_dir():
+        print(f"[error] project_root is not a directory: {root}", file=sys.stderr)
+        return 2
+    if not (root / ".ai").is_dir():
+        print(f"[error] project_root missing .ai directory — not a Loop governance project: {root}", file=sys.stderr)
+        return 2
     base = ai_dir(root)
     errors = []
 

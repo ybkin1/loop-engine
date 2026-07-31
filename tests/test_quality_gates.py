@@ -86,16 +86,59 @@ class ParseAuditOutputTest(unittest.TestCase):
             }
         }
         raw = json.dumps(data)
-        counts = parse_audit_output(raw, 1, "npm audit --json")
+        counts = parse_audit_output(1, raw)
         self.assertEqual(counts["HIGH"], 1)
         self.assertEqual(counts["CRITICAL"], 1)
+        self.assertTrue(counts["blocked"])
 
     def test_no_vulns(self):
         data = {"vulnerabilities": {}}
         raw = json.dumps(data)
-        counts = parse_audit_output(raw, 0, "npm audit --json")
+        counts = parse_audit_output(0, raw)
         self.assertEqual(counts["HIGH"], 0)
         self.assertEqual(counts["CRITICAL"], 0)
+        self.assertFalse(counts["blocked"])
+
+    def test_pip_audit_json(self):
+        """pip-audit --format json 数组：按 vulnerabilities[].severity 统计。"""
+        raw = json.dumps([
+            {"name": "flask", "version": "2.0.0", "resolved": "2.3.0",
+             "vulnerabilities": [{"id": "PYSEC-0001", "severity": "high"}]},
+            {"name": "requests", "version": "2.25.0", "resolved": "2.31.0",
+             "vulnerabilities": [
+                 {"id": "PYSEC-0002", "severity": "critical"},
+                 {"id": "PYSEC-0003", "severity": "low"},
+             ]},
+            {"name": "urllib3", "version": "1.26.0", "resolved": None, "vulnerabilities": []},
+        ])
+        counts = parse_audit_output(1, raw)
+        self.assertEqual(counts["HIGH"], 1)
+        self.assertEqual(counts["CRITICAL"], 1)
+        self.assertEqual(counts["LOW"], 1)
+        self.assertTrue(counts["blocked"])
+
+    def test_pip_audit_json_clean(self):
+        """pip-audit 无漏洞（空数组 / 全 resolved）→ 不阻断。"""
+        counts = parse_audit_output(0, json.dumps([]))
+        self.assertEqual(counts["HIGH"], 0)
+        self.assertEqual(counts["CRITICAL"], 0)
+        self.assertFalse(counts["blocked"])
+
+    def test_pip_audit_medium_does_not_block(self):
+        """只有 MEDIUM 漏洞 → blocked=False（仅 HIGH/CRITICAL 阻断）。"""
+        raw = json.dumps([
+            {"name": "demo", "version": "1.0", "resolved": None,
+             "vulnerabilities": [{"id": "PYSEC-0009", "severity": "medium"}]},
+        ])
+        counts = parse_audit_output(1, raw)
+        self.assertEqual(counts["MEDIUM"], 1)
+        self.assertFalse(counts["blocked"])
+
+    def test_exit_code_fallback(self):
+        """非 JSON 输出 + 非零退出码 → 保守推断 HIGH。"""
+        counts = parse_audit_output(2, "some plain text error")
+        self.assertGreaterEqual(counts["HIGH"], 1)
+        self.assertTrue(counts["blocked"])
 
 
 class MockRunCheckTest(unittest.TestCase):

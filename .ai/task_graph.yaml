@@ -896,6 +896,19 @@ tasks:
       - .ai/
       - tests/
     note: "Agent() dispatch instructions (no API key) + gate enforces role evidence"
+
+  -
+    id: T-0082
+    title: Loop 工程质量治理与运行时执行接管
+    phase: S1-requirements
+    status: in_progress
+    description: >-
+      RuntimeController 身份/授权/调度链路强化、代码质量执行链、
+      统一报告体系、角色子智能体隔离、分层质量门、副作用权限控制、
+      治理事实源收敛、端到端验收。
+    depends_on: []
+    gates:
+      - G-T-0082-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

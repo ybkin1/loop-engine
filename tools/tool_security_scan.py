@@ -1,4 +1,10 @@
-"""security_scan_run — Run security scan (CVE/secrets/injection/permissions)."""
+"""security_scan_run — Run security scan (CVE/secrets/injection/permissions).
+
+DEPRECATED: This is a thin subprocess wrapper around
+agents/security-engineer/scripts/run_security_scan.py. For in-process scanning,
+use loop_core.security_scanner.scan_security() directly.
+This wrapper maintained for backward compatibility only.
+"""
 import json
 import subprocess
 import sys

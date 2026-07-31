@@ -358,8 +358,11 @@ class PhaseConstraint:
 
     Constraint IDs correspond to the conceptual ConstraintID namespace
     from HardConstraints (see hard_constraints.py for full definitions).
+    T-0082 Phase 5 GAP-5b: 阶段基线约束（S7-S11 前置条件）使用
+    PB-C8..PB-C12 前缀命名，避免与 HardConstraints 的 C8-C11
+    （stale-evidence / import / contract / file-limit）发生 ID 冲突。
     """
-    constraint_id: str          # e.g. "C1-no-requirements"
+    constraint_id: str          # e.g. "C1-no-requirements" / "PB-C8-no-delivery-approval"
     phase: Phase                # The phase this constraint applies to
     description: str
     blocker: bool = True        # True = blocks phase entry; False = warning only
@@ -427,32 +430,32 @@ PHASE_CONSTRAINTS: dict[Phase, list[PhaseConstraint]] = {
     ],
     Phase.S7_INTEGRATION: [
         PhaseConstraint(
-            "C8-no-delivery-approval", Phase.S7_INTEGRATION,
+            "PB-C8-no-delivery-approval", Phase.S7_INTEGRATION,
             "Delivery approval required (S6-delivery gate approved)",
         ),
     ],
     Phase.S8_FUNCTIONAL_TEST: [
         PhaseConstraint(
-            "C9-no-integration", Phase.S8_FUNCTIONAL_TEST,
+            "PB-C9-no-integration", Phase.S8_FUNCTIONAL_TEST,
             "Integration baseline required (S7-integration gate approved)",
         ),
     ],
     Phase.S9_FIX_OPTIMIZE: [
         PhaseConstraint(
-            "C10-no-functional-test", Phase.S9_FIX_OPTIMIZE,
+            "PB-C10-no-functional-test", Phase.S9_FIX_OPTIMIZE,
             "Functional test results required (S8-functional-test gate approved or feedback recorded)",
             blocker=False,  # Fix phase can be entered with warnings from tests
         ),
     ],
     Phase.S10_PERFORMANCE: [
         PhaseConstraint(
-            "C11-no-fix-verification", Phase.S10_PERFORMANCE,
+            "PB-C11-no-fix-verification", Phase.S10_PERFORMANCE,
             "Fix verification required (S9-fix-optimize gate approved)",
         ),
     ],
     Phase.S11_MAINTENANCE: [
         PhaseConstraint(
-            "C12-no-performance-baseline", Phase.S11_MAINTENANCE,
+            "PB-C12-no-performance-baseline", Phase.S11_MAINTENANCE,
             "Performance baseline required (S10-performance gate approved)",
         ),
     ],
@@ -527,17 +530,20 @@ def _check_single_constraint(
     """Evaluate a single constraint against the provided state."""
     cid = constraint.constraint_id
 
-    # Gate-based constraints — map constraint ID to required gate ID pattern
+    # Gate-based constraints — map constraint ID to required gate ID pattern.
+    # T-0082 Phase 5 GAP-5b: 阶段基线约束使用 PB-C8..PB-C12 前缀，
+    # 避免与 HardConstraints 的 C8-C11（stale-evidence / import / contract / file-limit）
+    # 语义冲突。
     gate_constraint_map: dict[str, str] = {
         "C0-no-init":              "S0-init",
         "C1-no-requirements":      "S1-requirements",
         "C2-no-architecture":      "S2-architecture",
         "C4-no-implementation":    "S4-implementation",
-        "C8-no-delivery-approval": "S6-delivery",
-        "C9-no-integration":       "S7-integration",
-        "C10-no-functional-test":  "S8-functional-test",
-        "C11-no-fix-verification": "S9-fix-optimize",
-        "C12-no-performance-baseline": "S10-performance",
+        "PB-C8-no-delivery-approval": "S6-delivery",
+        "PB-C9-no-integration":       "S7-integration",
+        "PB-C10-no-functional-test":  "S8-functional-test",
+        "PB-C11-no-fix-verification": "S9-fix-optimize",
+        "PB-C12-no-performance-baseline": "S10-performance",
     }
 
     if cid in gate_constraint_map:

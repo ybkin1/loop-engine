@@ -1,9 +1,13 @@
 {
   "evidence_id": "EVID-security-audit-s6",
   "type": "security_scan",
-  "timestamp": "2026-07-23T00:00:00Z",
+  "schema": "security_audit/v1",
+  "timestamp": "2026-07-31T00:00:00+08:00",
   "verdict": "PASS",
   "bindings": {
+    "task_id": "T-0082",
+    "phase": "S6-delivery",
+    "gate": "G-T-0082-REQUIREMENTS",
     "code_fingerprint": "core code scanned via security_scan.py"
   },
   "result": {

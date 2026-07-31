@@ -26,6 +26,37 @@ PYTHON = sys.executable
 
 # ── Helpers ───────────────────────────────────────────────────────────
 
+# Minimal loop-governance quality gate config. The enforcement hook
+# (hooks/scripts/loop_enforcement.py, check_phase_gate_enforcement) requires
+# .zcode/skills/loop-governance/config.yaml to exist for S4+ phases, otherwise
+# every write is BLOCKED with "质量门禁配置不存在". Content mirrors the repo's
+# real config (and hook_common.DEFAULT_CONFIG); the hook only checks existence.
+GOVERNANCE_CONFIG_YAML = """\
+# loop-governance behavior config (synthetic test fixture)
+version: 1
+gate_guard:
+  enabled: true
+  fail_on_state_error: closed
+  decision_recording_exempt:
+    - .ai/gates.yaml
+    - .ai/state.yaml
+    - .ai/task_graph.yaml
+    - .ai/project_continuity.yaml
+path_guard:
+  enabled: true
+  decision: ask
+  protected_paths:
+    - AGENTS.md
+    - stable/
+    - registry/
+    - .zcode/config.json
+    - .zcode/tools/
+session_brief:
+  enabled: true
+  max_pending_listed: 10
+"""
+
+
 def _make_project(
     tmp: str,
     state_content: str | None = None,
@@ -36,6 +67,12 @@ def _make_project(
     root = Path(tmp)
     ai_dir = root / ".ai"
     ai_dir.mkdir(parents=True, exist_ok=True)
+
+    # T-0082: the enforcement hook requires the quality gate config to exist
+    # for S4+ phases; without it all writes are BLOCKED.
+    qg_dir = root / ".zcode" / "skills" / "loop-governance"
+    qg_dir.mkdir(parents=True, exist_ok=True)
+    (qg_dir / "config.yaml").write_text(GOVERNANCE_CONFIG_YAML, encoding="utf-8")
 
     if state_content is not None:
         (ai_dir / "state.yaml").write_text(state_content, encoding="utf-8")
@@ -396,6 +433,122 @@ loop_mode: LIGHTWEIGHT
             ctx = out.get("hookSpecificOutput", {}).get("additionalContext", "")
             # Multiple modules + requirements.txt should push to FULL
             self.assertIn("FULL", ctx)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0082 Phase 5: S7-S11 阶段门禁证据 + S5/S6 安全证据
+# ═══════════════════════════════════════════════════════════════════════
+
+STATE_S7 = """\
+schema_version: 1
+project_name: test-s7
+current_phase: S7-integration
+loop_mode: FULL
+current_task_id: T-0001
+"""
+
+STATE_S5 = """\
+schema_version: 1
+project_name: test-s5
+current_phase: S5-quality
+loop_mode: FULL
+current_task_id: T-0001
+"""
+
+QUALITY_REPORT_PASS = """\
+{
+  "schema": "quality_report/v1",
+  "role": "quality-engineer",
+  "overall": "PASS",
+  "checks": []
+}
+"""
+
+SECURITY_AUDIT_PASS = """\
+{
+  "evidence_id": "EVID-security-audit-test",
+  "type": "security_scan",
+  "verdict": "PASS",
+  "bindings": {"task_id": "T-0001", "phase": "S5-quality", "gate": "G-TEST"}
+}
+"""
+
+
+class LoopEnforcementPhaseEvidence(unittest.TestCase):
+    """GAP-2/GAP-3: S7-S11 阶段证据门禁与 S5/S6 安全证据。"""
+
+    def _make_evidence(self, root: Path, rel: str, content: str) -> None:
+        p = root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(content, encoding="utf-8")
+
+    def test_s7_blocks_without_evidence(self):
+        """S7-integration 无阶段证据 → EXIT_BLOCK(2)。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S7, task_files={"T-0001.md": TASK_IN_SCOPE})
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("S7-integration", r.stderr)
+
+    def test_s7_allows_with_evidence(self):
+        """S7-integration 证据 overall=PASS → 范围内写入放行。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S7, task_files={"T-0001.md": TASK_IN_SCOPE})
+            self._make_evidence(
+                root, ".ai/evidence/T-0001/integration-report.json",
+                '{"schema": "integration_report/v1", "overall": "PASS"}',
+            )
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 0, f"expected EXIT_PASS(0). stderr: {r.stderr}")
+
+    def test_s7_integration_dir_variant(self):
+        """S7 备选证据路径 .ai/evidence/integration/integration_report.json 也有效。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S7, task_files={"T-0001.md": TASK_IN_SCOPE})
+            self._make_evidence(
+                root, ".ai/evidence/integration/integration_report.json",
+                '{"overall": "PASS"}',
+            )
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 0, f"expected EXIT_PASS(0). stderr: {r.stderr}")
+
+    def test_s11_blocks_without_evidence(self):
+        """S11-maintenance 无维护报告 → EXIT_BLOCK(2)。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S7.replace("S7-integration", "S11-maintenance"),
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("S11-maintenance", r.stderr)
+
+    def test_s5_blocks_without_security_evidence(self):
+        """S5-quality：质量证据通过但缺少安全审计证据 → EXIT_BLOCK(2)。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S5, task_files={"T-0001.md": TASK_IN_SCOPE})
+            self._make_evidence(root, ".ai/evidence/quality/quality_report.json", QUALITY_REPORT_PASS)
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("安全审计", r.stderr)
+
+    def test_s5_allows_with_security_evidence(self):
+        """S5-quality：质量证据 + 安全审计 verdict=PASS → 放行。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S5, task_files={"T-0001.md": TASK_IN_SCOPE})
+            self._make_evidence(root, ".ai/evidence/quality/quality_report.json", QUALITY_REPORT_PASS)
+            self._make_evidence(root, ".ai/evidence/security/security_audit.json", SECURITY_AUDIT_PASS)
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 0, f"expected EXIT_PASS(0). stderr: {r.stderr}")
+
+    def test_s5_blocks_on_blocked_security_verdict(self):
+        """安全审计 verdict=BLOCKED → EXIT_BLOCK(2)。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_S5, task_files={"T-0001.md": TASK_IN_SCOPE})
+            self._make_evidence(root, ".ai/evidence/quality/quality_report.json", QUALITY_REPORT_PASS)
+            blocked = SECURITY_AUDIT_PASS.replace('"verdict": "PASS"', '"verdict": "BLOCKED"')
+            self._make_evidence(root, ".ai/evidence/security/security_audit.json", blocked)
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("BLOCKED", r.stderr)
 
 
 if __name__ == "__main__":

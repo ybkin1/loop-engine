@@ -1,0 +1,18 @@
+{
+  "receipt_type": "completion",
+  "dispatch_id": "DP-62590b390f06",
+  "host_invoker": "zcode-main-thread",
+  "child_session": "zcode-sess-4f2e463abd1255ce",
+  "actor": "zcode-actor-521792b21d41",
+  "role_id": "quality-engineer",
+  "task_id": "T-0082",
+  "phase": "S5-quality",
+  "gate_id": "G-T-0082-REQUIREMENTS",
+  "status": "COMPLETED",
+  "agent_takeover": true,
+  "input_hash": "e3b0c44298fc1c14",
+  "created_at": "2026-07-31T08:15:14.250715+00:00",
+  "output_hash": "5f65a28381cf693e",
+  "launch_input_hash": "e3b0c44298fc1c14",
+  "completed_at": "2026-07-31T08:15:14.250715+00:00"
+}

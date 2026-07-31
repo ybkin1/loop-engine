@@ -1,0 +1,15 @@
+{
+  "receipt_type": "launch",
+  "dispatch_id": "DP-c4bf13c66601",
+  "host_invoker": "zcode-main-thread",
+  "child_session": "zcode-sess-5df092c88ba3cee9",
+  "actor": "zcode-actor-57b2630ee721",
+  "role_id": "independent-reviewer",
+  "task_id": "T-0082",
+  "phase": "S5-quality",
+  "gate_id": "G-T-0082-REQUIREMENTS",
+  "status": "PASS",
+  "agent_takeover": true,
+  "input_hash": "e5028b987a1fee6c",
+  "created_at": "2026-07-31T07:53:31.482562+00:00"
+}

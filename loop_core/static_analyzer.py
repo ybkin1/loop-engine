@@ -14,10 +14,15 @@ anti-patterns, not just generic linting rules.
 from __future__ import annotations
 
 import ast
+import hashlib
+import json
 import re
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from .verdicts import ReportBinding, Verdict
 
 
 @dataclass
@@ -34,6 +39,10 @@ class Finding:
 class AnalysisReport:
     files_scanned: int
     findings: list[Finding] = field(default_factory=list)
+    # ── Binding fields (Phase 2) ──
+    binding: ReportBinding | None = None
+    verdict: Verdict = Verdict.NOT_VERIFIED
+    content_hash: str = ""  # SHA-256 of findings content
 
     @property
     def errors(self) -> int:
@@ -46,6 +55,68 @@ class AnalysisReport:
     @property
     def passed(self) -> bool:
         return self.errors == 0
+
+    def compute_verdict(self) -> Verdict:
+        """Compute verdict based on findings.
+        
+        Static analysis errors don't block (unlike security) — they represent
+        code quality issues, not security vulnerabilities. Security is handled
+        by security_scanner.py with fail-closed policy.
+        """
+        if self.errors > 0:
+            return Verdict.FAIL  # Static analysis errors don't block (unlike security)
+        return Verdict.PASS
+
+    def compute_hash(self) -> str:
+        """Compute content hash from findings for fingerprint verification."""
+        sorted_findings = sorted(self.findings, key=lambda f: (f.file, f.line, f.rule_id))
+        content = json.dumps([
+            {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+             "line": f.line, "message": f.message}
+            for f in sorted_findings
+        ], sort_keys=True)
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    def bind(self, task_id: str, phase: str, git_commit: str = "",
+             gate_id: str | None = None, execution_id: str | None = None,
+             diff_fingerprint: str | None = None) -> "AnalysisReport":
+        """Bind report to execution context and compute verdict + hash."""
+        self.binding = ReportBinding(
+            task_id=task_id, phase=phase, gate_id=gate_id,
+            execution_id=execution_id, git_commit=git_commit,
+            diff_fingerprint=diff_fingerprint,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            tool_name="loop_core.static_analyzer",
+            tool_version="1.0",
+        )
+        self.verdict = self.compute_verdict()
+        self.content_hash = self.compute_hash()
+        return self
+
+    def is_valid(self) -> bool:
+        """Verify binding integrity. Old/stale reports are invalid."""
+        if self.binding is None:
+            return False
+        missing = self.binding.validate()
+        if missing:
+            return False
+        # Content hash must match
+        if self.content_hash and self.content_hash != self.compute_hash():
+            return False
+        return True
+
+    def to_dict(self) -> dict:
+        return {
+            "files_scanned": self.files_scanned,
+            "findings": [
+                {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+                 "line": f.line, "message": f.message, "snippet": f.snippet}
+                for f in self.findings
+            ],
+            "binding": self.binding.to_dict() if self.binding else None,
+            "verdict": self.verdict.value if self.verdict else Verdict.NOT_VERIFIED.value,
+            "content_hash": self.content_hash,
+        }
 
 
 # ── Rule: Extract-but-not-verify ────────────────────────────────────────
@@ -204,8 +275,10 @@ def _check_missing_logging(file_path: Path, source: str, tree: ast.AST) -> list[
 # ── Main entry point ────────────────────────────────────────────────────
 
 
-def analyze_project(root: str | Path) -> AnalysisReport:
-    """Run all static analysis rules on a project."""
+def analyze_project(root: str | Path, task_id: str = "", phase: str = "",
+                     git_commit: str = "", gate_id: str | None = None,
+                     execution_id: str | None = None) -> AnalysisReport:
+    """Run all static analysis rules on a project with optional context binding."""
     root = Path(root).resolve()
     py_files = list(root.rglob("*.py"))
     # Exclude __pycache__, .git, venv, tests (test files have different rules)
@@ -230,4 +303,16 @@ def analyze_project(root: str | Path) -> AnalysisReport:
         all_findings.extend(_check_parallel_declaration(file_path, source, tree))
         all_findings.extend(_check_missing_logging(file_path, source, tree))
 
-    return AnalysisReport(files_scanned=len(py_files), findings=all_findings)
+    report = AnalysisReport(files_scanned=len(py_files), findings=all_findings)
+    if task_id:
+        report.bind(task_id=task_id, phase=phase, git_commit=git_commit,
+                    gate_id=gate_id, execution_id=execution_id)
+    return report
+
+
+# Compatibility alias (legacy callers expect "StaticAnalyzer" class)
+class StaticAnalyzer:
+    """Compatibility wrapper for function-based static_analyzer module."""
+    @staticmethod
+    def analyze(root):
+        return analyze_project(root)

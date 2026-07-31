@@ -255,7 +255,7 @@ class RuntimeController:
         if snapshot.get("runtime_state") in {RuntimeState.NO_ACTIVE_TASK.value, RuntimeState.USER_APPROVAL_REQUIRED.value, RuntimeState.WORK_PACKAGE_PROPOSAL.value}:
             return False, "NO_ACTIVE_TASK_OR_PROPOSAL"
         if context.caller_class == "main-thread" or context.role_id in {"main-thread", "orchestrator"}:
-            return False, "MAIN_THREAD_BUSINESS_WRITE_DENIED"
+            return False, "MAIN_THREAD_BUSINESS_WRITE_FORBIDDEN"
         if context.role_id != "developer":
             return False, "ROLE_NOT_ALLOWED_TO_WRITE"
         if context.task_id != snapshot.get("task_id") or context.execution_id != snapshot.get("execution_id") or context.capability_id != snapshot.get("capability_id"):

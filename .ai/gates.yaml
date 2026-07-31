@@ -3942,3 +3942,59 @@ gates:
     - 产品层不修改任何治理底座核心文件
     - 所有新增模块使用 fail-closed 语义
     - 阶段 D（端到端验证）待另开任务
+
+- id: G-T-0082-REQUIREMENTS
+  task_id: T-0082
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-31T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: "批准 T-0082 治理接管任务需求"
+  scope: >-
+    T-0082 Loop 工程质量治理与运行时执行接管 — S1 需求批准。
+    任务范围：RuntimeController 身份/授权/调度、代码质量执行链、统一报告体系、
+    角色子智能体隔离、分层质量门、副作用权限控制、治理事实源收敛、端到端验收。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write agent definitions
+  - write test files
+  - write evidence files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  allowed_paths:
+  - .ai/
+  - .zcode/tools/
+  - .zcode/config.json
+  - loop_core/
+  - hooks/
+  - agents/
+  - tools/
+  - tests/
+  - .ai/evidence/T-0082/
+  high_risk_flags:
+  - RuntimeController 修改可能影响全局写入授权
+  - Hook 修改可能影响 PreToolUse 拦截链
+  - 角色隔离机制变更需充分测试
+  evidence_required:
+  - baseline audit report (phase 0)
+  - state convergence evidence (phase 1)
+  - quality chain evidence (phase 2)
+  - role isolation evidence (phase 3)
+  - side-effect authorization evidence (phase 4)
+  - quality gate evidence (phase 5)
+  - acceptance evidence (phase 6)

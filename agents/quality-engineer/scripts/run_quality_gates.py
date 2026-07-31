@@ -3,6 +3,11 @@
 """
 run_quality_gates.py — 质量门禁编排脚本。
 
+DEPRECATED: Prefer loop_core.static_analyzer.analyze_project() for in-process
+static analysis with binding/verdict support. This script maintained for
+backward compatibility with CLI-based quality-gate workflows only.
+For unified verdicts, use loop_core.verdicts.Verdict instead of string statuses.
+
 确定性代码，不依赖 LLM。被质量工程师 agent 通过 Bash 调用。
 读取项目 config.yaml 的 quality_gates 节，依次运行各检查工具，
 解析输出，与阈值对比，生成结构化质量报告。
@@ -151,42 +156,44 @@ def parse_test_output(raw: str, exit_code: int, command: str) -> Tuple[int, int,
     return passed, total, coverage, raw[:500], zero_collected
 
 
-def parse_audit_output(raw: str, exit_code: int, command: str) -> Dict[str, int]:
-    """解析依赖审计输出，返回 {severity: count}。"""
-    raw_clean = raw.strip()
-    counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
+def parse_audit_output(exit_code: int, raw: str) -> dict:
+    """Parse dependency audit output.
 
-    # pip-audit --format json
-    if "pip-audit" in command and raw_clean.startswith("["):
-        try:
-            items = json.loads(raw_clean)
-            for item in items:
-                if isinstance(item, dict):
-                    sev = (item.get("vulns") or [{}])[0].get("severity", "") if "vulns" in item else ""
-            # pip-audit 的 JSON 结构比较复杂，退化为统计退出码
-            if exit_code != 0:
-                counts["HIGH"] = max(1, len(items))
-            return counts
-        except json.JSONDecodeError:
-            pass
+    Returns {LOW: n, MEDIUM: n, MODERATE: n, HIGH: n, CRITICAL: n, blocked: bool}.
+    """
+    counts = {"LOW": 0, "MEDIUM": 0, "MODERATE": 0, "HIGH": 0, "CRITICAL": 0}
 
-    # npm audit --json
-    if "npm audit" in command:
-        try:
-            data = json.loads(raw_clean)
-            vulns = data.get("vulnerabilities", {}) if isinstance(data, dict) else {}
-            for v in (vulns.values() if isinstance(vulns, dict) else []):
-                if isinstance(v, dict):
-                    sev = v.get("severity", "").upper()
-                    if sev in counts:
-                        counts[sev] += 1
-            return counts
-        except json.JSONDecodeError:
-            pass
+    try:
+        data = json.loads(raw)
+    except Exception:
+        data = None
 
-    # 退化：根据退出码推断
-    if exit_code != 0 and raw_clean:
-        counts["HIGH"] = 1  # 保守：有非零退出码就当有 HIGH
+    if isinstance(data, list):
+        # pip-audit --format json: [{name, version, resolved, vulnerabilities:[{id, severity}]}]
+        for pkg in data:
+            if not isinstance(pkg, dict):
+                continue
+            for vuln in pkg.get("vulnerabilities", []):
+                if not isinstance(vuln, dict):
+                    continue
+                sev = str(vuln.get("severity", "")).upper()
+                if sev in counts:
+                    counts[sev] += 1
+    elif isinstance(data, dict):
+        # npm audit --json: {"vulnerabilities": {name: {"severity": ...}}}
+        vulns = data.get("vulnerabilities", {})
+        for v in (vulns.values() if isinstance(vulns, dict) else []):
+            if isinstance(v, dict):
+                sev = str(v.get("severity", "")).upper()
+                if sev in counts:
+                    counts[sev] += 1
+
+    # JSON 解析失败或未解析出任何漏洞 → 退化：仅按退出码推断
+    if not any(counts.get(k) for k in ("LOW", "MEDIUM", "MODERATE", "HIGH", "CRITICAL")):
+        if exit_code != 0:
+            counts["HIGH"] = max(1, len(raw.splitlines()))
+
+    counts["blocked"] = counts["HIGH"] > 0 or counts["CRITICAL"] > 0
     return counts
 
 
@@ -312,7 +319,7 @@ def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
     # Audit
     if gates.get("audit_command"):
         r = run_one_check("audit", gates["audit_command"], project_root)
-        counts = parse_audit_output(r["stdout"], r["exit_code"], gates["audit_command"])
+        counts = parse_audit_output(r["exit_code"], r["stdout"])
         results.append({"name": "audit", "value": counts, "threshold": gates.get("audit_threshold", {"HIGH": 0}),
                         "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
                         "command": r.get("command")})

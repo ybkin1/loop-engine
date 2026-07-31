@@ -53,7 +53,9 @@ def project_root_arg() -> argparse.ArgumentParser:
 
 
 def ai_dir(project_root: str | Path) -> Path:
-    return Path(project_root).resolve() / ".ai"
+    # Normalize defensively: os.path.normpath guards against shell-level
+    # backslash-stripping / colon-mangling before Path.resolve() canonicalises.
+    return Path(os.path.normpath(str(project_root))).resolve() / ".ai"
 
 
 def read_text(path: Path) -> str:

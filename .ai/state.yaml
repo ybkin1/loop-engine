@@ -1,8 +1,8 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: null
-current_gate_id: null
+current_task_id: T-0082
+current_gate_id: G-T-0082-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-07-29T00:00:00+08:00'
 notes:
@@ -16,3 +16,5 @@ notes:
 - T-0045: 原 state 指针无对应任务文件，已作为治理漂移记录。
 - T-0046: 治理状态恢复与交付完整性修复，已完成。
 - T-0047: 治理关键路径硬化，已完成。
+- "T-0081 completed. State converged for governance takeover. RuntimeController legacy mode confirmed."
+- "T-0082 ACTIVE: Phase 0 baseline audit dispatched to quality-engineer sub-agent. G-T-0082-REQUIREMENTS approved."

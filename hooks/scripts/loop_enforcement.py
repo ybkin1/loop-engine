@@ -20,6 +20,7 @@ Exit codes: 0 = allow, 2 = block
 import json
 import logging
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -210,6 +211,77 @@ def is_in_task_scope(rel_path: str | None, contract: dict | None) -> bool:
     return False
 
 
+# ── T-0082 Phase 5 GAP-5a: Diff 变更范围检查 ────────────────────────────
+
+def check_diff_scope(
+    root: Path,
+    task_allowed_paths: list[str],
+    max_diff_files: int = 15,
+) -> tuple[bool, str]:
+    """基于 git diff 的变更范围检查。
+
+    运行 `git diff --name-only HEAD`，统计工作区中未提交变更文件，
+    过滤治理路径（.ai/、.zcode/）后，凡落在任务 allowed_paths 之外的
+    变更文件都视为越界（count > 0 → block）。
+
+    - 非 git 仓库 / git 不可用 / git 出错 → fail-open（log warning，放行）。
+    - max_diff_files 用于限制阻断信息中列出的越界文件数量。
+    - 不追踪未跟踪（untracked）新文件：per-write 的 is_in_task_scope
+      已对新增文件做路径校验。
+
+    Returns (ok, reason)。
+    """
+    if not task_allowed_paths:
+        return True, "任务未声明 allowed_paths，跳过 diff 范围检查"
+    if not (root / ".git").exists():
+        return True, "非 git 仓库，跳过 diff 范围检查"
+
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "HEAD"],
+            capture_output=True,
+            text=True,
+            cwd=str(root),
+            timeout=30,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
+        logger.warning("[diff-scope] git 不可用，跳过检查: %s", exc)
+        return True, f"git 不可用，跳过 diff 范围检查（{exc}）"
+
+    if result.returncode != 0:
+        # HEAD 不存在（初始提交）等场景 → fail-open
+        logger.warning(
+            "[diff-scope] git diff 失败（rc=%s）: %s",
+            result.returncode, result.stderr.strip()[:200],
+        )
+        return True, "git diff 失败，跳过 diff 范围检查"
+
+    changed = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if not changed:
+        return True, "无未提交变更"
+
+    contract = {"allowed_paths": task_allowed_paths}
+    out_of_scope: list[str] = []
+    for rel in changed:
+        rel = rel.replace("\\", "/")
+        # 治理路径豁免：.ai/ 证据/任务 与 .zcode/ 配置始终允许
+        if rel.startswith(".ai/") or rel.startswith(".zcode/"):
+            continue
+        if is_in_task_scope(rel, contract):
+            continue
+        out_of_scope.append(rel)
+
+    if out_of_scope:
+        listed = out_of_scope[:max_diff_files]
+        return False, (
+            f"检测到 {len(out_of_scope)} 个超出任务范围的未提交 git diff 变更文件"
+            f"（最多列出 {max_diff_files} 个）：{', '.join(listed)}。"
+            "请将越界变更移入任务 allowed_paths 范围或回退。"
+        )
+
+    return True, f"git diff 变更均在任务范围内（{len(changed)} 个文件）"
+
+
 # ── C11: File Write Counter ────────────────────────────────────────────
 
 def _read_task_max_files(root: Path, task_id: str) -> int | None:
@@ -362,6 +434,64 @@ def check_quality_gate_evidence(root: Path) -> tuple[bool, str]:
     return True, f"质量证据已通过（overall={overall}，证据真实性校验通过）"
 
 
+# ── T-0082 Phase 3: subagent review-evidence isolation trace (non-blocking) ──
+
+
+def trace_review_evidence_isolation(root: Path, task_id: str | None) -> None:
+    """Trace-only scan of review evidence for self-review. Never blocks.
+
+    Scans .ai/evidence/<task_id>/ for review evidence JSONs carrying
+    reviewer_session_id / developer_session_id fields and logs a warning
+    when they are equal (self-review). Additionally runs the
+    subagent_evidence_verifier.verify_review_evidence trace (T-0067 logic)
+    when importable. Verdict is logged to stderr only — this function
+    never returns a blocking verdict.
+    """
+    if not task_id:
+        return
+    evidence_dir = root / ".ai" / "evidence" / task_id
+    if not evidence_dir.is_dir():
+        return
+
+    verifier_available = False
+    try:
+        sys.path.insert(0, str(root))
+        from loop_core.subagent_evidence_verifier import verify_review_evidence
+        verifier_available = True
+    except Exception:
+        pass  # verifier unavailable → trace degrades to field comparison only
+
+    for p in sorted(evidence_dir.rglob("*.json")):
+        try:
+            content = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(content, dict):
+            continue
+        reviewer = content.get("reviewer_session_id")
+        developer = content.get("developer_session_id")
+        if not reviewer:
+            continue  # not a review-evidence file
+        if reviewer == developer:
+            logger.warning(
+                "SELF_REVIEW_TRACE: %s: reviewer_session_id == developer_session_id (%s)",
+                p.relative_to(root), reviewer,
+            )
+            continue
+        if verifier_available:
+            try:
+                result = verify_review_evidence(
+                    str(p), main_session_id=developer or ""
+                )
+                if not result.get("valid"):
+                    logger.warning(
+                        "EVIDENCE_TRACE: %s: %s",
+                        p.relative_to(root), result.get("reason", "invalid"),
+                    )
+            except Exception:
+                pass  # trace only; never blocks
+
+
 def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
     """Check that S6-delivery phase has delivery-manager go_nogo decision.
 
@@ -467,6 +597,147 @@ def check_runtime_quality_gate(root: Path) -> tuple[bool, str]:
     return True, f"运行时质量门通过（overall={overall}）"
 
 
+# ── T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据 ───────────────────────────
+
+# 每个阶段的可接受证据文件（相对项目根）。{task_id} 会被替换为
+# state.current_task_id（无任务上下文时跳过含占位符的候选）。
+_PHASE_EVIDENCE_FILES: dict[str, list[str]] = {
+    "S7-integration": [
+        ".ai/evidence/{task_id}/integration-report.json",
+        ".ai/evidence/integration/integration_report.json",
+    ],
+    "S8-functional-test": [
+        ".ai/evidence/{task_id}/functional-test-report.json",
+        ".ai/evidence/{task_id}/regression-report.json",
+    ],
+    "S9-fix-optimize": [
+        ".ai/evidence/{task_id}/fix-optimize-report.json",
+    ],
+    "S10-performance": [
+        ".ai/evidence/{task_id}/performance-report.json",
+    ],
+    "S11-maintenance": [
+        ".ai/evidence/{task_id}/maintenance-report.json",
+    ],
+}
+
+
+def _check_phase_evidence_file(
+    root: Path,
+    phase: str,
+    evidence_relpaths: list[str],
+    accept_no_regression: bool = False,
+) -> tuple[bool, str]:
+    """检查给定阶段证据文件是否存在且解析为 JSON 且 overall == "PASS"。
+
+    T-0082 Phase 5 GAP-2: S7-S11 阶段门禁的结构化证据检查。
+    - "{task_id}" 占位符替换为 state.current_task_id（无任务时跳过该候选）。
+    - overall 缺失时兼容旧格式 verdict 字段。
+    - accept_no_regression=True 时接受 regression_runner 输出风格：
+      has_regressions == false 或 verdict == PASS（无 overall 字段）。
+    - 任一候选通过即整体通过（fail-open 于多候选场景）；全部失败返回 False。
+
+    Returns (ok, reason)。
+    """
+    try:
+        state = load_state(root)
+        task_id = state.get("current_task_id")
+    except Exception:
+        task_id = None
+
+    candidates: list[Path] = []
+    for rel in evidence_relpaths:
+        if "{task_id}" in rel:
+            if not task_id:
+                continue
+            rel = rel.replace("{task_id}", str(task_id))
+        candidates.append(root / rel)
+
+    if not candidates:
+        return False, (
+            f"{phase} 阶段证据缺失：state 中没有 current_task_id，"
+            "无法定位阶段报告。"
+        )
+
+    failures: list[str] = []
+    for p in candidates:
+        rel_p = p.relative_to(root)
+        if not p.exists():
+            failures.append(f"{rel_p} 不存在")
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, IOError) as exc:
+            failures.append(f"{rel_p} 无法解析: {exc}")
+            continue
+        overall = data.get("overall")
+        if overall is None:
+            overall = data.get("verdict")
+        if overall == "PASS":
+            return True, f"{phase} 阶段证据已通过（{rel_p} overall=PASS）"
+        if accept_no_regression and (
+            data.get("has_regressions") is False
+            or str(data.get("verdict", "")).upper() == "PASS"
+        ):
+            return True, f"{phase} 阶段证据已通过（{rel_p} 无回归）"
+        failures.append(f"{rel_p} overall={overall}（需要 PASS）")
+
+    return False, (
+        f"{phase} 阶段证据不完整，以下文件均需存在且 overall=PASS："
+        + "; ".join(f"{p.relative_to(root)}" for p in candidates)
+        + "。详情：" + "; ".join(failures[:3])
+    )
+
+
+# ── T-0082 Phase 5 GAP-3: S5/S6 安全审计证据 ────────────────────────────
+
+
+def check_security_gate_evidence(root: Path) -> tuple[bool, str]:
+    """检查 S5-quality / S6-delivery 所需的安全审计证据。
+
+    证据来源（任一通过即可）：
+    1. .ai/evidence/security/security_audit.json — verdict != BLOCKED
+    2. .ai/evidence/{task_id}/phase-3/security-engineer-report.md —
+       存在且不含 BLOCKED 判定
+    """
+    sec_report = root / ".ai" / "evidence" / "security" / "security_audit.json"
+    if sec_report.exists():
+        try:
+            sec_data = json.loads(sec_report.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, IOError) as exc:
+            return False, (
+                f"安全审计证据无法解析（{sec_report.relative_to(root)}）: {exc}"
+            )
+        verdict = str(sec_data.get("verdict", "")).upper()
+        if verdict == "BLOCKED":
+            return False, "安全审计 verdict=BLOCKED：存在阻断级安全缺陷"
+        if not verdict:
+            return False, "安全审计证据缺少 verdict 字段"
+        return True, f"安全审计证据已通过（verdict={verdict}）"
+
+    # 兜底：安全工程师报告 markdown
+    try:
+        state = load_state(root)
+        task_id = state.get("current_task_id")
+    except Exception:
+        task_id = None
+    if task_id:
+        md = root / ".ai" / "evidence" / task_id / "phase-3" / "security-engineer-report.md"
+        if md.exists():
+            try:
+                text = md.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                text = ""
+            if "BLOCKED" in text.upper():
+                return False, "安全工程师报告中包含 BLOCKED 判定"
+            return True, "安全工程师报告存在且无 BLOCKED 判定"
+
+    return False, (
+        "S5/S6 需要安全审计证据：.ai/evidence/security/security_audit.json 不存在，"
+        "且 .ai/evidence/{task_id}/phase-3/security-engineer-report.md 不存在。"
+    )
+
+
 def check_phase_gate_enforcement(root: Path, phase: str) -> tuple[bool, str]:
     """Check phase-specific gate evidence requirements.
 
@@ -485,7 +756,11 @@ def check_phase_gate_enforcement(root: Path, phase: str) -> tuple[bool, str]:
             )
 
     if phase == "S5-quality":
-        return check_quality_gate_evidence(root)
+        q_ok, q_reason = check_quality_gate_evidence(root)
+        if not q_ok:
+            return q_ok, q_reason
+        # T-0082 Phase 5 GAP-3: S5/S6 同时要求安全审计证据
+        return check_security_gate_evidence(root)
 
     if phase == "S6-delivery":
         dm_ok, dm_reason = check_delivery_gate_evidence(root)
@@ -494,7 +769,23 @@ def check_phase_gate_enforcement(root: Path, phase: str) -> tuple[bool, str]:
         rq_ok, rq_reason = check_runtime_quality_gate(root)
         if not rq_ok:
             return rq_ok, rq_reason
-        return True, "S6 delivery + runtime quality gates passed"
+        # T-0082 Phase 5 GAP-3: S5/S6 同时要求安全审计证据
+        sec_ok, sec_reason = check_security_gate_evidence(root)
+        if not sec_ok:
+            return sec_ok, sec_reason
+        return True, "S6 delivery + runtime quality + security gates passed"
+
+    # T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据（overall=PASS 的结构化报告）
+    if phase in _PHASE_EVIDENCE_FILES:
+        ev_ok, ev_reason = _check_phase_evidence_file(root, phase, _PHASE_EVIDENCE_FILES[phase])
+        if not ev_ok and phase == "S8-functional-test":
+            # S8 兜底：regression_runner 输出（baseline.json，has_regressions=false）
+            ev_ok, ev_reason = _check_phase_evidence_file(
+                root, phase,
+                [".ai/evidence/regression/baseline.json"],
+                accept_no_regression=True,
+            )
+        return ev_ok, ev_reason
 
     # Other phases: no additional gate checks at this level
     return True, ""
@@ -563,17 +854,40 @@ def main():
                 prefix in command.lower() for prefix in (".ai/", ".zcode/", "agents/", "loop_core/", "hooks/", "tools/", "agents.md")
             ))
         )
+        # T-0082 Phase 4: MCP tools (Node REPL etc.) are side-effect capable.
+        # Without extractable target, they follow the same gate as Bash-without-target:
+        # no identity → BLOCK; orchestration-context → allowed only via dispatch.
+        # Placed BEFORE the is_orchestration early-pass so MCP tools never get
+        # the orchestration bypass.
+        if tool_name.startswith("mcp__"):
+            if not task_id:
+                logger.warning(
+                    "BLOCKED: %s; MCP side-effect tools require an active task (DISPATCH_REQUIRED)",
+                    tool_name,
+                )
+                return EXIT_BLOCK  # fail-closed: MCP side effects require an active task
+            # fall through to identity/DISPATCH gates below
         if is_orchestration:
             logger.warning("DISPATCH_REQUIRED: Agent/Skill/Task orchestration allowed; no execution takeover evidence; this is not a dispatch receipt")
             return EXIT_PASS
         legacy_fixture = is_legacy_synthetic_hook_fixture()
-        if task_id and not runtime_projection_valid and tool_name in business_tools and not is_governance_read and not is_governance_write(rel):
+        # Git 提交/状态操作豁免：提交治理记录是治理必需动作（在 DISPATCH 门之前）
+        cmd_stripped = (command or "").strip()
+        _git_commit_exempt = any(
+            cmd_stripped.startswith(p)
+            for p in ("git add", "git commit", "git diff", "git status", "git log",
+                      "git branch", "git show", "git tag", "git config")
+        )
+        if task_id and not runtime_projection_valid and tool_name in business_tools and not is_governance_read and not is_governance_write(rel) and not _git_commit_exempt:
             if not runtime_managed and legacy_fixture:
                 logger.warning("LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only")
             else:
                 logger.warning("BLOCKED: %s; DISPATCH_REQUIRED for active task %s", runtime_projection_reason, task_id)
                 return EXIT_BLOCK
-        if runtime_projection_valid and tool_name in business_tools and not is_governance_read and not is_governance_write(rel):
+        # T-0082 Phase 4: MCP tools are treated like business tools for the
+        # identity gate — a runtime-managed project requires caller identity
+        # before MCP side effects can even be considered.
+        if runtime_projection_valid and (tool_name in business_tools or tool_name.startswith("mcp__")) and not is_governance_read and not is_governance_write(rel):
             if not actor_id or not caller_class:
                 logger.warning("BLOCKED: IDENTITY_REQUIRED; runtime projection requires caller identity")
                 return EXIT_BLOCK
@@ -628,6 +942,10 @@ def main():
         task_id = state.get("current_task_id")
         tool_name = hook_input.get("tool_name", "")
         tool_input = hook_input.get("tool_input") or {}
+
+        # ── T-0082 Phase 3: subagent review-evidence isolation trace ──
+        # Non-blocking: logs self-review warnings only, never changes verdict.
+        trace_review_evidence_isolation(root, task_id)
 
         # ── GOVERNANCE_RECOVERY: 最小化、受限、可审计的恢复通道 ──
         # 只在 Controller/runtime-state 损坏时使用。
@@ -847,6 +1165,16 @@ def main():
                 rel, task_id, contract.get('allowed_paths', []),
             )
             return EXIT_BLOCK
+
+        # ── T-0082 Phase 5 GAP-5a: Diff 变更范围检查 ──
+        # 仅当 git 仓库存在且任务声明了 allowed_paths 时执行；
+        # git 错误 fail-open（记录 warning），不破坏非 git 场景。
+        allowed_paths = contract.get("allowed_paths", [])
+        if allowed_paths and (root / ".git").exists():
+            diff_ok, diff_reason = check_diff_scope(root, allowed_paths)
+            if not diff_ok:
+                logger.warning("BLOCKED: %s", diff_reason)
+                return EXIT_BLOCK
 
         return EXIT_PASS
 

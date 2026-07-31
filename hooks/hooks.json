@@ -33,7 +33,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Read|Write|Edit|Bash|ApplyPatch|Agent|Skill",
+        "matcher": "Read|Write|Edit|Bash|ApplyPatch|Agent|Skill|mcp__node_repl__js|Notebook|Task",
         "hooks": [
           {
             "type": "process",

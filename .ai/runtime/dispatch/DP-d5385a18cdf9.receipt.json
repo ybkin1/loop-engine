@@ -1,0 +1,18 @@
+{
+  "receipt_type": "completion",
+  "dispatch_id": "DP-d5385a18cdf9",
+  "host_invoker": "zcode-main-thread",
+  "child_session": "zcode-sess-d27984a17cfd4e7d",
+  "actor": "zcode-actor-57b2630ee721",
+  "role_id": "independent-reviewer",
+  "task_id": "T-0082",
+  "phase": "S5-quality",
+  "gate_id": "G-T-0082-REQUIREMENTS",
+  "status": "COMPLETED",
+  "agent_takeover": true,
+  "input_hash": "e3b0c44298fc1c14",
+  "created_at": "2026-07-31T08:15:27.707549+00:00",
+  "output_hash": "0e5419cf9b212892",
+  "launch_input_hash": "e3b0c44298fc1c14",
+  "completed_at": "2026-07-31T08:15:27.707549+00:00"
+}

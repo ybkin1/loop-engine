@@ -775,3 +775,7 @@ class PhaseExecutor:
         if project_root is not None:
             self._write_state(project_root, plan)
             self._write_task_graph(project_root, plan)
+
+
+# Compatibility alias (legacy callers expect "Executor")
+Executor = PhaseExecutor

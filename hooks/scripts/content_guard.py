@@ -47,6 +47,15 @@ _SECRET_PATTERNS = [
     (re.compile(r'(?:access[_-]?key)\s*[=:]\s*["\x27](?!\$\{)[^"\x27]{8,}["\x27]', re.IGNORECASE), "硬编码 Access Key"),
 ]
 
+# —— 注入/动态执行检查模式（T-0082 Phase 5 GAP-4c，镜像 security_scanner SS-010/SS-011）——
+# 元组: (pattern, rule_id, severity, description)。severity=high 阻断，medium 仅记录。
+_EDIT_INJECTION_PATTERNS = [
+    (re.compile(r'os\.system\s*\(|subprocess\.(?:call|run|Popen)\s*\(|os\.popen\s*\('),
+     "SS-010", "medium", "OS command execution"),
+    (re.compile(r'(?:exec|eval)\s*\(\s*["\x27][^"\x27]*\{'),
+     "SS-011", "high", "Dynamic code execution with interpolation"),
+]
+
 
 def _is_governance_path(rel):
     return rel.replace("\\", "/").startswith(".ai/")
@@ -54,11 +63,19 @@ def _is_governance_path(rel):
 
 def _run_ruff_check(file_path):
     try:
+        # T-0082 Phase 5 GAP-1: ruff >= 0.15 移除了 --output-format text（rc=2 +
+        # 空 stdout 导致 lint 检查永远放行）。改用 concise；老版本 ruff 仍支持
+        # text，检测到 "invalid value" 时回退。
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", file_path, "--output-format", "text"],
+            [sys.executable, "-m", "ruff", "check", file_path, "--output-format", "concise"],
             capture_output=True, text=True, timeout=30,
         )
-        output = result.stdout.strip()
+        if result.returncode == 2 and "invalid value" in (result.stderr or ""):
+            result = subprocess.run(
+                [sys.executable, "-m", "ruff", "check", file_path, "--output-format", "text"],
+                capture_output=True, text=True, timeout=30,
+            )
+        output = (result.stdout or "").strip()
         if result.returncode == 0 or not output:
             return True, []
         return False, [line.strip() for line in output.split("\n") if line.strip()]
@@ -113,7 +130,9 @@ def main():
         import logging; logging.getLogger("content_guard").warning("%s fatal: %s", "content_guard", _e)
         return EXIT_PASS
 
-    root = project_root()
+    # T-0082 Phase 5 GAP-1: 原代码 project_root() 缺少 hook_input 实参，
+    # 导致 TypeError 使整个 hook 在启动时即崩溃（所有检查从未运行）。
+    root = project_root(hook_input)
     if not root or not is_governance_project(root):
         return EXIT_PASS
 
@@ -145,15 +164,47 @@ def main():
     if not content:
         return EXIT_PASS
 
+    # T-0082 Phase 5 GAP-4b: Edit 应检查合并后的完整文件内容（而非仅 new_string）。
+    # 从磁盘读取原文件，应用 old_string → new_string 替换，lint 合并结果。
+    # old_string 未找到 → 跳过合并 lint（记录 warning）；IO 失败 → 回退到仅检查 new_string。
+    merged_content = None
+    if tool_name == "Edit":
+        old_string = tool_input.get("old_string", "")
+        new_string = tool_input.get("new_string", "")
+        target_file = root / rel
+        try:
+            if target_file.exists():
+                original = target_file.read_text(encoding="utf-8")
+                if old_string and old_string in original:
+                    merged_content = original.replace(old_string, new_string, 1)
+                else:
+                    logger.warning(
+                        "content_guard: old_string 未在 %s 中找到，跳过合并后 lint", rel
+                    )
+                    merged_content = new_string
+            else:
+                merged_content = new_string
+        except Exception as e:
+            logger.warning(
+                "content_guard: 读取 %s 失败（%s），回退到仅检查 new_string", rel, e
+            )
+            merged_content = new_string
+
+    # 语义规则检查用合并内容（Edit 时），Write 时即完整内容
+    semantic_content = merged_content if merged_content is not None else content
+    # lint 检查合并后的完整文件（Edit 时避免新旧代码相互破坏）；
+    # 密钥/注入检查只针对本次新增内容（new_string / content）
+    lint_content = merged_content if merged_content is not None else content
+
     violations = []
     fail_on_error = cc.get("fail_on_checker_error", False)
 
-    # 1. Lint check
+    # 1. Lint check（Edit 时检查合并后的文件内容）
     if cc.get("checks", {}).get("lint", True):
         tmp_path = None
         try:
             with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False, encoding="utf-8") as f:
-                f.write(content)
+                f.write(lint_content)
                 tmp_path = f.name
             ok, v = _run_ruff_check(tmp_path)
             if not ok:
@@ -171,6 +222,22 @@ def main():
     # 2. Secrets scan
     if cc.get("checks", {}).get("secrets", True):
         violations.extend(f"[安全] {x}" for x in _scan_secrets(content))
+
+    # 2b. 注入/动态执行检查（T-0082 Phase 5 GAP-4c）
+    # 只检查本次新增内容；SS-011(high) 阻断，SS-010(medium) 仅记录 warning。
+    if cc.get("checks", {}).get("injection", True):
+        for line_no, line in enumerate(content.split("\n"), 1):
+            for pattern, rule_id, severity, desc in _EDIT_INJECTION_PATTERNS:
+                if pattern.search(line):
+                    if severity == "high":
+                        violations.append(
+                            f"[安全-注入] L{line_no}: {rule_id}({severity}) {desc} — {line.strip()[:80]}"
+                        )
+                    else:
+                        logger.warning(
+                            "[安全-参考] L%d: %s(%s) %s — %s",
+                            line_no, rule_id, severity, desc, line.strip()[:80],
+                        )
 
     # 3. Architecture compliance (new files only)
     if cc.get("checks", {}).get("architecture", True):
@@ -190,26 +257,45 @@ def main():
         print(json.dumps({"hookSpecificOutput": {"permissionDecision": "deny", "permissionDecisionReason": msg}}))
         return EXIT_BLOCK
 
-    # T-0078 P0: 语义规则检查
+    # T-0078 P0: 语义规则检查（T-0082 Phase 5 GAP-1 修复）
+    # 原实现引用了未定义变量 `target`（NameError 被 except Exception 吞掉），
+    # 导致 load_semantic_rules / check_semantic_rules / check_suspense_boundary
+    # 从未真正执行。现在使用 main() 已计算好的相对路径 `rel` 与内容。
     try:
         semantic_rules = load_semantic_rules(root)
-        if semantic_rules and target:
-            target_path = str(Path(root) / target) if not Path(target).is_absolute() else target
-            rel_path = str(Path(target_path).relative_to(root)) if target_path.startswith(str(root)) else target
-            content_to_check = hook_input.get("tool_input", {}).get("content", "")
-            if content_to_check:
-                findings = check_semantic_rules(content_to_check, rel_path, semantic_rules)
-                suspense_findings = check_suspense_boundary(content_to_check, rel_path, semantic_rules)
-                all_findings = findings + suspense_findings
-                blockers = [f for f in all_findings if f["severity"] == "BLOCKER"]
-                warnings = [f for f in all_findings if f["severity"] == "WARNING"]
-                for w in warnings:
-                    logger.warning("[SEMANTIC] %s: %s (fix: %s)", w["rule_id"], w["message"][:120], w.get("fix_suggestion", "")[:80])
-                for b in blockers:
-                    logger.error("[SEMANTIC BLOCKER] %s: %s (fix: %s)", b["rule_id"], b["message"][:120], b.get("fix_suggestion", "")[:80])
-                if blockers:
-                    logger.warning("BLOCKED: 语义规则检查发现 %d 个 BLOCKER", len(blockers))
-                    return EXIT_BLOCK
+        if semantic_rules and rel:
+            all_findings = check_semantic_rules(semantic_content, rel, semantic_rules)
+            all_findings += check_suspense_boundary(semantic_content, rel, semantic_rules)
+            blockers = [f for f in all_findings if str(f.get("severity", "")).upper() == "BLOCKER"]
+            warnings = [f for f in all_findings if str(f.get("severity", "")).upper() == "WARNING"]
+            for w in warnings:
+                logger.warning(
+                    "[SEMANTIC] %s: %s (fix: %s)",
+                    w["rule_id"], w["message"][:120], w.get("fix_suggestion", "")[:80],
+                )
+            for b in blockers:
+                logger.error(
+                    "[SEMANTIC BLOCKER] %s: %s (fix: %s)",
+                    b["rule_id"], b["message"][:120], b.get("fix_suggestion", "")[:80],
+                )
+            if blockers:
+                msg = (
+                    "=== content_guard: 语义规则检查未通过 ===\n"
+                    f"文件: {rel}\n"
+                    + "\n".join(
+                        f"[SEMANTIC {b.get('severity', '?')}] {b['rule_id']}: {b['message']}"
+                        for b in blockers[:10]
+                    )
+                    + f"\n共 {len(blockers)} 个 BLOCKER。请修复后重试。"
+                )
+                logger.warning(msg)
+                print(json.dumps({
+                    "hookSpecificOutput": {
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": msg,
+                    }
+                }))
+                return EXIT_BLOCK
     except Exception as e:
         logger.debug("语义规则检查异常（非阻塞）: %s", e)
 

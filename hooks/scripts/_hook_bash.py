@@ -49,6 +49,26 @@ _RO_CMDS: frozenset[str] = frozenset({
     "readelf", "objdump",
 })
 
+# T-0082 Phase 4: interpreters/extractors/generators that can write files even
+# without visible shell write operators (script execution, -e/-m, archive
+# extraction, scaffolding, PowerShell cmdlets, Windows cmd built-ins).
+# They are classified as write-capable (NOT readonly) unless a known-safe
+# marker from _SAFE_SCRIPTS is present.  Note: deliberately NOT added to
+# _WRITE_CMDS — that would make `python --version` look like a write command.
+_SIDE_EFFECT_CAPABLE: tuple[str, ...] = (
+    "python", "python3", "node", "npx", "7z", "xz", "gzip", "zstd",
+    "rar", "powershell", "pwsh", "copy", "del", "move", "ren",
+)
+
+# Known-safe invocation markers: version/help flags and trivial `-c "print"`
+# snippets. Presence of any marker keeps the command classified as readonly.
+_SAFE_SCRIPTS: tuple[str, ...] = (
+    "--version", "-V", "help", "--help", "-h", '-c "print', "-c 'print",
+)
+
+# Versioned interpreters (python2, python3.11, ...) are side-effect capable too.
+_PYTHON_RE = re.compile(r"python[23]?(?:\.\d+)?")
+
 # ══════════════════════════════════════════════════════════════════════════
 # Tokenizer
 # ══════════════════════════════════════════════════════════════════════════
@@ -139,6 +159,20 @@ def is_readonly_command(command: str) -> bool:
     cmd = command.strip()
     if not cmd: return False
     if has_write_operations(cmd): return False
+
+    # T-0082 Phase 4: side-effect-capable commands (interpreters, extractors,
+    # generators, PowerShell, cmd built-ins) are NOT readonly unless a known
+    # safe marker is present (`--version`, `-V`, `help`, `--help`, `-h`,
+    # `-c "print"` / `-c 'print'`).  `python script.py`, `node -e ...`,
+    # `7z x ...`, `npx create-app` can all write files — treat as writes.
+    tokens = shell_tokenize(cmd)
+    if tokens:
+        first = tokens[0]
+        if first in _SIDE_EFFECT_CAPABLE or bool(_PYTHON_RE.fullmatch(first)):
+            if not any(marker in cmd for marker in _SAFE_SCRIPTS):
+                return False
+            return True  # known-safe invocation (e.g. `python --version`)
+
     if re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-c\b', cmd): return False
     m = re.search(r'(?:^|[\s;|&])(?:python[23]?(?:\.\d+)?)\s+-m\s+(\S+)', cmd)
     if m:

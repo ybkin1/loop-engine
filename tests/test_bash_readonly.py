@@ -181,16 +181,16 @@ class IsReadonlyCommandTest(unittest.TestCase):
     # ── 测试运行器 ──
 
     def test_pytest_simple(self):
-        """python -m pytest tests/ -q → True."""
-        self.assertTrue(is_readonly_command("python -m pytest tests/ -q"))
+        """python -m pytest tests/ -q → False (T-0082: script execution is side-effect capable)."""
+        self.assertFalse(is_readonly_command("python -m pytest tests/ -q"))
 
     def test_pytest_module_only(self):
         """pytest tests/ → True."""
         self.assertTrue(is_readonly_command("pytest tests/"))
 
     def test_pytest_with_python3(self):
-        """python3 -m pytest tests/ → True."""
-        self.assertTrue(is_readonly_command("python3 -m pytest tests/"))
+        """python3 -m pytest tests/ → False (T-0082: script execution is side-effect capable)."""
+        self.assertFalse(is_readonly_command("python3 -m pytest tests/"))
 
     # ── 文件查看 ──
 
@@ -244,19 +244,19 @@ class IsReadonlyCommandTest(unittest.TestCase):
         """git ls-files → True."""
         self.assertTrue(is_readonly_command("git ls-files"))
 
-    # ── 代码检查只读 ──
+    # ── 代码检查只读（T-0082 Phase 4: python -m 脚本执行视为可写能力）──
 
     def test_flake8(self):
-        """python -m flake8 src/ → True."""
-        self.assertTrue(is_readonly_command("python -m flake8 src/"))
+        """python -m flake8 src/ → False (script exec; may write reports/caches)."""
+        self.assertFalse(is_readonly_command("python -m flake8 src/"))
 
     def test_mypy(self):
-        """python -m mypy src/ → True."""
-        self.assertTrue(is_readonly_command("python -m mypy src/"))
+        """python -m mypy src/ → False (script exec; may write .mypy_cache)."""
+        self.assertFalse(is_readonly_command("python -m mypy src/"))
 
     def test_ruff_check(self):
-        """python -m ruff check → True."""
-        self.assertTrue(is_readonly_command("python -m ruff check"))
+        """python -m ruff check → False (script exec; may write .ruff_cache)."""
+        self.assertFalse(is_readonly_command("python -m ruff check"))
 
     def test_pylint(self):
         """pylint src/ → True."""
@@ -302,25 +302,25 @@ class IsReadonlyCommandTest(unittest.TestCase):
         """pip freeze → True."""
         self.assertTrue(is_readonly_command("pip freeze"))
 
-    # ── 通用脚本执行（无写入操作符） ──
+    # ── 脚本执行（T-0082 Phase 4: 解释器为可写能力，除非安全标记）──
 
     def test_python_script(self):
-        """python script.py → True."""
-        self.assertTrue(is_readonly_command("python script.py"))
+        """python script.py → False (T-0082: script execution is side-effect capable)."""
+        self.assertFalse(is_readonly_command("python script.py"))
 
     def test_bash_script(self):
         """bash ./run_tests.sh → True."""
         self.assertTrue(is_readonly_command("bash ./run_tests.sh"))
 
     def test_node_script(self):
-        """node index.js → True."""
-        self.assertTrue(is_readonly_command("node index.js"))
+        """node index.js → False (T-0082: script execution is side-effect capable)."""
+        self.assertFalse(is_readonly_command("node index.js"))
 
     # ── 构建只读 ──
 
     def test_python_build_check(self):
-        """python -m build --check → True."""
-        self.assertTrue(is_readonly_command("python -m build --check"))
+        """python -m build --check → False (T-0082: python invocation without safe marker)."""
+        self.assertFalse(is_readonly_command("python -m build --check"))
 
     def test_npm_dry_run(self):
         """npm publish --dry-run → True."""

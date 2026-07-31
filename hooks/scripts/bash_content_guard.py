@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""bash_content_guard.py — PreToolUse hook: intercept dangerous Bash file operations.
+r"""bash_content_guard.py — PreToolUse hook: intercept dangerous Bash file operations.
 
 Detects patterns that bypass Write/Edit hooks:
 - echo "content" > file  (including no-space variant echo>file)
@@ -13,6 +13,11 @@ Detects patterns that bypass Write/Edit hooks:
 - Python inline writes / PowerShell Out-File / Set-Content
 
 T-0082: Enhanced to close echo>file, cat>, dd, touch, curl, git checkout bypasses.
+T-0082 Phase 4: repaired corrupted regex escapes (0x08 backspace bytes and
+stripped backslashes from every \s/\S/\d) that made every pattern dead and
+the module crash with re.error at import time. All patterns rewritten from
+the intended 10-pattern list and re-verified with re.compile at import.
+Also fixed the crash in main(): project_root() requires hook_input.
 
 Exit: 0 = allow, 2 = block
 """
@@ -32,41 +37,44 @@ EXIT_PASS = 0
 EXIT_BLOCK = 2
 
 # Dangerous write patterns — grouped by severity
+# T-0082 Phase 4: rebuilt with correct escapes (previously every `\b` was a
+# literal 0x08 backspace byte and every `\s`/`\S`/`\d` had lost its backslash,
+# so no pattern could ever match and the module raised re.error on import).
 DANGEROUS_PATTERNS = [
-    # === Redirect writes (echo/printf/cat with > or >>) ===
-    # Matches: echo>file, echo > file, echo "x">file, echo "x" > file
-    (re.compile(r'(?:echo|printf|cat)[^|&;]*?>>?s*S+'), "redirect write (echo/printf/cat >)"),
-    # Heredoc redirect: cat << EOF > file
-    (re.compile(r'<<s*w+.*>>?s*S+'), "heredoc redirect"),
+    # 1. Redirect writes (echo/printf/cat with > or >>)
+    # Matches: echo>file, echo > file, echo "x">file, echo "x" > file,
+    #          cat << EOF > file (heredoc redirects contain no |&; before the >)
+    (re.compile(r'(?:echo|printf|cat)\s+[^|&;]*?>>?\s*\S+'), "redirect write (echo/printf/cat >)"),
 
-    # === File copy/move/remove/create ===
-    (re.compile(r'cps+(?:-[a-zA-Z]+s+)?S+s+S+'), "cp command (file copy bypass)"),
-    (re.compile(r'mvs+(?:-[a-zA-Z]+s+)?S+s+S+'), "mv command (file move bypass)"),
-    (re.compile(r'rms+(?:-[a-zA-Z]*[rRf][a-zA-Z]*s+)?S+'), "rm command (file delete bypass)"),
-    (re.compile(r'touchs+S+'), "touch command (file create bypass)"),
+    # 2. File copy/move/remove/create
+    (re.compile(r'(?:^|\s|;|&)(?:cp|mv|rm|touch)\s+'), "cp/mv/rm/touch file op (copy/move/delete/create bypass)"),
 
-    # === Download to file ===
-    (re.compile(r'(?:curl|wget).*?(?:-o|-O|--output)s+S+'), "download to file (curl/wget bypass)"),
+    # 3. dd raw write
+    (re.compile(r'(?:^|\s|;|&)dd\s+'), "dd command (direct write bypass)"),
 
-    # === dd ===
-    (re.compile(r'dd.*?of=S+'), "dd command (direct write bypass)"),
+    # 4. curl/wget -o download-write
+    (re.compile(r'(?:curl|wget)\s+.*?-\s*[oO]\s*\S+'), "download to file (curl/wget bypass)"),
 
-    # === Git revert (can undo changes outside hook control) ===
-    (re.compile(r'gits+checkouts+--s+S+'), "git checkout (file revert bypass)"),
-    (re.compile(r'gits+resets+--hard'), "git reset --hard (destructive revert)"),
+    # 5. Git destructive revert (can undo changes outside hook control)
+    (re.compile(r'git\s+(?:checkout\s+--|reset\s+--hard|clean)'), "git checkout --/reset --hard/clean (destructive revert)"),
 
-    # === Python/Node inline writes ===
-    (re.compile(r'pythond*.*?(?:-cs+|-S*cS*).*?(?:open|write)s*(', re.IGNORECASE), "Python inline file write"),
-    (re.compile(r'nodes+(?:-e|--eval).*?(?:writeFile|createWriteStream)', re.IGNORECASE), "Node inline file write"),
+    # 6. tee write (writes to file AND stdout)
+    (re.compile(r'(?:^|\s|;|&)tee\s+'), "tee command (file write bypass)"),
 
-    # === PowerShell writes ===
-    (re.compile(r'(?:Out-File|Set-Content|Add-Content)', re.IGNORECASE), "PowerShell file write"),
+    # 7. sed -i in-place edit (bypasses Write hook)
+    (re.compile(r'sed\s+-i'), "sed -i (in-place edit bypass)"),
 
-    # === tee (writes to file AND stdout) ===
-    (re.compile(r'tees+(?:-[a-zA-Z]+s+)?S+'), "tee command (file write bypass)"),
+    # 8. Python/Node inline writes (open(), writeFileSync, writeFile)
+    (re.compile(r'(?:python|python3|node)\s+.*?(?:open\(|writeFileSync|writeFile)', re.IGNORECASE), "python/node inline file write"),
 
-    # === sed -i (in-place edit bypasses Write hook) ===
-    (re.compile(r'seds+(?:-[a-zA-Z]*i[a-zA-Z]*)s+'), "sed -i (in-place edit bypass)"),
+    # 9. PowerShell writes
+    (re.compile(r'(?:Set-Content|Out-File|Add-Content)', re.IGNORECASE), "PowerShell file write"),
+
+    # 10. Archive extraction (tar -x / unzip / 7z x)
+    (re.compile(r'(?:tar\s+.*?-x|unzip|7z\s+x)'), "archive extraction (tar/unzip/7z)"),
+
+    # 11. Generic heredoc redirect (e.g. python - <<EOF > file)
+    (re.compile(r'<<\s*\w+.*>>?\s*\S+'), "heredoc redirect"),
 ]
 
 # Paths exempt from bash guard (governance-only writes)
@@ -74,9 +82,9 @@ EXEMPT_DIRS = ['.ai/', '.git/', '__pycache__/', '.zcode/', 'node_modules/']
 
 # Commands that are safe even if they match patterns (read-only operations)
 SAFE_COMMAND_PATTERNS = [
-    re.compile(r'echo.*?|s*(?:grep|head|tail|wc|sort)'),  # echo piped to read-only
-    re.compile(r'gits+(?:status|log|diff|show|branch)'),       # git read-only
-    re.compile(r'rms+-[rRf]s+(?:__pycache__|.pytest_cache)'), # cleanup dirs OK
+    re.compile(r'\becho\b.*?\|\s*(?:grep|head|tail|wc|sort)\b'),  # echo piped to read-only
+    re.compile(r'\bgit\s+(?:status|log|diff|show|branch)\b'),       # git read-only
+    re.compile(r'\brm\s+-[rRf]\s+(?:__pycache__|\.pytest_cache)\b'), # cleanup dirs OK
 ]
 
 
@@ -99,23 +107,23 @@ def _is_safe(command: str) -> bool:
 def _extract_target_path(command: str) -> str | None:
     """Extract the likely target file path from a dangerous command."""
     # Try to find path after redirect operator
-    m = re.search(r'>>?s*(S+)', command)
+    m = re.search(r'>>?\s*(\S+)', command)
     if m:
         return m.group(1)
     # Try cp/mv target (last arg)
-    m = re.search(r'(?:cp|mv)s+(?:-[a-zA-Z]+s+)?S+s+(S+)', command)
+    m = re.search(r'\b(?:cp|mv)\s+(?:-[a-zA-Z]+\s+)?\S+\s+(\S+)', command)
     if m:
         return m.group(1)
     # Try touch/rm target
-    m = re.search(r'(?:touch|rm)s+(?:-[a-zA-Z]+s+)?(S+)', command)
+    m = re.search(r'\b(?:touch|rm)\s+(?:-[a-zA-Z]+\s+)?(\S+)', command)
     if m:
         return m.group(1)
-    # Try curl/wget -o target
-    m = re.search(r'(?:-o|--output)s+(S+)', command)
+    # Try curl/wget -o/-O target
+    m = re.search(r'(?:-\s*[oO]|--output)\s*(\S+)', command)
     if m:
         return m.group(1)
     # Try dd of=target
-    m = re.search(r'of=(S+)', command)
+    m = re.search(r'\bof=(\S+)', command)
     if m:
         return m.group(1)
     return None
@@ -126,8 +134,12 @@ def _is_in_project(target_path: str, project_root: str) -> bool:
     if not target_path or not project_root:
         return False
     try:
-        # Resolve the target path relative to project root
-        resolved = str(Path(target_path).resolve())
+        # Resolve the target path relative to the project root (not the hook's
+        # process CWD — the hook may run from anywhere).
+        target = Path(target_path)
+        if not target.is_absolute():
+            target = Path(project_root) / target
+        resolved = str(target.resolve())
         proj = str(Path(project_root).resolve())
         return resolved.startswith(proj + os.sep) or resolved == proj
     except Exception:
@@ -141,7 +153,7 @@ def main():
         logger.warning("bash_content_guard fatal: %s", _e)
         return EXIT_PASS
 
-    root = project_root()
+    root = project_root(hook_input)
     if not root or not is_governance_project(root):
         return EXIT_PASS
 

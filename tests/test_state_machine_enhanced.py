@@ -261,11 +261,11 @@ class TestPhaseConstraints:
 
     def test_phase_constraint_non_blocker(self):
         """Non-blocker constraint: blocker=False."""
-        # S9_FIX_OPTIMIZE has C10 as non-blocker
+        # S9_FIX_OPTIMIZE has PB-C10 as non-blocker
         constraints = get_constraints_for_phase(Phase.S9_FIX_OPTIMIZE)
         non_blockers = [c for c in constraints if not c.blocker]
         assert len(non_blockers) >= 1
-        assert any(c.constraint_id == "C10-no-functional-test" for c in non_blockers)
+        assert any(c.constraint_id == "PB-C10-no-functional-test" for c in non_blockers)
 
     def test_s4_implementation_has_three_constraints(self):
         """S4-implementation should have C1, C2, C3 constraints."""

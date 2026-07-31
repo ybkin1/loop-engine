@@ -538,16 +538,17 @@ class TestReadonlyClassify(unittest.TestCase):
     """测试 is_readonly_command() 对命令的分类正确性。
 
     验证：
-    - 只读命令（测试、lint、查看）返回 True
+    - 只读命令（查看、git 只读）返回 True
     - 写入命令即使以"只读"形式开始也返回 False
-    - 脚本执行（无写入操作符）返回 True
+    - T-0082 Phase 4: 解释器脚本执行（python/node，无安全标记）返回 False
+      （脚本执行可写文件：open()、writeFileSync、缓存、报告等）
     - 未识别命令保守放行
     """
 
-    # ── 测试运行器 ─────────────────────────────────────────────────────
+    # ── 测试运行器（T-0082 Phase 4: python -m 脚本执行视为可写能力）──
 
     def test_pytest_readonly(self):
-        self.assertTrue(is_readonly_command("python -m pytest tests/ -v"))
+        self.assertFalse(is_readonly_command("python -m pytest tests/ -v"))
 
     def test_nosetests_readonly(self):
         self.assertTrue(is_readonly_command("nosetests tests/"))
@@ -556,24 +557,24 @@ class TestReadonlyClassify(unittest.TestCase):
         self.assertTrue(is_readonly_command("tox -e py311"))
 
     def test_unittest_readonly(self):
-        self.assertTrue(is_readonly_command("python -m unittest discover -s tests"))
+        self.assertFalse(is_readonly_command("python -m unittest discover -s tests"))
 
-    # ── 代码检查 (lint/type-check) ─────────────────────────────────────
+    # ── 代码检查 (lint/type-check)（T-0082 Phase 4: python -m 视为可写能力）──
 
     def test_flake8_readonly(self):
-        self.assertTrue(is_readonly_command("python -m flake8 src/"))
+        self.assertFalse(is_readonly_command("python -m flake8 src/"))
 
     def test_mypy_readonly(self):
-        self.assertTrue(is_readonly_command("python -m mypy src/"))
+        self.assertFalse(is_readonly_command("python -m mypy src/"))
 
     def test_ruff_check_readonly(self):
-        self.assertTrue(is_readonly_command("python -m ruff check src/"))
+        self.assertFalse(is_readonly_command("python -m ruff check src/"))
 
     def test_pylint_readonly(self):
-        self.assertTrue(is_readonly_command("python -m pylint src/"))
+        self.assertFalse(is_readonly_command("python -m pylint src/"))
 
     def test_bandit_readonly(self):
-        self.assertTrue(is_readonly_command("python -m bandit -r src/"))
+        self.assertFalse(is_readonly_command("python -m bandit -r src/"))
 
     def test_black_check_readonly(self):
         self.assertTrue(is_readonly_command("black --check src/"))
@@ -713,15 +714,15 @@ class TestReadonlyClassify(unittest.TestCase):
     # ── 构建只读 ──────────────────────────────────────────────────────
 
     def test_build_check_readonly(self):
-        self.assertTrue(is_readonly_command("python -m build --check"))
+        self.assertFalse(is_readonly_command("python -m build --check"))
 
     def test_npm_dry_run_readonly(self):
         self.assertTrue(is_readonly_command("npm publish --dry-run"))
 
-    # ── 脚本执行（无写入操作符） ──────────────────────────────────────
+    # ── 脚本执行（T-0082 Phase 4: 解释器为可写能力，除非安全标记）──
 
     def test_python_script_readonly(self):
-        self.assertTrue(is_readonly_command("python script.py"))
+        self.assertFalse(is_readonly_command("python script.py"))
 
     def test_bash_script_readonly(self):
         self.assertTrue(is_readonly_command("bash ./run_tests.sh"))
@@ -730,7 +731,7 @@ class TestReadonlyClassify(unittest.TestCase):
         self.assertTrue(is_readonly_command("sh ./deploy.sh"))
 
     def test_node_script_readonly(self):
-        self.assertTrue(is_readonly_command("node index.js"))
+        self.assertFalse(is_readonly_command("node index.js"))
 
     def test_executable_script_readonly(self):
         self.assertTrue(is_readonly_command("./my_tool --help"))

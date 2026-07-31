@@ -2,6 +2,10 @@
 """
 security_scan.py — Basic security scanning for Loop Engine projects.
 
+DEPRECATED: Use loop_core.security_scanner.scan_security() for in-process scanning.
+This script maintained for backward compatibility with CLI-based workflows only.
+For binding/verdict features, use the loop_core API directly.
+
 Checks for: hardcoded secrets, dangerous patterns, missing input validation,
 insecure configurations. Script-based, no external tools required.
 

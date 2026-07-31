@@ -53,7 +53,7 @@ class RuntimeControllerTests(unittest.TestCase):
             controller.create_work_package_proposal("T-X", "G-X", "Implement feature", ["src/"])
             snapshot = controller.approve_and_execute("G-X", approval="批准")
             main = ExecutionContext("main", "main-thread", "main-thread", "T-X", snapshot.execution_id, capability_id=snapshot.capability_id)
-            self.assertEqual(controller.authorize_write(main, "src/app.py"), (False, "MAIN_THREAD_BUSINESS_WRITE_DENIED"))
+            self.assertEqual(controller.authorize_write(main, "src/app.py"), (False, "MAIN_THREAD_BUSINESS_WRITE_FORBIDDEN"))
             developer = ExecutionContext("developer:T-X", "developer", "agent", "T-X", snapshot.execution_id, capability_id=snapshot.capability_id)
             self.assertEqual(controller.authorize_write(developer, "src/app.py"), (True, "AUTHORIZED"))
 

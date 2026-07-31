@@ -10,13 +10,20 @@ Detects:
 
 Project-aware: knows Loop Engine's architecture and checks for
 Loop-specific security patterns (hooks isolation, adapter boundaries).
+
+FAIL-CLOSED POLICY: Any critical severity finding -> Verdict.BLOCKED.
+This cannot be overridden. Security is non-negotiable.
 """
 from __future__ import annotations
 
-import ast
+import hashlib
+import json
 import re
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from .verdicts import ReportBinding, Verdict
 
 
 @dataclass
@@ -33,6 +40,10 @@ class SecFinding:
 class SecurityReport:
     files_scanned: int
     findings: list[SecFinding] = field(default_factory=list)
+    # ── Binding fields (Phase 2) ──
+    binding: ReportBinding | None = None
+    verdict: Verdict = Verdict.NOT_VERIFIED
+    content_hash: str = ""  # SHA-256 of findings content
 
     @property
     def critical(self) -> int:
@@ -45,6 +56,65 @@ class SecurityReport:
     @property
     def passed(self) -> bool:
         return self.critical == 0 and self.high == 0
+
+    def compute_verdict(self) -> Verdict:
+        """Compute verdict based on findings. Fail-closed: any critical -> BLOCKED."""
+        if self.critical > 0:
+            return Verdict.BLOCKED
+        if self.high > 0:
+            return Verdict.FAIL
+        return Verdict.PASS
+
+    def compute_hash(self) -> str:
+        """Compute content hash from findings for fingerprint verification."""
+        sorted_findings = sorted(self.findings, key=lambda f: (f.file, f.line, f.rule_id))
+        content = json.dumps([
+            {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+             "line": f.line, "message": f.message}
+            for f in sorted_findings
+        ], sort_keys=True)
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    def bind(self, task_id: str, phase: str, git_commit: str = "",
+             gate_id: str | None = None, execution_id: str | None = None,
+             diff_fingerprint: str | None = None) -> "SecurityReport":
+        """Bind report to execution context and compute verdict + hash."""
+        self.binding = ReportBinding(
+            task_id=task_id, phase=phase, gate_id=gate_id,
+            execution_id=execution_id, git_commit=git_commit,
+            diff_fingerprint=diff_fingerprint,
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            tool_name="loop_core.security_scanner",
+            tool_version="1.0",
+        )
+        self.verdict = self.compute_verdict()
+        self.content_hash = self.compute_hash()
+        return self
+
+    def is_valid(self) -> bool:
+        """Verify binding integrity. Old/stale reports are invalid."""
+        if self.binding is None:
+            return False
+        missing = self.binding.validate()
+        if missing:
+            return False
+        # Content hash must match
+        if self.content_hash and self.content_hash != self.compute_hash():
+            return False
+        return True
+
+    def to_dict(self) -> dict:
+        return {
+            "files_scanned": self.files_scanned,
+            "findings": [
+                {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+                 "line": f.line, "message": f.message, "snippet": f.snippet}
+                for f in self.findings
+            ],
+            "binding": self.binding.to_dict() if self.binding else None,
+            "verdict": self.verdict.value if self.verdict else Verdict.NOT_VERIFIED.value,
+            "content_hash": self.content_hash,
+        }
 
 
 # ── Patterns ─────────────────────────────────────────────────────────────
@@ -74,8 +144,10 @@ _ENV_PATTERNS = [
 ]
 
 
-def scan_security(root: str | Path) -> SecurityReport:
-    """Run security scan on a project."""
+def scan_security(root: str | Path, task_id: str = "", phase: str = "",
+                  git_commit: str = "", gate_id: str | None = None,
+                  execution_id: str | None = None) -> SecurityReport:
+    """Run security scan on a project with optional execution context binding."""
     root = Path(root).resolve()
     py_files = list(root.rglob("*.py"))
     py_files = [f for f in py_files if "__pycache__" not in str(f) and ".git" not in str(f)]
@@ -147,4 +219,16 @@ def scan_security(root: str | Path) -> SecurityReport:
                             snippet=line.strip()[:100],
                         ))
 
-    return SecurityReport(files_scanned=len(py_files), findings=findings)
+    report = SecurityReport(files_scanned=len(py_files), findings=findings)
+    if task_id:
+        report.bind(task_id=task_id, phase=phase, git_commit=git_commit,
+                    gate_id=gate_id, execution_id=execution_id)
+    return report
+
+
+# Compatibility alias (legacy callers expect "SecurityScanner" class)
+class SecurityScanner:
+    """Compatibility wrapper for function-based security_scanner module."""
+    @staticmethod
+    def scan(root):
+        return scan_security(root)

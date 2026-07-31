@@ -3,6 +3,10 @@
 """
 run_security_scan.py — 安全扫描编排脚本（安全工程师使用）。
 
+DEPRECATED: Use loop_core.security_scanner.scan_security() for in-process scanning.
+This script maintained for backward compatibility with CLI-based workflows only.
+For binding/verdict features, use the loop_core API directly.
+
 确定性代码，不依赖 LLM。依次执行四类安全扫描：
   1. 依赖 CVE 扫描 — 优先复用质量工程师审计结果，否则独立运行
   2. 密钥泄露扫描 — 内置正则匹配常见密钥模式

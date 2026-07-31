@@ -26,6 +26,27 @@ def _project(tmp_path: Path, projection: str | None = None) -> Path:
     (tmp_path / ".ai" / "tasks").mkdir(parents=True)
     (tmp_path / ".ai" / "state.yaml").write_text(STATE, encoding="utf-8")
     (tmp_path / ".ai" / "tasks" / "T-0078.md").write_text(TASK, encoding="utf-8")
+    # T-0082: the enforcement hook requires the quality gate config to exist
+    # for S4+ phases; without it all writes are BLOCKED with
+    # "质量门禁配置不存在". Content mirrors the repo's real config; the hook
+    # only checks existence (hooks/scripts/loop_enforcement.py,
+    # check_phase_gate_enforcement).
+    qg_dir = tmp_path / ".zcode" / "skills" / "loop-governance"
+    qg_dir.mkdir(parents=True, exist_ok=True)
+    (qg_dir / "config.yaml").write_text(
+        "gate_guard:\n"
+        "  enabled: true\n"
+        "  decision_recording_exempt:\n"
+        "    - .ai/gates.yaml\n"
+        "    - .ai/state.yaml\n"
+        "    - .ai/task_graph.yaml\n"
+        "path_guard:\n"
+        "  enabled: true\n"
+        "  decision: ask\n"
+        "session_brief:\n"
+        "  enabled: true\n",
+        encoding="utf-8",
+    )
     if projection is not None:
         (tmp_path / ".ai" / "runtime").mkdir()
         (tmp_path / ".ai" / "runtime" / "runtime-state.json").write_text(projection, encoding="utf-8")
