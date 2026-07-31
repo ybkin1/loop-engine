@@ -394,7 +394,18 @@ class IsReadonlyCommandFalseTest(unittest.TestCase):
 class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
     """End-to-end tests: loop_enforcement.py allows readonly Bash commands
     even when FULL mode is active and the command isn't tied to an
-    explicit task scope."""
+    explicit task scope.
+
+    T-0082 design note (hooks/scripts/loop_enforcement.py:914, _git_commit_exempt):
+    git commit-ops ("git add", "git commit", "git diff", "git status",
+    "git log", "git branch", "git show", "git tag", "git config") are
+    intentionally EXEMPT from the DISPATCH_REQUIRED (runtime projection)
+    gate — governance records must be inspectable and committable even
+    before a runtime projection exists. With an active task, ALL local git
+    operations pass without a projection; without a task, only
+    add/commit/diff pass. All other readonly commands (ls, pytest, flake8...)
+    remain fail-closed without a runtime projection.
+    """
 
     def test_pytest_passes_in_full_mode(self):
         """python -m pytest tests/ is BLOCKED without runtime projection.
@@ -412,34 +423,37 @@ class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
                              f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
 
     def test_git_status_passes_in_full_mode(self):
-        """git status is BLOCKED without runtime projection.
+        """git status is ALLOWED (rc=0) without runtime projection.
 
-        In FULL mode with an active task, the enforcement hook now requires
-        a runtime projection (fail-closed).  This test verifies that
-        local git operations are blocked when the projection is missing.
+        WHY (T-0082): git commit-ops are exempt from the DISPATCH_REQUIRED
+        gate via _git_commit_exempt (loop_enforcement.py:914). With an active
+        task, all local git operations (status/log/branch/show/tag/config are
+        in the exempt prefix list) pass even without a runtime projection —
+        governance records must be committable. This test previously expected
+        EXIT_BLOCK(2); the expectation was stale after T-0082.
         """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git status"))
-            self.assertEqual(r.returncode, 2,
-                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 0,
+                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
 
     def test_git_log_passes_in_full_mode(self):
-        """git log is BLOCKED without runtime projection.
+        """git log is ALLOWED (rc=0) without runtime projection.
 
-        In FULL mode with an active task, the enforcement hook now requires
-        a runtime projection (fail-closed).  This test verifies that
-        local git operations are blocked when the projection is missing.
+        WHY (T-0082): same commit-op exemption as git status —
+        "git log" is in the _git_commit_exempt prefix list
+        (loop_enforcement.py:914), so it bypasses the DISPATCH_REQUIRED gate.
         """
         with tempfile.TemporaryDirectory() as tmp:
             root = _make_project(tmp, state_content=STATE_FULL,
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git log --oneline -5"))
-            self.assertEqual(r.returncode, 2,
-                             f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 0,
+                             f"Expected EXIT_PASS(0). stderr: {r.stderr}")
 
     def test_ls_passes_in_full_mode(self):
         """ls -la is BLOCKED without runtime projection.
@@ -520,11 +534,15 @@ class LoopEnforcementBashReadonlyIntegration(unittest.TestCase):
 
     def test_readonly_bash_blocked_without_task(self):
         """Readonly Bash commands must be blocked when no task_id is set.
-        
+
         This is a governance hardening: project-level exploration (find, grep,
         git status, ls) requires an active task. Previously this was allowed,
         which let the main thread discover and analyze project structure
         before creating a task — bypassing the "no task = no project work" rule.
+
+        NOTE (T-0082): git status is still blocked here — without a task only
+        the minimal commit-ops ("git add", "git commit", "git diff") are
+        exempt; status/log remain project-level exploration and stay blocked.
         """
         state_no_task = """\
 schema_version: 1
@@ -540,11 +558,15 @@ loop_mode: FULL
                              f"Expected EXIT_BLOCK(2) for readonly Bash without task. stderr: {r.stderr}")
 
     def test_readonly_bash_allowed_with_active_task(self):
-        """Readonly Bash commands are BLOCKED without runtime projection.
+        """git status with an active task is ALLOWED (rc=0) without projection.
 
-        In FULL mode with an active task, the enforcement hook now requires
-        a runtime projection (fail-closed).  Even readonly commands with an
-        active task are blocked when the projection is missing.
+        WHY (T-0082): git commit-ops are exempt from the DISPATCH_REQUIRED
+        (runtime projection) gate via _git_commit_exempt
+        (loop_enforcement.py:914); with an active task, ALL local git
+        operations pass even without a projection — governance records must
+        be committable. Non-git readonly commands (ls, pytest, flake8) are
+        still fail-closed without a projection, as covered by
+        test_ls_passes_in_full_mode / test_pytest_passes_in_full_mode.
         """
         state_with_task = """\
 schema_version: 1
@@ -558,8 +580,8 @@ loop_mode: FULL
                                  task_files={"T-0001.md": TASK_IN_SCOPE})
             r = _run_hook("loop_enforcement.py", root,
                           _bash_input("git status"))
-            self.assertEqual(r.returncode, 2,
-                             f"Expected EXIT_BLOCK(2) for readonly Bash without runtime projection. stderr: {r.stderr}")
+            self.assertEqual(r.returncode, 0,
+                             f"Expected EXIT_PASS(0) for git commit-op with active task. stderr: {r.stderr}")
 
     def test_non_bash_tool_still_requires_target(self):
         """Write/Edit tools without readonly paths should still require task scope."""

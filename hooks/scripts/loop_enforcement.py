@@ -17,11 +17,14 @@ Blocking logic:
 
 Exit codes: 0 = allow, 2 = block
 """
+import hashlib
 import json
 import logging
 import os
 import subprocess
 import sys
+import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -61,6 +64,17 @@ except ImportError:
 
 _HardConstraints, _Severity = try_import_hard_constraints()
 _HARD_CONSTRAINTS_AVAILABLE = _HardConstraints is not None
+
+# B7 (T-0083): EvidenceEnvelope / Phase are needed to build the full
+# HardConstraints context (C8 evidence freshness, phase gating C1/C2/C5/C6).
+# Missing loop_core degrades the corresponding checks gracefully (same policy
+# as _HARD_CONSTRAINTS_AVAILABLE).
+try:
+    from loop_core.hard_constraints import EvidenceEnvelope as _EvidenceEnvelope
+    from loop_core.state_machine import Phase as _Phase
+except ImportError:
+    _EvidenceEnvelope = None
+    _Phase = None
 
 EXIT_PASS = 0
 EXIT_BLOCK = 2
@@ -139,7 +153,7 @@ def is_legacy_synthetic_hook_fixture() -> bool:
 
 
 def load_task_contract(root: Path, task_id: str) -> dict | None:
-    """Load the task contract to check allowed paths."""
+    """Load the task contract to check allowed paths and MCP tool allow-list."""
     task_path = root / ".ai" / "tasks" / f"{task_id}.md"
     if not task_path.exists():
         return None
@@ -149,25 +163,67 @@ def load_task_contract(root: Path, task_id: str) -> dict | None:
         "allowed_paths": [],
         "developer_agent_id": None,
         "reviewer_agent_id": None,
+        # B3 (T-0083): MCP capability model — explicit task contract permission.
+        # Empty list = no MCP tools allowed (fail-closed default).
+        "mcp_allowed_tools": [],
     }
 
     in_allowed_section = False
+    in_mcp_section = False
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("allowed_paths:") or line.startswith("allowed_actions:"):
             in_allowed_section = True
+            in_mcp_section = False
+            continue
+        # B3 (T-0083): mcp_allowed_tools — plain key form
+        # ("mcp_allowed_tools: [mcp__a]" / "mcp_allowed_tools:\n- mcp__a")
+        # or 基本信息 markdown-table row ("| mcp_allowed_tools | mcp__a |").
+        if line.startswith("mcp_allowed_tools:") or line.startswith("| mcp_allowed_tools"):
+            in_allowed_section = False
+            rest = line.split(":", 1)[1].strip() if ":" in line else ""
+            if line.startswith("| mcp_allowed_tools") and not rest:
+                parts = line.split("|")
+                rest = parts[2].strip() if len(parts) > 2 else ""
+            if rest:
+                # Inline flow style: [mcp__a, mcp__b] or a single tool name.
+                in_mcp_section = False
+                inner = rest[1:-1] if rest.startswith("[") and rest.endswith("]") else rest
+                for item in inner.split(","):
+                    item = item.strip().strip("'\"").strip()
+                    if item:
+                        contract["mcp_allowed_tools"].append(item)
+                continue
+            in_mcp_section = True
             continue
         if in_allowed_section and line.startswith("- "):
             path = line[2:].strip().strip('"')
             contract["allowed_paths"].append(path)
-        elif in_allowed_section and not line.startswith("- "):
+        elif in_mcp_section and line.startswith("- "):
+            tool = line[2:].strip().strip('"')
+            contract["mcp_allowed_tools"].append(tool)
+        elif (in_allowed_section or in_mcp_section) and not line.startswith("- "):
             in_allowed_section = False
+            in_mcp_section = False
         if line.startswith("developer_agent_id:"):
             contract["developer_agent_id"] = line.split(":", 1)[1].strip().strip('"')
         elif line.startswith("reviewer_agent_id:"):
             contract["reviewer_agent_id"] = line.split(":", 1)[1].strip().strip('"')
 
     return contract
+
+
+def _task_mcp_allowed_tools(root: Path, task_id: str) -> list[str]:
+    """B3 (T-0083): return the task contract's MCP tool allow-list.
+
+    Parsed from the optional `mcp_allowed_tools` field in the task file.
+    An empty list (field absent) means no MCP tools are allowed — the
+    fail-closed default stays in force.
+    """
+    contract = load_task_contract(root, task_id)
+    if contract is None:
+        return []
+    return contract.get("mcp_allowed_tools", [])
 
 
 def is_governance_write(rel_path: str | None) -> bool:
@@ -224,7 +280,11 @@ def check_diff_scope(
     过滤治理路径（.ai/、.zcode/）后，凡落在任务 allowed_paths 之外的
     变更文件都视为越界（count > 0 → block）。
 
-    - 非 git 仓库 / git 不可用 / git 出错 → fail-open（log warning，放行）。
+    T-0083 (AC-06) 语义（was fail-open）：
+    - 任务未声明 allowed_paths → 跳过（无范围可验证）。
+    - 非 git 仓库（无 .git 目录）→ 跳过（无 diff 范围概念）。
+    - git 可执行文件缺失 / git 命令出错 → NOT_VERIFIED（False，阻断）：
+      配置了 allowed_paths 却无法验证变更范围，必须 fail-closed。
     - max_diff_files 用于限制阻断信息中列出的越界文件数量。
     - 不追踪未跟踪（untracked）新文件：per-write 的 is_in_task_scope
       已对新增文件做路径校验。
@@ -245,16 +305,17 @@ def check_diff_scope(
             timeout=30,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
-        logger.warning("[diff-scope] git 不可用，跳过检查: %s", exc)
-        return True, f"git 不可用，跳过 diff 范围检查（{exc}）"
+        # T-0083: fail-closed（was fail-open）。git 不可用 → 无法验证变更范围。
+        logger.warning("[diff-scope] git 不可用，无法验证变更范围（NOT_VERIFIED）: %s", exc)
+        return False, "变更范围无法验证（git 不可用）— NOT_VERIFIED"
 
     if result.returncode != 0:
-        # HEAD 不存在（初始提交）等场景 → fail-open
+        # T-0083: fail-closed（was fail-open）。git 命令出错 → 无法验证变更范围。
         logger.warning(
-            "[diff-scope] git diff 失败（rc=%s）: %s",
+            "[diff-scope] git diff 失败（rc=%s，NOT_VERIFIED）: %s",
             result.returncode, result.stderr.strip()[:200],
         )
-        return True, "git diff 失败，跳过 diff 范围检查"
+        return False, "变更范围无法验证（git diff 失败）— NOT_VERIFIED"
 
     changed = [line.strip() for line in result.stdout.splitlines() if line.strip()]
     if not changed:
@@ -434,24 +495,58 @@ def check_quality_gate_evidence(root: Path) -> tuple[bool, str]:
     return True, f"质量证据已通过（overall={overall}，证据真实性校验通过）"
 
 
-# ── T-0082 Phase 3: subagent review-evidence isolation trace (non-blocking) ──
+# ── T-0082 Phase 3 → T-0083 (B6): subagent review-evidence isolation ──
+# B6 change: self-review (reviewer_session_id == developer_session_id) now
+# BLOCKS the write when enforcement.self_review_block is enabled (default)
+# and loop_mode == FULL.  Projects can opt out via config.yaml
+# (enforcement.self_review_block: false); STANDARD mode keeps the T-0082
+# trace-only behavior.
 
 
-def trace_review_evidence_isolation(root: Path, task_id: str | None) -> None:
-    """Trace-only scan of review evidence for self-review. Never blocks.
+def _self_review_block_enabled(root: Path) -> bool:
+    """Config-gated self-review blocking (B6).
+
+    Default: enabled in FULL mode.  Opt-out:
+      .zcode/skills/loop-governance/config.yaml
+        enforcement:
+          self_review_block: false
+    """
+    try:
+        state = load_state(root)
+    except Exception:
+        state = {}
+    if str(state.get("loop_mode", "")).upper() != "FULL":
+        return False
+    cfg = load_config(root)
+    enf = cfg.get("enforcement", {})
+    if not isinstance(enf, dict):
+        enf = {}
+    return bool(enf.get("self_review_block", True))
+
+
+def trace_review_evidence_isolation(root: Path, task_id: str | None) -> bool:
+    """Scan review evidence for self-review; BLOCK when detected (B6).
 
     Scans .ai/evidence/<task_id>/ for review evidence JSONs carrying
-    reviewer_session_id / developer_session_id fields and logs a warning
-    when they are equal (self-review). Additionally runs the
-    subagent_evidence_verifier.verify_review_evidence trace (T-0067 logic)
-    when importable. Verdict is logged to stderr only — this function
-    never returns a blocking verdict.
+    reviewer_session_id / developer_session_id fields.  When they are equal
+    (self-review) AND blocking is enabled (config enforcement.
+    self_review_block, default true) AND loop_mode == FULL → returns True
+    and the caller must EXIT_BLOCK.
+
+    When blocking is disabled or mode is not FULL, the scan degrades to the
+    T-0082 trace behavior (warning log only, never blocks).  Additionally
+    runs the subagent_evidence_verifier.verify_review_evidence trace
+    (T-0067 logic) when importable (log-only).
+
+    Returns True when the write must be blocked (SELF_REVIEW).
     """
     if not task_id:
-        return
+        return False
     evidence_dir = root / ".ai" / "evidence" / task_id
     if not evidence_dir.is_dir():
-        return
+        return False
+
+    block_enabled = _self_review_block_enabled(root)
 
     verifier_available = False
     try:
@@ -477,6 +572,8 @@ def trace_review_evidence_isolation(root: Path, task_id: str | None) -> None:
                 "SELF_REVIEW_TRACE: %s: reviewer_session_id == developer_session_id (%s)",
                 p.relative_to(root), reviewer,
             )
+            if block_enabled:
+                return True
             continue
         if verifier_available:
             try:
@@ -490,6 +587,167 @@ def trace_review_evidence_isolation(root: Path, task_id: str | None) -> None:
                     )
             except Exception:
                 pass  # trace only; never blocks
+
+    return False
+
+
+# ── B7 (T-0083): HardConstraints context builders ─────────────────────
+# Populates the previously-empty context keys from actual governance state
+# so C1/C2/C5/C6/C8-C11 execute instead of returning early.  Loader logic
+# mirrors loop_core.enforcement_hub.EnforcementHub._load_* (single source
+# of truth for the same semantics).
+
+
+def _load_quality_results_for_context(root: Path) -> dict:
+    """Load quality results from .ai/evidence/quality/quality_report.json.
+
+    Maps check name → canonical status (PASS/FAIL/BLOCKED/...) for C5.
+    """
+    results: dict = {}
+    qp = root / ".ai" / "evidence" / "quality" / "quality_report.json"
+    if not qp.exists():
+        return results
+    try:
+        data = json.loads(qp.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return results
+    for c in data.get("checks", []):
+        if c.get("name") and c.get("status"):
+            results[c["name"]] = str(c["status"]).upper()
+    return results
+
+
+def _load_review_status_for_context(root: Path, task_id: str | None) -> dict:
+    """Load the independent-reviewer verdict from the task's evidence dir.
+
+    Mirrors EnforcementHub._load_review_status but scoped to the active
+    task's evidence directory (per-write hook performance).  Returns
+    {"independent-reviewer": verdict, "findings": [...]} when a JSON
+    evidence file carries role == "independent-reviewer".
+    """
+    status: dict = {}
+    if not task_id:
+        return status
+    ed = root / ".ai" / "evidence" / task_id
+    if not ed.is_dir():
+        return status
+    for f in sorted(ed.rglob("*.json")):
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        if str(data.get("role", "")).strip() == "independent-reviewer":
+            status["independent-reviewer"] = str(data.get("verdict", "UNKNOWN")).upper()
+            if isinstance(data.get("findings"), list):
+                status["findings"] = data["findings"]
+            return status
+    return status
+
+
+def _load_evidence_envelopes_for_context(root: Path, task_id: str | None) -> tuple[list, dict]:
+    """Build C8 evidence envelopes + current hashes from the task evidence dir.
+
+    - evidence_envelope.json files are parsed as-is (expiry respected).
+    - every other JSON evidence file is wrapped in an envelope with no
+      expiry and its current content hash, so C8 iterates real evidence
+      without false-positive staleness.
+
+    Returns (envelopes, current_hashes).
+    """
+    envelopes: list = []
+    current_hashes: dict = {}
+    if not task_id or _EvidenceEnvelope is None:
+        return envelopes, current_hashes
+    ed = root / ".ai" / "evidence" / task_id
+    if not ed.is_dir():
+        return envelopes, current_hashes
+    for p in sorted(ed.rglob("*.json")):
+        try:
+            raw = p.read_bytes()
+        except OSError:
+            continue
+        h = hashlib.sha256(raw).hexdigest()
+        if p.name == "evidence_envelope.json":
+            try:
+                data = json.loads(raw.decode("utf-8"))
+                env = _EvidenceEnvelope(
+                    evidence_id=str(data.get("evidence_id") or p.stem),
+                    content_hash=str(data.get("content_hash") or h),
+                    created_at=str(data.get("created_at") or ""),
+                    expires_at=data.get("expires_at"),
+                    phase=_Phase(data["phase"]) if data.get("phase") else None,
+                )
+                envelopes.append(env)
+                current_hashes[env.evidence_id] = h
+                continue
+            except (ValueError, TypeError, json.JSONDecodeError):
+                pass  # malformed envelope → fall through to generic wrap
+        rel_id = p.relative_to(ed).as_posix()
+        try:
+            created = datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc).isoformat()
+        except OSError:
+            created = datetime.now(timezone.utc).isoformat()
+        envelopes.append(_EvidenceEnvelope(
+            evidence_id=rel_id,
+            content_hash=h,
+            created_at=created,
+            expires_at=None,  # generic evidence: no expiry window declared
+        ))
+        current_hashes[rel_id] = h
+    return envelopes, current_hashes
+
+
+def build_hard_constraints_context(
+    root: Path,
+    state: dict,
+    task_id: str | None,
+    rel: str | None,
+    target,
+    contract: dict | None,
+    tasks: list,
+) -> dict:
+    """B7: construct the full HardConstraints context from actual state.
+
+    Previously C1/C2/C5/C6/C8-C11 were dead letters because the context
+    passed current_phase=None, phase_gates={}, quality_results={},
+    review_status={}, evidence_list=[] and no root/task_id.  This builder
+    populates every key the C-functions read:
+      - C1/C2  ← current_phase + phase_gates
+      - C5     ← quality_results (+ target_phase; writes never advance
+                 phases, so target_phase stays None → C5 intentionally
+                 remains a phase-transition-domain check)
+      - C6     ← current_phase + review_status (evidence-derived)
+      - C8     ← evidence_list + current_hashes
+      - C9     ← root + scan_paths (S4/S5 phases only)
+      - C10    ← root + task_id
+      - C11    ← root + task_id + max_files
+    """
+    current_phase = state.get("current_phase") or None
+    evidence_list, current_hashes = _load_evidence_envelopes_for_context(root, task_id)
+    max_files = _read_task_max_files(root, task_id)
+    return {
+        "current_phase": current_phase,
+        # Writes never advance phases (phase transitions are the
+        # RuntimeController's domain) → target_phase stays None.  C5's
+        # check_c5_verification requires target_phase == S6-delivery and
+        # returns early otherwise (verified by probe, see evidence).
+        "target_phase": None,
+        "phase_gates": load_phase_gates_for_context(root),
+        "gates": load_gates_for_context(root),
+        "tasks": tasks,
+        "target_path": rel or target,
+        "allowed_paths": contract.get("allowed_paths", []) if contract else [],
+        "quality_results": _load_quality_results_for_context(root),
+        "review_status": _load_review_status_for_context(root, task_id),
+        "evidence_list": evidence_list,
+        "current_hashes": current_hashes,
+        "root": str(root),
+        "task_id": str(task_id) if task_id else None,
+        "scan_paths": [str(root)],
+        "max_files": max_files if max_files is not None else 10,
+    }
 
 
 def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
@@ -510,13 +768,38 @@ def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
                     try:
                         decision = json.loads(decision_file.read_text(encoding="utf-8"))
                     except (json.JSONDecodeError, IOError):
+                        # 文件无法解析 → 不可信，继续检查更早版本
                         continue
-                    go_nogo = decision.get("decision")
-                    if go_nogo:
+                    # T-0083 (AC-06): 修复 NOGO-passes-as-GO bug（was: 任意
+                    # truthy decision 都放行）。只有明确 GO / 带 owners+deadline
+                    # 的 CONDITIONAL_GO 才通过；NOGO、非法或缺失决策一律阻断。
+                    decision_str = str(decision.get("decision", "")).upper()
+                    if decision_str == "GO":
                         return True, (
-                            f"交付决策已存在（decision={go_nogo}，"
-                            f"版本={version_dir.name}）"
+                            f"交付经理决策：GO（版本={version_dir.name}）"
                         )
+                    if decision_str in ("CONDITIONAL_GO", "CONDITIONAL-GO"):
+                        owners = decision.get("owners", [])
+                        deadline = decision.get("deadline", "")
+                        if owners and deadline:
+                            return True, (
+                                f"CONDITIONAL_GO: owners={owners} "
+                                f"deadline={deadline}（版本={version_dir.name}）"
+                            )
+                        return False, (
+                            "CONDITIONAL_GO 缺少 owners/deadline"
+                            f"（版本={version_dir.name}）— 发布阻断"
+                        )
+                    if decision_str == "NOGO":
+                        return False, (
+                            "交付经理决策：NOGO"
+                            f"（版本={version_dir.name}）— 发布阻断"
+                        )
+                    return False, (
+                        f"决策值非法或缺失: {decision.get('decision')!r}"
+                        f"（版本={version_dir.name}，须为 GO/CONDITIONAL_GO/NOGO）"
+                        "— 发布阻断"
+                    )
 
     # 2. Check certifications/state.yaml for delivery-manager
     cert_file = root / ".ai" / "certifications" / "state.yaml"
@@ -532,7 +815,9 @@ def check_delivery_gate_evidence(root: Path) -> tuple[bool, str]:
         if cert_data:
             roles = cert_data.get("roles", {})
             dm = roles.get("delivery-manager", {})
-            if isinstance(dm, dict) and dm.get("state") == "CERTIFIED":
+            # T-0083 (AC-06): 校验 delivery-manager 状态必须恰好为 CERTIFIED
+            # （归一化大小写/空白后精确匹配），其余状态一律不算放行证据。
+            if isinstance(dm, dict) and str(dm.get("state", "")).strip().upper() == "CERTIFIED":
                 return True, (
                     "交付经理认证状态为 CERTIFIED（"
                     f"last_challenge={dm.get('last_challenge', 'N/A')}）"
@@ -635,7 +920,10 @@ def _check_phase_evidence_file(
     - overall 缺失时兼容旧格式 verdict 字段。
     - accept_no_regression=True 时接受 regression_runner 输出风格：
       has_regressions == false 或 verdict == PASS（无 overall 字段）。
-    - 任一候选通过即整体通过（fail-open 于多候选场景）；全部失败返回 False。
+    - T-0083 (AC-06)：任一候选通过即整体通过；但已存在候选的任何非 PASS
+      判定（FAIL/BLOCKED/NOT_VERIFIED/NOT_RUN/SKIPPED 等）都记为该候选
+      的失败（fail-closed，was 模糊的"需要 PASS"）；全部候选缺失/无效/非
+      PASS → 阻断。
 
     Returns (ok, reason)。
     """
@@ -680,8 +968,11 @@ def _check_phase_evidence_file(
             or str(data.get("verdict", "")).upper() == "PASS"
         ):
             return True, f"{phase} 阶段证据已通过（{rel_p} 无回归）"
-        failures.append(f"{rel_p} overall={overall}（需要 PASS）")
+        # T-0083 (AC-06): fail-closed — 任何非 PASS 判定
+        # （FAIL/BLOCKED/NOT_VERIFIED/NOT_RUN/SKIPPED）都是 gate failure。
+        failures.append(f"{rel_p} overall={overall} 非 PASS（fail-closed）")
 
+    # 任一候选通过即整体通过；全部候选缺失/无效/非 PASS → 阻断
     return False, (
         f"{phase} 阶段证据不完整，以下文件均需存在且 overall=PASS："
         + "; ".join(f"{p.relative_to(root)}" for p in candidates)
@@ -866,6 +1157,19 @@ def main():
                     tool_name,
                 )
                 return EXIT_BLOCK  # fail-closed: MCP side effects require an active task
+            # B3 (T-0083): capability allow-list — explicit task contract permission.
+            # The task file's optional `mcp_allowed_tools` field grants specific
+            # MCP tools; absent field = empty list = no MCP tools allowed.
+            mcp_allowed = _task_mcp_allowed_tools(root, task_id)
+            if tool_name not in mcp_allowed:
+                # Note: task_id already carries the "T-" prefix (e.g. "T-0001"),
+                # so the format uses plain %s — the mission sketch's "T-%s"
+                # would render "T-T-0001".
+                logger.warning(
+                    "BLOCKED: mcp__ tool %s not in task %s allowed list",
+                    tool_name, task_id,
+                )
+                return EXIT_BLOCK
             # fall through to identity/DISPATCH gates below
         if is_orchestration:
             logger.warning("DISPATCH_REQUIRED: Agent/Skill/Task orchestration allowed; no execution takeover evidence; this is not a dispatch receipt")
@@ -943,9 +1247,16 @@ def main():
         tool_name = hook_input.get("tool_name", "")
         tool_input = hook_input.get("tool_input") or {}
 
-        # ── T-0082 Phase 3: subagent review-evidence isolation trace ──
-        # Non-blocking: logs self-review warnings only, never changes verdict.
-        trace_review_evidence_isolation(root, task_id)
+        # ── T-0082 Phase 3 → T-0083 (B6): subagent review-evidence isolation ──
+        # B6: self-review (reviewer_session_id == developer_session_id) now
+        # BLOCKS business writes in FULL mode (config-gated; default on).
+        if trace_review_evidence_isolation(root, task_id):
+            logger.warning(
+                "BLOCKED: SELF_REVIEW evidence detected "
+                "(reviewer==developer session) for task %s "
+                "— independent review required", task_id,
+            )
+            return EXIT_BLOCK
 
         # ── GOVERNANCE_RECOVERY: 最小化、受限、可审计的恢复通道 ──
         # 只在 Controller/runtime-state 损坏时使用。
@@ -1052,25 +1363,25 @@ def main():
                             "_synthetic": True,
                         })
 
-                # 构造 HardConstraints 所需的 context
-                # 注意：loop_enforcement 负责 C3（任务范围）和 C4（路径范围），
-                # 不负责阶段切换检查（C1/C2/C5/C6）。传递 current_phase=None
-                # 可跳过这些阶段相关的约束检查。
-                context = {
-                    "current_phase": None,          # 跳过 C1/C2/C6 阶段检查
-                    "target_phase": None,           # loop_enforcement 不涉及阶段切换
-                    "phase_gates": {},              # 不触发 C1/C2
-                    "gates": load_gates_for_context(root),
-                    "tasks": tasks,
-                    "target_path": rel or target,
-                    "allowed_paths": contract.get("allowed_paths", []) if contract else [],
-                    "quality_results": {},
-                    "review_status": {},
-                    "evidence_list": [],
-                    "current_hashes": {},
-                }
+                # B7 (T-0083): 构造 HardConstraints 所需的完整 context。
+                # 之前 current_phase=None / phase_gates={} / quality_results={}
+                # / review_status={} / evidence_list=[] 且无 root/task_id，
+                # 导致 C1/C2/C5/C6/C8-C11 全部 early-return（dead letters，
+                # gap-analysis §2.13）。现在从真实治理状态填充，激活
+                # C1/C2/C5/C6/C8-C11（C5 因写入不推进阶段保持 dormant，
+                # 见 build_hard_constraints_context 注释）。
+                context = build_hard_constraints_context(
+                    root, state, task_id, rel, target, contract, tasks,
+                )
 
-                result = hc.check_all(context)
+                # C5 的 target_phase=None 警告是刻意为之（写入不推进阶段），
+                # 抑制该已知警告避免每次写入都刷 stderr。
+                with warnings.catch_warnings():
+                    warnings.filterwarnings(
+                        "ignore",
+                        message=r"C5 verification check called with target_phase=None.*",
+                    )
+                    result = hc.check_all(context)
 
                 if not result.passed:
                     for v in result.violations:
@@ -1091,14 +1402,14 @@ def main():
                     "HardConstraints passed (blockers=%d, warnings=%d)",
                     result.blocker_count, result.warning_count,
                 )
-            except Exception as e:
-                # 注意：此异常处理是功能性的（非安全相关）。
-                # HardConstraints 是渐进式迁移的增强层，其内部异常不应阻断
-                # 现有的 fallback 逻辑。因此此处保持 fail-open（回退到下方现有逻辑）。
-                logger.warning(
-                    "[warn] HardConstraints 执行异常，回退到现有逻辑：%s", e
-                )
-                # 回退到下方的现有逻辑 —— 不 return
+            except Exception as exc:
+                # T-0083 (AC-06): fail-closed default (was fail-open). A broken
+                # constraint kernel must not silently pass — that was the
+                # T-0082 governance-theater failure.
+                if should_fail_closed(root):
+                    logger.warning("BLOCKED: HardConstraints 执行异常（fail-closed）: %s", exc)
+                    return EXIT_BLOCK
+                logger.warning("[warn] HardConstraints 执行异常，fail-open 放行（DEBUG ONLY）: %s", exc)
 
         # ── 现有 Phase Gate Enforcement（始终执行，作为最终裁决）──
 
@@ -1168,7 +1479,8 @@ def main():
 
         # ── T-0082 Phase 5 GAP-5a: Diff 变更范围检查 ──
         # 仅当 git 仓库存在且任务声明了 allowed_paths 时执行；
-        # git 错误 fail-open（记录 warning），不破坏非 git 场景。
+        # T-0083 (AC-06): git 不可用/出错 → NOT_VERIFIED（阻断），不再 fail-open。
+        # 非 git 仓库（无 .git）跳过（无 diff 范围概念）。
         allowed_paths = contract.get("allowed_paths", [])
         if allowed_paths and (root / ".git").exists():
             diff_ok, diff_reason = check_diff_scope(root, allowed_paths)

@@ -76,14 +76,28 @@ def _run_ruff_check(file_path):
                 capture_output=True, text=True, timeout=30,
             )
         output = (result.stdout or "").strip()
-        if result.returncode == 0 or not output:
+        if result.returncode == 0:
             return True, []
+        if not output:
+            # T-0083 (AC-06): fail-closed（was fail-open）。rc≠0 + 无输出通常
+            # 意味着模块缺失（"No module named ruff"）或工具本身故障——
+            # 语法/质量检查无法执行时必须阻断，不能当成"零违规"放行。
+            return False, [
+                f"ruff 检查执行失败（rc={result.returncode}，无输出）："
+                "语法/质量检查无法执行（fail-closed）"
+            ]
         return False, [line.strip() for line in output.split("\n") if line.strip()]
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return True, []
+    except FileNotFoundError:
+        # T-0083 (AC-06): fail-closed（was fail-open）。ruff 不可用 → 阻断。
+        return False, ["ruff 不可用：语法/质量检查无法执行（fail-closed）"]
+    except subprocess.TimeoutExpired:
+        # T-0083 (AC-06): fail-closed（was fail-open）。超时 → 阻断。
+        return False, ["ruff 检查超时：语法/质量检查无法执行（fail-closed）"]
     except Exception as _e:
-        import logging; logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
-        return True, []
+        # T-0083 (AC-06): fail-closed（was fail-open）。执行异常 → 阻断。
+        import logging
+        logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
+        return False, [f"ruff 检查执行异常：{_e}（fail-closed）"]
 
 
 def _scan_secrets(content):

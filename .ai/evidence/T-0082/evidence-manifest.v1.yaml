@@ -1,0 +1,108 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0082-B41B8CBC
+task_id: T-0082
+gate_id: G-T-0082-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0082
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0082/baseline/baseline-report.md
+  role: result
+  required: true
+  sha256: 65FE3E13805D753AB5906B90A318A654CA29A8A54A3FE9A6E4E6F410FE9EF373
+  size: 8189
+  mtime_ns: 1785476643936735700
+- path: .ai/evidence/T-0082/commands.md
+  role: result
+  required: true
+  sha256: 5D60F18519A9E2BCCF92890A7284F2D99B69F8159FCFC798869529AFBAF97AC3
+  size: 2977
+  mtime_ns: 1785489611236137700
+- path: .ai/evidence/T-0082/phase-1/convergence-report.md
+  role: result
+  required: true
+  sha256: 6F23C97942B190BB9580C1E6FEDB2DE2CBA8488D5CA81C58CFA0A2C1E743AFB8
+  size: 3895
+  mtime_ns: 1785480552307875800
+- path: .ai/evidence/T-0082/phase-2/quality-chain-report.md
+  role: result
+  required: true
+  sha256: C63AA065FE8A39B3A86DED21A40B399716EEA03881D77112D466A3EB555BE1DD
+  size: 3889
+  mtime_ns: 1785483903915359500
+- path: .ai/evidence/T-0082/phase-3/developer-output.md
+  role: result
+  required: true
+  sha256: 6FA0CA5A0DF3FEC490A01E1052B806B71C131D79C02A62A5E82248197EF790FF
+  size: 5151
+  mtime_ns: 1785485682947955900
+- path: .ai/evidence/T-0082/phase-3/independent-reviewer-report.md
+  role: result
+  required: true
+  sha256: 2E23C08DFF0F7CCE89B8048C0DC35AE8DB192A175287391B8AA6901495450F52
+  size: 6448
+  mtime_ns: 1785485321304822000
+- path: .ai/evidence/T-0082/phase-3/quality-engineer-report.md
+  role: result
+  required: true
+  sha256: E21EEB93E239587069FBCF2B6393FEC2533B346B13F4C06C843E45FB86DAD33C
+  size: 2862
+  mtime_ns: 1785484698222347900
+- path: .ai/evidence/T-0082/phase-3/review-evidence.json
+  role: result
+  required: true
+  sha256: 443D318191113D745CE6AACDC35F7C64914F0A27CD968554B32DB421FE38DAB2
+  size: 2947
+  mtime_ns: 1785485304431977200
+- path: .ai/evidence/T-0082/phase-3/role-dispatch-report.md
+  role: result
+  required: true
+  sha256: CCAE47C2E9E2E9C3CA04FA0E5D0266F862F9DF1C2D3AC72C9F59515F074A596A
+  size: 10343
+  mtime_ns: 1785485844210133700
+- path: .ai/evidence/T-0082/phase-3/security-engineer-report.md
+  role: result
+  required: true
+  sha256: 8A64525DBD605709A424BA273589D378396DEDD036B5CDF99D1D241F61656611
+  size: 2643
+  mtime_ns: 1785484610168959800
+- path: .ai/evidence/T-0082/phase-3/test-engineer-report.md
+  role: result
+  required: true
+  sha256: 76B0907E6D8C87A7E9EBF6FB25A805D17C12ED74D6520F68678DF63B2296A4EB
+  size: 5584
+  mtime_ns: 1785485201139753600
+- path: .ai/evidence/T-0082/phase-4/side-effect-authorization-report.md
+  role: result
+  required: true
+  sha256: BD3FBC0BA00F6CF5634A0A29AC5924B1E7F48F1CFD576DF0FC13ED3E4FF78E11
+  size: 12641
+  mtime_ns: 1785487325392357800
+- path: .ai/evidence/T-0082/phase-5/layered-quality-gates-report.md
+  role: result
+  required: true
+  sha256: 9CD750FA217FEF68884E7B44DF064449D92236A6E4527359E0DE1FF61FC52383
+  size: 9109
+  mtime_ns: 1785489078227979700
+- path: .ai/evidence/T-0082/phase-6/acceptance-report.md
+  role: result
+  required: true
+  sha256: 7C1D2B090A5E20E76B6AAC3C5C5E088DCAD864545586B860829AA18CBE7D4DF5
+  size: 11329
+  mtime_ns: 1785489607515118500
+- path: .ai/evidence/T-0082/phase-6/git-commit-fix.md
+  role: result
+  required: true
+  sha256: D4FA98BBE2B571897C850E5BA37C76DAA9D7F52C87C916E1AB1AAF4E1C524A82
+  size: 1001
+  mtime_ns: 1785490038539117900
+file_count: 15
+total_bytes: 89008
+ordered_entries_sha256: B41B8CBCB1E2DE19FEE566FE355AADD19072FBC06C961AA754EF8D8326CBB8DD
+semantic_sha256: 62EA9ECD05EA7C602921C89BD55EDC49E93ABDEE30F51A378E6D0C3E3AB4A2F6
+created_at: '2026-07-31T00:00:00+08:00'
+created_by: governance-controller

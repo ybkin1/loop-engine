@@ -62,6 +62,9 @@ def _make_project(
     state_content: str | None = None,
     task_files: dict[str, str] | None = None,
     extra_files: dict[str, str] | None = None,
+    gates_content: str | None = None,
+    review_evidence: str | None = None,
+    review_task_id: str = "T-0001",
 ) -> Path:
     """Create a minimal governed project in a temp directory."""
     root = Path(tmp)
@@ -76,6 +79,14 @@ def _make_project(
 
     if state_content is not None:
         (ai_dir / "state.yaml").write_text(state_content, encoding="utf-8")
+
+    if gates_content is not None:
+        (ai_dir / "gates.yaml").write_text(gates_content, encoding="utf-8")
+
+    if review_evidence is not None:
+        ev_dir = ai_dir / "evidence" / review_task_id
+        ev_dir.mkdir(parents=True, exist_ok=True)
+        (ev_dir / "review-evidence.json").write_text(review_evidence, encoding="utf-8")
 
     if task_files:
         tasks_dir = ai_dir / "tasks"
@@ -164,6 +175,36 @@ developer_agent_id: "agent-003"
 reviewer_agent_id: "agent-004"
 """
 
+# ── B7 (T-0083): realistic phase-baseline governance for S4 fixtures ──
+# The HardConstraints kernel is now populated with real state (current_phase
+# + phase_gates + review_status).  A project in S4-implementation requires
+# approved S1-requirements / S2-architecture baselines (C1/C2) and an
+# independent-reviewer PASS verdict on record (C6) before writes are
+# allowed.  The fixtures below mirror that real governance.
+GATES_APPROVED = """\
+schema_version: 1
+gates:
+- id: G-T-0001-REQUIREMENTS
+  task_id: T-0001
+  gate_type: requirements
+  status: approved
+- id: G-T-0001-ARCHITECTURE
+  task_id: T-0001
+  gate_type: architecture
+  status: approved
+"""
+
+REVIEW_EVIDENCE = """\
+{
+  "task_id": "T-0001",
+  "role": "independent-reviewer",
+  "verdict": "PASS",
+  "findings": [],
+  "reviewer_session_id": "session-reviewer-001",
+  "developer_session_id": "session-developer-001"
+}
+"""
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # loop_enforcement tests
@@ -187,6 +228,10 @@ class LoopEnforcementFullModeBlocks(unittest.TestCase):
                 tmp,
                 state_content=STATE_FULL,
                 task_files={"T-0001.md": TASK_IN_SCOPE},
+                # B7: realistic S4 governance (approved S1/S2 baselines +
+                # independent review on record) so C4 is the check under test.
+                gates_content=GATES_APPROVED,
+                review_evidence=REVIEW_EVIDENCE,
             )
             # Write to 'docs/' which is NOT in allowed_paths
             r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "docs" / "readme.md")))
@@ -199,6 +244,11 @@ class LoopEnforcementFullModeBlocks(unittest.TestCase):
                 tmp,
                 state_content=STATE_FULL,
                 task_files={"T-0001.md": TASK_IN_SCOPE},
+                # B7: realistic S4 governance — the active S4 task must have
+                # approved S1/S2 baselines (C1/C2) and an independent-reviewer
+                # PASS on record (C6) for writes to pass the control kernel.
+                gates_content=GATES_APPROVED,
+                review_evidence=REVIEW_EVIDENCE,
             )
             r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
             self.assertEqual(r.returncode, 0, f"Expected EXIT_PASS(0). stderr: {r.stderr}")
@@ -209,6 +259,83 @@ class LoopEnforcementFullModeBlocks(unittest.TestCase):
             root = _make_project(tmp, state_content=STATE_STANDARD)
             r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
             self.assertEqual(r.returncode, 2, f"STANDARD mode should block without task_id. stderr: {r.stderr}")
+
+    def test_s4_write_without_approved_baselines_or_review_blocks(self):
+        """B7: S4-implementation writes are blocked by C1/C2/C6 when the
+        requirements/architecture baselines are not approved and no
+        independent review is on record.
+
+        The HardConstraints kernel is now populated with real phase state
+        (gap-analysis §2.13): a bare S4 fixture WITHOUT gates.yaml and
+        WITHOUT review evidence must fail the control kernel — previously
+        C1/C2/C6 were dead letters that never executed.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(
+                tmp,
+                state_content=STATE_FULL,
+                task_files={"T-0001.md": TASK_IN_SCOPE},
+                # Intentionally NO gates.yaml / NO review evidence.
+            )
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("C1-no-requirements", r.stderr)
+            self.assertIn("C2-no-architecture", r.stderr)
+            self.assertIn("C6-no-independent-review", r.stderr)
+
+
+SELF_REVIEW_EVIDENCE = """\
+{
+  "task_id": "T-0001",
+  "role": "independent-reviewer",
+  "verdict": "PASS",
+  "findings": ["reviewed"],
+  "reviewer_session_id": "session-dev-same-001",
+  "developer_session_id": "session-dev-same-001"
+}
+"""
+
+# Same project but with enforcement.self_review_block opt-out (B6).
+GOVERNANCE_CONFIG_OPT_OUT_YAML = GOVERNANCE_CONFIG_YAML + """\
+enforcement:
+  self_review_block: false
+"""
+
+
+class LoopEnforcementSelfReviewBlock(unittest.TestCase):
+    """B6 (T-0083): self-review evidence now BLOCKS writes in FULL mode."""
+
+    def test_self_review_evidence_blocks_business_write_in_full_mode(self):
+        """reviewer_session_id == developer_session_id → EXIT_BLOCK."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(
+                tmp,
+                state_content=STATE_FULL,
+                task_files={"T-0001.md": TASK_IN_SCOPE},
+                gates_content=GATES_APPROVED,
+                review_evidence=SELF_REVIEW_EVIDENCE,
+            )
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 2, f"Expected EXIT_BLOCK(2). stderr: {r.stderr}")
+            self.assertIn("SELF_REVIEW", r.stderr)
+            self.assertIn("BLOCKED", r.stderr)
+
+    def test_self_review_block_opt_out_allows_write(self):
+        """enforcement.self_review_block: false → trace-only, write allowed."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(
+                tmp,
+                state_content=STATE_FULL,
+                task_files={"T-0001.md": TASK_IN_SCOPE},
+                gates_content=GATES_APPROVED,
+                review_evidence=SELF_REVIEW_EVIDENCE,
+            )
+            # Opt out via config.yaml
+            cfg = root / ".zcode" / "skills" / "loop-governance" / "config.yaml"
+            cfg.write_text(GOVERNANCE_CONFIG_OPT_OUT_YAML, encoding="utf-8")
+            r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
+            self.assertEqual(r.returncode, 0, f"Expected EXIT_PASS(0). stderr: {r.stderr}")
+            self.assertIn("SELF_REVIEW_TRACE", r.stderr)
 
 
 class LoopEnforcementLightweightAllows(unittest.TestCase):

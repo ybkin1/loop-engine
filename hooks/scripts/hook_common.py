@@ -57,6 +57,13 @@ DEFAULT_CONFIG = {
         "enabled": True,
         "max_pending_listed": 10,
     },
+    "enforcement": {
+        # self_review_block (B6, T-0083): 审查证据显示
+        # reviewer_session_id == developer_session_id（自审）时，loop_enforcement
+        # 阻断该任务的业务写入。默认 true；仅 FULL 模式生效。
+        # 项目可在 config.yaml 中设 false 退出该阻断（只保留日志追踪）。
+        "self_review_block": True,
+    },
 }
 
 

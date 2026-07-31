@@ -1,6 +1,6 @@
 # Handoff
 
-> **T-0082 ACTIVE. Phase 0 baseline audit completed. Phase 1 governance fact source convergence in progress.**
+> **T-0083 ACTIVE. 真实工程实践调研 + 差距分析完成。元治理层实施中（Guard Health Check + fail-closed 默认化）。**
 
 > **权威层级**: state.yaml > gates.yaml > task_graph.yaml > HANDOFF.md
 > HANDOFF 是连续性辅助信息，不得重新定义状态。所有状态以机器可读文件为准。
@@ -15,7 +15,7 @@
       "read",
       "write governance files"
     ],
-    "current_gate_id": "G-T-0082-REQUIREMENTS",
+    "current_gate_id": null,
     "forbidden_effects": [
       "deploy",
       "rollback",
@@ -27,7 +27,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "5AC8D8282B708A60D69EA7DF3EAC1B1913DAC3ED0F9B080AACDD27FDBACF98E1",
+  "persisted_file_sha256": "81399E8F43E12076ABCBFD6DEE5E625F07D95C7717DEFB858A570E2281F78F3E",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -71,7 +71,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "A6A5D8E85A7F63307C7AA3BDDC196D5CD176AB323DF3CAACAF95CEB657AE34DB",
+  "source_sha256": "9ACCECEE3A289D28C8BD0D2E416E3C766A137DEEBF0C7404BB9EA63B2C04F13D",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -91,15 +91,15 @@
 
 ## Current Phase
 
-S1-requirements (Phase 0 completed, Phase 1 in progress)
+S1-requirements (T-0083: 真实工程实践调研 + 差距分析完成，元治理层实施中)
 
 ## Current Task
 
-T-0082
+T-0083
 
 Status: `in_progress`
 
-T-0082 scope: governance takeover -- RuntimeController identity/authorization/dispatch hardening, code quality execution chain, unified reporting, role sub-agent isolation, layered quality gates, side-effect authorization, governance fact source convergence, end-to-end acceptance.
+T-0083 scope: Loop 元治理层 — 真实工程实践对标 + Guard Health Check + 自举审计回路。真实软件工程角色实践调研、Loop 设计/治理差距分析、Guard Health Check、自举审计回路、guard 死亡测试、fail-closed 默认化、工具链完整性门、端到端切片常态化。
 
 ## Historical Tasks (Completed)
 
@@ -107,45 +107,50 @@ T-0082 scope: governance takeover -- RuntimeController identity/authorization/di
 **T-0079: completed** -- Host Agent Bridge and Dispatch Runtime
 **T-0080: completed** -- Runtime Takeover Acceptance
 **T-0081: completed** -- AutoPlan product layer (inbox + planner + task queue + dashboard)
+**T-0082: completed** -- Governance takeover (RuntimeController, quality chain, role isolation, side-effect auth, quality gates, acceptance); 12/12 AC passed, v3.12.22 (1fa9bfc) committed
 
 ## Current Gate
 
-G-T-0082-REQUIREMENTS
+G-T-0083-REQUIREMENTS
 
 Status: `approved`
 Execution status: `in_progress`
 
-The user approved T-0082 requirements. Phase 0 baseline audit was dispatched to quality-engineer and completed. Phase 1 (governance fact source convergence) is now in progress.
+The user approved T-0083 requirements. 真实工程实践调研 + 差距分析已完成；元治理层实施中（Guard Health Check + fail-closed 默认化 + 自举审计回路）。
 
 ## Allowed Scope
 
-Defined by the active gate's allowed_paths in gates.yaml (G-T-0082-REQUIREMENTS):
+Defined by the active gate's allowed_paths in gates.yaml (G-T-0083-REQUIREMENTS):
 - .ai/ (governance files)
 - .zcode/tools/
-- .zcode/config.json
 - loop_core/
 - hooks/
 - agents/
 - tools/
 - tests/
-- .ai/evidence/T-0082/
+- docs/
+- .ai/evidence/T-0083/
 
 ## Forbidden Scope
 
 Defined by the active gate's forbidden_actions in gates.yaml:
 - deploy, rollback
-- database, permission, secret, payment, production_data, migration
+- modify database, change permissions, handle secrets
+- payment actions, production data access, migration
 - modify business source code (non-governance)
 
 ## Verified
 
 - validate_state.py passes: [ok] state is usable
-- audit_handoff.py passes: [ok] handoff audit passed
-- Phase 0 baseline audit: quality-engineer dispatched, baseline state captured
 - T-0078: Governance state recovery + P0/P1 runtime quality defect repair -- completed
 - T-0079: Host Agent Bridge and Dispatch Runtime -- completed
 - T-0080: Runtime Takeover Acceptance -- completed
 - T-0081: AutoPlan product layer (inbox + planner + task queue + dashboard) -- completed
+- T-0082: Governance takeover (7 phases, 12/12 AC) -- completed; v3.12.22 (1fa9bfc) committed
+- T-0083: 真实工程实践调研 -- completed (evidence: .ai/evidence/T-0083/research/)
+- T-0083: Loop 设计/治理差距分析 -- completed (evidence: .ai/evidence/T-0083/gap-analysis/)
+- T-0083: Guard Health Check + guard 死亡测试 -- implemented; battery 5/5 ALIVE
+- T-0083: fail-closed 默认化 + 工具链完整性门 + 自举审计回路 -- in progress
 - Agent dispatch bridge: HostAgentInvoker + DispatchLease + runtime_controller integration verified
 - Role isolation: main-thread/developer/reviewer independent sessions verified
 - Evidence chain: manifest/receipt/ledger cross-verified
@@ -163,12 +168,11 @@ Defined by the active gate's forbidden_actions in gates.yaml:
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0082/
+Evidence manifest: .ai/evidence/T-0083/
 
-Phase 0 evidence: .ai/evidence/T-0082/phase-0/
-Phase 1 evidence: .ai/evidence/T-0082/phase-1/
+Task evidence: .ai/evidence/T-0083/baseline/, research/, gap-analysis/, guard-health/, acceptance/
 
-Commands log: .ai/evidence/T-0082/commands.md
+Commands log: .ai/evidence/T-0083/commands.md
 
 ## BLOCKED_UNTIL_HOST_BRIDGE_AND_USER_GATE
 
@@ -186,7 +190,7 @@ However, harness-agentic host-level enforcement is still pending as a SEPARATE p
 2. loop-engine + harness-agentic integration is verified
 3. User approves the final host takeover gate
 
-**Final verdict: T-0078, T-0079, T-0080, T-0081 COMPLETED. T-0082 ACTIVE. Host-level takeover blocked on harness-agentic (separate project).**
+**Final verdict: T-0078, T-0079, T-0080, T-0081, T-0082 COMPLETED. T-0083 ACTIVE. Host-level takeover blocked on harness-agentic (separate project).**
 
 Do NOT claim "Loop has fully taken over" without harness-agentic verification.
 
@@ -196,22 +200,22 @@ T-0078: Governance state recovery + P0/P1 runtime quality defect repair complete
 T-0079: Host Agent Bridge and Dispatch Runtime completed
 T-0080: Runtime Takeover Acceptance completed
 T-0081: AutoPlan product layer (inbox + planner + task queue + dashboard) completed
-T-0082: Governance takeover (RuntimeController, quality chain, role isolation, side-effect auth, quality gates, acceptance) -- ACTIVE
+T-0082: Governance takeover (RuntimeController, quality chain, role isolation, side-effect auth, quality gates, acceptance) -- COMPLETED
+T-0083: Loop 元治理层 (真实工程实践调研 + 差距分析 + Guard Health Check + 自举审计回路 + fail-closed 默认化) -- ACTIVE
 
-Phase 0 completed: baseline audit.
-Phase 1 in progress: governance fact source convergence (HANDOFF.md rewrite, import compatibility, cross-consistency verification).
+T-0083 progress: 调研 + 差距分析 completed; 元治理层实施中 (Guard Health Check + fail-closed 默认化 + 自举审计回路).
 
 Blockers: HOST_LEVEL_TAKEOVER_BLOCKED_ON_HARNESS_AGENTIC.
 
 ## Next Session First Step
 
-Continue T-0082 Phase 1 governance fact source convergence. Verify all fixes pass cross-consistency checks.
+Continue T-0083 元治理层实施：Guard Health Check 常态化 + fail-closed 默认化 + 自举审计回路，直至端到端切片验收。
 
 ## Startup Prompt
 
 Use $project-governor, validate structured state, and continue only inside the approved scope.
 
-提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。T-0082 ACTIVE. Phase 0 completed. Phase 1 governance fact source convergence in progress.
+提醒：reviewer PASS / validator / 测试通过均为 evidence，不等于用户批准。T-0083 ACTIVE. 真实工程实践调研 + 差距分析完成；元治理层实施中（Guard Health Check + fail-closed 默认化 + 自举审计回路）。
 
 ## Structured Lifecycle
 
@@ -233,10 +237,11 @@ Use $project-governor, validate structured state, and continue only inside the a
   ],
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
-    "EVIDENCE_MANIFEST_REQUIRED",
     "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
-  "verified": []
+  "verified": [
+    "STRUCTURED_STATE_HASHES_VERIFIED"
+  ]
 }
 ```
 <!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
@@ -246,10 +251,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0082-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0083-REQUIREMENTS",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0082-REQUIREMENTS",
-  "current_task_id": "T-0082",
+  "current_gate_id": "G-T-0083-REQUIREMENTS",
+  "current_task_id": "T-0083",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",
@@ -263,9 +268,35 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
-  "blockers": ["HOST_LEVEL_TAKEOVER_BLOCKED_ON_HARNESS_AGENTIC"],
-  "checkpoint_status": "IN_PROGRESS",
-  "schema": "Checkpoint/v1.0"
+  "authority_hash": "65F30EE70940B88B6BFF0AC3675D1160EBB57409625C9EB6BD06FD68E74D028B",
+  "blockers": [],
+  "checkpoint_id": "CP-1CEB6811C333BB4257B28552",
+  "checkpoint_status": "PENDING_SUCCESSOR_ACK",
+  "contract_id": "PCC-2026-07-16-R1",
+  "controller_generation": 1,
+  "evidence_manifest_hashes": {
+    "file_count": 19,
+    "manifest_file_sha256": "6C566174983D8CCE3802D369A8928865E02C0B57ECEB3FAD9D6ED6E88BA30FD9",
+    "ordered_entries_sha256": "C28C90CB515929F9CD0DF6EF0310E827D1F2E5C35148E5F7EADD2AE9C2A19736",
+    "semantic_sha256": "50B23D7E44F97829A5855904368692895D7241D42A7C045681C9078799B9B112",
+    "total_bytes": 357745
+  },
+  "fixture_only": false,
+  "project_continuity_hashes": {
+    "file_sha256": "81399E8F43E12076ABCBFD6DEE5E625F07D95C7717DEFB858A570E2281F78F3E",
+    "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
+    "source_sha256": "9ACCECEE3A289D28C8BD0D2E416E3C766A137DEEBF0C7404BB9EA63B2C04F13D"
+  },
+  "recovered_state_sha256": "8DD1933F681D63AC506C3B9B2C0AFACC6B9F849A33EF3761768793EC6363AFC7",
+  "requirements_revision": "T-0034-REQ-2026-07-16-R1",
+  "schema": "Checkpoint/v1.0",
+  "task_scope_hash": "FCB09756E40064CAC2BC7622475F2D981854C41D2C57978D1401584DC93374F4",
+  "transaction_registry_hashes": {
+    "checkpoint_semantic_sha256": "5C99D5C2425154741AE25217E824B17AFD734D3AA776286F4ED7A94647901BCE",
+    "file_sha256": "0D99CF029CBF0D360725195E8B0825832E019976EEF988A9EFFDD2F7B01301CE",
+    "semantic_sha256": "2CF3351B01F4A75E5114D8EEED9B0C418079516C0CDD264A4579ED4299A7F555",
+    "source_sha256": "CBCD552B56BA77B10A11A38257B965B0009162F67E0F196B6824CFD44AC06262"
+  }
 }
 ```
 <!-- PROJECT-GOVERNOR-CHECKPOINT-END -->

@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0083",
+  "gate_id": "G-T-0083-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-07-31T00:00:00+08:00",
+  "phases_completed": [
+    "research",
+    "gap-analysis",
+    "meta-governance-implementation"
+  ],
+  "phases_pending": [
+    "acceptance",
+    "delivery"
+  ],
+  "notes": "真实工程实践调研、Loop 设计/治理差距分析、元治理层实施（Guard Health Check + fail-closed 默认化）已完成；端到端切片验收与交付进行中。",
+  "recorded_at": "2026-07-31T00:00:00+08:00",
+  "evidence_type": "execution"
+}

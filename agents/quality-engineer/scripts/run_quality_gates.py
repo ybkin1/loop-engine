@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-run_quality_gates.py — 质量门禁编排脚本。
+run_quality_gates.py — 质量门禁编排脚本（LEGACY WRAPPER）。
 
-DEPRECATED: Prefer loop_core.static_analyzer.analyze_project() for in-process
-static analysis with binding/verdict support. This script maintained for
-backward compatibility with CLI-based quality-gate workflows only.
-For unified verdicts, use loop_core.verdicts.Verdict instead of string statuses.
+LEGACY WRAPPER — delegates to loop_core canonical APIs; retained for
+evidence-format compatibility.
+
+B4 (T-0083) single-source consolidation: 本脚本仍是 quality-engineer 角色调用、
+并产出 enforcement hook 所需 quality_report.json 的运营链路。为避免
+"deprecated 脚本" 与 "canonical API" 双实现漂移（gap-analysis §3.3），
+本脚本现在把 loop_core.static_analyzer.analyze_project() 与
+loop_core.security_scanner.scan_security() 的规范结果折入同一份报告
+（static_analysis + security 两个 check），使 legacy 脚本与 canonical API
+产出 ONE consistent report。
 
 确定性代码，不依赖 LLM。被质量工程师 agent 通过 Bash 调用。
 读取项目 config.yaml 的 quality_gates 节，依次运行各检查工具，
@@ -260,7 +266,15 @@ def load_config(project_root: Path) -> dict:
 
 
 def run_one_check(name: str, command: Optional[str], project_root: Path, timeout: int = 120) -> Dict[str, Any]:
-    """运行一个检查，返回 {exit_code, stdout, stderr, command, status}。"""
+    """运行一个检查，返回 {exit_code, stdout, stderr, command, status}。
+
+    T-0083 (AC-07): 工具缺失（FileNotFoundError / "No module named" /
+    命令不存在）→ status=BLOCKED + gate_blocked=True + reason=
+    "tool missing (fail-closed)"。超时 / 执行错误同样 fail-closed。
+    collect_results 据此直接把该项标记为 BLOCKED，避免空输出被解析成
+    0 错误而误判 PASS（原 lint/test 的 fail-open 路径）。
+    未配置命令（command=None）→ UNAVAILABLE（合法，不阻断）。
+    """
     if not command:
         return {"exit_code": 0, "stdout": "", "stderr": "", "skipped": True, "command": None, "status": STATUS_UNAVAILABLE}
     try:
@@ -272,6 +286,16 @@ def run_one_check(name: str, command: Optional[str], project_root: Path, timeout
             cwd=str(project_root),
             timeout=timeout,
         )
+        stderr_l = (result.stderr or "").lower()
+        missing_marker = (
+            "no module named" in stderr_l
+            or "not recognized as an internal or external command" in stderr_l
+            or "command not found" in stderr_l
+        )
+        if result.returncode != 0 and missing_marker:
+            return {"exit_code": result.returncode, "stdout": result.stdout, "stderr": result.stderr,
+                    "skipped": False, "command": command, "status": STATUS_BLOCKED,
+                    "gate_blocked": True, "reason": "tool missing (fail-closed)"}
         return {
             "exit_code": result.returncode,
             "stdout": result.stdout,
@@ -280,66 +304,241 @@ def run_one_check(name: str, command: Optional[str], project_root: Path, timeout
             "command": command,
         }
     except subprocess.TimeoutExpired:
-        return {"exit_code": -1, "stdout": "", "stderr": f"超时 ({timeout}s)", "skipped": False, "command": command, "status": STATUS_FAIL}
-    except Exception as e:
-        return {"exit_code": -1, "stdout": "", "stderr": str(e), "skipped": False, "command": command, "status": STATUS_FAIL}
+        return {"exit_code": -1, "stdout": "", "stderr": f"超时 ({timeout}s)", "skipped": False,
+                "command": command, "status": STATUS_BLOCKED, "gate_blocked": True,
+                "reason": "check timeout (fail-closed)"}
+    except FileNotFoundError as exc:
+        return {"exit_code": -1, "stdout": "", "stderr": str(exc), "skipped": False,
+                "command": command, "status": STATUS_BLOCKED, "gate_blocked": True,
+                "reason": "tool missing (fail-closed)"}
+    except Exception as exc:
+        return {"exit_code": -1, "stdout": "", "stderr": str(exc), "skipped": False,
+                "command": command, "status": STATUS_BLOCKED, "gate_blocked": True,
+                "reason": f"tool check execution failed (fail-closed): {exc}"}
+
+
+def _collect_canonical_checks(project_root: Path) -> List[Dict[str, Any]]:
+    """B4 (T-0083): fold loop_core canonical API results into the report.
+
+    Single-source consolidation (gap-analysis §3.3): the legacy script and
+    the canonical API now produce ONE consistent report.  Two checks are
+    added to every quality run:
+
+    - static_analysis ← loop_core.static_analyzer.analyze_project()
+        value = error-finding count; FAIL when errors > 0 (static-analysis
+        errors are quality issues, not security blockers).
+    - security ← loop_core.security_scanner.scan_security()
+        FAIL-CLOSED: critical findings → BLOCKED; high → FAIL; else PASS.
+
+    Both items carry execution_evidence so check_quality_gate_evidence's
+    authenticity validation can verify they really ran.
+    """
+    root_str = str(project_root)
+    if root_str not in sys.path:
+        sys.path.insert(0, root_str)
+    # loop_core lives in the loop-engine repo root (this script's
+    # great-grandparent dir: scripts → quality-engineer → agents → root) —
+    # importable even when scanning a foreign project directory.
+    repo_root = str(Path(__file__).resolve().parents[3])
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+
+    checks: List[Dict[str, Any]] = []
+
+    try:
+        from loop_core.static_analyzer import analyze_project
+        sa = analyze_project(project_root)
+        checks.append({
+            "name": "static_analysis",
+            "value": sa.errors,
+            "threshold": 0,
+            "raw": (f"{len(sa.findings)} findings ({sa.errors} errors, "
+                    f"{sa.warnings} warnings) over {sa.files_scanned} files"),
+            "exit_code": 0,
+            "skipped": False,
+            "command": "loop_core.static_analyzer.analyze_project()",
+            "status": STATUS_PASS if sa.passed else STATUS_FAIL,
+            "reason": ("0 static analysis errors"
+                       if sa.passed else f"{sa.errors} static analysis errors"),
+            "files_scanned": sa.files_scanned,
+            "findings": [
+                {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+                 "line": f.line, "message": f.message}
+                for f in sa.findings[:50]
+            ],
+            "execution_evidence": {
+                "exit_code": 0,
+                "command": "loop_core.static_analyzer.analyze_project()",
+            },
+        })
+    except Exception as exc:
+        checks.append({
+            "name": "static_analysis",
+            "value": None,
+            "threshold": 0,
+            "raw": str(exc)[:200],
+            "exit_code": -1,
+            "skipped": False,
+            "command": "loop_core.static_analyzer.analyze_project()",
+            "status": STATUS_BLOCKED,
+            "reason": f"canonical static_analyzer unavailable (fail-closed): {exc}",
+            "execution_evidence": {
+                "exit_code": -1,
+                "command": "loop_core.static_analyzer.analyze_project()",
+            },
+        })
+
+    try:
+        from loop_core.security_scanner import scan_security
+        sec = scan_security(project_root)
+        if sec.critical > 0:
+            sec_status, sec_reason = STATUS_BLOCKED, (
+                f"{sec.critical} critical security findings (fail-closed)")
+        elif sec.high > 0:
+            sec_status, sec_reason = STATUS_FAIL, f"{sec.high} high security findings"
+        else:
+            sec_status, sec_reason = STATUS_PASS, "0 critical/high security findings"
+        checks.append({
+            "name": "security",
+            "value": {"critical": sec.critical, "high": sec.high},
+            "threshold": {"critical": 0, "high": 0},
+            "raw": (f"{len(sec.findings)} findings ({sec.critical} critical, "
+                    f"{sec.high} high) over {sec.files_scanned} files"),
+            "exit_code": 0,
+            "skipped": False,
+            "command": "loop_core.security_scanner.scan_security()",
+            "status": sec_status,
+            "reason": sec_reason,
+            "files_scanned": sec.files_scanned,
+            "findings": [
+                {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+                 "line": f.line, "message": f.message}
+                for f in sec.findings[:50]
+            ],
+            "execution_evidence": {
+                "exit_code": 0,
+                "command": "loop_core.security_scanner.scan_security()",
+            },
+        })
+    except Exception as exc:
+        checks.append({
+            "name": "security",
+            "value": None,
+            "threshold": {"critical": 0, "high": 0},
+            "raw": str(exc)[:200],
+            "exit_code": -1,
+            "skipped": False,
+            "command": "loop_core.security_scanner.scan_security()",
+            "status": STATUS_BLOCKED,
+            "reason": f"canonical security_scanner unavailable (fail-closed): {exc}",
+            "execution_evidence": {
+                "exit_code": -1,
+                "command": "loop_core.security_scanner.scan_security()",
+            },
+        })
+
+    return checks
 
 
 def collect_results(gates: dict, project_root: Path) -> List[Dict[str, Any]]:
-    """运行所有配置的检查，收集原始结果。"""
+    """运行所有配置的检查，收集原始结果。
+
+    T-0083 (AC-07): 配置了命令但工具缺失/无法执行（FileNotFoundError、
+    "No module named"、命令不存在、超时、执行错误）→ 该项直接标记为
+    BLOCKED（fail-closed），不再用空输出解析成 0 错误而误判 PASS。
+    未配置的命令（不在 config 中）不会出现在结果里（等同 NOT_VERIFIED，
+    合法不阻断）。
+    """
     results = []
+
+    def _blocked(name: str, r: Dict[str, Any], threshold: Any) -> Dict[str, Any]:
+        """构造工具无法执行（缺失/超时/错误）的 fail-closed 结果项。"""
+        return {
+            "name": name,
+            "value": None,
+            "threshold": threshold,
+            "raw": (r.get("stderr") or r.get("stdout") or "")[:200],
+            "exit_code": r["exit_code"],
+            "skipped": False,
+            "command": r.get("command"),
+            "status": STATUS_BLOCKED,
+            "reason": r.get("reason", "tool check could not execute (fail-closed)"),
+        }
 
     # Lint
     if gates.get("lint_command"):
         r = run_one_check("lint", gates["lint_command"], project_root)
-        count, snippet = parse_lint_output(r["stdout"], r["exit_code"], gates["lint_command"])
-        results.append({"name": "lint", "value": count, "threshold": gates.get("lint_threshold", 0),
-                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("lint", r, gates.get("lint_threshold", 0)))
+        else:
+            count, snippet = parse_lint_output(r["stdout"], r["exit_code"], gates["lint_command"])
+            results.append({"name": "lint", "value": count, "threshold": gates.get("lint_threshold", 0),
+                            "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "command": r.get("command")})
 
     # Typecheck
     if gates.get("typecheck_command"):
         r = run_one_check("typecheck", gates["typecheck_command"], project_root)
-        count = 0 if r["exit_code"] == 0 else 1  # typecheck 简化为 0/1
-        results.append({"name": "typecheck", "value": count, "threshold": gates.get("typecheck_threshold", 0),
-                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("typecheck", r, gates.get("typecheck_threshold", 0)))
+        else:
+            count = 0 if r["exit_code"] == 0 else 1  # typecheck 简化为 0/1
+            results.append({"name": "typecheck", "value": count, "threshold": gates.get("typecheck_threshold", 0),
+                            "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "command": r.get("command")})
 
     # Test + Coverage
     if gates.get("test_command"):
         r = run_one_check("test", gates["test_command"], project_root, timeout=180)
-        passed, total, cov, snippet, zero_collected = parse_test_output(r["stdout"], r["exit_code"], gates["test_command"])
-        results.append({"name": "test", "value": f"{passed}/{total}", "threshold": gates.get("test_threshold", 0),
-                        "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "command": r.get("command"), "zero_collected": zero_collected})
-        results.append({"name": "coverage", "value": cov, "threshold": gates.get("coverage_threshold", 80),
-                        "raw": f"{cov}%", "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("test", r, gates.get("test_threshold", 0)))
+        else:
+            passed, total, cov, snippet, zero_collected = parse_test_output(r["stdout"], r["exit_code"], gates["test_command"])
+            results.append({"name": "test", "value": f"{passed}/{total}", "threshold": gates.get("test_threshold", 0),
+                            "raw": snippet, "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "command": r.get("command"), "zero_collected": zero_collected})
+            results.append({"name": "coverage", "value": cov, "threshold": gates.get("coverage_threshold", 80),
+                            "raw": f"{cov}%", "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "command": r.get("command")})
 
     # Audit
     if gates.get("audit_command"):
         r = run_one_check("audit", gates["audit_command"], project_root)
-        counts = parse_audit_output(r["exit_code"], r["stdout"])
-        results.append({"name": "audit", "value": counts, "threshold": gates.get("audit_threshold", {"HIGH": 0}),
-                        "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("audit", r, gates.get("audit_threshold", {"HIGH": 0})))
+        else:
+            counts = parse_audit_output(r["exit_code"], r["stdout"])
+            results.append({"name": "audit", "value": counts, "threshold": gates.get("audit_threshold", {"HIGH": 0}),
+                            "raw": r["stdout"][:300], "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "command": r.get("command")})
 
     # Build
     if gates.get("build_command"):
         r = run_one_check("build", gates["build_command"], project_root)
-        code = parse_build_output(r["stdout"], r["exit_code"], gates["build_command"])
-        results.append({"name": "build", "value": code, "threshold": gates.get("build_threshold", 0),
-                        "raw": r["stdout"][:200], "exit_code": code, "skipped": r.get("skipped", False),
-                        "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("build", r, gates.get("build_threshold", 0)))
+        else:
+            code = parse_build_output(r["stdout"], r["exit_code"], gates["build_command"])
+            results.append({"name": "build", "value": code, "threshold": gates.get("build_threshold", 0),
+                            "raw": r["stdout"][:200], "exit_code": code, "skipped": r.get("skipped", False),
+                            "command": r.get("command")})
 
     # Compile
     if gates.get("compile_command"):
         r = run_one_check("compile", gates["compile_command"], project_root, timeout=120)
-        compiled, failed, error_list = parse_compile_output(r["stdout"], r["exit_code"], gates["compile_command"])
-        results.append({"name": "compile", "value": failed, "threshold": gates.get("compile_threshold", 0),
-                        "raw": json.dumps(error_list)[:300] if error_list else "0 errors",
-                        "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
-                        "compiled_files": compiled, "command": r.get("command")})
+        if r.get("gate_blocked"):
+            results.append(_blocked("compile", r, gates.get("compile_threshold", 0)))
+        else:
+            compiled, failed, error_list = parse_compile_output(r["stdout"], r["exit_code"], gates["compile_command"])
+            results.append({"name": "compile", "value": failed, "threshold": gates.get("compile_threshold", 0),
+                            "raw": json.dumps(error_list)[:300] if error_list else "0 errors",
+                            "exit_code": r["exit_code"], "skipped": r.get("skipped", False),
+                            "compiled_files": compiled, "command": r.get("command")})
+
+    # B4 (T-0083): canonical loop_core checks — single source of truth.
+    # The legacy CLI chain and loop_core.static_analyzer / security_scanner
+    # now fold into ONE report (gap-analysis §3.3).
+    results.extend(_collect_canonical_checks(project_root))
 
     return results
 
@@ -354,10 +553,33 @@ def generate_report(results: List[Dict[str, Any]], project_root: Path, output_di
     blocked_by = []
 
     for r in results:
-        item = check(r["name"], r["value"], r["threshold"])
+        if r.get("status") in CANONICAL_STATUSES:
+            # Pre-computed status (B4 canonical loop_core checks, or
+            # fail-closed tool blocks): honor it verbatim instead of
+            # routing unknown check names through check() (which would
+            # have turned a canonical FAIL into a spurious PASS).
+            item = {
+                "name": r["name"],
+                "status": r["status"],
+                "value": r.get("value"),
+                "threshold": r.get("threshold"),
+                "reason": r.get("reason", ""),
+            }
+        else:
+            item = check(r["name"], r["value"], r["threshold"])
         item["raw"] = r.get("raw", "")[:200]
         item["skipped"] = r.get("skipped", False)
         item["command"] = r.get("command")
+        # Propagate execution_evidence (B4: lets check_quality_gate_evidence
+        # verify canonical checks really ran; tolerated for legacy items
+        # that omit it)
+        if r.get("execution_evidence"):
+            item["execution_evidence"] = r["execution_evidence"]
+        # Propagate canonical finding detail for machine consumers
+        if r.get("findings"):
+            item["findings"] = r["findings"]
+        if r.get("files_scanned"):
+            item["files_scanned"] = r["files_scanned"]
         # Propagate zero_collected if present
         if r.get("zero_collected"):
             item["zero_collected"] = True

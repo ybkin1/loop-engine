@@ -6,6 +6,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-06T17:44:53+08:00'
   evidence: .ai/evidence/T-0002/unified-governance-architecture.approval.v0.2.1.md
   registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
@@ -20,6 +22,8 @@ gates:
   gate_type: state-sync
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-06T18:48:30+08:00'
   evidence: .ai/evidence/T-0003/activation-installation-plan.review-background.v0.1.md
   scope: synchronize T-0003 task state only
@@ -55,6 +59,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-06T19:18:14+08:00'
   evidence: .ai/evidence/T-0003/unified-governance-architecture.activation.v0.2.1.md
   registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
@@ -91,6 +97,8 @@ gates:
   gate_type: user-cleanup
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T09:18:14+08:00'
   evidence: .ai/evidence/T-0004/commands.md
   scope: placeholder cleanup for .ai governance memory only
@@ -128,6 +136,8 @@ gates:
   gate_type: user-design
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T09:43:07+08:00'
   evidence: .ai/evidence/T-0005/commands.md
   artifact: .ai/evidence/T-0005/installation-candidate.v0.1.md
@@ -164,6 +174,8 @@ gates:
   gate_type: user-repair
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T10:23:23+08:00'
   evidence: .ai/evidence/T-0005/commands.md
   artifact: .ai/evidence/T-0005/installation-candidate.v0.1.md
@@ -203,6 +215,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T10:39:58+08:00'
   evidence: .ai/evidence/T-0005/installation.execution.v0.1.md
   candidate: .ai/evidence/T-0005/installation-candidate.v0.1.md
@@ -247,6 +261,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T11:06:51+08:00'
   evidence: .ai/evidence/T-0005/commands.md
   registry: .ai/evidence/T-0002/artifact-registry.unified-governance-architecture.v0.2.1.yaml
@@ -283,6 +299,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T11:44:36+08:00'
   evidence: .ai/evidence/T-0005/closeout-review.v0.1.md
   scope: closeout review only; decide whether T-0005 can complete and whether T-0006
@@ -328,6 +346,8 @@ gates:
   artifact_id: unified-governance-architecture.v0.2.1
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T13:40:12+08:00'
   evidence: .ai/evidence/T-0005/commands.md
   scope: repair stale installation-state wording in CONTRACTS.md and KNOWN_ISSUES.md
@@ -374,6 +394,8 @@ gates:
   source_gate_id: G-T-0005-CLOSEOUT-REVIEW
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T13:55:36+08:00'
   evidence: .ai/evidence/T-0005/closeout-review.rerun.v0.1.md
   scope: rerun T-0005 closeout review after stale-memory repair; mark T-0005 completed
@@ -415,6 +437,8 @@ gates:
   gate_type: user-design
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T14:22:05+08:00'
   evidence: .ai/evidence/T-0006/commands.md
   artifact: .ai/evidence/T-0006/real-product-delivery-entry-design.v0.1.md
@@ -455,6 +479,8 @@ gates:
   gate_type: user-repair
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T14:55:17+08:00'
   evidence: .ai/evidence/T-0006/commands.md
   artifact: .ai/evidence/T-0006/real-product-delivery-entry-design.v0.1.md
@@ -499,6 +525,8 @@ gates:
   gate_type: user-discovery-approval
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T15:39:31+08:00'
   evidence: .ai/evidence/T-0007/commands.md
   scope: discovery only for product idea "做一个服务器售后团队的智算服务工具(测试)" under current governance
@@ -552,6 +580,8 @@ gates:
   gate_type: user-method-repair-design
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T18:17:41+08:00'
   evidence: .ai/evidence/T-0008/commands.md
   scope: Loop engineering method repair candidate design only for one-person AI-assisted
@@ -604,6 +634,8 @@ gates:
   gate_type: user-review-only
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-07T18:55:53+08:00'
   evidence: .ai/evidence/T-0009/commands.md
   scope: review-only and repair-recommendation-only for T-0008 Loop engineering method
@@ -667,6 +699,8 @@ gates:
   gate_type: repair-only / candidate-update-only
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-08T10:13:42+08:00'
   evidence: .ai/evidence/T-0010/commands.md
   scope: repair T-0008 candidate method based on T-0009 findings; all outputs remain
@@ -728,6 +762,8 @@ gates:
   gate_type: review-rerun / baseline-readiness-review-only
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-08T11:12:18+08:00'
   evidence: .ai/evidence/T-0011/commands.md
   scope: review T-0010 repaired candidate package for baseline_candidate readiness
@@ -2306,6 +2342,8 @@ gates:
   status: approved
   execution_status: completed
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-24T00:00:00+08:00'
   approval_evidence: .ai/evidence/T-0049/approval.md
   execution_evidence: .ai/evidence/T-0049/commands.md
@@ -2358,6 +2396,8 @@ gates:
   status: approved
   execution_status: completed
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   recorded_at: '2026-07-24T00:00:00+08:00'
   approval_evidence: .ai/evidence/T-0050/approval.md
   execution_evidence: .ai/evidence/T-0050/commands.md
@@ -2406,6 +2446,8 @@ gates:
   status: approved
   execution_status: completed
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   approval_text: "用户同意开始 P0 架构修复：自动项目接入、统一运行时状态机、一次批准自动执行、主控业务写入阻断、Developer/Reviewer 隔离和跨会话恢复。"
   recorded_at: '2026-07-27T00:00:00+08:00'
   approval_evidence: .ai/evidence/T-0051/approval.md
@@ -2596,6 +2638,8 @@ gates:
   gate_type: user-review-only
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   execution_status: in_progress
   approval_evidence: .ai/evidence/T-0055/approval.md
   execution_evidence: .ai/evidence/T-0055/commands.md
@@ -3590,6 +3634,8 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   execution_status: in_progress
   scope: One-click onboarding + auto-update slash commands
   approval_evidence: .ai/evidence/T-0071/approval.md
@@ -3624,6 +3670,8 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  approval_actor: user
+  approval_source: legacy_pre_field
   execution_status: in_progress
   approval_text: approved
   scope: Deployment quality — build consistency, static integrity, browser smoke, atomicity, rollback, cache
@@ -3998,3 +4046,60 @@ gates:
   - side-effect authorization evidence (phase 4)
   - quality gate evidence (phase 5)
   - acceptance evidence (phase 6)
+
+- id: G-T-0083-REQUIREMENTS
+  task_id: T-0083
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  recorded_at: '2026-07-31T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 G-T-0083-REQUIREMENTS
+  approval_evidence: .ai/evidence/T-0083/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0083/execution-evidence.json
+  scope: >-
+    T-0083 Loop 元治理层 — 真实工程实践对标 + Guard Health Check + 自举审计回路。
+    任务范围：真实软件工程角色实践调研、Loop 设计/治理差距分析、Guard Health Check、
+    自举审计回路、guard 死亡测试、fail-closed 默认化、工具链完整性门、端到端切片常态化。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write agent definitions
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  allowed_paths:
+  - .ai/
+  - .zcode/tools/
+  - loop_core/
+  - hooks/
+  - agents/
+  - tools/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0083/
+  high_risk_flags:
+  - fail-closed 默认化可能影响现有 hook 行为
+  - Guard Health Check 新增机制需充分测试
+  evidence_required:
+  - research report (real-world practices)
+  - gap analysis report
+  - guard health check implementation evidence
+  - guard death test evidence
+  - fail-closed verification evidence
+  - acceptance evidence

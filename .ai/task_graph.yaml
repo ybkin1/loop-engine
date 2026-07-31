@@ -909,6 +909,18 @@ tasks:
     depends_on: []
     gates:
       - G-T-0082-REQUIREMENTS
+  -
+    id: T-0083
+    title: Loop 元治理层 — 真实工程实践对标 + Guard Health Check + 自举审计回路
+    phase: S1-requirements
+    status: in_progress
+    description: >-
+      真实软件工程角色实践调研、Loop 设计/治理差距分析、Guard Health Check、
+      自举审计回路、guard 死亡测试、fail-closed 默认化、工具链完整性门、端到端切片常态化。
+    depends_on:
+      - T-0082
+    gates:
+      - G-T-0083-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

@@ -1,0 +1,132 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0083-C28C90CB
+task_id: T-0083
+gate_id: G-T-0083-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0083
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0083/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: D5CFB0301D20A9D313285BAFB563B3FEE2A0A494E2B30773C26DD18A43C64E83
+  size: 13448
+  mtime_ns: 1785498081007938200
+- path: .ai/evidence/T-0083/acceptance/b3-b5-report.md
+  role: result
+  required: true
+  sha256: 5E201A9144C96FABE03AF43FCE88542EAC6E293F5972338861A0FEE2461240C2
+  size: 7948
+  mtime_ns: 1785502008666181800
+- path: .ai/evidence/T-0083/acceptance/b4-b6-b7-report.md
+  role: result
+  required: true
+  sha256: AB6628E42FD42CCAF885B38C4E638BCA3D4A08B8AEFB091E5885C590FAB65D84
+  size: 11193
+  mtime_ns: 1785502218580351600
+- path: .ai/evidence/T-0083/acceptance/final-verification.md
+  role: result
+  required: true
+  sha256: 98DC9B6B086B96B24936EFC289F8DA03C6D675FF9510B193E4A57F44ACA9545D
+  size: 5232
+  mtime_ns: 1785502578835688500
+- path: .ai/evidence/T-0083/acceptance/regression-results.md
+  role: result
+  required: true
+  sha256: 2B52CFD7EFD1FA0E88A9C81DFDF604BDF62567D0936871BBC4B2F224B70CBFBC
+  size: 11624
+  mtime_ns: 1785497952260497700
+- path: .ai/evidence/T-0083/approval-evidence.json
+  role: result
+  required: true
+  sha256: 09A63BCF6180F2906913F371DE940A6D7EAD5CE383E4DE2F2254E640B827ECBE
+  size: 322
+  mtime_ns: 1785497632674441200
+- path: .ai/evidence/T-0083/commands.md
+  role: result
+  required: true
+  sha256: 3E90B3ED89C70D7B309DE760748B9F4789F340B24828E409268CC6537D0F537F
+  size: 3420
+  mtime_ns: 1785502564470448700
+- path: .ai/evidence/T-0083/compile-evidence.json
+  role: result
+  required: true
+  sha256: 37DEDA58166644F7E3DBF9D3C886C592A10791EB8F501EA568E056B4EE6691CA
+  size: 181
+  mtime_ns: 1785497643358067000
+- path: .ai/evidence/T-0083/execution-evidence.json
+  role: result
+  required: true
+  sha256: BF48D4010D533D096F999FE0E5F4B0EBEBAAFF9AF94E4B55042DC54A4AD5E460
+  size: 571
+  mtime_ns: 1785497632714400800
+- path: .ai/evidence/T-0083/gap-analysis/loop-gap-analysis.md
+  role: result
+  required: true
+  sha256: 72C089E400C91458C453787743423A399E358D6E785A71C9C7C1D6E9B601876C
+  size: 54219
+  mtime_ns: 1785494615566761100
+- path: .ai/evidence/T-0083/guard-health/fail-closed-report.md
+  role: result
+  required: true
+  sha256: 6D61DD64C0FC95031ABB7124FF591BF5E06DB82E04A2D38BE8035694A0968408
+  size: 9506
+  mtime_ns: 1785496227085139200
+- path: .ai/evidence/T-0083/guard-health/guard-health-report.md
+  role: result
+  required: true
+  sha256: 47A04E44954974FF29DB43B255F2DD1FADCAC44DFF43056265B287E07D977BD5
+  size: 9296
+  mtime_ns: 1785496442791116000
+- path: .ai/evidence/T-0083/guard-health/report.json
+  role: result
+  required: true
+  sha256: 523B0DD20CBBFD7F8793F8D860711AE55C7F684F966DB8AB4E27FECC4EA97E74
+  size: 1414
+  mtime_ns: 1785496432559694000
+- path: .ai/evidence/T-0083/guard-health/self-audit-loop-report.md
+  role: result
+  required: true
+  sha256: 3040EBA91DAEBABEFF1F7C8FAC5FDBAE97D6933E54FBC0EE30555E793AEC1507
+  size: 5685
+  mtime_ns: 1785495892930600600
+- path: .ai/evidence/T-0083/guard-health/self-audit.json
+  role: result
+  required: true
+  sha256: 519A4242F2F39D84C9FA8890B149C6B8D6D0B79F9B591DFAE80B66EC772658AA
+  size: 3528
+  mtime_ns: 1785502537073710500
+- path: .ai/evidence/T-0083/research/ai-agent-engineering-research.md
+  role: result
+  required: true
+  sha256: 5E4E4DF1C1166A6633752ED60F245FA8CABEC1D2389BC15BFB42DB8AC4903B80
+  size: 53993
+  mtime_ns: 1785494223330088400
+- path: .ai/evidence/T-0083/research/delivery-governance-research.md
+  role: result
+  required: true
+  sha256: DCE5454F28F0A37FCF76EECE15CEC56BEB281B572B6576532A767104C4532FF0
+  size: 50863
+  mtime_ns: 1785493262239358000
+- path: .ai/evidence/T-0083/research/quality-mechanisms-research.md
+  role: result
+  required: true
+  sha256: 259E520DED4520E78A68BB2CADC61A741D3D99AEA9EED7ECBDCFB8347DE5D991
+  size: 52781
+  mtime_ns: 1785492931428096900
+- path: .ai/evidence/T-0083/research/roles-research.md
+  role: result
+  required: true
+  sha256: C886DDC2FA8E1C97CAC30C7A6C91357858A9B627F39353E5C801229B061720A1
+  size: 62521
+  mtime_ns: 1785493938413199200
+file_count: 19
+total_bytes: 357745
+ordered_entries_sha256: C28C90CB515929F9CD0DF6EF0310E827D1F2E5C35148E5F7EADD2AE9C2A19736
+semantic_sha256: 50B23D7E44F97829A5855904368692895D7241D42A7C045681C9078799B9B112
+created_at: '2026-07-31T00:00:00+08:00'
+created_by: governance-controller

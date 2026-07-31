@@ -1,0 +1,60 @@
+{
+  "guards_checked": 5,
+  "alive": 5,
+  "dormant": 0,
+  "broken": 0,
+  "results": [
+    {
+      "guard": "bash_content_guard",
+      "status": "ALIVE",
+      "blocked": 1,
+      "negative_total": 1,
+      "allowed": 1,
+      "positive_total": 1,
+      "errors": [],
+      "checked_at": "2026-07-31T11:13:49.595132+00:00"
+    },
+    {
+      "guard": "content_guard",
+      "status": "ALIVE",
+      "blocked": 1,
+      "negative_total": 1,
+      "allowed": 1,
+      "positive_total": 1,
+      "errors": [],
+      "checked_at": "2026-07-31T11:13:50.735153+00:00"
+    },
+    {
+      "guard": "gate_guard",
+      "status": "ALIVE",
+      "blocked": 1,
+      "negative_total": 1,
+      "allowed": 1,
+      "positive_total": 1,
+      "errors": [],
+      "checked_at": "2026-07-31T11:13:51.348921+00:00"
+    },
+    {
+      "guard": "ledger_guard",
+      "status": "ALIVE",
+      "blocked": 1,
+      "negative_total": 1,
+      "allowed": 0,
+      "positive_total": 0,
+      "errors": [],
+      "checked_at": "2026-07-31T11:13:52.202562+00:00"
+    },
+    {
+      "guard": "path_guard",
+      "status": "ALIVE",
+      "blocked": 1,
+      "negative_total": 1,
+      "allowed": 0,
+      "positive_total": 0,
+      "errors": [],
+      "checked_at": "2026-07-31T11:13:52.557694+00:00"
+    }
+  ],
+  "overall": "PASS",
+  "checked_at": "2026-07-31T11:13:52.558695+00:00"
+}

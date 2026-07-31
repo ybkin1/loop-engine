@@ -26,6 +26,36 @@ def _project(tmp_path: Path, projection: str | None = None) -> Path:
     (tmp_path / ".ai" / "tasks").mkdir(parents=True)
     (tmp_path / ".ai" / "state.yaml").write_text(STATE, encoding="utf-8")
     (tmp_path / ".ai" / "tasks" / "T-0078.md").write_text(TASK, encoding="utf-8")
+    # B7 (T-0083): the HardConstraints kernel is populated with real state —
+    # an S4 project needs approved S1/S2 baselines (C1/C2) and an
+    # independent-reviewer PASS on record (C6) before writes can pass.
+    # Mirror that realistic governance in the shared fixture.
+    (tmp_path / ".ai" / "gates.yaml").write_text(
+        "schema_version: 1\n"
+        "gates:\n"
+        "- id: G-T-0078-REQUIREMENTS\n"
+        "  task_id: T-0078\n"
+        "  gate_type: requirements\n"
+        "  status: approved\n"
+        "- id: G-T-0078-ARCHITECTURE\n"
+        "  task_id: T-0078\n"
+        "  gate_type: architecture\n"
+        "  status: approved\n",
+        encoding="utf-8",
+    )
+    ev_dir = tmp_path / ".ai" / "evidence" / "T-0078"
+    ev_dir.mkdir(parents=True, exist_ok=True)
+    (ev_dir / "review-evidence.json").write_text(
+        json.dumps({
+            "task_id": "T-0078",
+            "role": "independent-reviewer",
+            "verdict": "PASS",
+            "findings": [],
+            "reviewer_session_id": "session-reviewer-0078",
+            "developer_session_id": "session-developer-0078",
+        }),
+        encoding="utf-8",
+    )
     # T-0082: the enforcement hook requires the quality gate config to exist
     # for S4+ phases; without it all writes are BLOCKED with
     # "质量门禁配置不存在". Content mirrors the repo's real config; the hook
