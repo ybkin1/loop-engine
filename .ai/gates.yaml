@@ -3947,7 +3947,7 @@ gates:
   task_id: T-0082
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   recorded_at: '2026-07-31T00:00:00+08:00'
   approval_actor: user

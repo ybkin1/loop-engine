@@ -900,8 +900,8 @@ tasks:
   -
     id: T-0082
     title: Loop 工程质量治理与运行时执行接管
-    phase: S1-requirements
-    status: in_progress
+    phase: S6-delivery
+    status: completed
     description: >-
       RuntimeController 身份/授权/调度链路强化、代码质量执行链、
       统一报告体系、角色子智能体隔离、分层质量门、副作用权限控制、
