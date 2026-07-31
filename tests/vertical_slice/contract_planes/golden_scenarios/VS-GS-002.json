@@ -1,0 +1,74 @@
+{
+  "scenario_id": "VS-GS-002",
+  "title": "负向场景：gate 拒绝 → 修复 → 重审 → 收敛",
+  "description": "质量 gate 拒绝路径：S5 质量审查 BLOCKED（3 个种子缺陷 + 角色否决）→ S6 交付尝试 1 NOGO（列出全部 blocker 与 required_repairs）→ 修复完成并由否决角色重审 → 重审 PASS（回归 18/18、quality gates 全 PASS）→ 交付尝试 2 GO → 最终收敛。该场景固化'拒绝-修复-重审'闭环契约。",
+  "type": "negative-path",
+  "lifecycle": ["质量 gate 拒绝", "交付阻塞 (NOGO)", "修复", "重审 (GO)", "收敛"],
+  "planes": {
+    "domain": [
+      { "id": "quality-gate-blocked", "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.overall_result", "expected": "BLOCKED" },
+      { "id": "defect-count", "type": "count_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found", "expected": 3 },
+      { "id": "delivery-attempt1-nogo", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.decision", "expected": "NOGO" },
+      { "id": "delivery-attempt2-go", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.decision", "expected": "GO" },
+      { "id": "final-go", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" },
+      { "id": "repairs-completed", "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed", "expected": 3 },
+      { "id": "regression-pass", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.regression_results.failed", "expected": 0 }
+    ],
+    "events": [
+      { "event_id": "EV-NEG-001", "name": "角色否决发出 (blocker veto issued)", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found.0.veto.severity", "expected": "blocker" } },
+      { "event_id": "EV-NEG-002", "name": "交付被阻塞 (delivery NOGO)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.decision", "expected": "NOGO" } },
+      { "event_id": "EV-NEG-003", "name": "修复完成 (repairs completed)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.decision", "expected": "GO" } },
+      { "event_id": "EV-NEG-004", "name": "重审通过 (re-review PASS)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.quality_gates.test", "expected": "PASS" } }
+    ],
+    "conversation": [
+      {
+        "stage_id": "STG-101",
+        "name": "阻塞态 (blocked state: quality BLOCKED -> delivery NOGO)",
+        "from_phase": "S5-quality",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.overall_result", "expected": "BLOCKED" },
+          { "type": "count_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found", "expected": 3 }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.decision", "expected": "NOGO" },
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.blocked_by", "expected": 3 },
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.required_repairs", "expected": 3 }
+        ]
+      },
+      {
+        "stage_id": "STG-102",
+        "name": "修复态 (repaired state: repairs verified by vetoing roles)",
+        "from_phase": "S6-delivery",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed", "expected": 3 }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.security-engineer", "expected": "PASS" },
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.quality-engineer", "expected": "PASS" },
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.system-architect", "expected": "PASS" }
+        ]
+      },
+      {
+        "stage_id": "STG-103",
+        "name": "重审收敛 (re-review converged: gates PASS -> final GO)",
+        "from_phase": "S6-delivery",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.quality_gates.test", "expected": "PASS" }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" }
+        ]
+      }
+    ],
+    "state": [
+      { "id": "TR-101", "type": "state_transition", "from_phase": "S5-quality", "to_phase": "S6-delivery", "via_events": ["EV-NEG-002"] },
+      { "id": "RE-101", "type": "reentry", "change_type": "quality_fix", "entry_phase": "S5-quality", "allowed": true },
+      { "id": "RE-102", "type": "reentry", "change_type": "bug_fix", "entry_phase": "S1-requirements", "allowed": false },
+      { "id": "GA-101", "type": "gate_approval", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts", "required_roles": ["security-engineer", "quality-engineer", "system-architect"], "expected": false }
+    ]
+  },
+  "requirements_covered": ["VS-REQ-006", "VS-REQ-008", "VS-REQ-009"]
+}

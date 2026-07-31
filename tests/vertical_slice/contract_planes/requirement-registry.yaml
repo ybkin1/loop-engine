@@ -1,0 +1,147 @@
+# Vertical Slice 契约平面需求注册表 (requirement-registry)
+#
+# U2 (T-0087): 把端到端切片行为固化为可测试的契约资产。
+# 每条需求登记：requirement_id / 描述 / 对应平面（domain | events |
+# conversation | state）/ 覆盖状态（covered_by：golden 场景 + 断言 ref）/
+# 状态（implemented | partial | missing）。
+#
+# 覆盖状态由 tests/vertical_slice/conformance.py 基于真实证据断言计算：
+# - implemented: covered_by 非空且全部断言通过
+# - partial:     covered_by 非空但存在失败断言
+# - missing:     covered_by 为空（未覆盖）
+# 门禁 fail-closed：任一需求非 implemented → gate_decision = FAIL。
+# 本文件为唯一权威版本；.ai/evidence/T-0087/contract-planes/ 下保存
+# 同步镜像（tests/test_contract_planes.py 校验两者一致，防漂移）。
+
+schema_version: 1
+registry_id: VS-REG-001
+description: >
+  Vertical slice 契约平面需求注册表 — 将端到端切片行为固化为可测试的
+  契约资产（domain/events/conversation/state 4 观测平面），系统化检测
+  行为漂移。每条需求由 golden 场景断言覆盖，由 conformance.py 计算
+  符合性并给出 fail-closed 门禁（PASS/FAIL）。
+
+requirements:
+  - requirement_id: VS-REQ-001
+    description: 每个治理阶段（S1/S2/S4/S5/S6）的证据产物必须落盘且非空
+    plane: domain
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-requirements }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-requirements-gate }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-architecture }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-architecture-gate }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-implementation }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-test-results }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-quality-report }
+      - { scenario: VS-GS-001, plane: domain, ref: artifact-delivery-decision }
+
+  - requirement_id: VS-REQ-002
+    description: 阶段 gate 批准记录必须含 APPROVED 状态、ISO 时间戳、AR- 记录 ID，且父级引用完整
+    plane: domain
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-001, plane: domain, ref: gate-s1-approved }
+      - { scenario: VS-GS-001, plane: domain, ref: gate-s1-record }
+      - { scenario: VS-GS-001, plane: domain, ref: gate-s1-timestamp }
+      - { scenario: VS-GS-001, plane: domain, ref: gate-s2-approved }
+      - { scenario: VS-GS-001, plane: domain, ref: gate-s2-parent }
+
+  - requirement_id: VS-REQ-003
+    description: 验收结果必须收敛为 GO（delivery final_decision）
+    plane: domain
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-001, plane: domain, ref: acceptance-final-go }
+
+  - requirement_id: VS-REQ-004
+    description: 关键治理事件必须按序实例化：任务登记 → gate 批准 → 实现 → 验收 → 收敛
+    plane: events
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-001, plane: events, ref: EV-001 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-002 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-003 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-004 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-005 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-006 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-007 }
+      - { scenario: VS-GS-001, plane: events, ref: EV-008 }
+
+  - requirement_id: VS-REQ-005
+    description: 3 个种子缺陷必须由正确角色检出（security/quality/architecture），lint 结果关联缺陷引用
+    plane: events
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-004, plane: events, ref: EV-DET-SEC }
+      - { scenario: VS-GS-004, plane: events, ref: EV-DET-QUAL }
+      - { scenario: VS-GS-004, plane: events, ref: EV-DET-ARCH }
+      - { scenario: VS-GS-004, plane: events, ref: EV-LINT-REFS }
+
+  - requirement_id: VS-REQ-006
+    description: 负向事件链必须完整：否决 → 交付 NOGO → 修复 → 重审 GO
+    plane: events
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-002, plane: events, ref: EV-NEG-001 }
+      - { scenario: VS-GS-002, plane: events, ref: EV-NEG-002 }
+      - { scenario: VS-GS-002, plane: events, ref: EV-NEG-003 }
+      - { scenario: VS-GS-002, plane: events, ref: EV-NEG-004 }
+
+  - requirement_id: VS-REQ-007
+    description: 每个阶段转换的前置状态必须成立（前阶段 gate APPROVED 才进入下一阶段）
+    plane: conversation
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-001, plane: conversation, ref: STG-001 }
+      - { scenario: VS-GS-001, plane: conversation, ref: STG-002 }
+      - { scenario: VS-GS-001, plane: conversation, ref: STG-003 }
+      - { scenario: VS-GS-001, plane: conversation, ref: STG-004 }
+      - { scenario: VS-GS-001, plane: conversation, ref: STG-005 }
+
+  - requirement_id: VS-REQ-008
+    description: 阻塞态（BLOCKED/NOGO）必须列出全部 blocker 与 required_repairs
+    plane: conversation
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-002, plane: conversation, ref: STG-101 }
+
+  - requirement_id: VS-REQ-009
+    description: 修复后状态必须收敛：否决角色全部 PASS、quality gates 全 PASS、最终 GO
+    plane: conversation
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-002, plane: conversation, ref: STG-102 }
+      - { scenario: VS-GS-002, plane: conversation, ref: STG-103 }
+      - { scenario: VS-GS-004, plane: conversation, ref: STG-202 }
+
+  - requirement_id: VS-REQ-010
+    description: 证据链阶段迁移必须合法（符合 PHASE_TRANSITIONS：直接迁移合法或存在合法可达路径；非法直跳必须被禁止）
+    plane: state
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-003, plane: state, ref: TR-301 }
+      - { scenario: VS-GS-003, plane: state, ref: TR-302 }
+      - { scenario: VS-GS-003, plane: state, ref: TR-303 }
+      - { scenario: VS-GS-003, plane: state, ref: TR-304 }
+      - { scenario: VS-GS-003, plane: state, ref: TR-305 }
+      - { scenario: VS-GS-003, plane: state, ref: TF-301 }
+
+  - requirement_id: VS-REQ-011
+    description: 修复/重审回环必须符合 REENTRY_TRANSITIONS 规则（quality_fix 可入 S5、bug_fix 可入 S4、feature_add 仅入 S4 等）
+    plane: state
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-003, plane: state, ref: RE-301 }
+      - { scenario: VS-GS-003, plane: state, ref: RE-302 }
+      - { scenario: VS-GS-003, plane: state, ref: RE-303 }
+      - { scenario: VS-GS-003, plane: state, ref: RE-304 }
+      - { scenario: VS-GS-003, plane: state, ref: RE-305 }
+
+  - requirement_id: VS-REQ-012
+    description: gate 批准裁决必须 fail-closed：BLOCKED 角色裁决阻止批准，全 PASS 才允许批准（can_approve_gate）
+    plane: state
+    status: implemented
+    covered_by:
+      - { scenario: VS-GS-003, plane: state, ref: GA-301 }
+      - { scenario: VS-GS-003, plane: state, ref: GA-302 }

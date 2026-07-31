@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/vertical-slice-scenario.schema.json",
+  "title": "Vertical Slice Golden Scenario",
+  "description": "A golden scenario for the vertical slice contract planes. Each scenario describes expected behavior across the four observation planes (domain/events/conversation/state) as assertion checks that conformance.py runs against the slice evidence.",
+  "type": "object",
+  "required": ["scenario_id", "title", "type", "planes", "requirements_covered"],
+  "properties": {
+    "scenario_id": { "type": "string", "pattern": "^VS-GS-\\d{3}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": ["happy-path", "negative-path", "state-legality", "role-convergence"]
+    },
+    "lifecycle": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "planes": {
+      "type": "object",
+      "required": ["domain", "events", "conversation", "state"],
+      "properties": {
+        "domain": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/check" }
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/event" }
+        },
+        "conversation": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/stage" }
+        },
+        "state": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/check" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirements_covered": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^VS-REQ-\\d{3}$" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": {
+          "type": "string",
+          "enum": [
+            "file_exists",
+            "text_contains",
+            "text_matches",
+            "json_equals",
+            "json_contains",
+            "count_equals",
+            "state_transition",
+            "state_transition_forbidden",
+            "state_path",
+            "reentry",
+            "gate_approval"
+          ]
+        },
+        "path": { "type": "string", "minLength": 1 },
+        "non_empty": { "type": "boolean", "default": true },
+        "needle": { "type": "string", "minLength": 1 },
+        "pattern": { "type": "string", "minLength": 1 },
+        "json_path": { "type": "string", "minLength": 1 },
+        "expected": {},
+        "from_phase": { "type": "string", "minLength": 1 },
+        "to_phase": { "type": "string", "minLength": 1 },
+        "change_type": {
+          "type": "string",
+          "enum": ["bug_fix", "feature_add", "refactor", "requirement_change", "quality_fix"]
+        },
+        "entry_phase": { "type": "string", "minLength": 1 },
+        "allowed": { "type": "boolean" },
+        "required_roles": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "via_events": {
+          "type": "array",
+          "description": "Optional metadata: event ids that instantiate this state transition.",
+          "items": { "type": "string", "pattern": "^EV-" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["event_id", "name", "phase", "check"],
+      "properties": {
+        "event_id": { "type": "string", "pattern": "^EV-" },
+        "name": { "type": "string", "minLength": 1 },
+        "phase": { "type": "string", "minLength": 1 },
+        "check": { "$ref": "#/$defs/check" }
+      },
+      "additionalProperties": false
+    },
+    "stage": {
+      "type": "object",
+      "required": ["stage_id", "name", "pre", "post"],
+      "properties": {
+        "stage_id": { "type": "string", "pattern": "^STG-" },
+        "name": { "type": "string", "minLength": 1 },
+        "from_phase": { "type": "string" },
+        "to_phase": { "type": "string" },
+        "pre": { "type": "array", "items": { "$ref": "#/$defs/check" } },
+        "post": { "type": "array", "items": { "$ref": "#/$defs/check" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}

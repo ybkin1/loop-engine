@@ -1,0 +1,617 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-31T23:13:35.503331+00:00",
+  "gate_semantics": "fail-closed: PASS only if every registered requirement is covered by golden-scenario assertions and all assertions pass; any failed or uncovered requirement yields FAIL",
+  "sources": {
+    "registry": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\tests\\vertical_slice\\contract_planes\\requirement-registry.yaml",
+    "scenarios_dir": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\tests\\vertical_slice\\contract_planes\\golden_scenarios",
+    "evidence_root": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\tests\\vertical_slice\\evidence"
+  },
+  "scenarios": {
+    "VS-GS-001": {
+      "scenario_id": "VS-GS-001",
+      "title": "端到端正向场景：需求 → 任务图 → gate 批准 → 实现 → 验收 → 收敛",
+      "planes": {
+        "domain": {
+          "items_total": 16,
+          "items_passed": 16,
+          "passed": true
+        },
+        "events": {
+          "items_total": 8,
+          "items_passed": 8,
+          "passed": true
+        },
+        "conversation": {
+          "items_total": 5,
+          "items_passed": 5,
+          "passed": true
+        },
+        "state": {
+          "items_total": 4,
+          "items_passed": 4,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    "VS-GS-002": {
+      "scenario_id": "VS-GS-002",
+      "title": "负向场景：gate 拒绝 → 修复 → 重审 → 收敛",
+      "planes": {
+        "domain": {
+          "items_total": 7,
+          "items_passed": 7,
+          "passed": true
+        },
+        "events": {
+          "items_total": 4,
+          "items_passed": 4,
+          "passed": true
+        },
+        "conversation": {
+          "items_total": 3,
+          "items_passed": 3,
+          "passed": true
+        },
+        "state": {
+          "items_total": 4,
+          "items_passed": 4,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    "VS-GS-003": {
+      "scenario_id": "VS-GS-003",
+      "title": "状态机合法性场景：证据链迁移 / 重审回环 / gate 批准裁决",
+      "planes": {
+        "domain": {
+          "items_total": 2,
+          "items_passed": 2,
+          "passed": true
+        },
+        "events": {
+          "items_total": 3,
+          "items_passed": 3,
+          "passed": true
+        },
+        "conversation": {
+          "items_total": 1,
+          "items_passed": 1,
+          "passed": true
+        },
+        "state": {
+          "items_total": 13,
+          "items_passed": 13,
+          "passed": true
+        }
+      },
+      "passed": true
+    },
+    "VS-GS-004": {
+      "scenario_id": "VS-GS-004",
+      "title": "角色收敛场景：7 角色裁决 BLOCKED → 修复后全 PASS",
+      "planes": {
+        "domain": {
+          "items_total": 7,
+          "items_passed": 7,
+          "passed": true
+        },
+        "events": {
+          "items_total": 7,
+          "items_passed": 7,
+          "passed": true
+        },
+        "conversation": {
+          "items_total": 2,
+          "items_passed": 2,
+          "passed": true
+        },
+        "state": {
+          "items_total": 1,
+          "items_passed": 1,
+          "passed": true
+        }
+      },
+      "passed": true
+    }
+  },
+  "requirements": [
+    {
+      "requirement_id": "VS-REQ-001",
+      "description": "每个治理阶段（S1/S2/S4/S5/S6）的证据产物必须落盘且非空",
+      "plane": "domain",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-requirements",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-requirements-gate",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-architecture",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-architecture-gate",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-implementation",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-test-results",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-quality-report",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "artifact-delivery-decision",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-002",
+      "description": "阶段 gate 批准记录必须含 APPROVED 状态、ISO 时间戳、AR- 记录 ID，且父级引用完整",
+      "plane": "domain",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "gate-s1-approved",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "gate-s1-record",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "gate-s1-timestamp",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "gate-s2-approved",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "gate-s2-parent",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-003",
+      "description": "验收结果必须收敛为 GO（delivery final_decision）",
+      "plane": "domain",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-001",
+          "plane": "domain",
+          "ref": "acceptance-final-go",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-004",
+      "description": "关键治理事件必须按序实例化：任务登记 → gate 批准 → 实现 → 验收 → 收敛",
+      "plane": "events",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-001",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-002",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-003",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-004",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-005",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-006",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-007",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "events",
+          "ref": "EV-008",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-005",
+      "description": "3 个种子缺陷必须由正确角色检出（security/quality/architecture），lint 结果关联缺陷引用",
+      "plane": "events",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-004",
+          "plane": "events",
+          "ref": "EV-DET-SEC",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-004",
+          "plane": "events",
+          "ref": "EV-DET-QUAL",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-004",
+          "plane": "events",
+          "ref": "EV-DET-ARCH",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-004",
+          "plane": "events",
+          "ref": "EV-LINT-REFS",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-006",
+      "description": "负向事件链必须完整：否决 → 交付 NOGO → 修复 → 重审 GO",
+      "plane": "events",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-002",
+          "plane": "events",
+          "ref": "EV-NEG-001",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-002",
+          "plane": "events",
+          "ref": "EV-NEG-002",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-002",
+          "plane": "events",
+          "ref": "EV-NEG-003",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-002",
+          "plane": "events",
+          "ref": "EV-NEG-004",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-007",
+      "description": "每个阶段转换的前置状态必须成立（前阶段 gate APPROVED 才进入下一阶段）",
+      "plane": "conversation",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-001",
+          "plane": "conversation",
+          "ref": "STG-001",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "conversation",
+          "ref": "STG-002",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "conversation",
+          "ref": "STG-003",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "conversation",
+          "ref": "STG-004",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-001",
+          "plane": "conversation",
+          "ref": "STG-005",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-008",
+      "description": "阻塞态（BLOCKED/NOGO）必须列出全部 blocker 与 required_repairs",
+      "plane": "conversation",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-002",
+          "plane": "conversation",
+          "ref": "STG-101",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-009",
+      "description": "修复后状态必须收敛：否决角色全部 PASS、quality gates 全 PASS、最终 GO",
+      "plane": "conversation",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-002",
+          "plane": "conversation",
+          "ref": "STG-102",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-002",
+          "plane": "conversation",
+          "ref": "STG-103",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-004",
+          "plane": "conversation",
+          "ref": "STG-202",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-010",
+      "description": "证据链阶段迁移必须合法（符合 PHASE_TRANSITIONS：直接迁移合法或存在合法可达路径；非法直跳必须被禁止）",
+      "plane": "state",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TR-301",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TR-302",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TR-303",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TR-304",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TR-305",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "TF-301",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-011",
+      "description": "修复/重审回环必须符合 REENTRY_TRANSITIONS 规则（quality_fix 可入 S5、bug_fix 可入 S4、feature_add 仅入 S4 等）",
+      "plane": "state",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "RE-301",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "RE-302",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "RE-303",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "RE-304",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "RE-305",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    },
+    {
+      "requirement_id": "VS-REQ-012",
+      "description": "gate 批准裁决必须 fail-closed：BLOCKED 角色裁决阻止批准，全 PASS 才允许批准（can_approve_gate）",
+      "plane": "state",
+      "declared_status": "implemented",
+      "status": "implemented",
+      "coverage": [
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "GA-301",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "VS-GS-003",
+          "plane": "state",
+          "ref": "GA-302",
+          "passed": true,
+          "failures": []
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "summary": {
+    "total_requirements": 12,
+    "covered": 12,
+    "implemented": 12,
+    "partial": 0,
+    "missing": 0,
+    "failed_assertions": 0,
+    "scenarios_total": 4,
+    "scenarios_passed": 4
+  },
+  "gate_decision": "PASS"
+}

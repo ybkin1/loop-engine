@@ -12,9 +12,20 @@ the guard chain and reports per-guard health.
 - A guard that crashes (exception/exit!=0/import error) is flagged BROKEN.
 - Any BROKEN or DORMANT guard makes the overall verdict FAIL (AC-05): a guard
   that blocks zero negative controls is a dead guard even if it does not crash.
+
+T-0087 U1: three-way integrity. Death (above) stays FAIL-CLOSED; the capability
+registry (loop_core.capability_registry) adds two REPORT-level detections that
+never block:
+- MISSING: an implementation file exists in .ai/checkers/ or .ai/guards/ but is
+  not registered in the capability registry (omitted governance asset).
+- DRIFT: a registered implementation's file hash/version no longer matches the
+  binding recorded at registration time.
+integrity_check() combines all three; the overall verdict is driven by death
+only — missing/drift are surfaced as reports, never as a silent pass-through.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -23,6 +34,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
+from loop_core.capability_registry import (
+    CapabilityBinding,
+    CapabilityRegistry,
+    build_default_registry,
+    sha256_file,
+)
 
 # ── Guard registry: which guard owns which negative control ──
 # Each guard declares which fixture it must kill. Zero kills = DORMANT.
@@ -68,11 +86,17 @@ class GuardHealthResult:
 
 
 class GuardHealth:
-    """Runs the fixture battery against the live hook chain."""
+    """Runs the fixture battery against the live hook chain.
 
-    def __init__(self, project_root: str | Path):
+    registry: injected capability registry (default: build_default_registry for
+    the project root) — the baseline for missing/drift detection.
+    """
+
+    def __init__(self, project_root: str | Path,
+                 registry: Optional[CapabilityRegistry] = None):
         self.root = Path(project_root).resolve()
         self.hooks_dir = self.root / "hooks" / "scripts"
+        self.registry = registry if registry is not None else build_default_registry(self.root)
 
     # ── The fixture battery ──
     def battery(self) -> list[GuardControl]:
@@ -232,6 +256,108 @@ class GuardHealth:
                 errors=errors,
             ))
         return results
+
+    # ── T-0087 U1: missing / drift detection (REPORT level, never blocks) ──
+    _GOVERNANCE_IMPL_DIRS = (("checkers", "checker"), ("guards", "guard"))
+
+    def missing_detection(self) -> list[dict]:
+        """Scan .ai/checkers/ and .ai/guards/ *.py against the registry.
+
+        A *.py implementation file that exists on disk but is NOT registered is
+        an omitted governance asset (a guard can be alive yet absent from the
+        governance surface). Report-level finding, never flips the verdict.
+        """
+        findings: list[dict] = []
+        registered_paths = {
+            b.implementation_path
+            for b in self.registry.snapshot().entries.values()
+        }
+        for dirname, provider in self._GOVERNANCE_IMPL_DIRS:
+            impl_dir = self.root / ".ai" / dirname
+            if not impl_dir.is_dir():
+                continue
+            for fp in sorted(impl_dir.glob("*.py")):
+                if fp.name == "__init__.py":
+                    continue
+                rel = fp.relative_to(self.root).as_posix()
+                if rel not in registered_paths:
+                    findings.append({
+                        "finding": "MISSING",
+                        "severity": "report",
+                        "provider_id": provider,
+                        "capability_id": None,
+                        "implementation_path": rel,
+                        "message": (
+                            f"implementation file exists in .ai/{dirname}/ but "
+                            "is not registered in the capability registry"
+                        ),
+                    })
+        return findings
+
+    def drift_detection(self) -> list[dict]:
+        """Compare registered bindings against the current implementation files.
+
+        DRIFT = the implementation file's sha256 no longer matches the hash
+        recorded at registration (or the file is gone). A drifted guard may
+        still pass its battery — this detection surfaces the change instead of
+        relying on the battery alone. Report-level, never flips the verdict.
+        """
+        findings: list[dict] = []
+        for binding in sorted(
+            self.registry.snapshot().entries.values(),
+            key=lambda b: b.capability_id,
+        ):
+            fp = (self.root / binding.implementation_path
+                  if not Path(binding.implementation_path).is_absolute()
+                  else Path(binding.implementation_path))
+            if not fp.exists():
+                findings.append({
+                    "finding": "DRIFT",
+                    "severity": "report",
+                    "provider_id": binding.provider_id,
+                    "capability_id": binding.capability_id,
+                    "implementation_path": binding.implementation_path,
+                    "registered_version": binding.version,
+                    "actual_hash": "",
+                    "expected_hash": binding.implementation_hash,
+                    "message": "registered implementation file is missing from disk",
+                })
+                continue
+            actual_hash = sha256_file(fp)
+            if actual_hash != binding.implementation_hash:
+                findings.append({
+                    "finding": "DRIFT",
+                    "severity": "report",
+                    "provider_id": binding.provider_id,
+                    "capability_id": binding.capability_id,
+                    "implementation_path": binding.implementation_path,
+                    "registered_version": binding.version,
+                    "actual_hash": actual_hash,
+                    "expected_hash": binding.implementation_hash,
+                    "message": (
+                        "implementation file hash changed since registration "
+                        "(file drifted from the registered binding)"
+                    ),
+                })
+        return findings
+
+    def integrity_check(self) -> dict:
+        """Three-way integrity: death (fail-closed) + missing + drift (report).
+
+        The overall verdict is driven by DEATH ONLY (BROKEN/DORMANT -> FAIL,
+        unchanged fail-closed semantics). MISSING/DRIFT findings are attached as
+        REPORT-level evidence — they inform but never block (T-0087 AC-02).
+        """
+        death = self.summary()
+        return {
+            "death": death,
+            "missing": self.missing_detection(),
+            "drift": self.drift_detection(),
+            # missing/drift are report-level: overall must NOT flip because of
+            # them — only a dead guard fails the loop.
+            "overall": death["overall"],
+            "checked_at": death["checked_at"],
+        }
 
     def summary(self) -> dict:
         results = self.run()

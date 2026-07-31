@@ -1,0 +1,59 @@
+{
+  "scenario_id": "VS-GS-004",
+  "title": "角色收敛场景：7 角色裁决 BLOCKED → 修复后全 PASS",
+  "description": "角色裁决平面：S5 质量报告必须包含全部 7 个必需角色裁决（5 个 BLOCKED + 2 个 PASS）；3 个种子缺陷必须由正确角色检出（security-engineer / quality-engineer / system-architect），lint 结果必须关联缺陷引用；修复后 5 个否决角色全部转为 PASS，5 项 quality gates 全部 PASS，交付收敛 GO。",
+  "type": "role-convergence",
+  "lifecycle": ["7 角色裁决", "缺陷按角色检出", "修复后全 PASS", "收敛"],
+  "planes": {
+    "domain": [
+      { "id": "seven-role-verdicts", "type": "count_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts", "expected": 7 },
+      { "id": "verdict-blocks", "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts.security-engineer.verdict", "expected": "BLOCKED" },
+      { "id": "post-repair-five-roles", "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair", "expected": 5 },
+      { "id": "quality-gates-count", "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.quality_gates", "expected": 5 },
+      { "id": "quality-gate-security-scan", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.quality_gates.security_scan", "expected": "PASS" },
+      { "id": "quality-gate-architecture", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.quality_gates.architecture_check", "expected": "PASS" },
+      { "id": "converged-go", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" }
+    ],
+    "events": [
+      { "event_id": "EV-DET-SEC", "name": "安全缺陷由 security-engineer 检出", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found.0.detected_by", "expected": "security-engineer" } },
+      { "event_id": "EV-DET-QUAL", "name": "质量缺陷由 quality-engineer 检出", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found.1.detected_by", "expected": "quality-engineer" } },
+      { "event_id": "EV-DET-ARCH", "name": "架构缺陷由 system-architect 检出", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found.2.detected_by", "expected": "system-architect" } },
+      { "event_id": "EV-LINT-REFS", "name": "lint 结果关联全部缺陷引用", "phase": "S5-quality", "check": { "type": "json_contains", "path": "S5-quality/lint_results.json", "json_path": "lint_results.issues", "expected": { "defect_ref": "VS-SEC-001" } } },
+      { "event_id": "EV-VERIFY-SEC", "name": "安全修复由 security-engineer 复验", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed.0.verified_by", "expected": "security-engineer" } },
+      { "event_id": "EV-VERIFY-QUAL", "name": "质量修复由 quality-engineer 复验", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed.1.verified_by", "expected": "quality-engineer" } },
+      { "event_id": "EV-VERIFY-ARCH", "name": "架构修复由 system-architect 复验", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed.2.verified_by", "expected": "system-architect" } }
+    ],
+    "conversation": [
+      {
+        "stage_id": "STG-201",
+        "name": "裁决阻塞态 (verdicts blocked)",
+        "from_phase": "S5-quality",
+        "to_phase": "S5-quality",
+        "pre": [
+          { "type": "count_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts", "expected": 7 }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts.security-engineer.verdict", "expected": "BLOCKED" },
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts.delivery-manager.verdict", "expected": "BLOCKED" }
+        ]
+      },
+      {
+        "stage_id": "STG-202",
+        "name": "裁决收敛态 (verdicts converged to PASS)",
+        "from_phase": "S6-delivery",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed.0.verified_by", "expected": "security-engineer" }
+        ],
+        "post": [
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair", "expected": 5 },
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.delivery-manager", "expected": "PASS" }
+        ]
+      }
+    ],
+    "state": [
+      { "id": "TR-401", "type": "state_transition", "from_phase": "S5-quality", "to_phase": "S6-delivery", "via_events": ["EV-DET-SEC", "EV-VERIFY-SEC"] }
+    ]
+  },
+  "requirements_covered": ["VS-REQ-005", "VS-REQ-009"]
+}

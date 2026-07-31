@@ -1,0 +1,62 @@
+# Vertical Slice — 观测平面定义 (Observation Planes)
+#
+# U2 (T-0087): 借鉴 OpenBMB/StaffDeck contracts/agent/v1 的"5 观测平面"
+# 模式，按 loop-engine 语义收敛为 4 个观测平面。每个平面描述切片行为
+# 的一类可观测事实；golden 场景按平面组织断言，需求注册表按平面登记覆盖。
+#
+# 平面语义：
+# - domain      决策与产物（任务卡、AC、gate 决策、验收结果）
+# - events      事件流（关键治理事件序列：任务登记→gate 批准→实现→验收→收敛）
+# - conversation 前后状态（每个阶段转换的前置状态/后置状态）
+# - state       状态机迁移（state.yaml/task_graph 的合法迁移路径，
+#               以 loop_core.state_machine 的 PHASE_TRANSITIONS /
+#               REENTRY_TRANSITIONS / can_approve_gate 为基准）
+
+schema_version: 1
+planes:
+  - id: domain
+    name: 决策与产物
+    description: >
+      任务卡、验收标准（AC）、gate 决策与验收结果等治理产物。
+      断言：产物落盘且非空、gate 记录含 APPROVED/时间戳/AR-ID、
+      最终验收决策收敛为 GO。
+    observables:
+      - task cards (TASK-VS-001)
+      - acceptance criteria (AC-01..AC-05)
+      - gate decisions (GATE-S1-001 / GATE-S2-001, APPROVED)
+      - acceptance results (delivery final_decision)
+
+  - id: events
+    name: 事件流
+    description: >
+      关键治理事件按序发生：任务登记 → gate 批准 → 实现 →
+      验收 → 收敛；负向路径含 缺陷检出 → 交付阻塞（NOGO）→
+      修复 → 重审（GO）。每个事件绑定一个证据检查（check）。
+    observables:
+      - event ids (EV-xxx) with phase and actor
+      - governance event sequence order
+      - negative chain: veto -> NOGO -> repair -> re-review
+
+  - id: conversation
+    name: 前后状态
+    description: >
+      每个阶段转换的前置状态（pre）与后置状态（post）。
+      前阶段 gate 未批准不得进入下一阶段；阻塞态必须列出
+      blocker 与 required_repairs；修复后状态收敛（全角色 PASS、
+      全 quality gates PASS）。
+    observables:
+      - stage pre-state checks (前置状态)
+      - stage post-state checks (后置状态)
+      - blocked-state contracts (blockers + required repairs)
+
+  - id: state
+    name: 状态机迁移
+    description: >
+      state.yaml/task_graph 的合法迁移路径：证据链阶段迁移必须
+      符合 PHASE_TRANSITIONS；修复/重审回环必须符合
+      REENTRY_TRANSITIONS；BLOCKED 角色裁决必须阻止 gate 批准
+      （can_approve_gate fail-closed）。
+    observables:
+      - legal phase transitions (S1->S2->S4->S5->S6)
+      - reentry rules (quality_fix -> S5, bug_fix -> S4, ...)
+      - gate approval legality (BLOCKED verdicts block approval)

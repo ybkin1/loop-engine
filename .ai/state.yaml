@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-01T02:03:33.260683+08:00'
+last_handoff_at: '2026-08-01T07:18:26.488282+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -27,5 +27,9 @@ notes:
   (f2a6f64) 提交。'
 - 'T-0086 ACTIVE 2026-08-01: 治理清障 + StaffDeck 对标落地 + 任务计划编排。G-T-0086-REQUIREMENTS
   pending，待用户批准。'
-- 'T-0086 COMPLETED 2026-08-01: 治理清障 + StaffDeck 对标落地（hook 只读误伤修复 + P1 执行形态拦截 + P2 治理工具豁免 + 对标证据
-  + T-0087~T-0090 计划编排），7/7 AC，独立审查 CONDITIONAL_GO→P1/P2 修复转 GO，全量 2856 passed。下一任务待用户发起。'
+- 'T-0086 COMPLETED 2026-08-01: 治理清障 + StaffDeck 对标落地（hook 只读误伤修复 + P1 执行形态拦截 + P2
+  治理工具豁免 + 对标证据 + T-0087~T-0090 计划编排），7/7 AC，独立审查 CONDITIONAL_GO→P1/P2 修复转 GO，全量 2856
+  passed。下一任务待用户发起。'
+- 'T-0087 COMPLETED 2026-08-01: 运行时契约化 — U1 checkers/guards 注册表化（register/seal/快照/fail-closed
+  重水合 + guard_health 三类检测）+ U2 vertical_slice 契约平面化（4 平面 golden + 12 需求注册表 + conformance
+  门禁），7/7 AC，独立审查 GO，全量 2914 passed。下一任务待用户发起。'

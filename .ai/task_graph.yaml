@@ -945,6 +945,19 @@ tasks:
       - T-0085
     gates:
       - G-T-0086-REQUIREMENTS
+  -
+    id: T-0087
+    title: 运行时契约化 — checkers/guards 注册表化（U1）+ vertical_slice 契约平面化（U2）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      CapabilityRegistry 模式应用于 checkers/guards（注册表 + seal + 快照 +
+      fail-closed 重水合 + guard_health 三类检测集成）；
+      vertical_slice 升级为 4 平面 golden 契约 + 需求注册表 + conformance 门禁。
+    depends_on:
+      - T-0086
+    gates:
+      - G-T-0087-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -962,3 +975,5 @@ edges:
       to: T-0048
     - from: T-0085
       to: T-0086
+    - from: T-0086
+      to: T-0087

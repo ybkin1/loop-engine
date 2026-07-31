@@ -1,0 +1,48 @@
+{
+  "scenario_id": "VS-GS-003",
+  "title": "状态机合法性场景：证据链迁移 / 重审回环 / gate 批准裁决",
+  "description": "state 平面专项：证据链相邻阶段必须满足状态机合法性（直接迁移合法，或存在合法多步可达路径，如切片跳过 S3 时 S2→S4 经 S3 可达）；禁止非法直跳（如 S1→S5，负向对照）；修复/重审回环必须符合 REENTRY_TRANSITIONS（quality_fix 可入 S5，bug_fix 可入 S4，feature_add 可入 S4 不可入 S1）；BLOCKED 角色裁决必须阻止 gate 批准、全 PASS 裁决允许批准（can_approve_gate fail-closed）。",
+  "type": "state-legality",
+  "lifecycle": ["证据链迁移合法性", "重审回环规则", "gate 批准裁决"],
+  "planes": {
+    "domain": [
+      { "id": "task-card", "type": "file_exists", "path": "S1-requirements/requirements.md" },
+      { "id": "acceptance-artifact", "type": "file_exists", "path": "S6-delivery/delivery_decision.json" }
+    ],
+    "events": [
+      { "event_id": "EV-STM-001", "name": "需求基线 (requirements baseline)", "phase": "S1-requirements", "check": { "type": "text_contains", "path": "S1-requirements/gate-approval.md", "needle": "APPROVED" } },
+      { "event_id": "EV-STM-002", "name": "质量阻塞裁决 (quality BLOCKED verdicts)", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts.security-engineer.verdict", "expected": "BLOCKED" } },
+      { "event_id": "EV-STM-003", "name": "修复后全 PASS (post-repair PASS)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.security-engineer", "expected": "PASS" } }
+    ],
+    "conversation": [
+      {
+        "stage_id": "STG-301",
+        "name": "阻塞裁决 → 修复后裁决 (BLOCKED verdicts -> post-repair PASS)",
+        "from_phase": "S5-quality",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts.security-engineer.verdict", "expected": "BLOCKED" }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair.security-engineer", "expected": "PASS" }
+        ]
+      }
+    ],
+    "state": [
+      { "id": "TR-301", "type": "state_transition", "from_phase": "S1-requirements", "to_phase": "S2-architecture" },
+      { "id": "TR-302", "type": "state_path", "from_phase": "S2-architecture", "to_phase": "S4-implementation" },
+      { "id": "TR-303", "type": "state_transition", "from_phase": "S4-implementation", "to_phase": "S5-quality" },
+      { "id": "TR-304", "type": "state_transition", "from_phase": "S5-quality", "to_phase": "S6-delivery" },
+      { "id": "TR-305", "type": "state_transition", "from_phase": "S6-delivery", "to_phase": "S5-quality" },
+      { "id": "TF-301", "type": "state_transition_forbidden", "from_phase": "S1-requirements", "to_phase": "S5-quality" },
+      { "id": "RE-301", "type": "reentry", "change_type": "quality_fix", "entry_phase": "S5-quality", "allowed": true },
+      { "id": "RE-302", "type": "reentry", "change_type": "quality_fix", "entry_phase": "S1-requirements", "allowed": false },
+      { "id": "RE-303", "type": "reentry", "change_type": "bug_fix", "entry_phase": "S4-implementation", "allowed": true },
+      { "id": "RE-304", "type": "reentry", "change_type": "feature_add", "entry_phase": "S1-requirements", "allowed": false },
+      { "id": "RE-305", "type": "reentry", "change_type": "feature_add", "entry_phase": "S4-implementation", "allowed": true },
+      { "id": "GA-301", "type": "gate_approval", "path": "S5-quality/quality_report.json", "json_path": "quality_report.role_verdicts", "required_roles": ["security-engineer", "quality-engineer", "system-architect"], "expected": false },
+      { "id": "GA-302", "type": "gate_approval", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.role_verdicts_post_repair", "required_roles": ["security-engineer", "quality-engineer", "system-architect", "independent-reviewer", "delivery-manager"], "expected": true }
+    ]
+  },
+  "requirements_covered": ["VS-REQ-010", "VS-REQ-011", "VS-REQ-012"]
+}

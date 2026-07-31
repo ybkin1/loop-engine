@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://loop-engine.dev/schemas/vertical-slice-requirement-registry.schema.json",
+  "title": "Vertical Slice Requirement Registry",
+  "description": "Registry of contract requirements for the vertical slice. Each requirement belongs to one observation plane (domain/events/conversation/state) and is covered by golden-scenario assertions (covered_by). conformance.py computes the conformance status and a fail-closed gate_decision from this registry.",
+  "type": "object",
+  "required": ["schema_version", "registry_id", "description", "requirements"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "registry_id": { "type": "string", "pattern": "^VS-REG-\\d{3}$" },
+    "description": { "type": "string", "minLength": 1 },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["requirement_id", "description", "plane", "status", "covered_by"],
+        "properties": {
+          "requirement_id": { "type": "string", "pattern": "^VS-REQ-\\d{3}$" },
+          "description": { "type": "string", "minLength": 1 },
+          "plane": {
+            "type": "string",
+            "enum": ["domain", "events", "conversation", "state"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["implemented", "partial", "missing"]
+          },
+          "covered_by": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["scenario", "plane"],
+              "properties": {
+                "scenario": { "type": "string", "pattern": "^VS-GS-\\d{3}$" },
+                "plane": {
+                  "type": "string",
+                  "enum": ["domain", "events", "conversation", "state"]
+                },
+                "ref": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

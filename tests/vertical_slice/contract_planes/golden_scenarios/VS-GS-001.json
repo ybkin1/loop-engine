@@ -1,0 +1,112 @@
+{
+  "scenario_id": "VS-GS-001",
+  "title": "端到端正向场景：需求 → 任务图 → gate 批准 → 实现 → 验收 → 收敛",
+  "description": "Simple Task Manager 纵向切片完整生命周期：任务登记（TASK-VS-001）→ S1 需求基线 + gate 批准 → S2 架构 + gate 批准 → S4 实现证据 → S5 质量审查（检出 3 个种子缺陷）→ S6 交付决策（NOGO 后修复）→ 最终验收收敛为 GO。四个平面分别断言产物、事件流、阶段前后状态与状态机迁移合法性。",
+  "type": "happy-path",
+  "lifecycle": ["任务登记", "需求基线", "gate 批准", "架构基线", "实现", "质量审查", "验收", "收敛"],
+  "planes": {
+    "domain": [
+      { "id": "artifact-requirements", "type": "file_exists", "path": "S1-requirements/requirements.md" },
+      { "id": "artifact-requirements-gate", "type": "file_exists", "path": "S1-requirements/gate-approval.md" },
+      { "id": "artifact-architecture", "type": "file_exists", "path": "S2-architecture/architecture.md" },
+      { "id": "artifact-architecture-gate", "type": "file_exists", "path": "S2-architecture/gate-approval.md" },
+      { "id": "artifact-implementation", "type": "file_exists", "path": "S4-implementation/code_diff.patch" },
+      { "id": "artifact-test-results", "type": "file_exists", "path": "S4-implementation/test_results.json" },
+      { "id": "artifact-quality-report", "type": "file_exists", "path": "S5-quality/quality_report.json" },
+      { "id": "artifact-delivery-decision", "type": "file_exists", "path": "S6-delivery/delivery_decision.json" },
+      { "id": "task-card", "type": "text_contains", "path": "S1-requirements/requirements.md", "needle": "TASK-VS-001" },
+      { "id": "acceptance-criteria", "type": "text_contains", "path": "S1-requirements/requirements.md", "needle": "AC-01" },
+      { "id": "gate-s1-approved", "type": "text_contains", "path": "S1-requirements/gate-approval.md", "needle": "APPROVED" },
+      { "id": "gate-s1-record", "type": "text_matches", "path": "S1-requirements/gate-approval.md", "pattern": "AR-[a-z0-9]+" },
+      { "id": "gate-s1-timestamp", "type": "text_matches", "path": "S1-requirements/gate-approval.md", "pattern": "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z?" },
+      { "id": "gate-s2-approved", "type": "text_contains", "path": "S2-architecture/gate-approval.md", "needle": "APPROVED" },
+      { "id": "gate-s2-parent", "type": "text_contains", "path": "S2-architecture/gate-approval.md", "needle": "GATE-S1-001" },
+      { "id": "acceptance-final-go", "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" }
+    ],
+    "events": [
+      { "event_id": "EV-001", "name": "任务登记 (task registered)", "phase": "S1-requirements", "check": { "type": "file_exists", "path": "S1-requirements/requirements.md" } },
+      { "event_id": "EV-002", "name": "gate 批准 (GATE-S1-001 approved)", "phase": "S1-requirements", "check": { "type": "text_contains", "path": "S1-requirements/gate-approval.md", "needle": "APPROVED" } },
+      { "event_id": "EV-003", "name": "gate 批准 (GATE-S2-001 approved)", "phase": "S2-architecture", "check": { "type": "text_contains", "path": "S2-architecture/gate-approval.md", "needle": "APPROVED" } },
+      { "event_id": "EV-004", "name": "实现证据 (implementation evidence)", "phase": "S4-implementation", "check": { "type": "json_equals", "path": "S4-implementation/test_results.json", "json_path": "total_tests", "expected": 18 } },
+      { "event_id": "EV-005", "name": "质量审查阻塞 (quality review BLOCKED)", "phase": "S5-quality", "check": { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.overall_result", "expected": "BLOCKED" } },
+      { "event_id": "EV-006", "name": "交付尝试 1 NOGO (delivery attempt 1)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.decision", "expected": "NOGO" } },
+      { "event_id": "EV-007", "name": "修复后交付尝试 2 GO (delivery attempt 2)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.decision", "expected": "GO" } },
+      { "event_id": "EV-008", "name": "验收收敛 (acceptance converged)", "phase": "S6-delivery", "check": { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" } }
+    ],
+    "conversation": [
+      {
+        "stage_id": "STG-001",
+        "name": "需求 → 架构 (requirements -> architecture)",
+        "from_phase": "S1-requirements",
+        "to_phase": "S2-architecture",
+        "pre": [
+          { "type": "file_exists", "path": "S1-requirements/requirements.md" },
+          { "type": "text_contains", "path": "S1-requirements/gate-approval.md", "needle": "APPROVED" }
+        ],
+        "post": [
+          { "type": "file_exists", "path": "S2-architecture/architecture.md" },
+          { "type": "text_contains", "path": "S2-architecture/gate-approval.md", "needle": "APPROVED" }
+        ]
+      },
+      {
+        "stage_id": "STG-002",
+        "name": "架构 → 实现 (architecture -> implementation)",
+        "from_phase": "S2-architecture",
+        "to_phase": "S4-implementation",
+        "pre": [
+          { "type": "text_contains", "path": "S2-architecture/gate-approval.md", "needle": "APPROVED" }
+        ],
+        "post": [
+          { "type": "file_exists", "path": "S4-implementation/code_diff.patch" },
+          { "type": "file_exists", "path": "S4-implementation/test_results.json" }
+        ]
+      },
+      {
+        "stage_id": "STG-003",
+        "name": "实现 → 质量审查 (implementation -> quality review)",
+        "from_phase": "S4-implementation",
+        "to_phase": "S5-quality",
+        "pre": [
+          { "type": "json_equals", "path": "S4-implementation/test_results.json", "json_path": "total_tests", "expected": 18 }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.overall_result", "expected": "BLOCKED" },
+          { "type": "count_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.defects_found", "expected": 3 }
+        ]
+      },
+      {
+        "stage_id": "STG-004",
+        "name": "质量审查 → 交付阻塞 (quality review -> delivery blocked)",
+        "from_phase": "S5-quality",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S5-quality/quality_report.json", "json_path": "quality_report.overall_result", "expected": "BLOCKED" }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.decision", "expected": "NOGO" },
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.0.blocked_by", "expected": 3 }
+        ]
+      },
+      {
+        "stage_id": "STG-005",
+        "name": "修复 → 验收收敛 (repair -> acceptance converged)",
+        "from_phase": "S6-delivery",
+        "to_phase": "S6-delivery",
+        "pre": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.decision", "expected": "GO" },
+          { "type": "count_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.decision_history.1.repairs_completed", "expected": 3 }
+        ],
+        "post": [
+          { "type": "json_equals", "path": "S6-delivery/delivery_decision.json", "json_path": "delivery_decision.final_decision", "expected": "GO" }
+        ]
+      }
+    ],
+    "state": [
+      { "id": "TR-001", "type": "state_transition", "from_phase": "S1-requirements", "to_phase": "S2-architecture", "via_events": ["EV-002", "EV-003"] },
+      { "id": "TR-002", "type": "state_path", "from_phase": "S2-architecture", "to_phase": "S4-implementation", "via_events": ["EV-003", "EV-004"] },
+      { "id": "TR-003", "type": "state_transition", "from_phase": "S4-implementation", "to_phase": "S5-quality", "via_events": ["EV-004", "EV-005"] },
+      { "id": "TR-004", "type": "state_transition", "from_phase": "S5-quality", "to_phase": "S6-delivery", "via_events": ["EV-005", "EV-006"] }
+    ]
+  },
+  "requirements_covered": ["VS-REQ-001", "VS-REQ-002", "VS-REQ-003", "VS-REQ-004", "VS-REQ-007"]
+}

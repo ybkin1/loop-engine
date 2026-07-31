@@ -1,0 +1,17 @@
+{
+  "task_id": "T-0087",
+  "gate_id": "G-T-0087-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-01T00:00:00+08:00",
+  "completed_at": "2026-08-01T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "U1: capability registry (register/seal/snapshot/rehydrate fail-closed) — DONE",
+    "U1: guard_health integration (dead/missing/drift) — DONE",
+    "U2: vertical_slice contract planes (domain/events/conversation/state) — DONE",
+    "U2: requirement registry (12 reqs) + conformance gate — DONE",
+    "regression: 2914 passed / 0 failed — DONE",
+    "independent review: GO (7/7 AC, no P0/P1/P2)"
+  ],
+  "notes": "全部工作流完成。独立审查 GO。P3 遗留（死导入/lint 风格）记录于 commands.md，后续任务处理。"
+}
