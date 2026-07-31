@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -22,6 +23,12 @@ from pathlib import Path
 
 SCRIPTS = Path(__file__).resolve().parent.parent / "hooks" / "scripts"
 PYTHON = sys.executable
+
+
+def _msys(tmp: str) -> str:
+    """Windows 路径 → git-bash 形态（C:/x → /c/x），主会话 Bash 命令写法。"""
+    return re.sub(r"^([A-Za-z]):", lambda m: "/" + m.group(1).lower(),
+                  tmp.replace("\\", "/"))
 
 
 # ── Helpers ───────────────────────────────────────────────────────────
@@ -676,6 +683,331 @@ class LoopEnforcementPhaseEvidence(unittest.TestCase):
             r = _run_hook("loop_enforcement.py", root, _write_input(str(root / "src" / "main.py")))
             self.assertEqual(r.returncode, 2, f"expected EXIT_BLOCK(2). stderr: {r.stderr}")
             self.assertIn("BLOCKED", r.stderr)
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0086-P2: 治理工具调用豁免（is_governance_tool_command）
+# ═══════════════════════════════════════════════════════════════════════
+# P1 之后 python 等解释器执行形态一律判"写能力"，主会话的治理工具调用
+# （python .zcode/tools/validate_state.py 等）不再走只读通道 → 被
+# DISPATCH_REQUIRED 拦截。本组用例覆盖豁免判定（单元）与 hook 端到端
+# 行为（子进程）。
+
+
+class GovernanceToolCommandDetection(unittest.TestCase):
+    """is_governance_tool_command 单元判定：白名单形态豁免，其余不豁免。"""
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(SCRIPTS))
+        import loop_enforcement
+        cls.mod = loop_enforcement  # 存模块而非函数：实例属性访问会绑定 self
+
+    # ── 豁免：python 家族解释器 + 白名单目录脚本 ──
+
+    def test_exempt_python_zcode_tools_validate_state(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "C:/Python312/python.exe .zcode/tools/validate_state.py ."))
+
+    def test_exempt_python_repair_and_close_session(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python .zcode/tools/repair_continuity.py ."))
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python .zcode/tools/close_session.py . --note done"))
+
+    def test_exempt_python_ai_checkers(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python .ai/checkers/compile_gate.py ."))
+
+    def test_exempt_python_ai_guards(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python .ai/guards/policy_guard.py check"))
+
+    def test_exempt_python_scripts_dir(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python scripts/runtime_delivery_gate.py ."))
+
+    def test_exempt_python_hooks_self_test(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python hooks/scripts/loop_enforcement.py"))
+
+    def test_exempt_python_tools_dir(self):
+        # tools/ 是项目 loop 工具 CLI 目录（tool_state/tool_handoff/
+        # loop_guard_health...），与 MINIMAL_METADATA_READ 中的治理语义
+        # 一致；tool_safe_bash.py 自带命令校验，豁免不放开任何写入拦截。
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python tools/tool_state.py status"))
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python tools/loop_guard_health.py"))
+
+    def test_exempt_interpreter_variants(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "py -3 .zcode/tools/validate_state.py ."))
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python3.11 .zcode/tools/validate_state.py ."))
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "python.exe .zcode/tools/validate_state.py ."))
+
+    def test_exempt_quoted_script(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            'python ".zcode/tools/validate_state.py" .'))
+
+    def test_exempt_direct_execution(self):
+        self.assertTrue(self.mod.is_governance_tool_command(
+            ".zcode/tools/validate_state.py ."))
+        self.assertTrue(self.mod.is_governance_tool_command(
+            "./.zcode/tools/close_session.py ."))
+
+    def test_exempt_absolute_script_inside_root(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.assertTrue(self.mod.is_governance_tool_command(
+                f"python {root.as_posix()}/.zcode/tools/validate_state.py .",
+                root))
+
+    # ── 不豁免：非脚本形态 / 白名单外脚本 / 非 python 解释器 ──
+
+    def test_not_exempt_python_c_snippet(self):
+        self.assertFalse(self.mod.is_governance_tool_command(
+            'python -c "print(1)"'))
+
+    def test_not_exempt_python_m_module(self):
+        # pytest 不是治理工具，python -m 模块形态不豁免
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python -m pytest tests/"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python -m pip install x"))
+
+    def test_not_exempt_script_outside_project(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.assertFalse(self.mod.is_governance_tool_command(
+                "python /tmp/evil.py", root))
+            self.assertFalse(self.mod.is_governance_tool_command(
+                f"python {root.as_posix()}/../evil.py .", root))
+
+    def test_not_exempt_arbitrary_project_script(self):
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python src/main.py"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python setup.py build"))
+
+    def test_not_exempt_shell_interpreters(self):
+        # sh/bash/php/ruby 等执行形态保持 P1 拦截（不豁免）
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "bash .zcode/tools/foo.sh"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "sh .zcode/tools/foo.sh"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "php .ai/checkers/x.php"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "ruby scripts/foo.rb"))
+
+    def test_not_exempt_compound_or_redirect(self):
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python .zcode/tools/validate_state.py . && rm -rf /tmp/x"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "python .zcode/tools/validate_state.py > /tmp/out.txt"))
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "cd .zcode/tools && python validate_state.py ."))
+
+    # ── P3: 主会话真实形态（cd <项目根> && python 工具 | tail）──
+
+    def test_exempt_main_session_compound_form(self):
+        """主会话真实形态：cd 项目根 && python 工具 2>&1 | tail → 豁免。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for cmd in (
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/validate_state.py . 2>&1 | tail -5",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/repair_continuity.py . 2>&1 | tail -5",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/close_session.py . --note test 2>&1 | tail -10",
+            ):
+                self.assertTrue(
+                    self.mod.is_governance_tool_command(cmd, root), cmd)
+
+    def test_exempt_windows_path_cd_and_pipe_display(self):
+        """Windows 盘符形态 cd + 只读显示管道（head/grep/echo）→ 豁免。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            win = str(root).replace("\\", "/")
+            for cmd in (
+                f"cd {win} && python .zcode/tools/validate_state.py . 2>&1 | head -10",
+                f"cd {win} && python .zcode/tools/validate_state.py . 2>&1 | grep -i error",
+                f"cd {win} && python .zcode/tools/validate_state.py . && echo done",
+            ):
+                self.assertTrue(
+                    self.mod.is_governance_tool_command(cmd, root), cmd)
+
+    def test_exempt_two_governance_tools_chain(self):
+        """两个治理工具连排（都受信）→ 豁免。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cmd = (f"cd {_msys(tmp)} && python .zcode/tools/validate_state.py . "
+                   "&& python .zcode/tools/repair_continuity.py . 2>&1 | tail -3")
+            self.assertTrue(self.mod.is_governance_tool_command(cmd, root))
+
+    def test_not_exempt_compound_with_write_segment(self):
+        """复合命令含写语义段（rm/写重定向）→ 整体不豁免。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for cmd in (
+                f"cd {_msys(tmp)} && python .zcode/tools/validate_state.py . "
+                "&& rm -rf /tmp/x",
+                f"cd {_msys(tmp)} && python .zcode/tools/validate_state.py . "
+                "> /tmp/out.txt",
+                f"cd {_msys(tmp)} && python .zcode/tools/validate_state.py . "
+                "; touch /tmp/evil",
+            ):
+                self.assertFalse(
+                    self.mod.is_governance_tool_command(cmd, root), cmd)
+
+    def test_not_exempt_compound_cd_outside_root(self):
+        """cd 到项目根外 → 整体不豁免（fail-closed）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for cmd in (
+                "cd /c/Windows && python .zcode/tools/validate_state.py .",
+                "cd .. && python .zcode/tools/validate_state.py .",
+                "cd ~ && python .zcode/tools/validate_state.py .",
+            ):
+                self.assertFalse(
+                    self.mod.is_governance_tool_command(cmd, root), cmd)
+
+    def test_not_exempt_compound_with_interpreter_display(self):
+        """只读显示段不允许解释器执行（pytest/node 等不能借道豁免）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for cmd in (
+                f"cd {_msys(tmp)} && python -m pytest tests/ -q",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe -m pytest tests/ -q",
+                f"cd {_msys(tmp)} && node -e 'console.log(1)'",
+            ):
+                self.assertFalse(
+                    self.mod.is_governance_tool_command(cmd, root), cmd)
+
+    def test_not_exempt_compound_cd_requires_root(self):
+        """root 缺失时 cd 段无法验证归属 → 不豁免（fail-closed）。"""
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "cd /c/Users/Administrator/ZCodeProject/loop-engine "
+            "&& python .zcode/tools/validate_state.py ."))
+
+    def test_not_exempt_non_python_script_path(self):
+        # 白名单目录内但非 .py（shell 脚本直接执行保持 P1 拦截）
+        self.assertFalse(self.mod.is_governance_tool_command(
+            "./.zcode/tools/foo.sh"))
+
+    def test_not_exempt_none_empty(self):
+        self.assertFalse(self.mod.is_governance_tool_command(None))
+        self.assertFalse(self.mod.is_governance_tool_command(""))
+        self.assertFalse(self.mod.is_governance_tool_command("python --version"))
+
+
+class LoopEnforcementGovernanceToolInvocation(unittest.TestCase):
+    """hook 端到端：主会话形态的治理工具调用放行，其余形态仍拦截。"""
+
+    def _run_bash(self, root, command):
+        """与 _run_hook 相同，但弹出 PYTEST_CURRENT_TEST。
+
+        is_legacy_synthetic_hook_fixture 会把 pytest 子进程识别为 legacy
+        合成 fixture（跳过 DISPATCH 门）；真实主会话没有该环境变量。
+        本类用例模拟真实主会话，故显式移除。
+        """
+        env = dict(os.environ)
+        env.pop("PYTEST_CURRENT_TEST", None)
+        env["ZCODE_PROJECT_DIR"] = str(root)
+        payload = json.dumps({
+            "tool_name": "Bash",
+            "tool_input": {"command": command},
+        })
+        return subprocess.run(
+            [PYTHON, str(SCRIPTS / "loop_enforcement.py")],
+            input=payload, capture_output=True, text=True, env=env, timeout=30,
+        )
+
+    def test_validate_state_invocation_passes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            r = self._run_bash(
+                root, "C:/Python312/python.exe .zcode/tools/validate_state.py .")
+            self.assertEqual(r.returncode, 0, f"stderr: {r.stderr[-800:]}")
+
+    def test_checker_and_script_invocations_pass(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            for cmd in (
+                "python .ai/checkers/compile_gate.py .",
+                "python scripts/runtime_delivery_gate.py .",
+                "python tools/tool_state.py status",
+            ):
+                r = self._run_bash(root, cmd)
+                self.assertEqual(r.returncode, 0,
+                                 f"cmd={cmd} stderr: {r.stderr[-800:]}")
+
+    def test_non_governance_invocations_still_blocked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            for cmd in (
+                'python -c "print(1)"',
+                "python -m pytest tests/ -q",
+                "python /tmp/evil.py",
+                "bash .zcode/tools/foo.sh",
+                "python .zcode/tools/validate_state.py . && rm -rf /tmp/x",
+            ):
+                r = self._run_bash(root, cmd)
+                self.assertEqual(r.returncode, 2,
+                                 f"cmd={cmd} should BLOCK. stderr: {r.stderr[-800:]}")
+
+    def test_governance_tool_outside_target_still_blocked(self):
+        # 治理工具调用的项目边界拦截保持 fail-closed
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            r = self._run_bash(
+                root, "python .zcode/tools/validate_state.py > C:/Windows/Temp/evil.txt")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_main_session_compound_form_passes(self):
+        """主会话真实形态：cd <项目根> && python 治理工具 2>&1 | tail → 放行。
+
+        T-0086-P3 回归：P2 只豁免纯命令形态；主会话实际执行的是
+        `cd ... && C:/Python312/python.exe .zcode/tools/... . 2>&1 | tail`
+        复合形态 → 曾继续被 SETUP_INCOMPLETE 拦截。
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            for cmd in (
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/validate_state.py . 2>&1 | tail -5",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/repair_continuity.py . 2>&1 | tail -5",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/close_session.py . --note test 2>&1 | tail -10",
+            ):
+                r = self._run_bash(root, cmd)
+                self.assertEqual(r.returncode, 0,
+                                 f"cmd={cmd} stderr: {r.stderr[-800:]}")
+
+    def test_compound_with_write_still_blocked(self):
+        """复合命令含写语义段 → 治理工具豁免不生效，仍拦截（fail-closed）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL,
+                                 task_files={"T-0001.md": TASK_IN_SCOPE})
+            for cmd in (
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/validate_state.py . && rm -rf /tmp/x",
+                f"cd {_msys(tmp)} && C:/Python312/python.exe "
+                ".zcode/tools/validate_state.py . > /tmp/out.txt",
+            ):
+                r = self._run_bash(root, cmd)
+                self.assertEqual(r.returncode, 2,
+                                 f"cmd={cmd} stderr: {r.stderr[-800:]}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0086",
+  "gate_id": "G-T-0086-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-01T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "PROGRESS.md drift repair",
+    "hook read-only false-positive fix (path_guard)",
+    "StaffDeck benchmark evidence",
+    "T-0087~T-0090 task plan document"
+  ],
+  "notes": "执行中：approval 已登记，启动证据补齐，实现与验收进行中。"
+}

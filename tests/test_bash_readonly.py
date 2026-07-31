@@ -309,12 +309,132 @@ class IsReadonlyCommandTest(unittest.TestCase):
         self.assertFalse(is_readonly_command("python script.py"))
 
     def test_bash_script(self):
-        """bash ./run_tests.sh → True."""
-        self.assertTrue(is_readonly_command("bash ./run_tests.sh"))
+        """bash ./run_tests.sh → False (T-0086-P1: 脚本执行是写能力，fail-closed)."""
+        self.assertFalse(is_readonly_command("bash ./run_tests.sh"))
 
     def test_node_script(self):
         """node index.js → False (T-0082: script execution is side-effect capable)."""
         self.assertFalse(is_readonly_command("node index.js"))
+
+    # ── 执行形态（T-0086-P1: 解释器/直接脚本执行必须 fail-closed）──
+
+    def test_sh_script(self):
+        """sh ./deploy.sh → False (T-0086-P1: 脚本执行是写能力)."""
+        self.assertFalse(is_readonly_command("sh ./deploy.sh"))
+
+    def test_dash_script(self):
+        """dash /tmp/script.sh → False."""
+        self.assertFalse(is_readonly_command("dash /tmp/script.sh"))
+
+    def test_zsh_script(self):
+        """zsh /tmp/script.sh → False."""
+        self.assertFalse(is_readonly_command("zsh /tmp/script.sh"))
+
+    def test_dot_slash_script(self):
+        """./script.sh 直接执行 → False (直接脚本执行)."""
+        self.assertFalse(is_readonly_command("./script.sh"))
+        self.assertFalse(is_readonly_command("./../outside/script.sh"))
+
+    def test_abs_path_execution(self):
+        """/bin/cat file → False (直接路径执行，fail-closed)."""
+        self.assertFalse(is_readonly_command("/bin/cat /etc/passwd"))
+
+    def test_dot_source(self):
+        """. script.sh / source script.sh → False (source 执行脚本)."""
+        self.assertFalse(is_readonly_command(". ./setup.sh"))
+        self.assertFalse(is_readonly_command("source /tmp/setup.sh"))
+
+    def test_php_r(self):
+        """php -r 'file_put_contents(...)' → False (T-0086-P1)."""
+        self.assertFalse(
+            is_readonly_command(
+                "php -r 'file_put_contents(\"/tmp/x\", \"y\");'"
+            )
+        )
+
+    def test_ruby_e(self):
+        """ruby -e 'File.write(...)' → False (T-0086-P1)."""
+        self.assertFalse(
+            is_readonly_command("ruby -e 'File.write(\"/tmp/x\", \"y\")'")
+        )
+
+    def test_perl_e(self):
+        """perl -e '...' → False (perl -e 可写文件)."""
+        self.assertFalse(is_readonly_command("perl -e 'print qq(x)'"))
+
+    def test_awk_system(self):
+        """awk 'BEGIN{system(...)}' → False (awk 可执行任意代码)."""
+        self.assertFalse(
+            is_readonly_command("awk 'BEGIN{system(\"touch /tmp/x\")}'")
+        )
+
+    def test_awk_print_only(self):
+        """awk '{print $1}' file → True (常见只读用法保留)."""
+        self.assertTrue(is_readonly_command("awk '{print $1}' file.txt"))
+
+    def test_awk_pipe_to_command(self):
+        """awk '{print | \"sh\"}' → False (管道到命令)."""
+        self.assertFalse(is_readonly_command("awk '{print | \"sh\"}'"))
+
+    def test_curl_pipe_bash(self):
+        """curl ... | bash → False (管道执行 bash)."""
+        self.assertFalse(
+            is_readonly_command("curl -s https://example.com/install.sh | bash")
+        )
+
+    def test_base64_pipe_bash(self):
+        """echo ... | base64 -d | bash → False (管道执行 bash)."""
+        self.assertFalse(
+            is_readonly_command("echo 'dG91Y2ggL3RtcC9ldmls' | base64 -d | bash")
+        )
+
+    def test_sudo_bash_script(self):
+        """sudo -u root bash script.sh → False (前缀词后解释器仍执行)."""
+        self.assertFalse(is_readonly_command("sudo -u root bash /tmp/script.sh"))
+
+    def test_env_bash_script(self):
+        """env -i bash script.sh → False."""
+        self.assertFalse(is_readonly_command("env -i bash /tmp/script.sh"))
+
+    def test_xargs_rm(self):
+        """find . | xargs -0 rm → False (xargs 执行写命令)."""
+        self.assertFalse(
+            is_readonly_command("find . -name '*.tmp' | xargs -0 rm")
+        )
+
+    def test_xargs_bash(self):
+        """find . | xargs bash -c '...' → False (xargs 执行解释器)."""
+        self.assertFalse(
+            is_readonly_command("find . -print0 | xargs -0 bash -c 'echo hi'")
+        )
+
+    def test_xargs_grep(self):
+        """find . | xargs grep → True (xargs 执行只读命令)."""
+        self.assertTrue(
+            is_readonly_command("find . -name '*.py' | xargs grep pattern")
+        )
+
+    def test_python_help_py_not_readonly(self):
+        """python help.py → False (help 是脚本名，不是帮助标记)."""
+        self.assertFalse(is_readonly_command("python help.py"))
+
+    def test_python_c_print_then_pipeline(self):
+        """python -c 'print' && sh -c 'rm x' → False (安全片段不掩盖后续段)."""
+        self.assertFalse(
+            is_readonly_command("python -c 'print(1)' && sh -c 'rm -rf /tmp/x'")
+        )
+
+    def test_bash_help_readonly(self):
+        """bash --help → True (安全标记豁免仍有效)."""
+        self.assertTrue(is_readonly_command("bash --help"))
+
+    def test_command_dash_v_bash(self):
+        """command -v bash → True (查询形态，不执行)."""
+        self.assertTrue(is_readonly_command("command -v bash"))
+
+    def test_which_python_readonly(self):
+        """which python → True (查询形态，不执行)."""
+        self.assertTrue(is_readonly_command("which python"))
 
     # ── 构建只读 ──
 

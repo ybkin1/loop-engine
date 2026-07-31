@@ -403,6 +403,7 @@ def is_path_safe(root: Path, target) -> bool:
 # ── Bash analysis — imported from _hook_bash ──
 from _hook_bash import (
     shell_tokenize, is_write_command, has_write_operations, is_readonly_command,
+    is_execution_command,
     _WRITE_CMDS, _GIT_WRITE, _GIT_RO, _RO_CMDS,
 )
 

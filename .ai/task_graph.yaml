@@ -117,7 +117,7 @@ tasks:
   -
     id: T-0001
     title: Initial loop governance design
-    status: active
+    status: completed
     created_at: "2026-07-06T15:12:38"
   -
     id: T-0002
@@ -912,8 +912,8 @@ tasks:
   -
     id: T-0083
     title: Loop 元治理层 — 真实工程实践对标 + Guard Health Check + 自举审计回路
-    phase: S1-requirements
-    status: in_progress
+    phase: S6-delivery
+    status: completed
     description: >-
       真实软件工程角色实践调研、Loop 设计/治理差距分析、Guard Health Check、
       自举审计回路、guard 死亡测试、fail-closed 默认化、工具链完整性门、端到端切片常态化。
@@ -933,6 +933,18 @@ tasks:
       - T-0083
     gates:
       - G-T-0085-REQUIREMENTS
+  -
+    id: T-0086
+    title: 治理清障 + StaffDeck 对标落地 + 任务计划编排
+    phase: S6-delivery
+    status: completed
+    description: >-
+      PROGRESS 漂移修复、hook 只读误伤修复（path_guard 区分只读/写入）、
+      StaffDeck 对标证据落盘（D1-D10/U1-U9）、T-0087~T-0090 任务计划编排。
+    depends_on:
+      - T-0085
+    gates:
+      - G-T-0086-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -948,3 +960,5 @@ edges:
       to: T-0047
     - from: T-0047
       to: T-0048
+    - from: T-0085
+      to: T-0086

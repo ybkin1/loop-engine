@@ -2,6 +2,13 @@
 
 ## Current Status
 
+T-0086 ACTIVE (2026-08-01): 治理清障 + StaffDeck 对标落地 + 任务计划编排。
+G-T-0086-REQUIREMENTS 已批准。执行中：PROGRESS 漂移修复、hook 只读误伤修复、
+staffdeck-benchmark 证据落盘、T-0087~T-0090 任务计划编排。
+
+> ⚠️ 存档说明：下方 T-0020 及更早时代的内容为历史存档，非当前状态。
+> 权威状态以 state.yaml 为准（T-0085 已完成 v3.12.24；当前任务 T-0086）。
+
 S0-method-repair. Current task is T-0020: Real Project Governance Enforcement
 Architecture Review.
 

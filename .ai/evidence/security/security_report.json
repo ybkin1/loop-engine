@@ -1,0 +1,334 @@
+{
+  "schema": "security_report/v1",
+  "role": "security-engineer",
+  "timestamp": "2026-07-31T16:36:22.026972+00:00",
+  "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+  "scans": [
+    {
+      "name": "dependency_scan",
+      "status": "blocked",
+      "counts": {
+        "HIGH": 1,
+        "CRITICAL": 0,
+        "MODERATE": 0,
+        "LOW": 0
+      },
+      "source": "pip-audit",
+      "raw": "",
+      "skipped": false
+    },
+    {
+      "name": "secret_scan",
+      "status": "blocked",
+      "findings": [
+        {
+          "file": "scripts\\certification_runner.py",
+          "line": 686,
+          "rule": "Generic Password Assignment (plaintext)",
+          "match": "pwd='{password}'",
+          "description": "Plaintext password in code"
+        },
+        {
+          "file": "tests\\test_guard_health.py",
+          "line": 32,
+          "rule": "Generic Password Assignment (plaintext)",
+          "match": "password = \"hunter2secret123\"",
+          "description": "Plaintext password in code"
+        },
+        {
+          "file": "tests\\test_hook_guards.py",
+          "line": 24,
+          "rule": "Generic Password Assignment (plaintext)",
+          "match": "password = \"secret123\"",
+          "description": "Plaintext password in code"
+        },
+        {
+          "file": "tests\\test_hook_guards.py",
+          "line": 44,
+          "rule": "Generic Secret Assignment",
+          "match": "auth_token = \"abcdefgh12345678\"",
+          "description": "API secret in code"
+        },
+        {
+          "file": "tests\\test_verdicts.py",
+          "line": 215,
+          "rule": "Generic Secret Assignment",
+          "match": "api_key = \"abcdef1234567890\"",
+          "description": "API secret in code"
+        },
+        {
+          "file": "tests\\seeded_defects\\test_project\\src\\user_service.py",
+          "line": 12,
+          "rule": "OpenAI API Key",
+          "match": "sk-abc123def456ghi789jkl012mno345pqr678stu901vwx234",
+          "description": "OpenAI API Key"
+        },
+        {
+          "file": "agents\\references\\role-capability-profiles.md",
+          "line": 757,
+          "rule": "Generic Password Assignment (plaintext)",
+          "match": "password = \"changeme\"",
+          "description": "Plaintext password in code"
+        }
+      ],
+      "files_scanned": 1156,
+      "skipped": false
+    },
+    {
+      "name": "injection_scan",
+      "status": "blocked",
+      "high_findings": [
+        {
+          "file": "scripts\\security_scan.py",
+          "line": 42,
+          "rule": "os.system()",
+          "severity": "HIGH",
+          "description": "shell 命令注入面",
+          "snippet": "(r'os\\.system\\s*\\(', \"P1\", \"Unsafe os.system() call\"),"
+        },
+        {
+          "file": "scripts\\security_scan.py",
+          "line": 46,
+          "rule": "eval()",
+          "severity": "HIGH",
+          "description": "eval 代码注入",
+          "snippet": "(r'eval\\s*\\(', \"P0\", \"Dangerous eval() call\"),"
+        },
+        {
+          "file": "scripts\\security_scan.py",
+          "line": 47,
+          "rule": "exec()",
+          "severity": "HIGH",
+          "description": "exec 代码注入",
+          "snippet": "(r'exec\\s*\\(', \"P0\", \"Dangerous exec() call\"),"
+        },
+        {
+          "file": "tests\\test_code_quality.py",
+          "line": 97,
+          "rule": "os.system()",
+          "severity": "HIGH",
+          "description": "shell 命令注入面",
+          "snippet": "assert any(p.search('os.system(\"echo test\")') for p, _, _, _ in _OS_COMMAND_PATTERNS)"
+        },
+        {
+          "file": "tests\\test_content_guard_semantic.py",
+          "line": 194,
+          "rule": "eval()",
+          "severity": "HIGH",
+          "description": "eval 代码注入",
+          "snippet": "\"content\": 'code = eval(\"x + {val}\")\\n',"
+        },
+        {
+          "file": "tests\\test_content_guard_semantic.py",
+          "line": 211,
+          "rule": "os.system()",
+          "severity": "HIGH",
+          "description": "shell 命令注入面",
+          "snippet": "\"content\": \"import os\\n\\nos.system('echo hi')\\n\","
+        },
+        {
+          "file": "tools\\loop_onboard.py",
+          "line": 147,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "print(f\"[loop-update] ✅ Updated {updated} agent roles\")"
+        },
+        {
+          "file": "tools\\loop_onboard.py",
+          "line": 148,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "print(f\"[loop-update] ✅ Agents synced from source\")"
+        },
+        {
+          "file": ".zcode\\tools\\governor_lib.py",
+          "line": 210,
+          "rule": "yaml.load() unsafe",
+          "severity": "HIGH",
+          "description": "YAML 反序列化注入 (非 safe_load)",
+          "snippet": "value = yaml.load(path.read_text(encoding=\"utf-8\"), Loader=UniqueKeyLoader)"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 337,
+          "rule": "os.system()",
+          "severity": "HIGH",
+          "description": "shell 命令注入面",
+          "snippet": "(\"os.system()\", re.compile(r\"os\\.system\\s*\\(\"), \"shell 命令注入面\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 339,
+          "rule": "eval()",
+          "severity": "HIGH",
+          "description": "eval 代码注入",
+          "snippet": "(\"eval()\", re.compile(r\"\\beval\\s*\\(\"), \"eval 代码注入\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 340,
+          "rule": "exec()",
+          "severity": "HIGH",
+          "description": "exec 代码注入",
+          "snippet": "(\"exec()\", re.compile(r\"\\bexec\\s*\\(\"), \"exec 代码注入\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 347,
+          "rule": "dangerouslySetInnerHTML",
+          "severity": "HIGH",
+          "description": "React XSS 注入",
+          "snippet": "(\"dangerouslySetInnerHTML\", re.compile(r\"dangerouslySetInnerHTML\"), \"React XSS 注入\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 350,
+          "rule": "os.popen()",
+          "severity": "HIGH",
+          "description": "进程注入面",
+          "snippet": "(\"os.popen()\", re.compile(r\"os\\.popen\\s*\\(\"), \"进程注入面\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 351,
+          "rule": "pickle.loads()",
+          "severity": "HIGH",
+          "description": "反序列化注入",
+          "snippet": "(\"pickle.loads()\", re.compile(r\"pickle\\.loads?\\s*\\(\"), \"反序列化注入\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 352,
+          "rule": "yaml.load() unsafe",
+          "severity": "HIGH",
+          "description": "YAML 反序列化注入 (非 safe_load)",
+          "snippet": "(\"yaml.load() unsafe\", re.compile(r\"yaml\\.load\\s*\\([^L]\"), \"YAML 反序列化注入 (非 safe_load)\"),"
+        },
+        {
+          "file": "archive\\lab-candidates\\scripts\\governor_lib.py",
+          "line": 191,
+          "rule": "yaml.load() unsafe",
+          "severity": "HIGH",
+          "description": "YAML 反序列化注入 (非 safe_load)",
+          "snippet": "value = yaml.load(path.read_text(encoding=\"utf-8\"), Loader=UniqueKeyLoader)"
+        },
+        {
+          "file": "tests\\lab\\test_project_governor_consistency.py",
+          "line": 1082,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "f\"sys.path.insert(0, {str(SCRIPTS)!r}); \""
+        },
+        {
+          "file": "tests\\seeded_defects\\test_defect_detection.py",
+          "line": 226,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "pattern = r'f\"SELECT.*\\{'"
+        },
+        {
+          "file": "tests\\seeded_defects\\sample_code\\user_service.py",
+          "line": 68,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "query = f\"SELECT * FROM users WHERE name LIKE '%{keyword}%'\""
+        },
+        {
+          "file": "tests\\seeded_defects\\sample_code\\user_service.py",
+          "line": 138,
+          "rule": "raw SQL execute",
+          "severity": "HIGH",
+          "description": "原始 SQL 执行",
+          "snippet": "users = self.db.execute(\"SELECT * FROM users\")"
+        },
+        {
+          "file": "tests\\seeded_defects\\sample_code\\user_service.py",
+          "line": 142,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "f\"SELECT * FROM orders WHERE user_id = {user['id']}\""
+        },
+        {
+          "file": "tests\\seeded_defects\\test_project\\src\\user_service.py",
+          "line": 22,
+          "rule": "SQL concatenation (f-string)",
+          "severity": "HIGH",
+          "description": "SQL 注入面 (f-string)",
+          "snippet": "query = f\"SELECT id, username, role FROM users WHERE username = '{username}' AND password_hash = '{password_hash}'\""
+        },
+        {
+          "file": "tests\\seeded_defects\\test_project\\src\\user_service.py",
+          "line": 38,
+          "rule": "raw SQL execute",
+          "severity": "HIGH",
+          "description": "原始 SQL 执行",
+          "snippet": "cursor.execute(\"SELECT id, username, email FROM users WHERE id = ?\", (user_id,))"
+        },
+        {
+          "file": "tests\\seeded_defects\\test_project\\src\\user_service.py",
+          "line": 52,
+          "rule": "raw SQL execute",
+          "severity": "HIGH",
+          "description": "原始 SQL 执行",
+          "snippet": "cursor.execute(\"SELECT id, username, email, role FROM users\")"
+        }
+      ],
+      "medium_findings": [
+        {
+          "file": "loop_core\\role_capability.py",
+          "line": 134,
+          "rule": "unsafe HTML binding",
+          "severity": "MEDIUM",
+          "description": "不安全 HTML 绑定",
+          "snippet": "{\"id\": \"SD-006\", \"type\": \"xss_unencoded\", \"description\": \"innerHTML XSS\"},"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 358,
+          "rule": "unsafe HTML binding",
+          "severity": "MEDIUM",
+          "description": "不安全 HTML 绑定",
+          "snippet": "(\"innerHTML assignment\", re.compile(r\"\\.innerHTML\\s*=\"), \"DOM XSS (innerHTML)\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 359,
+          "rule": "document.write()",
+          "severity": "MEDIUM",
+          "description": "DOM XSS (document.write)",
+          "snippet": "(\"document.write()\", re.compile(r\"document\\.write\\s*\\(\"), \"DOM XSS (document.write)\"),"
+        },
+        {
+          "file": "agents\\security-engineer\\scripts\\run_security_scan.py",
+          "line": 362,
+          "rule": "unsafe HTML binding",
+          "severity": "MEDIUM",
+          "description": "不安全 HTML 绑定",
+          "snippet": "(\"unsafe HTML binding\", re.compile(r\"innerHTML|outerHTML|insertAdjacentHTML\"), \"不安全 HTML 绑定\"),"
+        }
+      ],
+      "files_scanned": 248,
+      "skipped": false
+    },
+    {
+      "name": "permission_audit",
+      "status": "pass",
+      "findings": [],
+      "high_count": 0,
+      "files_scanned": 8,
+      "skipped": false
+    }
+  ],
+  "overall": "BLOCKED",
+  "blocked_by": [
+    "dependency_scan",
+    "secret_scan",
+    "injection_scan"
+  ]
+}

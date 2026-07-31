@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "runtime-quality.v1",
+  "execution_mode": "SIMULATED_MAIN_SESSION",
+  "agent_takeover": false,
+  "overall": "PASS",
+  "blocked_by": [],
+  "checks": [
+    {
+      "id": "test.suite.full",
+      "name": "全量测试套件 pytest tests/",
+      "status": "PASS",
+      "detail": "2791 passed, 63 skipped (pre-existing env-dependent skips), 16 xfailed, 0 failed / 0 errors — 123.37s (2:03)",
+      "evidence": "C:/Python312/python.exe -m pytest tests/ -q --no-header（2026-08-01 00:37–00:40 +08:00 实跑，exit 0）",
+      "duration_ms": 123370
+    },
+    {
+      "id": "test.suite.hooks",
+      "name": "hook 回归套件（test_hooks / test_path_guard / test_bash_readonly / test_cross_layer_safety）",
+      "status": "PASS",
+      "detail": "153 passed, 0 failed — 含 T-0086 新增 tests/test_path_guard.py（16 项：只读放行 / 写入拦截）",
+      "evidence": "C:/Python312/python.exe -m pytest tests/test_hooks.py tests/test_bash_readonly.py tests/test_cross_layer_safety.py tests/test_path_guard.py -q（实跑）"
+    },
+    {
+      "id": "test.suite.enforcement",
+      "name": "bypass/enforcement 套件（test_bypass_matrix / test_enforcement / test_hook_integration）",
+      "status": "PASS",
+      "detail": "307 passed, 15 xfailed, 0 failed",
+      "evidence": "C:/Python312/python.exe -m pytest tests/test_bypass_matrix.py tests/test_enforcement.py tests/test_hook_integration.py -q（实跑）"
+    },
+    {
+      "id": "runtime.gate.applicability",
+      "name": "web 运行时门适用性（scripts/runtime_delivery_gate.py）",
+      "status": "PASS",
+      "detail": "本项目为 Python 治理引擎，无 .next/package.json/HTTP 服务；runtime_delivery_gate.py 实跑 overall=BLOCKED（artifact.manifest/service.startup/endpoint.health/api.contract/browser.smoke 全部 N/A）。按 T-0086 豁免，以上述真实全量测试结果作为 S6 运行时质量门证据。",
+      "evidence": "C:/Python312/python.exe scripts/runtime_delivery_gate.py .（2026-08-01 00:37 +08:00 实跑输出，web 门不适用）"
+    }
+  ],
+  "executed_at": "2026-08-01T00:40:16.264229+08:00",
+  "build_id": "tests-full-20260801",
+  "environment": {
+    "project_root": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+    "python_version": "3.12.10"
+  }
+}

@@ -4,11 +4,11 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-07-29T00:00:00+08:00'
+last_handoff_at: '2026-08-01T02:03:33.260683+08:00'
 notes:
-- "T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。"
-- "T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime"
-- "T-0080 COMPLETED: Runtime Takeover Acceptance"
+- 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
+- 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
+- 'T-0080 COMPLETED: Runtime Takeover Acceptance'
 - loop_enforcement hook 已安装。loop_mode=FULL 时所有写入必须在批准任务范围内。
 - T-0040: EnforcementHub + role_isolation HARD阻断 — 用户批准通过，已完成。
 - T-0041: 外部垂直切片验证。已完成。
@@ -16,8 +16,16 @@ notes:
 - T-0045: 原 state 指针无对应任务文件，已作为治理漂移记录。
 - T-0046: 治理状态恢复与交付完整性修复，已完成。
 - T-0047: 治理关键路径硬化，已完成。
-- "T-0081 completed. State converged for governance takeover. RuntimeController legacy mode confirmed."
-- "T-0082 ACTIVE: Phase 0 baseline audit dispatched to quality-engineer sub-agent. G-T-0082-REQUIREMENTS approved."
-- "T-0082 COMPLETED 2026-07-31: 7阶段治理接管完成，12/12 AC 验收通过，v3.12.22 (1fa9bfc) 提交。下一任务待用户发起。"
-- "T-0083 COMPLETED 2026-07-31: 元治理层完成（调研+差距分析+Guard Health+fail-closed+B1-B7），10/10 AC GO，v3.12.23 (5f7b0c8) 提交。"
-- "T-0085 COMPLETED 2026-07-31: 硬约束内核 11/11 全激活（C9 237->0 + C5 阶段推进门 + 约束矩阵），7/7 AC，v3.12.24 (f2a6f64) 提交。"
+- T-0081 completed. State converged for governance takeover. RuntimeController legacy
+  mode confirmed.
+- 'T-0082 ACTIVE: Phase 0 baseline audit dispatched to quality-engineer sub-agent.
+  G-T-0082-REQUIREMENTS approved.'
+- 'T-0082 COMPLETED 2026-07-31: 7阶段治理接管完成，12/12 AC 验收通过，v3.12.22 (1fa9bfc) 提交。下一任务待用户发起。'
+- 'T-0083 COMPLETED 2026-07-31: 元治理层完成（调研+差距分析+Guard Health+fail-closed+B1-B7），10/10
+  AC GO，v3.12.23 (5f7b0c8) 提交。'
+- 'T-0085 COMPLETED 2026-07-31: 硬约束内核 11/11 全激活（C9 237->0 + C5 阶段推进门 + 约束矩阵），7/7 AC，v3.12.24
+  (f2a6f64) 提交。'
+- 'T-0086 ACTIVE 2026-08-01: 治理清障 + StaffDeck 对标落地 + 任务计划编排。G-T-0086-REQUIREMENTS
+  pending，待用户批准。'
+- 'T-0086 COMPLETED 2026-08-01: 治理清障 + StaffDeck 对标落地（hook 只读误伤修复 + P1 执行形态拦截 + P2 治理工具豁免 + 对标证据
+  + T-0087~T-0090 计划编排），7/7 AC，独立审查 CONDITIONAL_GO→P1/P2 修复转 GO，全量 2856 passed。下一任务待用户发起。'
