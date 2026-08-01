@@ -1038,7 +1038,7 @@ tasks:
     id: T-0094
     title: 前端产品层 — AutoPlan dashboard 升级（D4）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       dashboard 任务图/gate 状态/指标/guard 健康可视化；快照报告（文本 + 自包含 HTML）；
       数据源只读。不引入完整 React 栈。

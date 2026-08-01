@@ -17,7 +17,56 @@ def handle_status(args):
     except Exception as e:
         return _err(str(e))
 
-HANDLERS = {"dashboard_status": handle_status}
+def handle_task_graph(args):
+    """T-0094 AC-01: task graph view (nodes/edges/status summary/topology)."""
+    try:
+        from loop_core.dashboard_views import DashboardViews
+        return _ok(DashboardViews(_get_root()).task_graph_view())
+    except Exception as e:
+        return _err(str(e))
+
+def handle_gates(args):
+    """T-0094 AC-02: gate view (pending/approved/rejected + decision records)."""
+    try:
+        from loop_core.dashboard_views import DashboardViews
+        return _ok(DashboardViews(_get_root()).gate_view())
+    except Exception as e:
+        return _err(str(e))
+
+def handle_guard_health(args):
+    """T-0094 AC-03: metrics + guard health view (metrics-report + guard events)."""
+    try:
+        from loop_core.dashboard_views import DashboardViews
+        views = DashboardViews(_get_root())
+        return _ok({
+            "metrics": views.metrics_view(),
+            "guard_health": views.guard_health_view(),
+        })
+    except Exception as e:
+        return _err(str(e))
+
+def handle_snapshot(args):
+    """T-0094 AC-04: full snapshot; format json|markdown|html."""
+    try:
+        from loop_core.dashboard_views import DashboardViews
+        views = DashboardViews(_get_root())
+        snapshot = views.build_snapshot()
+        fmt = args.get("format", "json")
+        if fmt == "markdown":
+            return _ok({"markdown": views.render_text(snapshot)})
+        if fmt == "html":
+            return _ok({"html": views.render_html(snapshot)})
+        return _ok(snapshot)
+    except Exception as e:
+        return _err(str(e))
+
+HANDLERS = {
+    "dashboard_status": handle_status,
+    "dashboard_task_graph": handle_task_graph,
+    "dashboard_gates": handle_gates,
+    "dashboard_guard_health": handle_guard_health,
+    "dashboard_snapshot": handle_snapshot,
+}
 
 def main():
     try:
