@@ -4392,4 +4392,71 @@ gates:
   - lifecycle script tests (pid + health poll)
   - full regression results
   - acceptance evidence
+- id: G-T-0090-REQUIREMENTS
+  task_id: T-0090
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0090 需求
+  approval_evidence: .ai/evidence/T-0090/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0090/execution-evidence.json
+  scope: >-
+    T-0090 新能力引入 — D1 LLM 接入抽象层（协议驱动/重试/JSON 修复/脱敏/输出钳制，
+    B5 自举审计前置）；D5 工具执行器 + MCP stdio 客户端（白名单/超时/错误码）；
+    D7 异步任务队列（状态跟踪 + 租约防重复）；D2 SLO/error budget + DORA 指标
+    （B2 设计落地，与 guard 观测衔接）。测试全 mock，不调真实外部服务，
+    key 仅环境变量。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - call real external LLM/MCP services in tests
+  - hardcode API keys or secrets
+  - create or register T-0091+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0090/
+  high_risk_flags:
+  - LLM/MCP 测试必须全 mock（无真实外部调用）
+  - API key 仅环境变量占位，无硬编码
+  - SLO 实现只核算不接线发布阻断（B2 wave 1 advisory）
+  evidence_required:
+  - LLM layer tests (protocol driver / retry / json repair / redaction / output cap)
+  - tool executor + MCP client tests (whitelist / timeout / stdio)
+  - async job queue tests (state tracking / lease dedup)
+  - SLO/metrics tests (SLI / error budget / DORA >= 3 metrics)
+  - no-real-external-call proof + no-hardcoded-secret scan
+  - full regression results
+  - acceptance evidence
 

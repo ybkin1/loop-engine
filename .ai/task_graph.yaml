@@ -984,6 +984,19 @@ tasks:
       - T-0088
     gates:
       - G-T-0089-REQUIREMENTS
+  -
+    id: T-0090
+    title: 新能力引入 — D1 LLM 接入抽象层 + D5 工具执行器/MCP + D7 异步任务队列 + D2 SLO/指标子系统
+    phase: S6-delivery
+    status: completed
+    description: >-
+      LLM 客户端抽象（协议驱动/重试/JSON 修复/脱敏/输出钳制，B5 自举审计前置）；
+      工具执行器 + MCP stdio 客户端（白名单/超时/错误码）；异步任务队列（状态跟踪 + 租约防重复）；
+      SLO/error budget + DORA 指标（B2 设计落地，与 guard 观测衔接）。
+    depends_on:
+      - T-0089
+    gates:
+      - G-T-0090-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1007,3 +1020,5 @@ edges:
       to: T-0088
     - from: T-0088
       to: T-0089
+    - from: T-0089
+      to: T-0090
