@@ -1,0 +1,671 @@
+schema: knowledge_store
+schema_version: 1
+entries:
+- entry_id: KE-BEED462A135BA063
+  kind: decision
+  source_type: task
+  source_id: T-0086
+  task_id: T-0086
+  tags:
+  - acceptance
+  - title
+  content: 'T-0086 验收: 治理清障 + StaffDeck 对标落地 + 任务计划编排'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-4FC2EB30BF98BE52
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0086-REQUIREMENTS
+  task_id: T-0086
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0086-REQUIREMENTS: （user 批准，approval_actor=user）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-B51CFFDD0C9E8DE6
+  kind: decision
+  source_type: task
+  source_id: T-0086
+  task_id: T-0086
+  tags:
+  - acceptance
+  - review
+  content: 'T-0086 独立审查: CONDITIONAL_GO（1 项 P1 条件）→ P1 已修复并复验 → 转 GO'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-3280FDAC242BA6E9
+  kind: pitfall
+  source_type: task
+  source_id: T-0086
+  task_id: T-0086
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0086 已知遗留: Bash 写入目标含 Windows 反斜杠路径时 shlex.split POSIX 模式路径损坏（既有行为，loop_enforcement
+    DISPATCH 门兜底）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-53DAB14A00992B9E
+  kind: pitfall
+  source_type: task
+  source_id: T-0086
+  task_id: T-0086
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0086 已知遗留: 主会话 active task 下非治理读写需 runtime projection（既有设计）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-8CFFD41D6182A273
+  kind: pitfall
+  source_type: task
+  source_id: T-0086
+  task_id: T-0086
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0086 已知遗留: 只读豁免在 path_guard（无条件）与 loop_enforcement（需外部引用）口径不一致（P2，建议
+    T-0089 可观测性任务中统一）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-DD8CF2A24B868B39
+  kind: decision
+  source_type: task
+  source_id: T-0087
+  task_id: T-0087
+  tags:
+  - acceptance
+  - title
+  content: 'T-0087 验收: 运行时契约化 — U1 checkers/guards 注册表化 + U2 vertical_slice 契约平面化'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-D564188B57092C81
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0087-REQUIREMENTS
+  task_id: T-0087
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0087-REQUIREMENTS: （user 批准，approval_text="批准 T-0087 需求"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-26AEEF24A1A3606D
+  kind: decision
+  source_type: task
+  source_id: T-0087
+  task_id: T-0087
+  tags:
+  - acceptance
+  - review
+  content: 'T-0087 独立审查: GO（7/7 AC，无 P0/P1/P2）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-F803D0A1DE36DB45
+  kind: pitfall
+  source_type: task
+  source_id: T-0087
+  task_id: T-0087
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0087 已知遗留: 死导入 F401（guard_health.py hashlib/CapabilityBinding；capability_registry.py
+    field）—— content_guard lint 门连锁拦截，建议子代理或后续任务清理'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-85AEB4F174BA2E3A
+  kind: pitfall
+  source_type: task
+  source_id: T-0087
+  task_id: T-0087
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0087 已知遗留: lint 风格项（UP045 等 12 项）与仓库基线一致'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-10DB7036655910B4
+  kind: pitfall
+  source_type: task
+  source_id: T-0087
+  task_id: T-0087
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0087 已知遗留: 全量测试 STALE_GATE_REFERENCE 警告为既有测试故意行为'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-86CE3810C3B872F3
+  kind: decision
+  source_type: task
+  source_id: T-0088
+  task_id: T-0088
+  tags:
+  - acceptance
+  - title
+  content: 'T-0088 验收: 上下文与路由升级 — U3 上下文预算压缩 + U5 路由粘性/任务帧 + U6 人工接管 resume'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-0383A28301DE6F21
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0088-REQUIREMENTS
+  task_id: T-0088
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0088-REQUIREMENTS: （user 批准，approval_text="批准 T-0088 需求"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-1C9CC9DA24F99B63
+  kind: decision
+  source_type: task
+  source_id: T-0088
+  task_id: T-0088
+  tags:
+  - acceptance
+  - review
+  content: 'T-0088 独立审查: GO（7/7 AC，无 P0/P1/P2，3 项 P3）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-193E96941E05F8C0
+  kind: pitfall
+  source_type: task
+  source_id: T-0088
+  task_id: T-0088
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0088 已知遗留: P3-1: repair_truncated_references 子串替换边界（完整+丢前缀同文本场景）—— context_loader.py:595-603'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-907732843AC95E25
+  kind: pitfall
+  source_type: task
+  source_id: T-0088
+  task_id: T-0088
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0088 已知遗留: P3-2: 正常粘性路径不继承 active 任务 loop_mode（设计有意，模式不对称待评估）—— intent_router.py:1374-1404'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-88DA8E5C00CEF343
+  kind: pitfall
+  source_type: task
+  source_id: T-0088
+  task_id: T-0088
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0088 已知遗留: P3-3: _find_citation_tokens set 迭代次序非确定（仅输出次序）—— context_loader.py:242-249'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-9E5157255FFF1B91
+  kind: decision
+  source_type: task
+  source_id: T-0089
+  task_id: T-0089
+  tags:
+  - acceptance
+  - title
+  content: 'T-0089 验收: 学习回路与工程化 — U4 反馈回路 + U7 evidence 可靠投递 + U8 可观测性 + U9 生命周期'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-B5B3F32F8322DBC9
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0089-REQUIREMENTS
+  task_id: T-0089
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0089-REQUIREMENTS: （user 批准，approval_text="批准 T-0089 需求"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-C239CD2C4596EBB5
+  kind: decision
+  source_type: task
+  source_id: T-0089
+  task_id: T-0089
+  tags:
+  - acceptance
+  - review
+  content: 'T-0089 独立审查: GO（6/6 AC，三条红线验证通过，3 项 P3）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-5DF7AADD4EE6FBC2
+  kind: pitfall
+  source_type: task
+  source_id: T-0089
+  task_id: T-0089
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0089 已知遗留: record_gate_lesson 无锁 read-modify-write（单用户低风险，建议后续复用事务机制）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-F563866B8F037011
+  kind: pitfall
+  source_type: task
+  source_id: T-0089
+  task_id: T-0089
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0089 已知遗留: guard-events.jsonl 持续增长（建议 T-0090+ 轮转/上限）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-B710450D6EED1969
+  kind: pitfall
+  source_type: task
+  source_id: T-0089
+  task_id: T-0089
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0089 已知遗留: scripts/dev.py POSIX 分支未在真实 POSIX 主机验证（本机 win32，monkeypatch
+    覆盖）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-E2296285639D3A42
+  kind: decision
+  source_type: task
+  source_id: T-0090
+  task_id: T-0090
+  tags:
+  - acceptance
+  - title
+  content: 'T-0090 验收: 新能力引入 — D1 LLM 抽象层 + D5 工具执行器/MCP + D7 异步队列 + D2 SLO/指标'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-0654FF3B494D1A5E
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0090-REQUIREMENTS
+  task_id: T-0090
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0090-REQUIREMENTS: （user 批准，approval_text="批准 T-0090 需求"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-EB9FF7101D0E600E
+  kind: decision
+  source_type: task
+  source_id: T-0090
+  task_id: T-0090
+  tags:
+  - acceptance
+  - review
+  content: 'T-0090 独立审查: GO（6/6 AC，约束零弱化、无网络面、无硬编码凭据，3 项 P3）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-A3BCA340A9F5C735
+  kind: pitfall
+  source_type: task
+  source_id: T-0090
+  task_id: T-0090
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0090 已知遗留: metrics-report status=NOT_VERIFIED（wave-2 数据源未接线，fail-closed
+    设计行为）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-70BB83DFC3B458AA
+  kind: pitfall
+  source_type: task
+  source_id: T-0090
+  task_id: T-0090
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0090 已知遗留: httpx 懒加载可选依赖（pyproject 声明留待自举审计接线任务）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-CB644532E38EE13E
+  kind: pitfall
+  source_type: task
+  source_id: T-0090
+  task_id: T-0090
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0090 已知遗留: LLM 层默认不连接外部服务（能力就绪，连接由后续任务按需启用）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-F3BA646E57F4637F
+  kind: decision
+  source_type: task
+  source_id: T-0091
+  task_id: T-0091
+  tags:
+  - acceptance
+  - title
+  content: 'T-0091 验收: B5 自举审计回路接线 — LLM 驱动 self-audit + ZCode 模型配置适配'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-34CECE417FF1C451
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0091-REQUIREMENTS
+  task_id: T-0091
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0091-REQUIREMENTS: （user 批准，approval_text="继续 T-0091，模型配置可以用 Z Code
+    的模型配置"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-7AD02C4FBC001F37
+  kind: decision
+  source_type: task
+  source_id: T-0091
+  task_id: T-0091
+  tags:
+  - acceptance
+  - review
+  content: 'T-0091 独立审查: GO（5/5 AC，约束零弱化、key 与内网地址零泄漏，1 项 P2 已补）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-67AC46DDAEAD50D7
+  kind: pitfall
+  source_type: task
+  source_id: T-0091
+  task_id: T-0091
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0091 已知遗留: AnthropicMessagesDriver._resolve_key() env 链（T-0090 keys.py
+    次序）与 zcode_config.ENV_TIERS 不一致 —— 兜底路径极少触发，留待后续统一'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-4ED896B46E83A4E1
+  kind: pitfall
+  source_type: task
+  source_id: T-0091
+  task_id: T-0091
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0091 已知遗留: 运行时 LLM 分析默认关闭（--llm 显式启用）；真实模型接入需用户环境就绪（v2/config.json provider）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-DB8313C77266C163
+  kind: decision
+  source_type: task
+  source_id: T-0092
+  task_id: T-0092
+  tags:
+  - acceptance
+  - title
+  content: 'T-0092 验收: AI-agent eval 栈（B1 设计落地）| 2026-08-01'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-14FAE92037575AB1
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0092-REQUIREMENTS
+  task_id: T-0092
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0092-REQUIREMENTS: （user 批量批准："继续 T-0092/T-0093/T-0094"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-5D9078C63459DB4B
+  kind: decision
+  source_type: task
+  source_id: T-0092
+  task_id: T-0092
+  tags:
+  - acceptance
+  - review
+  content: 'T-0092 独立审查: GO（6/6 AC，约束零弱化，2 项 P2 已补）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-D3E8BC426733519F
+  kind: pitfall
+  source_type: task
+  source_id: T-0092
+  task_id: T-0092
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0092 已知遗留: HANDOFF.md 引用 evidence-manifest.v1.yaml 实际不存在（模板性引用，历史任务同款）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-DEE1FA993D8D7599
+  kind: decision
+  source_type: task
+  source_id: T-0093
+  task_id: T-0093
+  tags:
+  - acceptance
+  - title
+  content: 'T-0093 验收: SLO 门禁 wave 2 — error budget 耗尽自动冻结发布'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-C11ED6C373560934
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0093-REQUIREMENTS
+  task_id: T-0093
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0093-REQUIREMENTS: （user 批量批准："继续 T-0092/T-0093/T-0094"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-9957FB116BFFC39D
+  kind: decision
+  source_type: task
+  source_id: T-0093
+  task_id: T-0093
+  tags:
+  - acceptance
+  - review
+  content: 'T-0093 独立审查: CONDITIONAL_GO → P1 修复复验转 GO'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-0CF101820E33BF00
+  kind: pitfall
+  source_type: task
+  source_id: T-0093
+  task_id: T-0093
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0093 已知遗留: `.ai/slo.yaml` 不存在（走 B2 内置默认 100 units/5 fee）—— 建议后续补充显式化'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-0D8EFAC7CD21F6F7
+  kind: pitfall
+  source_type: task
+  source_id: T-0093
+  task_id: T-0093
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0093 已知遗留: check_slo_gate 双重复用检查（冗余无害）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-B4D8B849927ED6CD
+  kind: decision
+  source_type: task
+  source_id: T-0094
+  task_id: T-0094
+  tags:
+  - acceptance
+  - title
+  content: 'T-0094 验收: 前端产品层 — AutoPlan dashboard 升级（D4）| 2026-08-01'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-F49729BDA77E0AF8
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0094-REQUIREMENTS
+  task_id: T-0094
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0094-REQUIREMENTS: （user 批量批准："继续 T-0092/T-0093/T-0094"）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-A1D8C832A6FBF718
+  kind: decision
+  source_type: task
+  source_id: T-0094
+  task_id: T-0094
+  tags:
+  - acceptance
+  - review
+  content: 'T-0094 独立审查: GO（6/6 AC，约束零弱化、数据源零修改，3 项 P3）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-D9DD84B43468C64D
+  kind: pitfall
+  source_type: task
+  source_id: T-0094
+  task_id: T-0094
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0094 已知遗留: metrics_view 顶层非对象 JSON 边缘场景（影响可忽略）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-2A309D8305CE926F
+  kind: pitfall
+  source_type: task
+  source_id: T-0094
+  task_id: T-0094
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0094 已知遗留: 未知任务 id 边展示不参与排序（设计语义已文档化）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-AC865150B5DC9C3F
+  kind: pitfall
+  source_type: task
+  source_id: T-0094
+  task_id: T-0094
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0094 已知遗留: guard-events.jsonl 测试套件 append 行为（提交说明已注明）'
+  recorded_at: '2026-08-01T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-0355E842C754273B
+  kind: decision
+  source_type: task
+  source_id: T-0095
+  task_id: T-0095
+  tags:
+  - acceptance
+  - title
+  content: 'T-0095 验收: 遗留清理包 — P3 技术遗留系统性清理'
+  recorded_at: '2026-08-02T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-ED15E025F196C639
+  kind: best_practice
+  source_type: gate
+  source_id: G-T-0095-REQUIREMENTS
+  task_id: T-0095
+  tags:
+  - acceptance
+  - gate
+  content: 'G-T-0095-REQUIREMENTS: （user 批量批准："批准T-0095、96、97"）'
+  recorded_at: '2026-08-02T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-A6E788225E0A9DA2
+  kind: decision
+  source_type: task
+  source_id: T-0095
+  task_id: T-0095
+  tags:
+  - acceptance
+  - review
+  content: 'T-0095 独立审查: CONDITIONAL_GO（7/7 AC，写入拦截零放宽）→ P1 修复 → [ok] state is usable'
+  recorded_at: '2026-08-02T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-D75D1568FA673795
+  kind: pitfall
+  source_type: task
+  source_id: T-0095
+  task_id: T-0095
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0095 已知遗留: Bash 反斜杠路径 shlex tokenizer；粘性 loop_mode 语义；dev.py POSIX 验证；未知任务
+    id 边语义'
+  recorded_at: '2026-08-02T00:00:00+00:00'
+  version: 1
+  schema_version: 1
+- entry_id: KE-ED9F49BAB4656934
+  kind: pitfall
+  source_type: task
+  source_id: T-0095
+  task_id: T-0095
+  tags:
+  - acceptance
+  - 遗留
+  content: 'T-0095 已知遗留: hooks 两文件 11 处既有 F401（本次零引入）'
+  recorded_at: '2026-08-02T00:00:00+00:00'
+  version: 1
+  schema_version: 1

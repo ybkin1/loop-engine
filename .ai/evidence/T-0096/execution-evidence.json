@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0096",
+  "gate_id": "G-T-0096-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "completed_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "knowledge store (schema v1 / deterministic id / idempotent / multi-dim retrieval) — DONE",
+    "memory service (rule-based extract from lessons+acceptance / recall / inject) — DONE",
+    "gate_feedback integration (one-way data flow, zero changes to source) — DONE",
+    "context_loader optional memory injection (default off) — DONE",
+    "manifest drift fix (T-0095 EM-T-0095-39D9BC24) — DONE",
+    "regression: 3594 passed / 0 failed — DONE",
+    "independent review: CONDITIONAL_GO (6/6 AC) -> P1-1 fixed -> usable"
+  ],
+  "notes": "全部工作流完成。P1-1（HANDOFF checkpoint 重建）已修复。P3 遗留记录于 commands.md。"
+}

@@ -1,0 +1,42 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0096-2DC8B1C5
+task_id: T-0096
+gate_id: G-T-0096-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0096
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0096/approval-evidence.json
+  role: result
+  required: true
+  sha256: 37BDA69AFDC636FBF0E6BEA0963FB22DBA5048F781CA2F29913AFECAE4BFB6D1
+  size: 316
+  mtime_ns: 1785604618498928400
+- path: .ai/evidence/T-0096/knowledge/design.md
+  role: result
+  required: true
+  sha256: 43C4A337C5E7FFF0C92E5414E3A736661C202D9B76F8DF548E7B729A93F243C0
+  size: 9190
+  mtime_ns: 1785605750867990300
+- path: .ai/evidence/T-0096/compile-evidence.json
+  role: result
+  required: true
+  sha256: 7E46B60DC2919F473C18F461CACC70C83096F67BC954251D82916119BA759604
+  size: 181
+  mtime_ns: 1785604632522097200
+- path: .ai/evidence/T-0096/execution-evidence.json
+  role: result
+  required: true
+  sha256: AD6161F1F56B26EF8203D4125FD6F4A72E990715E4B70491589F41DD48A2BAA9
+  size: 485
+  mtime_ns: 1785604623205363200
+file_count: 4
+total_bytes: 10172
+ordered_entries_sha256: 2DC8B1C53038C1712ACA0B355908C0CA836993E26F5D0A976B346316420F82CA
+semantic_sha256: FAE6A17409400D604517B30362B642AC3F62AF9D721FEC6CB221F433B4B076EA
+created_at: '2026-07-31T00:00:00+08:00'
+created_by: governance-controller

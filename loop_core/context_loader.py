@@ -19,6 +19,15 @@ U3 (T-0088) — Context budget compression:
     citations (e.g. .ai/evidence/T-xxxx/...) truncated during compression,
     using unique-prefix/suffix recovery against the filesystem; ambiguous or
     missing references are marked UNRESOLVED rather than guessed.
+
+D3 (T-0096) — Optional memory injection:
+  - load_role_context / load_for_role accept optional keyword-only params
+    ``include_memories`` (default False), ``memory_limit`` (default 5) and
+    ``memory_task_id``.  When enabled, the loaded view appends a
+    "相关经验（Related Memories）" section recalled from the knowledge store
+    (loop_core.memory_service.recall — lessons/acceptance-derived entries).
+  - Default behavior is unchanged: include_memories=False never reads the
+    knowledge store, so existing callers are byte-for-byte compatible.
 """
 
 from __future__ import annotations
@@ -109,6 +118,9 @@ DEFAULT_BUDGET_TOKENS = 2600      # matches FULL load level (~2600 tokens)
 DEFAULT_TRIGGER_RATIO = 0.7       # compress when estimate > budget * 0.7
 DEFAULT_MAX_SUMMARY_LEVELS = 2    # "summary of the summary" depth
 UNRESOLVED_MARKER = "UNRESOLVED"  # explicit marker for unrecoverable refs
+
+# D3 (T-0096): default memory-injection bound for optional context loading.
+DEFAULT_MEMORY_LIMIT = 5          # top-N recalled entries injected at most
 
 # Max characters before a citation path is truncated during summarization;
 # the truncated form keeps enough tail segments to stay uniquely recoverable.
@@ -791,6 +803,9 @@ class ContextLoader:
         budget_tokens: int | None = None,
         trigger_ratio: float = DEFAULT_TRIGGER_RATIO,
         max_levels: int = DEFAULT_MAX_SUMMARY_LEVELS,
+        include_memories: bool = False,
+        memory_limit: int = DEFAULT_MEMORY_LIMIT,
+        memory_task_id: str | None = None,
     ) -> LoadedContext:
         """Load role context at the level appropriate for *complexity*.
 
@@ -808,6 +823,16 @@ class ContextLoader:
                 (default 0.7 — StaffDeck's 70% trigger).
             max_levels: Maximum number of "summary of the summary" levels
                 (default 2).
+            include_memories: D3 (T-0096) optional memory injection.  When
+                True, a "相关经验（Related Memories）" section recalled from
+                the knowledge store is appended to the loaded view.  Default
+                False keeps the legacy behaviour (the knowledge store is not
+                even read).
+            memory_limit: Cap on how many recalled entries are injected
+                (top-N, newest first; default 5).
+            memory_task_id: Optional task filter for recall — only memories
+                associated with this task are injected.  Default None
+                recalls across the whole store.
 
         Returns:
             LoadedContext with the assembled system_prompt and metadata.
@@ -818,6 +843,9 @@ class ContextLoader:
             ValueError: If the role's CONTRACT.yaml is missing or malformed
                 in a way that prevents loading even MINIMAL context, or if
                 compression parameters are invalid.
+            KnowledgeStoreError: Only when include_memories=True and the
+                knowledge store file exists but is malformed (fail-closed —
+                the machine never guesses about its own memory).
         """
         level = _complexity_to_level(complexity)
         role_dir = self._project_root / "agents" / role_id
@@ -908,7 +936,48 @@ class ContextLoader:
                 ctx, budget_tokens, trigger_ratio, max_levels
             )
 
+        self._apply_memory_injection(
+            ctx, include_memories, memory_limit, memory_task_id
+        )
+
         return ctx
+
+    def _apply_memory_injection(
+        self,
+        ctx: LoadedContext,
+        include_memories: bool,
+        memory_limit: int,
+        memory_task_id: str | None,
+    ) -> None:
+        """D3 (T-0096): optionally append recalled memories to the view.
+
+        Default-off: when ``include_memories`` is False this is a no-op and
+        the knowledge store is never touched.  When enabled, recall() is
+        bounded by ``memory_limit`` (top-N); an empty or absent store simply
+        contributes no section.  A malformed store raises (fail-closed).
+        """
+        if not include_memories:
+            return
+        try:
+            if not isinstance(memory_limit, int) or memory_limit <= 0:
+                return
+            from loop_core.memory_service import memories_to_context, recall
+        except ImportError:  # pragma: no cover — memory_service is in-package
+            return
+        entries = recall(
+            self._project_root,
+            task_id=memory_task_id,
+            limit=memory_limit,
+        )
+        section = memories_to_context(entries)
+        if not section:
+            return
+        if ctx.system_prompt:
+            ctx.system_prompt = (ctx.system_prompt + "\n\n" + section).strip()
+        else:
+            ctx.system_prompt = section
+        ctx.estimated_tokens = self.estimate_tokens(ctx.system_prompt)
+        ctx.loaded_sections.append(f"[memories: {len(entries)} recalled]")
 
     def _apply_budget_compression(
         self,
@@ -1050,6 +1119,9 @@ class ContextLoader:
         budget_tokens: int | None = None,
         trigger_ratio: float = DEFAULT_TRIGGER_RATIO,
         max_levels: int = DEFAULT_MAX_SUMMARY_LEVELS,
+        include_memories: bool = False,
+        memory_limit: int = DEFAULT_MEMORY_LIMIT,
+        memory_task_id: str | None = None,
     ) -> LoadedContext:
         """Load role context plus the relevant sections of a project document.
 
@@ -1068,6 +1140,11 @@ class ContextLoader:
                 behaviour (no compression).
             trigger_ratio: Fraction of the budget that triggers compression.
             max_levels: Maximum number of "summary of the summary" levels.
+            include_memories: D3 (T-0096) optional memory injection —
+                same semantics as load_role_context (default False keeps
+                the legacy behaviour byte-for-byte).
+            memory_limit: Cap on recalled entries injected (default 5).
+            memory_task_id: Optional task filter for memory recall.
 
         Returns:
             LoadedContext with role context plus relevant document sections.
@@ -1100,6 +1177,11 @@ class ContextLoader:
             self._apply_budget_compression(
                 ctx, budget_tokens, trigger_ratio, max_levels
             )
+
+        # D3: optional memory injection (default off — no-op when disabled)
+        self._apply_memory_injection(
+            ctx, include_memories, memory_limit, memory_task_id
+        )
 
         return ctx
 

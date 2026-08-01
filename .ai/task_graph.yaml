@@ -1063,7 +1063,7 @@ tasks:
     id: T-0096
     title: 知识/记忆服务（D3）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       知识存储（决策/经验/教训 + 多维检索）+ 记忆服务（跨任务提取/注入）+
       与 gate_feedback 整合 + context_loader 可选记忆注入。
