@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-31T23:50:47.593867+00:00",
+  "generated_at": "2026-08-01T00:48:25.936777+00:00",
   "gate_semantics": "fail-closed: PASS only if every registered requirement is covered by golden-scenario assertions and all assertions pass; any failed or uncovered requirement yields FAIL",
   "sources": {
     "registry": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\tests\\vertical_slice\\contract_planes\\requirement-registry.yaml",

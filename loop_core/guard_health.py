@@ -25,22 +25,37 @@ only — missing/drift are surfaced as reports, never as a silent pass-through.
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import subprocess
 import sys
 import tempfile
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 from loop_core.capability_registry import (
-    CapabilityBinding,
     CapabilityRegistry,
     build_default_registry,
     sha256_file,
 )
+from loop_core.observability import (
+    CHECK_DEATH,
+    CHECK_DRIFT,
+    CHECK_HEALTH,
+    CHECK_INTEGRITY,
+    CHECK_MISSING,
+    RESULT_FAIL,
+    RESULT_PASS,
+    RESULT_REPORT,
+    GuardCheckEvent,
+    GuardEventRecorder,
+)
+
+# T-0089 U8: guard-check observability — side-channel event recording that
+# never blocks the health check (observability failures are swallowed by the
+# recorder; the safety adjudication in enforcement_hub/hard_constraints has
+# zero dependency on it).
 
 # ── Guard registry: which guard owns which negative control ──
 # Each guard declares which fixture it must kill. Zero kills = DORMANT.
@@ -93,10 +108,41 @@ class GuardHealth:
     """
 
     def __init__(self, project_root: str | Path,
-                 registry: Optional[CapabilityRegistry] = None):
+                 registry: CapabilityRegistry | None = None,
+                 observability: GuardEventRecorder | bool | None = None):
         self.root = Path(project_root).resolve()
         self.hooks_dir = self.root / "hooks" / "scripts"
         self.registry = registry if registry is not None else build_default_registry(self.root)
+        # T-0089 U8: guard-check observability — a旁路 side-channel recorder,
+        # default ON (writes .ai/evidence/observability/guard-events.jsonl,
+        # lazily: no file is touched until the first event).  Pass
+        # observability=False to disable, or a GuardEventRecorder to override
+        # the default path.  Observation failures never reach this class's
+        # callers — they are swallowed inside the recorder (_observe adds a
+        # belt-and-braces guard).
+        if observability is None:
+            observability = GuardEventRecorder(
+                self.root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
+            )
+        self.observability = observability
+
+    # ── T-0089 U8: observation helpers (never raise into the business path) ──
+    def _registry_source(self) -> str:
+        """Deterministic fingerprint of the registry the check runs against."""
+        try:
+            return f"registry:{self.registry.snapshot().snapshot_id[:12]}"
+        except Exception:
+            return "registry:unknown"
+
+    def _observe(self, event: GuardCheckEvent) -> None:
+        """Record one event.  The recorder already swallows write failures;
+        this guard additionally ensures a bug in the observation layer can
+        never reach the health-check (business) path."""
+        try:
+            if self.observability:
+                self.observability.record(event)
+        except Exception:  # pragma: no cover - belt-and-braces, record() never raises
+            pass
 
     # ── The fixture battery ──
     def battery(self) -> list[GuardControl]:
@@ -166,12 +212,17 @@ class GuardHealth:
             by_guard.setdefault(c.guard, []).append(c)
 
         results: list[GuardHealthResult] = []
+        source = self._registry_source()
         for guard, ctrls in sorted(by_guard.items()):
             script = self.hooks_dir / f"{guard}.py"
             blocked = allowed = 0
             errors: list[str] = []
             crashed = False
+            t_guard = time.perf_counter()
             for c in ctrls:
+                t0 = time.perf_counter()
+                rc: int | None = None
+                control_error: str | None = None
                 try:
                     # Simulate PreToolUse: pass hook_input JSON to script stdin.
                     # When the control carries a fixture, materialize an
@@ -211,29 +262,46 @@ class GuardHealth:
                         # Hooks contract is 0=allow / 2=deny; anything else means
                         # the hook script crashed (traceback, import error, ...).
                         crashed = True
-                        errors.append(
+                        control_error = (
                             f"{c.control_id} {c.description}: hook crashed (rc={rc})"
                         )
+                        errors.append(control_error)
                     elif c.kind == "negative":
                         if rc == 2:
                             blocked += 1
                         else:
-                            errors.append(
+                            control_error = (
                                 f"{c.control_id} {c.description}: expected BLOCK got pass (rc={rc})"
                             )
+                            errors.append(control_error)
                     else:
                         if rc == 0:
                             allowed += 1
                         else:
-                            errors.append(
+                            control_error = (
                                 f"{c.control_id} {c.description}: expected PASS got block (rc={rc})"
                             )
+                            errors.append(control_error)
                 except subprocess.TimeoutExpired:
                     crashed = True
-                    errors.append(f"{c.control_id}: TIMEOUT")
+                    control_error = f"{c.control_id}: TIMEOUT"
+                    errors.append(control_error)
                 except Exception as e:
                     crashed = True
-                    errors.append(f"{c.control_id}: ERROR {e}")
+                    control_error = f"{c.control_id}: ERROR {e}"
+                    errors.append(control_error)
+                finally:
+                    # T-0089 U8: per-control health event (side channel — a
+                    # recording failure never alters the control outcome above).
+                    self._observe(GuardCheckEvent(
+                        guard_id=guard,
+                        check_type=CHECK_HEALTH,
+                        result=RESULT_FAIL if control_error is not None else RESULT_PASS,
+                        duration_ms=(time.perf_counter() - t0) * 1000,
+                        failure_reason=control_error,
+                        timestamp=datetime.now(timezone.utc).isoformat(),
+                        source=source,
+                    ))
 
             # Status determination:
             # - a crash (exception / timeout / unexpected exit code) => BROKEN
@@ -255,7 +323,31 @@ class GuardHealth:
                 allowed=allowed, positive_total=sum(1 for c in ctrls if c.kind == "positive"),
                 errors=errors,
             ))
+            # T-0089 U8: per-guard death event (PASS iff ALIVE — a dead guard
+            # is the fail-closed FAIL; reason carries the first error / the
+            # dormant explanation).  Observation only — the verdict above is
+            # untouched by the recording.
+            death_fail_reason = None if status == "ALIVE" else (
+                errors[0] if errors else self._death_reason(status)
+            )
+            self._observe(GuardCheckEvent(
+                guard_id=guard,
+                check_type=CHECK_DEATH,
+                result=RESULT_PASS if status == "ALIVE" else RESULT_FAIL,
+                duration_ms=(time.perf_counter() - t_guard) * 1000,
+                failure_reason=death_fail_reason,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                source=source,
+            ))
         return results
+
+    @staticmethod
+    def _death_reason(status: str) -> str:
+        if status == "DORMANT":
+            return "guard blocked zero negative controls (DORMANT)"
+        if status == "NOT_VERIFIED":
+            return "guard not verified (NOT_VERIFIED)"
+        return f"guard is {status}"
 
     # ── T-0087 U1: missing / drift detection (REPORT level, never blocks) ──
     _GOVERNANCE_IMPL_DIRS = (("checkers", "checker"), ("guards", "guard"))
@@ -268,10 +360,12 @@ class GuardHealth:
         governance surface). Report-level finding, never flips the verdict.
         """
         findings: list[dict] = []
+        source = self._registry_source()
         registered_paths = {
             b.implementation_path
             for b in self.registry.snapshot().entries.values()
         }
+        t0 = time.perf_counter()
         for dirname, provider in self._GOVERNANCE_IMPL_DIRS:
             impl_dir = self.root / ".ai" / dirname
             if not impl_dir.is_dir():
@@ -292,6 +386,18 @@ class GuardHealth:
                             "is not registered in the capability registry"
                         ),
                     })
+        # T-0089 U8: one REPORT event per finding — inform, never block.
+        for f in findings:
+            self._observe(GuardCheckEvent(
+                guard_id=f["implementation_path"],
+                capability_id=f["capability_id"],
+                check_type=CHECK_MISSING,
+                result=RESULT_REPORT,
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                failure_reason=f["message"],
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                source=source,
+            ))
         return findings
 
     def drift_detection(self) -> list[dict]:
@@ -303,6 +409,8 @@ class GuardHealth:
         relying on the battery alone. Report-level, never flips the verdict.
         """
         findings: list[dict] = []
+        source = self._registry_source()
+        t0 = time.perf_counter()
         for binding in sorted(
             self.registry.snapshot().entries.values(),
             key=lambda b: b.capability_id,
@@ -339,6 +447,18 @@ class GuardHealth:
                         "(file drifted from the registered binding)"
                     ),
                 })
+        # T-0089 U8: one REPORT event per finding — inform, never block.
+        for f in findings:
+            self._observe(GuardCheckEvent(
+                guard_id=f["implementation_path"],
+                capability_id=f["capability_id"],
+                check_type=CHECK_DRIFT,
+                result=RESULT_REPORT,
+                duration_ms=(time.perf_counter() - t0) * 1000,
+                failure_reason=f["message"],
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                source=source,
+            ))
         return findings
 
     def integrity_check(self) -> dict:
@@ -348,14 +468,32 @@ class GuardHealth:
         unchanged fail-closed semantics). MISSING/DRIFT findings are attached as
         REPORT-level evidence — they inform but never block (T-0087 AC-02).
         """
+        t0 = time.perf_counter()
         death = self.summary()
+        missing = self.missing_detection()
+        drift = self.drift_detection()
+        overall = death["overall"]
+        # T-0089 U8: one integrity event per check — side channel, never
+        # blocks.  The overall verdict above is unchanged by the recording.
+        dead_guards = [r["guard"] for r in death["results"] if r["status"] != "ALIVE"]
+        self._observe(GuardCheckEvent(
+            guard_id="guard_health",
+            check_type=CHECK_INTEGRITY,
+            result=RESULT_PASS if overall == "PASS" else RESULT_FAIL,
+            duration_ms=(time.perf_counter() - t0) * 1000,
+            failure_reason=None if overall == "PASS" else (
+                "dead guards: " + ", ".join(dead_guards) if dead_guards else "integrity FAIL"
+            ),
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            source=self._registry_source(),
+        ))
         return {
             "death": death,
-            "missing": self.missing_detection(),
-            "drift": self.drift_detection(),
+            "missing": missing,
+            "drift": drift,
             # missing/drift are report-level: overall must NOT flip because of
             # them — only a dead guard fails the loop.
-            "overall": death["overall"],
+            "overall": overall,
             "checked_at": death["checked_at"],
         }
 

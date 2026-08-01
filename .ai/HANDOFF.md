@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "85E0DAF0B24A9EF1ED339C069E7C82462B5AEC54403223760BEEABE6074E72EC",
+  "persisted_file_sha256": "667F18C18C828E81E1F8CFD87A925A12DDFF1ABB950C5ECEA53F6110DA4716BD",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "D34E4EBD4E694DC3E0F0DD77F4B6063AACE99D327D2FE47D7C025945B721945F",
+  "source_sha256": "B136F50BFAF91707814A713ECA17C60DECF8B1AE8DB6B33EB8D23BA218F2A14C",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0088
+T-0089
 
 Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0088-REQUIREMENTS
+active_gate: G-T-0089-REQUIREMENTS
 active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0088-REQUIREMENTS is approved and execution is in progress.
+G-T-0089-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0088/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0089/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0088-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0089-REQUIREMENTS",
   "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0088-REQUIREMENTS",
-  "current_task_id": "T-0088",
+  "current_gate_id": "G-T-0089-REQUIREMENTS",
+  "current_task_id": "T-0089",
   "current_task_status": "in_progress",
   "lifecycle_revision": 0,
   "next_action": "CONTINUE_APPROVED_EXECUTION",

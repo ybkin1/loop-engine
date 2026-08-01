@@ -4329,4 +4329,67 @@ gates:
   - resume payload tests
   - full regression results
   - acceptance evidence
+- id: G-T-0089-REQUIREMENTS
+  task_id: T-0089
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0089 需求
+  approval_evidence: .ai/evidence/T-0089/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0089/execution-evidence.json
+  scope: >-
+    T-0089 学习回路与工程化 — U4 gate 决策反馈回路（拒绝/修复经验沉淀 + 检索）、
+    U7 evidence 可靠投递（幂等 + 退避重试 + 卡死重置）、
+    U8 可观测性分层（guard 检查事件落盘，异常不阻断业务，安全裁决仍 fail-closed）、
+    U9 scripts 生命周期（up/down/status + pid + 健康轮询）。
+    基于 T-0086 staffdeck-benchmark U4/U7/U8/U9。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0090+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0089/
+  high_risk_flags:
+  - 幂等改造为可选参数，不得破坏现有 evidence 写入
+  - 观测异常捕获不得吞掉安全裁决（fail-closed 保持）
+  evidence_required:
+  - feedback loop tests (lesson record + retrieval)
+  - evidence idempotency / retry / stale-reset tests
+  - observability event tests (metrics persist, errors do not block)
+  - lifecycle script tests (pid + health poll)
+  - full regression results
+  - acceptance evidence
 

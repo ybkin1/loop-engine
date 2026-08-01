@@ -971,6 +971,19 @@ tasks:
       - T-0087
     gates:
       - G-T-0088-REQUIREMENTS
+  -
+    id: T-0089
+    title: 学习回路与工程化 — U4 gate 决策反馈回路 + U7 evidence 可靠投递 + U8 可观测性分层 + U9 生命周期
+    phase: S6-delivery
+    status: completed
+    description: >-
+      gate 拒绝/修复经验沉淀（反馈回路）；transactional_write_texts 幂等 + 退避重试 + 卡死重置；
+      guard 检查观测（事件落盘，异常不阻断业务，安全裁决仍 fail-closed）；
+      scripts 生命周期（up/down/status + pid + 健康轮询）。
+    depends_on:
+      - T-0088
+    gates:
+      - G-T-0089-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -992,3 +1005,5 @@ edges:
       to: T-0087
     - from: T-0087
       to: T-0088
+    - from: T-0088
+      to: T-0089

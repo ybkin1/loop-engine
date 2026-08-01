@@ -15,6 +15,12 @@ machine-consumable ResumePayload (snapshot + recovery data taken verbatim
 from state.yaml / task_graph.yaml / gates.yaml) so the loop can later
 resume the decision context instead of re-asking. Default behavior is
 unchanged — no payload unless the caller attaches one.
+
+U4 (T-0089): the packet may carry an optional ``related_experience``
+markdown summary of past gate lessons (loop_core.gate_feedback.py) so a
+stakeholder deciding a gate can see relevant historical rejections /
+repair requests. Default behavior is unchanged — no section unless the
+caller attaches a summary.
 """
 from __future__ import annotations
 
@@ -554,6 +560,11 @@ class HumanReviewPacket:
     # pause. Default None — the human-facing packet is unchanged.
     resume_payload: ResumePayload | None = None
 
+    # Related past experience (U4): optional markdown summary of relevant
+    # gate lessons (same gate / same reason category). Default "" — the
+    # packet and its rendering are unchanged unless the caller attaches one.
+    related_experience: str = ""
+
     # ── Output Methods ──────────────────────────────────────────────────
 
     def to_markdown(self) -> str:
@@ -638,6 +649,17 @@ class HumanReviewPacket:
                 lines.append(f"- {veto}")
             lines.append("")
 
+        # Related past experience (U4) — only when the caller attached it
+        if self.related_experience:
+            lines.append("## Related Past Experience")
+            lines.append("")
+            lines.append(
+                "Past gate decisions with similar context may help your review:"
+            )
+            lines.append("")
+            lines.append(self.related_experience)
+            lines.append("")
+
         # Decision required
         if self.decision_required:
             lines.append("## You Need to Decide")
@@ -715,6 +737,16 @@ class HumanReviewPacket:
             lines.append("VETOES RAISED")
             for veto in self.vetoes:
                 lines.append(f"  - {veto}")
+            lines.append("")
+
+        if self.related_experience:
+            lines.append("RELATED PAST EXPERIENCE")
+            lines.append(
+                "Past gate decisions with similar context may help your review:"
+            )
+            lines.append("")
+            for line in self.related_experience.splitlines():
+                lines.append(line)
             lines.append("")
 
         if self.decision_required:
@@ -874,6 +906,7 @@ class HumanReviewPacketBuilder:
         review_results: dict,
         quality_report: dict,
         resume_payload: ResumePayload | None = None,
+        related_experience: str | None = None,
     ) -> HumanReviewPacket:
         """Build a gate-approval packet from phase-completion data.
 
@@ -886,6 +919,9 @@ class HumanReviewPacketBuilder:
             resume_payload: Optional ResumePayload (U6) attached for machine
                             resumability after a pause decision. Default None
                             keeps the packet fully backward compatible.
+            related_experience: Optional markdown summary of related gate
+                            lessons (U4 feedback loop) attached for human
+                            review. Default None — the packet is unchanged.
 
         Returns:
             A HumanReviewPacket ready to present to the user.
@@ -1010,6 +1046,7 @@ class HumanReviewPacketBuilder:
             vetoes=[],
             expires_at=expires,
             resume_payload=resume_payload,
+            related_experience=related_experience or "",
         )
 
     @staticmethod
@@ -1017,6 +1054,7 @@ class HumanReviewPacketBuilder:
         vetoes: list,
         task_id: str,
         resume_payload: ResumePayload | None = None,
+        related_experience: str | None = None,
     ) -> HumanReviewPacket:
         """Build a veto-escalation packet when reviewers disagree.
 
@@ -1026,6 +1064,9 @@ class HumanReviewPacketBuilder:
             task_id: The task being blocked by the veto.
             resume_payload: Optional ResumePayload (U6) attached for machine
                             resumability after a pause decision.
+            related_experience: Optional markdown summary of related gate
+                            lessons (U4 feedback loop). Default None — the
+                            packet is unchanged.
 
         Returns:
             A HumanReviewPacket explaining the deadlock and what the user
@@ -1147,6 +1188,7 @@ class HumanReviewPacketBuilder:
             vetoes=veto_reasons,
             expires_at=expires,
             resume_payload=resume_payload,
+            related_experience=related_experience or "",
         )
 
     @staticmethod

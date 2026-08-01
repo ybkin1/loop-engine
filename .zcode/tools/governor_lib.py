@@ -6,10 +6,11 @@ import json
 import os
 import re
 import shutil
+import time
 import uuid
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-
 
 REQUIRED_FILES = [
     "PROJECT.md", "NON_GOALS.md", "ARCHITECTURE.md", "CONTRACTS.md", "CODING_STANDARDS.md",
@@ -71,16 +72,153 @@ def file_fingerprint(path: Path) -> str | None:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
 
 
-def transactional_write_texts(base: Path, changes: dict[Path, str]) -> None:
-    marker = base / ".project-governor-transaction.json"
+# T-0089 U7: reliable evidence delivery — idempotency + backoff retry + stale recovery
+TRANSACTION_MARKER_NAME = ".project-governor-transaction.json"
+IDEMPOTENCY_TABLE_NAME = ".project-governor-idempotency.json"
+# Settle interval for the no-concurrent-writer double read during stale recovery.
+_STALE_CHECK_SETTLE_SECONDS = 0.05
+
+
+@dataclass
+class RetryPolicy:
+    """Exponential backoff policy for transactional writes (T-0089 U7)."""
+
+    max_attempts: int = 3
+    backoff_base_seconds: float = 1.0
+    backoff_multiplier: float = 2.0
+
+
+@dataclass
+class TransactionResult:
+    """Outcome of a transactional write (T-0089 U7).
+
+    ``written`` lists paths actually (re)written; ``skipped`` lists paths
+    deduplicated by the idempotency table; ``attempts`` counts attempts used
+    when a retry policy is active.
+    """
+
+    written: list[str] = field(default_factory=list)
+    skipped: list[str] = field(default_factory=list)
+    attempts: int = 1
+
+
+def _sleep(seconds: float) -> None:
+    time.sleep(seconds)
+
+
+def transactional_write_texts(
+    base: Path,
+    changes: dict[Path, str],
+    *,
+    idempotent: bool = False,
+    retry: object = None,
+    stale_timeout_seconds: float | None = None,
+) -> TransactionResult | None:
+    """Atomically write several files with journal-based rollback (T-0089 U7).
+
+    Backward-compatible superset of the original transactional write; with all
+    defaults it behaves exactly like the legacy implementation and returns None.
+
+    - ``idempotent=True``: per-path content fingerprint (sha256) is recorded in
+      an idempotency table; resubmitting identical content skips the write and
+      is reported through ``TransactionResult.skipped`` (no duplicate records).
+    - ``retry``: ``RetryPolicy`` / dict / bool — exponential backoff retries for
+      transient failures (IO errors, concurrent-modification conflicts). The
+      final error is re-raised once ``max_attempts`` is exhausted; failures are
+      never silently dropped. Default ``None``/``False`` disables retries.
+    - ``stale_timeout_seconds``: when set, an unresolved journal marker older
+      than the threshold is reset (marked stale, leftovers cleaned) after
+      verifying no concurrent writer; fresh or actively-written markers are
+      refused with a clear error.
+    """
+    policy = _coerce_retry_policy(retry)
+    if policy is None:
+        result = _transactional_write_texts_once(
+            base, changes,
+            idempotent=idempotent,
+            stale_timeout_seconds=stale_timeout_seconds,
+        )
+        return result if idempotent else None
+    last_error: BaseException | None = None
+    for attempt in range(1, policy.max_attempts + 1):
+        transaction_id = uuid.uuid4().hex
+        try:
+            result = _transactional_write_texts_once(
+                base, changes,
+                idempotent=idempotent,
+                stale_timeout_seconds=stale_timeout_seconds,
+                transaction_id=transaction_id,
+            )
+            result.attempts = attempt
+            return result
+        except (OSError, RuntimeError) as exc:
+            last_error = exc
+            if attempt < policy.max_attempts:
+                _recover_marker_for_retry(base, transaction_id, stale_timeout_seconds)
+                _sleep(policy.backoff_base_seconds * (policy.backoff_multiplier ** (attempt - 1)))
+    if last_error is None:
+        raise RuntimeError("Retry policy exhausted without an underlying error")
+    raise last_error
+
+
+def _coerce_retry_policy(retry: object) -> RetryPolicy | None:
+    if retry is None or retry is False:
+        return None
+    if retry is True:
+        return RetryPolicy()
+    if isinstance(retry, RetryPolicy):
+        policy = retry
+    elif isinstance(retry, dict):
+        unknown = set(retry) - {"max_attempts", "backoff_base_seconds", "backoff_multiplier"}
+        if unknown:
+            raise GovernanceError("INVALID_RETRY_POLICY", f"Unknown retry policy keys: {sorted(unknown)}")
+        policy = RetryPolicy(**dict(retry))
+    else:
+        raise GovernanceError(
+            "INVALID_RETRY_POLICY",
+            f"retry must be RetryPolicy, dict, bool or None, got {type(retry).__name__}",
+        )
+    if not isinstance(policy.max_attempts, int) or isinstance(policy.max_attempts, bool) or policy.max_attempts < 1:
+        raise GovernanceError("INVALID_RETRY_POLICY", "retry.max_attempts must be an integer >= 1")
+    if not isinstance(policy.backoff_base_seconds, (int, float)) or isinstance(policy.backoff_base_seconds, bool) or policy.backoff_base_seconds < 0:
+        raise GovernanceError("INVALID_RETRY_POLICY", "retry.backoff_base_seconds must be a number >= 0")
+    if not isinstance(policy.backoff_multiplier, (int, float)) or isinstance(policy.backoff_multiplier, bool) or policy.backoff_multiplier < 1:
+        raise GovernanceError("INVALID_RETRY_POLICY", "retry.backoff_multiplier must be a number >= 1")
+    return policy
+
+
+def _transactional_write_texts_once(
+    base: Path,
+    changes: dict[Path, str],
+    *,
+    idempotent: bool,
+    stale_timeout_seconds: float | None,
+    transaction_id: str | None = None,
+) -> TransactionResult:
+    marker = base / TRANSACTION_MARKER_NAME
     if marker.exists():
-        raise RuntimeError(f"Unresolved Project Governor transaction: {marker}")
-    transaction_id = uuid.uuid4().hex
+        if stale_timeout_seconds is None:
+            raise RuntimeError(f"Unresolved Project Governor transaction: {marker}")
+        _recover_stale_transaction(base, timeout_seconds=stale_timeout_seconds)
+    if transaction_id is None:
+        transaction_id = uuid.uuid4().hex
+    table = _load_idempotency_table(base) if idempotent else {}
+    planned: list[tuple[Path, str, str]] = []
+    skipped: list[str] = []
+    for path, text in changes.items():
+        fingerprint = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        record = table.get(str(path))
+        if idempotent and isinstance(record, dict) and record.get("fingerprint") == fingerprint:
+            skipped.append(str(path))
+            continue
+        planned.append((path, text, fingerprint))
+    if not planned:
+        return TransactionResult(written=[], skipped=skipped)
     entries = []
     committed = []
     recovered = True
     try:
-        for path, text in changes.items():
+        for path, text, _fingerprint in planned:
             path.parent.mkdir(parents=True, exist_ok=True)
             staged = path.with_name(f".{path.name}.{transaction_id}.tmp")
             backup = path.with_name(f".{path.name}.{transaction_id}.bak")
@@ -91,7 +229,12 @@ def transactional_write_texts(base: Path, changes: dict[Path, str]) -> None:
                 "path": str(path), "staged": str(staged), "backup": str(backup),
                 "existed": path.exists(), "fingerprint": file_fingerprint(path),
             })
-        journal = {"transaction_id": transaction_id, "entries": entries, "committed": []}
+        journal = {
+            "transaction_id": transaction_id,
+            "entries": entries,
+            "committed": [],
+            "created_at": now_precise(),
+        }
         write_text(marker, json.dumps(journal, indent=2))
         for entry in entries:
             path = Path(entry["path"])
@@ -101,6 +244,14 @@ def transactional_write_texts(base: Path, changes: dict[Path, str]) -> None:
             committed.append(entry)
             journal["committed"].append(entry["path"])
             write_text(marker, json.dumps(journal, indent=2))
+        if idempotent and planned:
+            for path, _text, fingerprint in planned:
+                table[str(path)] = {
+                    "fingerprint": fingerprint,
+                    "written_at": now_precise(),
+                    "transaction_id": transaction_id,
+                }
+            _save_idempotency_table(base, table)
     except Exception:
         for entry in reversed(committed):
             try:
@@ -120,6 +271,110 @@ def transactional_write_texts(base: Path, changes: dict[Path, str]) -> None:
                 Path(entry["backup"]).unlink(missing_ok=True)
         if recovered:
             marker.unlink(missing_ok=True)
+    return TransactionResult(written=[str(path) for path, _text, _fp in planned], skipped=skipped)
+
+
+def _load_idempotency_table(base: Path) -> dict:
+    path = base / IDEMPOTENCY_TABLE_NAME
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"Corrupt idempotency table (write refused): {path}") from exc
+    if not isinstance(data, dict):
+        raise RuntimeError(f"Corrupt idempotency table (write refused): {path}")
+    return data
+
+
+def _save_idempotency_table(base: Path, table: dict) -> None:
+    path = base / IDEMPOTENCY_TABLE_NAME
+    staged = path.with_name(f".{path.name}.tmp")
+    staged.write_text(json.dumps(table, indent=2), encoding="utf-8")
+    os.replace(staged, path)
+
+
+def _parse_transaction_journal(marker: Path) -> dict:
+    try:
+        data = json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"Corrupt transaction journal (reset refused): {marker}") from exc
+    if not isinstance(data, dict):
+        raise RuntimeError(f"Corrupt transaction journal (reset refused): {marker}")
+    return data
+
+
+def _journal_is_stale(journal: dict, marker: Path, timeout_seconds: float) -> bool:
+    created_raw = journal.get("created_at")
+    created = None
+    if isinstance(created_raw, str) and created_raw:
+        try:
+            created = datetime.fromisoformat(created_raw)
+        except ValueError:
+            created = None
+        if created is not None and created.tzinfo is None:
+            created = created.astimezone()
+    if created is None:
+        # Legacy journals predate created_at: fall back to file mtime.
+        created = datetime.fromtimestamp(marker.stat().st_mtime).astimezone()
+    age = (datetime.now().astimezone() - created).total_seconds()
+    return age > timeout_seconds
+
+
+def _recover_stale_transaction(base: Path, *, timeout_seconds: float) -> None:
+    marker = base / TRANSACTION_MARKER_NAME
+    if not marker.exists():
+        return
+    first_bytes = marker.read_bytes()
+    journal = _parse_transaction_journal(marker)
+    if not _journal_is_stale(journal, marker, timeout_seconds):
+        raise RuntimeError(
+            f"Active Project Governor transaction in progress: {marker} "
+            "(reset refused: journal is not stale)"
+        )
+    # No-concurrent-writer pre-check: the journal must be byte-stable across a
+    # settle interval, otherwise another writer is still committing.
+    _sleep(_STALE_CHECK_SETTLE_SECONDS)
+    if marker.read_bytes() != first_bytes:
+        raise RuntimeError(
+            f"Concurrent writer detected while resetting stale transaction: {marker}"
+        )
+    journal["status"] = "stale"
+    journal["marked_stale_at"] = now_precise()
+    write_text(marker, json.dumps(journal, indent=2))
+    for entry in journal.get("entries", []):
+        if isinstance(entry, dict):
+            Path(entry["staged"]).unlink(missing_ok=True)
+            Path(entry["backup"]).unlink(missing_ok=True)
+    marker.unlink(missing_ok=True)
+
+
+def _recover_marker_for_retry(
+    base: Path, owned_transaction_id: str, stale_timeout_seconds: float | None
+) -> None:
+    marker = base / TRANSACTION_MARKER_NAME
+    if not marker.exists():
+        return
+    journal = _parse_transaction_journal(marker)
+    if journal.get("transaction_id") == owned_transaction_id:
+        # Leftover from this process's failed attempt (rollback failure):
+        # clean it, still guarded by the no-concurrent-writer double read.
+        first_bytes = marker.read_bytes()
+        _sleep(_STALE_CHECK_SETTLE_SECONDS)
+        if marker.read_bytes() != first_bytes:
+            raise RuntimeError(
+                f"Concurrent writer detected while cleaning transaction marker: {marker}"
+            )
+        for entry in journal.get("entries", []):
+            if isinstance(entry, dict):
+                Path(entry["staged"]).unlink(missing_ok=True)
+                Path(entry["backup"]).unlink(missing_ok=True)
+        marker.unlink(missing_ok=True)
+    elif stale_timeout_seconds is not None:
+        _recover_stale_transaction(base, timeout_seconds=stale_timeout_seconds)
+    # else: another actor's active marker — leave untouched; the next attempt
+    # surfaces "Unresolved Project Governor transaction" and retries exhaust
+    # with a clear error rather than destroying foreign state.
 
 
 def canonical_json(value) -> str:
