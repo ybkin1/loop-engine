@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T02:37:51.820178+08:00'
+last_handoff_at: '2026-08-02T07:11:18.023602+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -62,3 +62,6 @@ notes:
 - 'T-0097 COMPLETED 2026-08-02: B2 学习回路补全 — incident 记录 + 复盘（行动项 owner/deadline）+
   second-failure（复发→草稿 + 未解决阻断，默认关闭 opt-in）+ gate_lessons 衔接，6/6 AC，独立审查 GO，全量 3675
   passed，v3.12.36 提交。T-0095~T-0097 批量批次全部完成。下一任务待用户发起。'
+- 'T-0098 COMPLETED 2026-08-02: D8 发布/产物体系 — 版本同步（3.12.36 + CHANGELOG 补全）+ wheel/sdist
+  构建（校验和可复验）+ release 流程（真实校验器 + SLO 门禁前置）+ 冒烟安装， 6/6 AC，独立审查 CONDITIONAL_GO→放行条件修复转
+  GO，全量 3700 passed，v3.12.37 提交。 D 系列差距全部完成。下一任务待用户发起。'

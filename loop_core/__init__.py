@@ -6,4 +6,4 @@ rules that any AI coding host can implement against. It does NOT depend on
 any specific host (ZCode, Claude Code, Qoder, etc.).
 """
 
-__version__ = "3.11.2"
+__version__ = "3.12.36"

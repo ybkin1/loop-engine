@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "version": "3.12.36",
+  "task_id": "T-0098",
+  "status": "requested",
+  "requested_at": "2026-08-01T23:04:14+00:00",
+  "requested_by": "scripts/release.py (T-0098)",
+  "owners": [],
+  "deadline": null,
+  "decision": null,
+  "note": "候选发布决策（requested）。真实 GO 需用户 / delivery-manager 另行决策：decision=GO / CONDITIONAL_GO（带 owners+deadline）/ NOGO，写入 release_decision.json 后由 S6 发布门禁识别。"
+}

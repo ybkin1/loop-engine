@@ -1,18 +1,28 @@
 schema_version: 1
-generated_at: "2026-07-28T00:00:00+08:00"
-generated_by: T-0055E-fix
+generated_at: "2026-08-02T00:00:00+08:00"
+generated_by: T-0098
 
 # pyproject.toml is the single source of truth for project release version
-project_release_version: "3.11.2"
+project_release_version: "3.12.36"
 
 # Core protocol version — the Loop Core API contract
-core_protocol_version: "3.11.2"
+core_protocol_version: "3.12.36"
 
 # Plugin version — the ZCode governance plugin
-plugin_version: "3.11.2"
+plugin_version: "3.12.36"
 
 # Historical snapshots (DO NOT modify — preserved for audit trail)
 historical_snapshots:
+  - version: "3.12.36"
+    note: "Current release — D8 release/artifact system (T-0098); version resynced to git v3.12.36"
+    sources:
+      - "pyproject.toml"
+      - "README.md"
+      - "loop_core/__init__.py"
+      - "src/loop_engine/__init__.py"
+      - "docs/06-delivery.md"
+      - ".zcode-plugin/plugin.json"
+      - "CHANGELOG.md"
   - version: "1.0.0"
     note: "Initial governance design (T-0002~T-0005 era)"
     sources:
@@ -33,9 +43,9 @@ historical_snapshots:
 
 # Version consistency matrix
 consistency_check:
-  pyproject_toml: "3.11.2"
-  readme_md: "3.11.2"
-  loop_core_init: "3.11.2"
-  src_loop_engine_init: "3.11.2"
-  docs_06_delivery: "3.11.2"
-  plugin_json: "3.11.2"
+  pyproject_toml: "3.12.36"
+  readme_md: "3.12.36"
+  loop_core_init: "3.12.36"
+  src_loop_engine_init: "3.12.36"
+  docs_06_delivery: "3.12.36"
+  plugin_json: "3.12.36"

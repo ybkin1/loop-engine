@@ -69,6 +69,17 @@ class TestVersionConsistency:
         assert content is not None, ".ai/version-manifest.yaml not found"
         assert "project_release_version" in content
 
+    def test_changelog_latest_matches_pyproject(self):
+        """T-0098 (D8): CHANGELOG 最新条目必须与 pyproject 版本一致。"""
+        expected = _get_pyproject_version()
+        content = _read("CHANGELOG.md")
+        assert content is not None, "CHANGELOG.md not found"
+        m = re.search(r'^##\s+v?(\d+\.\d+\.\d+)', content, re.MULTILINE)
+        assert m, "version entry not found in CHANGELOG.md"
+        assert m.group(1) == expected, (
+            f"CHANGELOG.md latest {m.group(1)} != pyproject.toml {expected}"
+        )
+
     def test_delivery_doc_version_header(self):
         expected = _get_pyproject_version()
         content = _read("docs/06-delivery.md")

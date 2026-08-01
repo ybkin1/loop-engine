@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0098",
+  "gate_id": "G-T-0098-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "completed_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "version sync (pyproject 3.12.36 / CHANGELOG 12 entries / carriers / setuptools lock) — DONE",
+    "build artifacts (wheel+sdist + manifest + SHA256SUMS LF, sha256sum -c 2/2 OK) — DONE",
+    "release flow (check 6 steps w/ real validator + SLO gate, evidence structure, dry-run) — DONE",
+    "smoke install (venv SKIP marked, --target equivalent PASS) — DONE",
+    "review fixes (P1-1 validator blind spot, P1-2 stale evidence, P2 CRLF) — DONE",
+    "regression: 3700 passed / 0 failed — DONE",
+    "independent review: CONDITIONAL_GO -> all release conditions fixed"
+  ],
+  "notes": "全部工作流完成。放行条件全部修复。P3 遗留记录于 commands.md。"
+}

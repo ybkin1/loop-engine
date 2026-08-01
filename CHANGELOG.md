@@ -1,5 +1,92 @@
 # Changelog
 
+## v3.12.36 (2026-08-02) — T-0097: B2 学习回路补全（incident + 复盘 + second-failure）
+
+### Added (T-0097)
+- incident 记录：事故/失败事件（类别/影响/时间线/处置）结构化落盘 + 检索
+- 复盘：与 incident 关联的根因分析 + 行动项（owner/deadline）+ 状态跟踪（open/closed）
+- second-failure 检测：同类复发识别 → 任务建议（report 级）+ 阻断语义（无 owner 行动项则阻断）
+- 与 gate_lessons/SLO 门禁衔接（失败事件来源统一）；6/6 AC GO
+
+## v3.12.35 (2026-08-02) — T-0096: 知识/记忆服务（D3）
+
+### Added (T-0096)
+- 知识存储：结构化记录（决策/经验/教训）+ 多维度检索（任务/gate/主题/关键词）
+- 记忆服务：跨任务经验提取（gate 决策/gate_lessons/验收记录）与注入（决策包/路由上下文）
+- 与 T-0089 gate_feedback 单向整合 + U3 context_loader 可选注入衔接；6/6 AC GO
+
+## v3.12.34 (2026-08-02) — T-0095: 遗留清理包
+
+### Changed (T-0095)
+- 10 项 P3 技术遗留系统性清理；slo.yaml 配置显式化
+- 事件轮转机制 + 环境变量链统一；7/7 AC GO
+
+## v3.12.33 (2026-08-01) — T-0094: AutoPlan dashboard 升级（D4）
+
+### Added (T-0094)
+- 任务图可视化（节点/依赖/状态）+ gate 状态可视化（pending/approved/rejected + 决策记录）
+- 指标与 guard 健康展示（D2 metrics-report + U8 guard-events 衔接）
+- 状态快照报告生成（HTML/文本，可保存可分享）；6/6 AC GO
+
+## v3.12.32 (2026-08-01) — T-0093: SLO 门禁 wave 2（error budget 冻结发布）
+
+### Added (T-0093)
+- SLO 门禁检查器（budget 状态 → BLOCK/PASS，fail-closed：不可判定 → BLOCK）
+- 接入 S6 发布门 + 恢复机制（budget 健康恢复 → 放行；豁免显式记录）
+- P1 修复转 GO
+
+## v3.12.31 (2026-08-01) — T-0092: AI-agent eval 栈（B1 设计落地）
+
+### Added (T-0092)
+- eval 用例集 schema（输入/预期/评分规则 + 版本 + 分级）
+- eval 运行器（规则评分起步；LLM 判定可选、fail-safe 降级规则）+ eval 报告落盘（observability/eval-report.json）
+- 与 guard/约束验证衔接（防护有效性评测）；6/6 AC GO
+
+## v3.12.30 (2026-08-01) — T-0091: B5 自举审计接线（LLM 驱动 self-audit）
+
+### Added (T-0091)
+- self-audit 增加 LLM 语义分析环节（审计数据 → 风险发现/根因/修复建议 → 报告落盘）
+- 模型配置复用 ZCode 宿主配置（env 优先 → ~/.zcode/v2/config.json；provider 可配置）
+- Anthropic Messages 协议驱动；LLM 不可用 → fail-safe 降级为规则式审计；5/5 AC GO
+
+## v3.12.29 (2026-08-01) — T-0090: 新能力引入（D1 LLM 抽象层 + D5 工具/MCP + D7 异步队列 + D2 SLO/指标）
+
+### Added (T-0090)
+- D1 LLM 客户端抽象：协议驱动接口 + OpenAI 兼容驱动 + 统一错误码 + 重试 + JSON 修复 + 脱敏；key 仅环境变量
+- D5 工具执行器 + MCP 客户端（白名单 + 超时 + stdio 传输起步）
+- D7 异步任务队列（后台执行 + 状态跟踪 + 租约防重复派发）
+- D2 SLO/指标：SLI 采集 + SLO/error budget + DORA 指标报告；6/6 AC GO
+
+## v3.12.28 (2026-08-01) — T-0089: 学习回路与工程化（U4 gate 反馈 + U7 可靠投递 + U8 可观测性 + U9 生命周期）
+
+### Added (T-0089)
+- U4 gate 拒绝/修复请求 → 经验沉淀（结构化记录 + 可检索 + 决策包改进建议）
+- U7 evidence 写入幂等 + 失败退避重试 + 卡死重置
+- U8 guard 检查观测：耗时/频率/失败原因事件落盘；观测层异常不阻断业务
+- U9 生命周期脚本（up/down/status + pid + 健康轮询）；6/6 AC GO
+
+## v3.12.27 (2026-08-01) — T-0088: 上下文与路由升级（U3 预算压缩 + U5 路由粘性/任务帧 + U6 resume payload）
+
+### Added (T-0088)
+- U3 上下文加载按 token 预算触发压缩（阈值 + 触发测试；层级摘要可配置）
+- evidence 引用截断修复（.ai/ 证据引用前缀思路移植）
+- U5 路由对 active 任务粘性 + 多意图回合任务帧编排 + 异常 fail-safe 降级
+- U6 人工接管决策包带 resume payload（gate 暂停 → 机器可恢复上下文）；7/7 AC GO
+
+## v3.12.26 (2026-08-01) — T-0087: 运行时契约化（U1 checkers/guards 注册表化 + U2 vertical_slice 契约平面化）
+
+### Added (T-0087)
+- U1 治理资产注册表化：显式登记/版本/契约版本/不可变快照（seal 后不可变，sha256 指纹）
+- 重水合 fail-closed：版本/契约不匹配抛错，不静默降级
+- 与 guard_health 集成：死亡 + 遗漏 + 漂移三向完整性检测
+- U2 vertical_slice 契约平面化；7/7 AC GO
+
+## v3.12.25 (2026-08-01) — T-0086: 治理清障 + StaffDeck 对标落地
+
+### Changed (T-0086)
+- hook 只读豁免（治理脚本直接读写）+ P1/P2 拦截收紧
+- StaffDeck 对标分析落盘为可审计证据；形成 T-0087~T-0090 任务计划编排
+
 ## v3.4.0 (2026-07-24) — T-0047 + T-0048: 治理硬化 + 收尾
 
 ### Fixed (T-0047)

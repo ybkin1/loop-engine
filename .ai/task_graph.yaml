@@ -1083,6 +1083,18 @@ tasks:
       - T-0096
     gates:
       - G-T-0097-REQUIREMENTS
+  -
+    id: T-0098
+    title: D8 发布/产物体系 — 版本同步 + 构建产物 + release 流程 + 冒烟验证
+    phase: S6-delivery
+    status: completed
+    description: >-
+      版本同步（pyproject/CHANGELOG 与 git 对齐）+ wheel/sdist 构建 + 产物清单/校验和 +
+      release 流程（质量门前置 → release 证据 .ai/evidence/release/<version>/）+ 临时 venv 冒烟。
+    depends_on:
+      - T-0097
+    gates:
+      - G-T-0098-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1122,3 +1134,5 @@ edges:
       to: T-0096
     - from: T-0096
       to: T-0097
+    - from: T-0097
+      to: T-0098

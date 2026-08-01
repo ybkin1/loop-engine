@@ -6,8 +6,7 @@ from pathlib import Path
 
 def check(project_root, evidence_path):
     r = subprocess.run(["git","diff","--name-only","HEAD~1"], capture_output=True, text=True, cwd=project_root)
-    changed = set(f.strip() for f in r.stdout.split("
-") if f.strip())
+    changed = set(f.strip() for f in r.stdout.split("\n") if f.strip())
     ep = Path(evidence_path)
     if not ep.exists(): return {"status":"MISSING","changed":sorted(changed)}
     try: ev = json.loads(ep.read_text())

@@ -4890,4 +4890,70 @@ gates:
   - gate_lessons integration tests
   - full regression results
   - acceptance evidence
+- id: G-T-0098-REQUIREMENTS
+  task_id: T-0098
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: D8 发布产物体系
+  approval_evidence: .ai/evidence/T-0098/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0098/execution-evidence.json
+  scope: >-
+    T-0098 D8 发布/产物体系 — 版本同步（pyproject/CHANGELOG 与 git 对齐）+
+    wheel/sdist 构建 + 产物清单/校验和 + release 流程（质量门前置 → release 证据
+    .ai/evidence/release/<version>/）+ 临时 venv 冒烟安装验证。不执行真实发布。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  - write pyproject.toml
+  - write CHANGELOG.md
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - execute real release/publish (process + evidence only)
+  - create or register T-0099+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - pyproject.toml
+  - CHANGELOG.md
+  - .ai/evidence/T-0098/
+  high_risk_flags:
+  - 版本同步可能引发引用漂移（test_version_consistency 校验）
+  - release 证据为候选（GO 由用户决策）
+  evidence_required:
+  - version sync tests (pyproject/git/CHANGELOG)
+  - build artifacts tests (wheel/sdist + manifest + checksums)
+  - release flow tests (quality gates + evidence structure + dry-run)
+  - smoke install tests (temp venv)
+  - full regression results
+  - acceptance evidence
 
