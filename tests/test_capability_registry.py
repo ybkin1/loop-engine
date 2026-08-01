@@ -324,3 +324,26 @@ def test_death_detection_stays_fail_closed(monkeypatch, tmp_path):
     assert integrity["missing"], "fixture must produce a MISSING finding"
     assert integrity["overall"] == "FAIL", \
         "death detection must stay fail-closed even when missing/drift exist"
+
+
+class TestT0095DeadImportCleanup:
+    """T-0095 item 1: the dataclasses import carries no unused ``field``.
+
+    ``field`` was imported but never used (ruff F401).  This regression test
+    guards the cleanup against re-introduction.
+    """
+
+    MODULE = ROOT / "loop_core" / "capability_registry.py"
+
+    def test_no_unused_field_in_dataclasses_import(self):
+        source = self.MODULE.read_text(encoding="utf-8")
+        assert "from dataclasses import dataclass, field" not in source
+        assert "from dataclasses import dataclass" in source
+
+    def test_module_still_imports_cleanly(self):
+        # the module imports without error after the import cleanup
+        import importlib
+
+        import loop_core.capability_registry as module
+        importlib.reload(module)
+        assert module.CapabilityRegistry is not None

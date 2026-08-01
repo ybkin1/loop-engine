@@ -500,3 +500,70 @@ class TestAC01dPacketIntegration:
         )
         assert lesson.recorded_at == ts
         assert datetime.fromisoformat(lesson.recorded_at).tzinfo is not None
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0095 item 9: record_gate_lesson 进程内锁（并发 RMW 不丢记录）
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestT0095ConcurrentRecording:
+    """并发 record_gate_lesson 的 read-modify-write 被进程内锁串行化：
+    并发写入不同 lesson 一条不丢；并发写入相同 lesson 幂等去重为一条。"""
+
+    def test_concurrent_distinct_records_are_not_lost(self, project):
+        import threading
+
+        n = 16
+        created_flags: list[bool] = [False] * n
+        errors: list[Exception] = []
+
+        def worker(i: int) -> None:
+            try:
+                _, created = record_gate_lesson(
+                    project, gate_id="G-T-0095-X", task_id="T-0095",
+                    decision=DECISION_REJECTED, reason_category="evidence",
+                    reason_text=f"concurrent reason {i:03d}",
+                    source="concurrency-test",
+                )
+                created_flags[i] = created
+            except Exception as exc:  # noqa: BLE001 — surfaced in the test
+                errors.append(exc)
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(n)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=30)
+
+        assert errors == []
+        lessons = load_lessons(project)
+        assert len(lessons) == n, (
+            f"concurrent RMW must not lose records: {len(lessons)}/{n}"
+        )
+        assert all(created_flags), "every distinct lesson must be created"
+        assert len({l.lesson_id for l in lessons}) == n
+        assert len({l.reason_text for l in lessons}) == n
+
+    def test_concurrent_identical_records_dedup_to_one(self, project):
+        import threading
+
+        results: list[tuple] = []
+
+        def worker() -> None:
+            lesson, created = record_gate_lesson(
+                project, gate_id="G-T-0095-Y", task_id="T-0095",
+                decision=DECISION_REJECTED, reason_category="scope",
+                reason_text="identical concurrent reason",
+            )
+            results.append((lesson.lesson_id, created))
+
+        threads = [threading.Thread(target=worker) for _ in range(8)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join(timeout=30)
+
+        lessons = load_lessons(project)
+        assert len(lessons) == 1, "identical fingerprints must dedup to one"
+        assert sum(1 for _, created in results if created) == 1

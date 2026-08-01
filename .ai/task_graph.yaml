@@ -1046,6 +1046,43 @@ tasks:
       - T-0093
     gates:
       - G-T-0094-REQUIREMENTS
+  -
+    id: T-0095
+    title: 遗留清理包 — P3 技术遗留系统性清理
+    phase: S6-delivery
+    status: completed
+    description: >-
+      死导入清理、.ai/slo.yaml 显式化、guard-events 轮转/上限、env 链统一、
+      引用修复边界、metrics_view 顶层非对象、SLO 双重检查去重、豁免口径统一、
+      gate_lesson 锁、HANDOFF 模板引用修正。
+    depends_on:
+      - T-0094
+    gates:
+      - G-T-0095-REQUIREMENTS
+  -
+    id: T-0096
+    title: 知识/记忆服务（D3）
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      知识存储（决策/经验/教训 + 多维检索）+ 记忆服务（跨任务提取/注入）+
+      与 gate_feedback 整合 + context_loader 可选记忆注入。
+    depends_on:
+      - T-0095
+    gates:
+      - G-T-0096-REQUIREMENTS
+  -
+    id: T-0097
+    title: B2 学习回路补全 — incident + 复盘 + second-failure 自动任务
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      IncidentRecord 落盘 + Retrospective（行动项 owner/deadline）+ second-failure
+      检测（同类复发 → 建议草稿 + 未解决阻断）；不自动登记 task_graph。
+    depends_on:
+      - T-0096
+    gates:
+      - G-T-0097-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1079,3 +1116,9 @@ edges:
       to: T-0093
     - from: T-0093
       to: T-0094
+    - from: T-0094
+      to: T-0095
+    - from: T-0095
+      to: T-0096
+    - from: T-0096
+      to: T-0097

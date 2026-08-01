@@ -560,3 +560,48 @@ def test_config_with_empty_provider_object_returns_empty_list(
     with pytest.raises(LLMKeyError) as excinfo:
         resolve_model_config()
     assert excinfo.value.code is ErrorCode.KEY_MISSING
+
+
+# ══════════════════════════════════════════════════════════════════════
+# T-0095 item 4: keys.py 与 ENV_TIERS 行为次序一致（AC-04）
+# ══════════════════════════════════════════════════════════════════════
+
+
+def test_resolve_api_key_and_model_config_pick_same_tier(
+    monkeypatch: pytest.MonkeyPatch, isolate_zcode_config: Path
+) -> None:
+    """两模块对同一 env 的胜出 tier 必须一致（LLM → ANTHROPIC → OPENAI →
+    ZCODE，key 与 base_url 成对）。"""
+    from loop_core.llm.keys import resolve_api_base_url, resolve_api_key
+
+    env = {
+        "ANTHROPIC_API_KEY": FAKE_KEY, "ANTHROPIC_BASE_URL": BASE,
+        "OPENAI_API_KEY": FAKE_KEY2, "OPENAI_BASE_URL": BASE2,
+        "ZCODE_API_KEY": FAKE_KEY, "ZCODE_BASE_URL": BASE2,
+    }
+    cfg = resolve_model_config(env=env)
+    assert cfg.api_key == resolve_api_key(env) == FAKE_KEY
+    assert cfg.base_url == resolve_api_base_url(env) == BASE
+    assert cfg.protocol == "anthropic"
+    assert cfg.source == "env:ANTHROPIC_API_KEY"
+
+    # only OPENAI + ZCODE set -> OPENAI wins in both modules
+    env2 = {"OPENAI_API_KEY": FAKE_KEY2, "OPENAI_BASE_URL": BASE2,
+            "ZCODE_API_KEY": FAKE_KEY}
+    cfg2 = resolve_model_config(env=env2)
+    assert cfg2.api_key == resolve_api_key(env2) == FAKE_KEY2
+    assert cfg2.base_url == resolve_api_base_url(env2) == BASE2
+    assert cfg2.source == "env:OPENAI_API_KEY"
+
+
+def test_env_tiers_order_is_canonical_and_documented() -> None:
+    """ENV_TIERS 顺序即文档顺序：LLM → ANTHROPIC → OPENAI → ZCODE →
+    DEEPSEEK（legacy 别名殿后，不扰动规范优先序）。"""
+    assert [t[0] for t in ENV_TIERS] == [
+        "LLM_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY",
+        "ZCODE_API_KEY", "DEEPSEEK_API_KEY",
+    ]
+    assert [t[1] for t in ENV_TIERS] == [
+        "LLM_BASE_URL", "ANTHROPIC_BASE_URL", "OPENAI_BASE_URL",
+        "ZCODE_BASE_URL", "DEEPSEEK_BASE_URL",
+    ]

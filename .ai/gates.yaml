@@ -4707,4 +4707,187 @@ gates:
   - snapshot report tests (text + self-contained HTML)
   - full regression results
   - acceptance evidence
+- id: G-T-0095-REQUIREMENTS
+  task_id: T-0095
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准T-0095、96、97
+  approval_evidence: .ai/evidence/T-0095/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0095/execution-evidence.json
+  scope: >-
+    T-0095 遗留清理包 — P3 技术遗留系统性清理：死导入、.ai/slo.yaml 显式化、
+    guard-events 轮转、env 链统一、引用修复边界、metrics_view 顶层非对象、
+    SLO 双重检查去重、豁免口径统一、gate_lesson 锁、HANDOFF 模板引用修正。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0096+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0095/
+  high_risk_flags:
+  - 豁免口径统一可能改变拦截行为（需全链测试）
+  - slo.yaml 默认值须与 B2 内置一致（校验失败 fail-closed）
+  evidence_required:
+  - dead import cleanup (ruff F401 scan)
+  - slo.yaml explicit config tests
+  - guard-events rotation tests
+  - env chain unification tests
+  - citation boundary / metrics top-level / slo double-check tests
+  - full regression results
+  - acceptance evidence
+- id: G-T-0096-REQUIREMENTS
+  task_id: T-0096
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准T-0095、96、97
+  approval_evidence: .ai/evidence/T-0096/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0096/execution-evidence.json
+  scope: >-
+    T-0096 知识/记忆服务（D3）— 知识存储（决策/经验/教训 + 多维检索）+ 记忆服务
+    （跨任务提取/注入）+ 与 gate_feedback 整合 + context_loader 可选记忆注入。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0097+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0096/
+  high_risk_flags:
+  - 与 gate_feedback 数据流明确（lessons 为源，knowledge 为派生视图）
+  - 记忆注入默认关闭不影响现有行为
+  evidence_required:
+  - knowledge store tests (schema/idempotent/retrieval)
+  - memory service tests (extract/inject)
+  - gate_feedback integration tests
+  - context_loader optional memory injection tests
+  - full regression results
+  - acceptance evidence
+- id: G-T-0097-REQUIREMENTS
+  task_id: T-0097
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准T-0095、96、97
+  approval_evidence: .ai/evidence/T-0097/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0097/execution-evidence.json
+  scope: >-
+    T-0097 B2 学习回路补全 — IncidentRecord 落盘 + Retrospective（行动项 owner/deadline）
+    + second-failure 检测（同类复发 → 建议草稿 + 未解决阻断）；不自动登记 task_graph。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - auto-register tasks in task_graph (suggestions only)
+  - create or register T-0098+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0097/
+  high_risk_flags:
+  - second-failure 阻断仅限未解决（无 owner 行动项）；有豁免记录
+  - 不自动登记 task_graph（建议草稿需用户批准）
+  evidence_required:
+  - incident record tests (schema/persist/retrieval)
+  - retrospective tests (action items owner/deadline/status)
+  - second-failure detection tests (recurrence -> draft + block until owned)
+  - gate_lessons integration tests
+  - full regression results
+  - acceptance evidence
 

@@ -507,3 +507,38 @@ class TestCliAndMcp:
         resp = json.loads(tool.handle_snapshot({"format": "json"}))
         assert resp["success"] is True
         assert resp["data"]["status"] in ("PASS", "NOT_VERIFIED")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0095 item 6: metrics_view 顶层非对象 JSON → NOT_AVAILABLE
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestMetricsViewTopLevelNonObject:
+    """AC-05: a parseable but non-object metrics-report.json (array/scalar)
+    renders NOT_AVAILABLE — never an AttributeError, never fabricated."""
+
+    def test_array_payload_is_not_available(self, tmp_path):
+        root = _fixture_root(tmp_path)
+        path = root / ".ai" / "evidence" / "observability" / "metrics-report.json"
+        path.write_text('["not", "an", "object"]', encoding="utf-8")
+        view = DashboardViews(root).metrics_view()
+        assert view["status"] == NOT_AVAILABLE
+        assert "not an object" in view.get("reason", "")
+
+    def test_scalar_payload_is_not_available(self, tmp_path):
+        root = _fixture_root(tmp_path)
+        path = root / ".ai" / "evidence" / "observability" / "metrics-report.json"
+        path.write_text('"just a string"', encoding="utf-8")
+        view = DashboardViews(root).metrics_view()
+        assert view["status"] == NOT_AVAILABLE
+
+    def test_snapshot_reflects_non_object_metrics_as_not_available(self, tmp_path):
+        """The snapshot status must stay NOT_VERIFIED (fail-closed) when the
+        metrics source is present but structurally invalid."""
+        root = _fixture_root(tmp_path)
+        path = root / ".ai" / "evidence" / "observability" / "metrics-report.json"
+        path.write_text('[1, 2, 3]', encoding="utf-8")
+        snap = DashboardViews(root).build_snapshot()
+        assert snap["sections"]["metrics"]["status"] == NOT_AVAILABLE
+        assert "metrics" in snap["not_available_views"]

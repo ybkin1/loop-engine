@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,6 +38,14 @@ import yaml
 GATE_LESSONS_SCHEMA = "gate_lessons"
 GATE_LESSONS_SCHEMA_VERSION = 1
 DEFAULT_LESSONS_RELATIVE_PATH = ".ai/evidence/feedback/gate-lessons.yaml"
+
+# T-0095: process-internal lock serializing record_gate_lesson's
+# read-modify-write (load_lessons -> append -> _save_lessons).  Without it,
+# concurrent threads recording different lessons can overwrite each other's
+# append and silently drop records.  The lock is process-local by design
+# (跨进程并发仍由 _save_lessons 的 tmp+rename 原子写兜底，同一进程内
+# 完全串行化)。
+_RECORD_LOCK = threading.Lock()
 
 # Decision outcomes that produce a lesson. "approved" is recordable too
 # (positive experience), but the loop focuses on rejected / repair_requested.
@@ -298,29 +307,33 @@ def record_gate_lesson(
 
     lesson_id = make_lesson_id(gate_id, decision, reason_category, reason_text)
 
-    lessons = load_lessons(project_root, relative_path)
-    for existing in lessons:
-        if existing.lesson_id == lesson_id:
-            # Same gate + same decision + same reason fingerprint → idempotent.
-            return existing, False
+    # T-0095: the read-modify-write below is serialized by a process-internal
+    # lock so concurrent recorders never lose records (load->append->save is
+    # not atomic without it).  Validation above stays outside the lock.
+    with _RECORD_LOCK:
+        lessons = load_lessons(project_root, relative_path)
+        for existing in lessons:
+            if existing.lesson_id == lesson_id:
+                # Same gate + same decision + same reason fingerprint → idempotent.
+                return existing, False
 
-    lesson = GateLesson(
-        lesson_id=lesson_id,
-        gate_id=gate_id.strip(),
-        task_id=task_id.strip(),
-        decision=decision,
-        reason_category=reason_category,
-        reason_text=reason_text.strip(),
-        repair_suggestion=(
-            repair_suggestion.strip()
-            if isinstance(repair_suggestion, str) and repair_suggestion.strip()
-            else None
-        ),
-        source=source.strip() if isinstance(source, str) and source.strip() else None,
-        recorded_at=recorded_at or datetime.now(timezone.utc).isoformat(),
-    )
-    _save_lessons(lessons_path(project_root, relative_path), lessons + [lesson])
-    return lesson, True
+        lesson = GateLesson(
+            lesson_id=lesson_id,
+            gate_id=gate_id.strip(),
+            task_id=task_id.strip(),
+            decision=decision,
+            reason_category=reason_category,
+            reason_text=reason_text.strip(),
+            repair_suggestion=(
+                repair_suggestion.strip()
+                if isinstance(repair_suggestion, str) and repair_suggestion.strip()
+                else None
+            ),
+            source=source.strip() if isinstance(source, str) and source.strip() else None,
+            recorded_at=recorded_at or datetime.now(timezone.utc).isoformat(),
+        )
+        _save_lessons(lessons_path(project_root, relative_path), lessons + [lesson])
+        return lesson, True
 
 
 # ── Retrieval ──────────────────────────────────────────────────────────────

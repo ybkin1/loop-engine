@@ -562,3 +562,109 @@ class TestReadOnly:
         build_report(tmp_path)
         assert not (tmp_path / ".ai" / "gates.yaml").exists()
         assert not (tmp_path / ".ai" / "ledger").exists()
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0095 item 2: .ai/slo.yaml 显式化 + fail-closed 校验
+# ═══════════════════════════════════════════════════════════════════════
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+class TestT0095SloConfigExplicitAndValidated:
+    """AC-02: repo .ai/slo.yaml mirrors the B2 defaults exactly; an invalid
+    slo.yaml raises DataSourceUnavailableError (fail-closed, field named)."""
+
+    def test_repo_slo_yaml_matches_builtin_defaults(self):
+        """The checked-in .ai/slo.yaml must not drift from DEFAULT_SLOS."""
+        from loop_core.governance_metrics import (
+            DEFAULT_BUDGET_TOTAL_UNITS,
+            DEFAULT_RELEASE_FEE_UNITS,
+            DEFAULT_SLOS,
+        )
+
+        config = load_slo_config(_REPO_ROOT)
+        assert (config["slo_path"] == str(_REPO_ROOT / ".ai" / "slo.yaml"))
+        assert config["budget_total_units"] == DEFAULT_BUDGET_TOTAL_UNITS
+        assert config["release_fee_units"] == DEFAULT_RELEASE_FEE_UNITS
+        assert config["window"] == (None, None)  # null window == all data
+        assert [s["sli_id"] for s in config["slos"]] == [
+            s["sli_id"] for s in DEFAULT_SLOS
+        ]
+        for actual, default in zip(config["slos"], DEFAULT_SLOS):
+            for key in ("phase", "target", "severity", "budget_share"):
+                assert actual[key] == default[key], (
+                    f"sli {actual['sli_id']} field {key} drifted from defaults"
+                )
+
+    def test_invalid_budget_total_units_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"budget_total_units": "not-a-number"})
+        with pytest.raises(DataSourceUnavailableError, match="budget_total_units"):
+            load_slo_config(tmp_path)
+
+    def test_non_positive_budget_total_units_rejected(self, tmp_path: Path):
+        for bad in (0, -5):
+            _write_slo(tmp_path, {"budget_total_units": bad})
+            with pytest.raises(DataSourceUnavailableError, match="budget_total_units"):
+                load_slo_config(tmp_path)
+
+    def test_negative_release_fee_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"release_fee_units": -1})
+        with pytest.raises(DataSourceUnavailableError, match="release_fee_units"):
+            load_slo_config(tmp_path)
+
+    def test_half_set_window_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"window_start": "2026-08-01"})
+        with pytest.raises(DataSourceUnavailableError, match="window_start"):
+            load_slo_config(tmp_path)
+
+    def test_unparseable_window_bound_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"window_start": "garbage", "window_end": "2026-08-31"})
+        with pytest.raises(DataSourceUnavailableError, match="window_start"):
+            load_slo_config(tmp_path)
+
+    def test_invalid_target_op_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"slos": [
+            {"sli_id": "req_gate_rejection_rate",
+             "target": {"op": "<>", "value": 0.35}},
+        ]})
+        with pytest.raises(DataSourceUnavailableError, match="target op"):
+            load_slo_config(tmp_path)
+
+    def test_non_numeric_target_value_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"slos": [
+            {"sli_id": "req_gate_rejection_rate",
+             "target": {"op": "<=", "value": "high"}},
+        ]})
+        with pytest.raises(DataSourceUnavailableError, match="target value"):
+            load_slo_config(tmp_path)
+
+    def test_unknown_severity_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"slos": [
+            {"sli_id": "req_gate_rejection_rate", "severity": "urgent"},
+        ]})
+        with pytest.raises(DataSourceUnavailableError, match="severity"):
+            load_slo_config(tmp_path)
+
+    def test_invalid_budget_share_rejected(self, tmp_path: Path):
+        _write_slo(tmp_path, {"slos": [
+            {"sli_id": "req_gate_rejection_rate", "budget_share": "lots"},
+        ]})
+        with pytest.raises(DataSourceUnavailableError, match="budget_share"):
+            load_slo_config(tmp_path)
+
+    def test_valid_partial_override_still_applies(self, tmp_path: Path):
+        # existing override semantics unchanged: partial configs merge over
+        # defaults and keep working
+        _write_slo(tmp_path, {
+            "schema_version": 1,
+            "slos": [{"sli_id": "req_gate_rejection_rate",
+                      "target": {"op": "<=", "value": 0.99}}],
+            "budget_total_units": 50,
+        })
+        config = load_slo_config(tmp_path)
+        assert config["budget_total_units"] == 50.0
+        assert config["window"] == (None, None)
+        slo = next(s for s in config["slos"]
+                   if s["sli_id"] == "req_gate_rejection_rate")
+        assert slo["target"]["value"] == 0.99

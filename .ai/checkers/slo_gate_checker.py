@@ -89,13 +89,25 @@ def run_slo_gate_check(project_root: Path, window: tuple[str, str] | None = None
 
     try:
         from loop_core.governance_metrics import load_slo_config
-        from loop_core.slo_gate import _check_with_config, check_slo_gate
+        from loop_core.slo_gate import (
+            _check_with_config,
+            check_slo_gate,
+            slo_gate_enabled,
+        )
 
         if slo_path:
             config = load_slo_config(project_root, slo_path=slo_path)
-            result = _check_with_config(
-                project_root, config, window=window, releases=releases,
-            )
+            # T-0095 dedup: _check_with_config no longer re-checks the
+            # slo_gate_enabled toggle — this bypass path performs the single
+            # toggle check itself (check_slo_gate yields the same DISABLED
+            # result the helper used to produce).
+            if not slo_gate_enabled(project_root):
+                result = check_slo_gate(project_root, window=window,
+                                        releases=releases)
+            else:
+                result = _check_with_config(
+                    project_root, config, window=window, releases=releases,
+                )
         else:
             result = check_slo_gate(project_root, window=window, releases=releases)
     except SystemExit:

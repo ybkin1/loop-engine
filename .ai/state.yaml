@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-01T12:11:00.282829+08:00'
+last_handoff_at: '2026-08-02T01:14:53.668245+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -53,3 +53,8 @@ notes:
 - 'T-0094 COMPLETED 2026-08-01: 前端产品层（D4）— AutoPlan dashboard 升级（任务图/gate/指标/guard
   健康四视图 + 文本/自包含 HTML 快照，数据源零修改），6/6 AC，独立审查 GO，全量 3476 passed， v3.12.33 提交。T-0092~T-0094
   批量批次全部完成。下一任务待用户发起。'
+- 'T-0095 COMPLETED 2026-08-02: 遗留清理包 — 10 项 P3 清理（死导入/slo.yaml 显式化/事件轮转/
+  env 链统一/引用边界/metrics 顶层/SLO 去重/豁免口径统一/lesson 锁/manifest），7/7 AC，
+  独立审查 CONDITIONAL_GO→P1 修复转 GO，全量 3521 passed，v3.12.34 提交。'
+- 'T-0096 ACTIVE 2026-08-02: 知识/记忆服务（D3）— 知识存储 + 记忆服务 + gate_feedback 整合
+  + context_loader 可选注入（批量批准批次第 2 项）。'

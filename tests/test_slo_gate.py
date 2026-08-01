@@ -791,5 +791,100 @@ class TestSloGateBackwardCompat:
             assert "S7-integration" in reason
 
 
+# ═══════════════════════════════════════════════════════════════════════
+# T-0095 item 7: check_slo_gate / _check_with_config 开关检查去重（AC-05）
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestT0095ToggleCheckDedup:
+    """Exactly one slo_gate_enabled evaluation per gate evaluation path —
+    with behavior unchanged (disabled still short-circuits before any data
+    source is loaded)."""
+
+    CHECKER = CHECKERS / "slo_gate_checker.py"
+
+    def test_config_path_checks_toggle_once(self, healthy_project: Path,
+                                            monkeypatch: pytest.MonkeyPatch):
+        import loop_core.slo_gate as slo_gate_module
+
+        calls: list[bool] = []
+        original = slo_gate_module.slo_gate_enabled
+
+        def counting(root, env=None):
+            calls.append(1)
+            return original(root, env)
+
+        monkeypatch.setattr(slo_gate_module, "slo_gate_enabled", counting)
+        result = slo_gate_module.check_slo_gate(healthy_project)
+        assert result.decision == GATE_DECISION_PASS
+        assert len(calls) == 1, "config path must check the toggle exactly once"
+
+    def test_budget_path_checks_toggle_once(self, healthy_project: Path,
+                                            monkeypatch: pytest.MonkeyPatch):
+        import loop_core.slo_gate as slo_gate_module
+
+        calls: list[bool] = []
+        original = slo_gate_module.slo_gate_enabled
+
+        def counting(root, env=None):
+            calls.append(1)
+            return original(root, env)
+
+        monkeypatch.setattr(slo_gate_module, "slo_gate_enabled", counting)
+        budget = {
+            "status": "HEALTHY", "total_units": 100.0, "consumed_units": 0.0,
+            "remaining_units": 100.0, "release_fee_units": 5.0,
+            "release_count": 0, "breach_consumption": 0.0,
+            "release_consumption": 0.0, "note": "n",
+        }
+        result = slo_gate_module.check_slo_gate(healthy_project, budget=budget)
+        assert result.decision == GATE_DECISION_PASS
+        assert len(calls) == 1, "budget path must check the toggle exactly once"
+
+    def test_disabled_short_circuits_before_config_load(
+            self, healthy_project: Path, monkeypatch: pytest.MonkeyPatch):
+        """Corrupt slo.yaml + disabled gate must still yield DISABLED (the
+        single toggle check runs before the config is read — no behavior
+        change from the dedup)."""
+        import loop_core.slo_gate as slo_gate_module
+
+        (healthy_project / ".ai" / "slo.yaml").write_text(
+            "{corrupt slo config", encoding="utf-8")
+        loaded = []
+
+        original = slo_gate_module.load_slo_config
+
+        def tracing(root, slo_path=None):
+            loaded.append(1)
+            return original(root, slo_path)
+
+        monkeypatch.setattr(slo_gate_module, "load_slo_config", tracing)
+        result = _check_disabled(healthy_project, {"LOOP_SLO_GATE_ENABLED": "0"})
+        assert result.status == GATE_STATUS_DISABLED
+        assert result.decision == GATE_DECISION_PASS
+        assert loaded == [], (
+            "disabled gate must not even attempt to load the SLO config"
+        )
+
+    def test_cli_slo_override_disabled_stays_disabled(
+            self, healthy_project: Path):
+        """The checker's --slo bypass path keeps the toggle semantics after
+        the dedup (disabled -> exit 0, DISABLED)."""
+        slo_path = _write_slo(healthy_project, {
+            "schema_version": 1,
+            "budget_total_units": 100.0,
+            "release_fee_units": 5.0,
+        })
+        env = dict(os.environ)
+        env["LOOP_SLO_GATE_ENABLED"] = "0"
+        r = subprocess.run(
+            [PYTHON, str(self.CHECKER), str(healthy_project),
+             "--slo", str(slo_path)],
+            capture_output=True, text=True, env=env, timeout=60,
+        )
+        assert r.returncode == 0, r.stderr
+        assert json.loads(r.stdout)["status_detail"] == "DISABLED"
+
+
 if __name__ == "__main__":
     unittest.main()

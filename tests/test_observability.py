@@ -471,3 +471,87 @@ def test_custom_recorder_path_is_honored(tmp_path):
     assert custom.exists()
     assert not (tmp_path / EVENT_PATH).exists()
     assert rec.read_events()
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0095 item 3: guard-events.jsonl 轮转/上限（AC-03）
+# ═══════════════════════════════════════════════════════════════════════
+
+
+class TestT0095EventRotation:
+    """Rotation on line/byte thresholds with archive retention — no event
+    loss while an archive slot remains."""
+
+    def _event_id(self, rec, guard_id="g_rot", seq=0):
+        event = GuardCheckEvent(
+            guard_id=guard_id, check_type=CHECK_HEALTH, result=RESULT_PASS,
+            duration_ms=1.0, timestamp=datetime.now(timezone.utc).isoformat(),
+            source="registry:test",
+        )
+        rec.record(event)
+        return event.event_id
+
+    def test_line_threshold_rotates_and_no_event_lost(self, tmp_path):
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=3, max_bytes=1 << 30,
+                                 max_archives=2)
+        ids = [self._event_id(rec) for _ in range(4)]
+        # after 4 records the file rotated at least once: main holds <= 3
+        # lines and the archive holds the overflow
+        assert path.exists()
+        main_lines = len(path.read_text(encoding="utf-8").splitlines())
+        assert main_lines <= 3, main_lines
+        archive = Path(f"{path}.1")
+        assert archive.exists(), "rotation must create the .1 archive"
+        # every event is still readable through the recorder (no loss)
+        seen = [e.event_id for e in rec.read_events()]
+        assert seen == ids, "rotation must not lose or reorder events"
+
+    def test_byte_threshold_triggers_rotation(self, tmp_path):
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=1 << 30, max_bytes=64,
+                                 max_archives=2)
+        self._event_id(rec)
+        self._event_id(rec)
+        assert Path(f"{path}.1").exists(), "byte threshold must rotate"
+        assert len(rec.read_events()) == 2
+
+    def test_archive_cap_keeps_only_recent_archives(self, tmp_path):
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=2, max_bytes=1 << 30,
+                                 max_archives=1)
+        # two rotations -> .2 must have been dropped, only .1 remains
+        for _ in range(6):
+            self._event_id(rec)
+        assert Path(f"{path}.1").exists()
+        assert not Path(f"{path}.2").exists()
+        # dropped archive is by design; the retained window is still readable
+        assert len(rec.read_events()) >= 2
+
+    def test_below_threshold_no_rotation(self, tmp_path):
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=100, max_bytes=1 << 30,
+                                 max_archives=2)
+        for _ in range(3):
+            self._event_id(rec)
+        assert not Path(f"{path}.1").exists()
+        assert len(rec.read_events()) == 3
+
+    def test_rotation_failure_never_blocks_recording(self, tmp_path, monkeypatch):
+        """A rotation that cannot happen (archive rename fails) must not make
+        record() fail — observation never blocks the business path."""
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=1, max_bytes=1 << 30,
+                                 max_archives=1)
+        self._event_id(rec)
+
+        def _broken_replace(src, dst):
+            raise OSError("simulated rotation rename failure")
+
+        monkeypatch.setattr("loop_core.observability.os.replace",
+                            _broken_replace)
+        # record() must still succeed (append proceeds) — no exception and
+        # no observation failure counted
+        self._event_id(rec)
+        assert rec.failures == 0
+        assert len(rec.read_events()) == 2

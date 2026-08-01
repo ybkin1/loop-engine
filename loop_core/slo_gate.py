@@ -548,12 +548,16 @@ def _check_with_config(project_root: str | Path,
                        releases: int = 0,
                        now: datetime | None = None) -> SloGateResult:
     """Gate evaluation over a resolved SLO config (shared by ``check_slo_gate``
-    and the checker CLI's ``--slo`` override path)."""
+    and the checker CLI's ``--slo`` override path).
+
+    T-0095 dedup: this helper does NOT re-check ``slo_gate_enabled`` — the
+    single toggle check lives in ``check_slo_gate`` (which covers the
+    precomputed-budget path too); callers that bypass ``check_slo_gate``
+    (the checker CLI's ``--slo`` path) are responsible for the one toggle
+    check themselves.
+    """
     root = Path(project_root)
     now = now if now is not None else datetime.now(timezone.utc)
-
-    if not slo_gate_enabled(root):
-        return _disabled_result(None)
 
     budget, missing, sli_warnings = _compute_gate_budget(
         root, slo_config, window, releases,

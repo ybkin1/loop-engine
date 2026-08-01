@@ -585,6 +585,13 @@ def repair_truncated_references(
     recovered are explicitly wrapped as ``[UNRESOLVED: <ref>]`` — never
     guessed.
 
+    T-0095 substring-boundary guard: tokens are processed longest-first, and
+    a token that is a *substring of a longer token already resolved* is
+    skipped.  Without this, a full path and its prefix-dropped sibling
+    appearing in the same text would corrupt each other on replacement
+    (``str.replace`` rewrites inside the already-repaired span, producing a
+    ``.ai/.ai/`` double prefix).
+
     Returns:
         (repaired_text, resolutions) where resolutions records every
         citation token found and its resolution status.
@@ -592,15 +599,27 @@ def repair_truncated_references(
     resolver = CitationResolver(project_root)
     resolutions: list[CitationResolution] = []
     repaired = text
+    resolved_tokens: list[str] = []
     for token in _find_citation_tokens(repaired):
+        # Skip tokens covered by a longer already-resolved token: replacing
+        # them would rewrite inside the repaired canonical path.
+        if any(token in resolved for resolved in resolved_tokens
+               if len(resolved) > len(token)):
+            continue
         result = resolver.resolve(token)
         resolutions.append(result)
-        if result.status == "RESOLVED" and result.resolved != token:
-            repaired = repaired.replace(token, result.resolved)
+        if result.status == "RESOLVED":
+            # Record the canonical form even when no replacement was needed
+            # (token was already canonical): its prefix-dropped substring
+            # must still be skipped by the guard above.
+            if result.resolved != token:
+                repaired = repaired.replace(token, result.resolved)
+            resolved_tokens.append(result.resolved)
         elif result.status != "RESOLVED":
             repaired = repaired.replace(
                 token, f"[{UNRESOLVED_MARKER}: {token}]"
             )
+            resolved_tokens.append(f"[{UNRESOLVED_MARKER}: {token}]")
     return repaired, resolutions
 
 

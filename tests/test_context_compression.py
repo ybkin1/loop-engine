@@ -616,6 +616,41 @@ class TestTextRepair:
         assert "RESOLVED" in statuses
         assert "AMBIGUOUS" in statuses
 
+    def test_full_path_and_dropped_prefix_no_double_prefix(self, tmp_path):
+        """T-0095 item 5: 完整路径与丢前缀引用同文本时不得产生 .ai/.ai/ 双前缀。
+
+        The dropped-prefix token is a substring of the already-resolved full
+        path; naive str.replace would rewrite inside the repaired span and
+        corrupt it into ``.ai/.ai/evidence/...``.
+        """
+        _make_evidence_tree(tmp_path)
+        text = (
+            "See .ai/evidence/T-0300/unique-report.md and also "
+            "evidence/T-0300/unique-report.md (dropped prefix)."
+        )
+        repaired, resolutions = repair_truncated_references(text, tmp_path)
+
+        assert ".ai/.ai/" not in repaired
+        assert "evidence/evidence/" not in repaired
+        assert repaired.count(".ai/evidence/T-0300/unique-report.md") == 1
+        # the full path survives exactly once; the covered dropped-prefix
+        # token is skipped, so no duplicated prefix anywhere
+        assert repaired.count(".ai/evidence/") == 1
+        assert "evidence/T-0300/unique-report.md" in repaired
+        assert any(r.status == "RESOLVED" for r in resolutions)
+
+    def test_dropped_prefix_already_repaired_span_untouched(self, tmp_path):
+        """Same scenario via a deeper path: the repaired text must not
+        contain a doubled ``.ai/`` prefix."""
+        _make_evidence_tree(tmp_path)
+        text = (
+            "Files: .ai/evidence/T-0300/context-compression/design.md and "
+            "evidence/T-0300/context-compression/design.md"
+        )
+        repaired, _ = repair_truncated_references(text, tmp_path)
+        assert ".ai/.ai/" not in repaired
+        assert repaired.count(".ai/evidence/T-0300/context-compression/design.md") == 1
+
 
 # ============================================================================
 # Backward compatibility

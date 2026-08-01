@@ -43,6 +43,7 @@ from hook_common import (
     is_governance_project,
     is_path_safe,
     is_readonly_command,
+    is_readonly_exempt,
     load_config,
     load_gates_for_context,
     load_phase_gates_for_context,
@@ -156,10 +157,10 @@ except ImportError:
 EXIT_PASS = 0
 EXIT_BLOCK = 2
 
-# 只读工具（T-0086）：无文件写入语义。访问项目外路径（外部参考读取，
-# 如插件缓存中的 hook 协议文档）不构成"项目外写入"，不做边界拦截。
-# 写入工具（Write/Edit/ApplyPatch/写类 Bash）的项目外访问仍 fail-closed。
-READ_ONLY_TOOLS = frozenset({"Read", "WebFetch", "WebSearch"})
+# 只读豁免判定源（T-0086，统一 T-0095）：见 hook_common.is_readonly_exempt
+# 与 READ_ONLY_TOOLS（与 path_guard 同一判定源，禁止各自内联漂移）。
+# 本 hook 的应用口径不变：只读豁免只打开"只读+外部引用"的 EXTERNAL_READ
+# 早退；只读操作落在项目内仍走 dispatch/identity 门（不豁免强制执行）。
 
 # Governance files that are always writable (same exemption as gate_guard)
 GOVERNANCE_EXEMPT = [
@@ -1525,13 +1526,11 @@ def main():
         target = extract_target_path(hook_input)
         rel = normalize_rel(root, target) if target else None
 
-        # ── 工具类型判定（T-0086）：只读 ≠ 写入 ──
+        # ── 工具类型判定（T-0086，判定源统一 T-0095）：只读 ≠ 写入 ──
         tool_name = hook_input.get("tool_name", "")
         tool_input = hook_input.get("tool_input") or {}
         command = tool_input.get("command", "")
-        is_readonly_op = tool_name in READ_ONLY_TOOLS or bool(
-            command and is_readonly_command(command)
-        )
+        is_readonly_op = is_readonly_exempt(tool_name, command)
         is_outside_target = target is not None and not is_path_safe(root, target)
         refs_outside = bool(command and _command_references_outside(root, command))
 

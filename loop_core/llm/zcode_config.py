@@ -9,11 +9,13 @@ first, mirroring the ZCode CLI env-over-file discipline):
   2. env  ANTHROPIC_API_KEY / ANTHROPIC_BASE_URL
   3. env  OPENAI_API_KEY / OPENAI_BASE_URL
   4. env  ZCODE_API_KEY / ZCODE_BASE_URL      (ZCode CLI fallback)
-  5. `~/.zcode/v2/config.json` -> provider.<id>.options.{apiKey,baseURL}
+  5. env  DEEPSEEK_API_KEY / DEEPSEEK_BASE_URL (legacy alias tier, last —
+     T-0095: same canonical table as keys.resolve_api_key)
+  6. `~/.zcode/v2/config.json` -> provider.<id>.options.{apiKey,baseURL}
      (select_provider: explicit preferred provider id first, else the first
       enabled provider with a non-empty api key — anthropic kinds before
       openai kinds, because anthropic-style hosts are the ZCode mainstream)
-  6. explicit LLMKeyError(KEY_MISSING) / LLMError(CONFIGURATION_ERROR) —
+  7. explicit LLMKeyError(KEY_MISSING) / LLMError(CONFIGURATION_ERROR) —
      never a silently empty key.
 
 The env tier that matches also determines `protocol` (openai for the
@@ -36,18 +38,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from loop_core.llm.errors import ErrorCode, LLMError, LLMKeyError
+from loop_core.llm.keys import KEY_TIERS
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 _REDACTED_MARKER = "<REDACTED>"
 
 # (key var, base url var, protocol) — first tier with a non-empty key wins.
-ENV_TIERS: tuple[tuple[str, str, str], ...] = (
-    ("LLM_API_KEY", "LLM_BASE_URL", "openai"),
-    ("ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "anthropic"),
-    ("OPENAI_API_KEY", "OPENAI_BASE_URL", "openai"),
-    ("ZCODE_API_KEY", "ZCODE_BASE_URL", "openai"),
-)
+# T-0095: aliases the canonical table in keys.py (single source of truth) so
+# this module and keys.resolve_api_key can never drift apart.  Priority:
+# LLM_* -> ANTHROPIC_* -> OPENAI_* -> ZCODE_* (+ DEEPSEEK_* legacy alias
+# tier last).
+ENV_TIERS: tuple[tuple[str, str, str], ...] = KEY_TIERS
 
 # Kinds that may be auto-selected; anthropic is scanned first (ZCode
 # mainstream), then openai / openai-compatible.

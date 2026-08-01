@@ -625,8 +625,17 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
     - Present but unparseable -> DataSourceUnavailableError (an explicit config
       that cannot be read must not silently fall back to defaults).
     - Per-SLI overrides are matched by sli_id; unknown sli_ids are appended.
+    - T-0095 fail-closed validation: an explicit slo.yaml that is semantically
+      invalid (non-numeric budget units, malformed target/severity/budget_share,
+      half-set or unparseable window bounds) raises DataSourceUnavailableError
+      with the field named — the config is never partially applied and never
+      silently downgraded to defaults.
     """
     path = Path(slo_path) if slo_path is not None else Path(root) / ".ai" / "slo.yaml"
+
+    def _invalid(message: str) -> DataSourceUnavailableError:
+        return DataSourceUnavailableError(f"slo config invalid ({message}): {path}")
+
     slos: list[dict[str, Any]] = [dict(d) for d in DEFAULT_SLOS]
     by_id = {s["sli_id"]: s for s in slos}
     if not path.exists():
@@ -644,6 +653,38 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
         raise DataSourceUnavailableError(f"slo config unparseable: {path}: {exc}") from exc
     if not isinstance(doc, dict):
         raise DataSourceUnavailableError(f"slo config not a mapping: {path}")
+
+    # ── T-0095: budget units validation (fail-closed) ────────────────────
+    for key, minimum, exclusive in (
+        ("budget_total_units", 0.0, True),
+        ("release_fee_units", 0.0, False),
+    ):
+        if key in doc:
+            raw = doc[key]
+            try:
+                value = float(raw)
+            except (TypeError, ValueError):
+                raise _invalid(f"'{key}' must be numeric, got {raw!r}") from None
+            if not math.isfinite(value) or value < minimum or (exclusive and value == minimum):
+                comparator = f"> {minimum:g}" if exclusive else f">= {minimum:g}"
+                raise _invalid(f"'{key}' must be a finite number {comparator}, got {raw!r}")
+
+    # ── T-0095: window bounds validation (fail-closed) ───────────────────
+    # A window is honored only when both bounds are set; a half-set or
+    # unparseable window would previously be *silently ignored* (treated as
+    # "no window") — that ambiguity now fails closed with the field named.
+    window_start = doc.get("window_start")
+    window_end = doc.get("window_end")
+    if (window_start or window_end) and not (window_start and window_end):
+        raise _invalid(
+            "'window_start' and 'window_end' must be set together "
+            f"(got start={window_start!r}, end={window_end!r})"
+        )
+    for key in ("window_start", "window_end"):
+        value = doc.get(key)
+        if value and _parse_dt(value) is None:
+            raise _invalid(f"'{key}' is not an ISO-8601 timestamp: {value!r}")
+
     raw_slos = doc.get("slos", [])
     if not isinstance(raw_slos, list):
         raise DataSourceUnavailableError(f"slo config 'slos' not a list: {path}")
@@ -651,6 +692,50 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
         if not isinstance(raw, dict) or "sli_id" not in raw:
             raise DataSourceUnavailableError(f"slo config entry lacks sli_id: {path}")
         sli_id = str(raw["sli_id"])
+
+        # ── T-0095: per-SLI semantic validation (fail-closed) ────────────
+        target = raw.get("target")
+        if target is not None:
+            if not isinstance(target, dict) or "op" not in target or "value" not in target:
+                raise _invalid(
+                    f"entry '{sli_id}' target must be a mapping with 'op' and 'value'"
+                )
+            if str(target.get("op")) not in ("<=", ">=", "=="):
+                raise _invalid(
+                    f"entry '{sli_id}' target op must be <= | >= | ==, "
+                    f"got {target.get('op')!r}"
+                )
+            try:
+                target_value = float(target["value"])
+            except (TypeError, ValueError):
+                raise _invalid(
+                    f"entry '{sli_id}' target value must be numeric, "
+                    f"got {target.get('value')!r}"
+                ) from None
+            if not math.isfinite(target_value):
+                raise _invalid(
+                    f"entry '{sli_id}' target value must be finite, "
+                    f"got {target.get('value')!r}"
+                )
+        severity = raw.get("severity")
+        if severity is not None and severity not in (
+            SEVERITY_BUDGET, SEVERITY_HARD_GATE, SEVERITY_INFO,
+        ):
+            raise _invalid(f"entry '{sli_id}' has unknown severity: {severity!r}")
+        share = raw.get("budget_share")
+        if share is not None:
+            try:
+                share_value = float(share)
+            except (TypeError, ValueError):
+                raise _invalid(
+                    f"entry '{sli_id}' budget_share must be numeric, got {share!r}"
+                ) from None
+            if not math.isfinite(share_value) or share_value < 0:
+                raise _invalid(
+                    f"entry '{sli_id}' budget_share must be finite and >= 0, "
+                    f"got {share!r}"
+                )
+
         entry = by_id.get(sli_id)
         if entry is None:
             entry = {

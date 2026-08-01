@@ -864,3 +864,63 @@ def test_no_real_network_calls(client_log: list[dict[str, object]]) -> None:
         )
         base = entry.get("base_url")
         assert isinstance(base, str) and base.startswith("https://"), base
+
+
+# ══════════════════════════════════════════════════════════════════════
+# T-0095 item 4: env 链统一（keys.py 与 zcode_config.ENV_TIERS 次序一致）
+# ══════════════════════════════════════════════════════════════════════
+
+
+def test_resolve_api_base_url_paired_with_winning_tier(no_env_keys: None) -> None:
+    """base_url 与胜出 tier 成对解析（LLM_* → ANTHROPIC_* → OPENAI_* → ZCODE_*）。"""
+    from loop_core.llm.keys import resolve_api_base_url
+
+    env = {
+        "LLM_API_KEY": "sk-llm-1", "LLM_BASE_URL": "https://llm.example.invalid/v1",
+        "ANTHROPIC_API_KEY": "sk-ant-1", "ANTHROPIC_BASE_URL": "https://ant.example.invalid/v1",
+    }
+    assert resolve_api_base_url(env) == "https://llm.example.invalid/v1"
+
+    env2 = {"ANTHROPIC_API_KEY": "sk-ant-1",
+            "ANTHROPIC_BASE_URL": "https://ant.example.invalid/v1",
+            "OPENAI_API_KEY": "sk-open-1"}
+    assert resolve_api_base_url(env2) == "https://ant.example.invalid/v1"
+
+    env3 = {"ZCODE_API_KEY": "sk-zc-1", "ZCODE_BASE_URL": "https://zc.example.invalid/v1"}
+    assert resolve_api_base_url(env3) == "https://zc.example.invalid/v1"
+
+
+def test_resolve_api_base_url_empty_when_unset_or_no_key(no_env_keys: None) -> None:
+    from loop_core.llm.keys import resolve_api_base_url
+
+    # key set, base url unset -> "" (provider default endpoint is legal)
+    assert resolve_api_base_url({"OPENAI_API_KEY": "sk-open-1"}) == ""
+    # no key at all -> "" (the key resolver raises; base url stays optional)
+    assert resolve_api_base_url({}) == ""
+
+
+def test_unified_key_chain_priority_anthropic_over_openai(no_env_keys: None) -> None:
+    """统一优先序 LLM → ANTHROPIC → OPENAI → ZCODE（+ DEEPSEEK 别名殿后）。"""
+    from loop_core.llm.keys import KEY_ENV_VARS, resolve_api_key
+
+    env = {
+        "ANTHROPIC_API_KEY": "sk-ant-1",
+        "OPENAI_API_KEY": "sk-open-1",
+        "ZCODE_API_KEY": "sk-zc-1",
+        "DEEPSEEK_API_KEY": "sk-deep-1",
+    }
+    assert resolve_api_key(env) == "sk-ant-1"  # ANTHROPIC 高于 OPENAI/ZCODE/DEEPSEEK
+    assert list(KEY_ENV_VARS) == [
+        "LLM_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY",
+        "ZCODE_API_KEY", "DEEPSEEK_API_KEY",
+    ]
+
+
+def test_keys_tiers_are_single_source_for_zcode_config(no_env_keys: None) -> None:
+    """ENV_TIERS 必须与 keys.py 的规范表完全一致（同一对象，杜绝漂移）。"""
+    from loop_core.llm.keys import KEY_TIERS
+    from loop_core.llm.zcode_config import ENV_TIERS
+
+    assert ENV_TIERS is KEY_TIERS
+    for (key_var, base_var, proto), (k2, b2, p2) in zip(ENV_TIERS, KEY_TIERS):
+        assert (key_var, base_var, proto) == (k2, b2, p2)

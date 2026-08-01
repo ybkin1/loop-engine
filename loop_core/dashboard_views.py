@@ -337,6 +337,13 @@ class DashboardViews:
         doc, err = _load_json(path, "metrics report")
         if err is not None:
             return _not_available(err)
+        if not isinstance(doc, dict):
+            # T-0095: a parseable but non-object payload (e.g. a JSON array
+            # or scalar) has no metrics to pass through — NOT_AVAILABLE,
+            # never an AttributeError and never a fabricated empty report.
+            return _not_available(
+                f"metrics report top-level JSON is not an object: {path}"
+            )
 
         dora = doc.get("dora_metrics") if isinstance(doc, dict) else None
         if not isinstance(dora, dict):

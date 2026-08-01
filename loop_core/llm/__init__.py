@@ -22,7 +22,7 @@ from loop_core.llm.errors import (
     LLMKeyError,
 )
 from loop_core.llm.json_repair import repair_json
-from loop_core.llm.keys import KEY_ENV_VARS, resolve_api_key
+from loop_core.llm.keys import KEY_ENV_VARS, resolve_api_base_url, resolve_api_key
 from loop_core.llm.openai_driver import OpenAICompatibleDriver
 from loop_core.llm.output_policy import (
     OUTPUT_TOKEN_CAPS,
@@ -51,6 +51,7 @@ __all__ = [
     "repair_json",
     "KEY_ENV_VARS",
     "resolve_api_key",
+    "resolve_api_base_url",
     "AnthropicMessagesDriver",
     "OpenAICompatibleDriver",
     "ProtocolDriver",

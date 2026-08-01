@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0095",
+  "gate_id": "G-T-0095-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "completed_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "10 cleanup items (dead import / slo.yaml / rotation / env chain / citation boundary / metrics top-level / dedup / exemption unification / lesson lock / HANDOFF ref) — DONE",
+    "regression: 3521 passed / 0 failed — DONE",
+    "independent review: CONDITIONAL_GO (7/7 AC, write-blocking zero relaxation) -> P1 fixed -> usable"
+  ],
+  "notes": "全部清理完成。P1（HANDOFF 块重建）已修复。归档项 4 项记录于 commands.md。"
+}

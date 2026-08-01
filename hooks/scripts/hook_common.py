@@ -28,6 +28,43 @@ SKILL_REL_DIR = Path(".zcode") / "skills" / "loop-governance"
 STATE_REL = Path(".ai") / "state.yaml"
 GATES_REL = Path(".ai") / "gates.yaml"
 
+# ── Read-only exemption (T-0095 unified predicate) ───────────────────────
+# Single decision source shared by path_guard.py and loop_enforcement.py —
+# both hooks previously inlined the same expression, so the classification
+# of "is this operation read-only-exempt" can never drift between them.
+# 只读工具：无文件写入语义。
+READ_ONLY_TOOLS = frozenset({"Read", "WebFetch", "WebSearch"})
+
+
+def is_readonly_exempt(
+    tool_name: str,
+    command: str,
+    rel: str | None = None,
+) -> bool:
+    """Unified read-only exemption predicate (T-0095 item 8).
+
+    True when the operation has no write semantics: a read-only tool
+    (Read/WebFetch/WebSearch) or a read-only Bash command
+    (``is_readonly_command`` — cat/ls/grep/head/...; execution forms such as
+    sh/bash/dash/./php/ruby are NEVER read-only, T-0086-P1).
+
+    Application caliber per hook (this predicate is the shared判定源, the
+    application conditions stay documented):
+    - path_guard.py — a write-boundary/protected-path guard: the predicate
+      alone is the full exemption (a read-only op never writes, so it is
+      exempt from write-boundary and protected-path checks; execution-form
+      Bash with outside references is blocked BEFORE this exemption).
+    - loop_enforcement.py — full enforcement guard: the predicate only
+      opens the EXTERNAL_READ early-pass when combined with an outside
+      reference; read-only ops on in-project paths still flow through the
+      dispatch/identity gates (never exempted from enforcement).
+    ``rel`` is part of the shared signature for future calibers; no current
+    caller uses it.
+    """
+    if tool_name in READ_ONLY_TOOLS:
+        return True
+    return bool(command and is_readonly_command(command))
+
 DEFAULT_CONFIG = {
     "hooks": {
         # fail_closed_on_error: 异常时阻断（true, 默认）还是放行（false, 仅调试用）

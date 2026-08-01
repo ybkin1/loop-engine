@@ -1,0 +1,144 @@
+# B2 SLO configuration — explicit .ai/slo.yaml (T-0095).
+# Values mirror the built-in defaults in loop_core/governance_metrics.py
+# (DEFAULT_SLOS / DEFAULT_BUDGET_TOTAL_UNITS / DEFAULT_RELEASE_FEE_UNITS);
+# changing this file takes effect without code changes.  Validation is
+# fail-closed: an invalid config (non-numeric budget units, malformed
+# target/severity/budget_share, half-set or unparseable window) raises
+# DataSourceUnavailableError instead of being partially applied.
+# A null window means "all data" (B2 default); set window_start/window_end
+# together to bound the error-budget window.
+schema_version: 1
+description: 'B2 SLO configuration (T-0095: explicit .ai/slo.yaml).'
+window_start: null
+window_end: null
+budget_total_units: 100.0
+release_fee_units: 5.0
+slos:
+- sli_id: req_gate_rejection_rate
+  phase: S1-requirements
+  description: S1 gate rejections / (approvals + rejections)
+  target:
+    op: <=
+    value: 0.35
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml (S1 gates, phase-classified)
+- sli_id: design_review_rejection_rate
+  phase: S2-architecture
+  description: design review rejections / decisions
+  target:
+    op: <=
+    value: 0.3
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml (S2 gates, phase-classified)
+- sli_id: quality_gate_rejection_rate
+  phase: S5-quality
+  description: S5 rejections / decisions
+  target:
+    op: <=
+    value: 0.3
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml (S5 gates, phase-classified)
+- sli_id: delivery_gate_rejection_rate
+  phase: S6-delivery
+  description: S6 rejections (incl. NOGO) / decisions
+  target:
+    op: <=
+    value: 0.2
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml (S6 gates, phase-classified)
+- sli_id: rework_cycle_rate
+  phase: S4-implementation
+  description: rework cycles (rejected gates or S4<->S5 bounces) / completed tasks
+  target:
+    op: <=
+    value: 0.25
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml rejected gates (or .ai/ledger/phase_transitions.jsonl)
+- sli_id: guard_block_rate
+  phase: S4-implementation
+  description: guard blocks / (blocks + passes) across hooks (false-positive proxy)
+  target:
+    op: <=
+    value: 0.05
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/ledger/guard_decisions.jsonl (hook decision log — not yet wired)
+- sli_id: guard_anomaly_rate
+  phase: S4-implementation
+  description: guard check anomalies (FAIL events) / total guard-check events — wave-1
+    computable proxy for guard_block_rate (U8 guard-events.jsonl)
+  target:
+    op: <=
+    value: 0.05
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/evidence/observability/guard-events.jsonl
+- sli_id: approval_latency_p95
+  phase: S6-delivery
+  description: p95 of gate requested_at -> recorded_at (hours)
+  target:
+    op: <=
+    value: 24.0
+    unit: h
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: .ai/gates.yaml requested_at/recorded_at
+- sli_id: gate_decision_coverage
+  phase: All
+  description: gates decided with evidence dossier / decided
+  target:
+    op: '>='
+    value: 1.0
+  severity: hard-gate
+  budget_share: 0.0
+  source: .ai/gates.yaml evidence fields
+- sli_id: drift_event_rate
+  phase: S11-maintenance
+  description: governance drift events per window
+  target:
+    op: <=
+    value: 2
+  severity: informational
+  budget_share: 0.0
+  source: .ai/ledger/runtime-events.jsonl (drift source — not yet wired)
+- sli_id: delta_quality_pass_rate
+  phase: S4-implementation
+  description: tasks passing delta gates (no new regressions on the diff)
+  target:
+    op: '>='
+    value: 1.0
+  severity: hard-gate
+  budget_share: 0.0
+  source: delta gate results (not yet recorded)
+- sli_id: evidence_regeneration_rate
+  phase: S5-quality
+  description: evidence regeneration events / tasks
+  target:
+    op: <=
+    value: 0.1
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: evidence re-run tracking (not yet recorded)
+- sli_id: defect_fail_verdict_rate
+  phase: S5-quality
+  description: tasks with FAIL verdicts (warning class)
+  target:
+    op: <=
+    value: 0.2
+  severity: error-budget-slo
+  budget_share: 1.0
+  source: FAIL verdict store (not yet recorded)
+- sli_id: ac_invest_rate
+  phase: S1-requirements
+  description: acceptance criteria meeting INVEST/verifiable shape
+  target:
+    op: '>='
+    value: 1.0
+  severity: hard-gate
+  budget_share: 0.0
+  source: DoD gate acceptance-criteria check (T-0089 scope)

@@ -44,6 +44,7 @@ from hook_common import (  # noqa: E402
     is_governance_project,
     is_path_safe,
     is_readonly_command,
+    is_readonly_exempt,
     load_config,
     matches_protected,
     normalize_rel,
@@ -51,10 +52,6 @@ from hook_common import (  # noqa: E402
     read_stdin_json,
     should_fail_closed,
 )
-
-# 只读工具：无文件写入语义。path_guard 是"写入"保护——
-# 只读工具访问项目外路径不构成写入边界风险，应放行（fail-open 对只读）。
-READ_ONLY_TOOLS = frozenset({"Read", "WebFetch", "WebSearch"})
 
 EXIT_PASS = 0
 EXIT_BLOCK = 2
@@ -129,15 +126,15 @@ def main():
         if not path_cfg.get("enabled", True):
             return EXIT_PASS
 
-        # 只读操作豁免（T-0086）：path_guard 拦截的是"项目外写入"。
-        # Read/WebFetch/WebSearch 及只读 Bash（ls/cat/head/tail/grep 等）
-        # 访问项目外路径（如插件 hook 协议文档）不构成写入，直接放行；
-        # 写入工具访问项目外路径仍走下方边界拦截（fail-closed）。
+        # 只读操作豁免（T-0086，判定源统一 T-0095）：path_guard 拦截的是
+        # "项目外写入"。只读操作（Read/WebFetch/WebSearch 及只读 Bash）
+        # 访问项目外路径（如插件 hook 协议文档）或保护区路径都不构成写入，
+        # 直接放行；写入工具访问项目外路径仍走下方边界拦截（fail-closed）。
+        # 判定统一走 hook_common.is_readonly_exempt（与 loop_enforcement
+        # 同一判定源；执行形态 Bash 已被 is_readonly_command 排除）。
         tool_name = hook_input.get("tool_name", "")
         command = (hook_input.get("tool_input") or {}).get("command", "")
-        is_readonly_op = tool_name in READ_ONLY_TOOLS or bool(
-            command and is_readonly_command(command)
-        )
+        is_readonly_op = is_readonly_exempt(tool_name, command)
 
         # T-0086-P1 收紧：执行形态 Bash（sh/bash/dash/./php/ruby/python 等
         # 解释器或直接脚本执行）引用项目外路径 → 项目外写入风险无法从命令

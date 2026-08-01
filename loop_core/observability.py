@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import uuid
 from collections import Counter
 from collections.abc import Mapping
@@ -46,6 +47,12 @@ RESULT_FAIL = "FAIL"      # guard misbehaved / verdict unhealthy (failure_reason
 RESULT_REPORT = "REPORT"  # informative finding — never flips any verdict
 
 DEFAULT_EVENT_PATH = ".ai/evidence/observability/guard-events.jsonl"
+
+# T-0095 rotation defaults: rotate when the event file reaches 10k lines or
+# 10 MB; keep the 3 most recent archives (.1 newest, .3 oldest).
+DEFAULT_MAX_LINES = 10000
+DEFAULT_MAX_BYTES = 10 * 1024 * 1024
+DEFAULT_MAX_ARCHIVES = 3
 
 
 @dataclass(frozen=True)
@@ -99,13 +106,32 @@ class GuardEventRecorder:
       observability must never turn a successful request into a failure).
     - `enabled` can be toggled at runtime; a disabled recorder is a no-op and
       creates no file (switchable observation, default ON).
+    - T-0095 rotation: when the event file reaches ``max_lines`` lines or
+      ``max_bytes`` bytes, it is archived before the next append:
+      ``guard-events.jsonl`` -> ``guard-events.jsonl.1``, ``.1`` -> ``.2``,
+      ... keeping the most recent ``max_archives`` archives (older archives
+      are dropped).  History is never lost while an archive slot remains:
+      ``read_events`` reads the main file plus every retained archive.
+      Rotation is best-effort and never raises — a failed rotation simply
+      leaves the oversized file in place and the append proceeds.
     """
 
-    def __init__(self, path: str | Path | None = None, enabled: bool = True):
+    def __init__(
+        self,
+        path: str | Path | None = None,
+        enabled: bool = True,
+        *,
+        max_lines: int = DEFAULT_MAX_LINES,
+        max_bytes: int = DEFAULT_MAX_BYTES,
+        max_archives: int = DEFAULT_MAX_ARCHIVES,
+    ):
         self._path = Path(path) if path is not None else Path(DEFAULT_EVENT_PATH)
         self.enabled = enabled
         self.failures = 0
         self.last_error: str | None = None
+        self.max_lines = max_lines
+        self.max_bytes = max_bytes
+        self.max_archives = max_archives
 
     @property
     def path(self) -> Path:
@@ -133,26 +159,68 @@ class GuardEventRecorder:
             )
             return False
 
+    def _rotate_if_needed(self) -> None:
+        """Archive the event file once it reaches the line/byte threshold.
+
+        Best-effort only: any failure leaves the file untouched and is
+        swallowed (the append still proceeds — observation never blocks).
+        """
+        if not self._path.exists():
+            return
+        try:
+            size = self._path.stat().st_size
+            lines = 0
+            if size < self.max_bytes:
+                with open(self._path, "rb") as f:
+                    lines = sum(1 for _ in f)
+            if lines < self.max_lines and size < self.max_bytes:
+                return
+        except OSError:
+            return
+        for index in range(self.max_archives - 1, 0, -1):
+            src = Path(f"{self._path}.{index}")
+            dst = Path(f"{self._path}.{index + 1}")
+            if src.exists():
+                try:
+                    os.replace(src, dst)
+                except OSError:
+                    pass
+        try:
+            os.replace(self._path, Path(f"{self._path}.1"))
+        except OSError:
+            pass
+
     def _append_line(self, line: str) -> None:
         """Raw append — isolated so tests can force a write failure."""
         self._path.parent.mkdir(parents=True, exist_ok=True)
+        self._rotate_if_needed()
         with open(self._path, "a", encoding="utf-8") as f:
             f.write(line)
 
-    def read_events(self) -> list[GuardCheckEvent]:
-        """Read the recorded history back.  Read-only — never modifies the file."""
-        if not self._path.exists():
-            return []
+    def _read_file(self, path: Path) -> list[GuardCheckEvent]:
+        """Read one event file; a corrupt trailing line must not hide the
+        readable prefix — the readable history is still returned."""
         events: list[GuardCheckEvent] = []
         try:
-            for line in self._path.read_text(encoding="utf-8").splitlines():
+            for line in path.read_text(encoding="utf-8").splitlines():
                 if not line.strip():
                     continue
                 events.append(GuardCheckEvent.from_dict(json.loads(line)))
         except (OSError, json.JSONDecodeError, ValueError):
-            # A corrupt trailing line must not hide the readable prefix —
-            # the readable history is still returned.
             pass
+        return events
+
+    def read_events(self) -> list[GuardCheckEvent]:
+        """Read the recorded history back — main file plus retained rotation
+        archives (oldest first, so the returned order is chronological).
+        Read-only — never modifies any file."""
+        events: list[GuardCheckEvent] = []
+        for index in range(self.max_archives, 0, -1):
+            archive = Path(f"{self._path}.{index}")
+            if archive.exists():
+                events.extend(self._read_file(archive))
+        if self._path.exists():
+            events.extend(self._read_file(self._path))
         return events
 
     def summary(self) -> dict[str, Any]:

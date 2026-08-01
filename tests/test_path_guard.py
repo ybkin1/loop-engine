@@ -343,5 +343,87 @@ class LoopEnforcementReadAllowWriteBlockTest(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stderr)
 
 
+class TestT0095ReadonlyExemptionUnified(unittest.TestCase):
+    """T-0095 item 8: 只读豁免判定源统一（hook_common.is_readonly_exempt）。
+
+    - 两 hook 不再各自内联只读豁免表达式（同一判定源，禁止漂移）；
+    - 谓词语义锁定：只读工具 / 只读 Bash 豁免；执行形态与写命令不豁免；
+    - 端到端：path_guard 只读无条件放行（保护区只读不 ask），
+      loop_enforcement 只读+外部引用放行，写入拦截全部保持。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(SCRIPTS))
+        import hook_common
+        cls.hook_common = hook_common
+
+    def test_shared_predicate_readonly_tools_exempt(self):
+        for tool in ("Read", "WebFetch", "WebSearch"):
+            self.assertTrue(
+                self.hook_common.is_readonly_exempt(tool, ""), tool
+            )
+
+    def test_shared_predicate_readonly_bash_exempt(self):
+        for cmd in ("cat x", "ls -la", "grep -r x .", "head -5 x", "echo hi"):
+            self.assertTrue(
+                self.hook_common.is_readonly_exempt("Bash", cmd), cmd
+            )
+
+    def test_shared_predicate_write_and_execution_not_exempt(self):
+        for cmd in ("touch x", "echo hi > x", "sh script.sh", "bash s.sh",
+                    "./run.sh", "php x.php", "python x.py", "rm -rf /tmp/x"):
+            self.assertFalse(
+                self.hook_common.is_readonly_exempt("Bash", cmd), cmd
+            )
+        self.assertFalse(self.hook_common.is_readonly_exempt("Write", ""))
+        self.assertFalse(self.hook_common.is_readonly_exempt("Edit", ""))
+        self.assertFalse(self.hook_common.is_readonly_exempt("Bash", ""))
+
+    def test_both_hooks_use_the_shared_source(self):
+        """两 hook 都调用 hook_common.is_readonly_exempt，且本地不再定义
+        重复的 READ_ONLY_TOOLS 常量（单一判定源）。"""
+        for script in ("path_guard.py", "loop_enforcement.py"):
+            source = (SCRIPTS / script).read_text(encoding="utf-8")
+            self.assertIn("is_readonly_exempt(", source, script)
+            self.assertNotIn("def is_readonly_exempt", source, script)
+            self.assertNotIn(
+                'READ_ONLY_TOOLS = frozenset({"Read", "WebFetch", "WebSearch"})',
+                source, script,
+            )
+
+    def test_shared_predicate_identity_across_hooks(self):
+        """运行中的 hook 进程内，两个 hook 加载的是同一个判定函数。"""
+        import loop_enforcement
+        import path_guard
+
+        self.assertIs(
+            loop_enforcement.is_readonly_exempt,
+            self.hook_common.is_readonly_exempt,
+        )
+        self.assertIs(
+            path_guard.is_readonly_exempt,
+            self.hook_common.is_readonly_exempt,
+        )
+
+    def test_end_to_end_readonly_passes_unchanged(self):
+        """端到端回归：path_guard 只读保护区不 ask；loop_enforcement
+        只读+外部引用放行；写入拦截全部保持（本文件既有用例覆盖写入）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(tmp)
+            r = run_hook("path_guard.py", root, "Read",
+                         {"file_path": str(root / "AGENTS.md")})
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(r.stdout.strip(), "", "read must not ask")
+
+            r2 = run_hook("loop_enforcement.py", root, "Bash",
+                          {"command": f"cat {outside_path(tmp)}"})
+            self.assertEqual(r2.returncode, 0, r2.stderr)
+
+            r3 = run_hook("path_guard.py", root, "Write",
+                          {"file_path": outside_path(tmp), "content": "x"})
+            self.assertEqual(r3.returncode, 2, r3.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()
