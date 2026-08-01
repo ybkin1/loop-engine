@@ -1026,7 +1026,7 @@ tasks:
     id: T-0093
     title: SLO 门禁 wave 2 — error budget 耗尽自动冻结发布
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       SLO 门禁检查器（HEALTHY→PASS / FREEZE→BLOCK / 数据缺失→fail-closed BLOCK）；
       接入 S6 发布链（开关可配）；豁免记录 + budget 恢复自动放行。新增约束（强化方向）。

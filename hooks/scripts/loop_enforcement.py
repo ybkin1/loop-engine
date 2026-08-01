@@ -1205,6 +1205,59 @@ def check_runtime_quality_gate(root: Path) -> tuple[bool, str]:
     return True, f"运行时质量门通过（overall={overall}）"
 
 
+def check_slo_gate_evidence(root: Path) -> tuple[bool, str]:
+    """T-0093 (AC-02): SLO 门禁 — error budget 耗尽自动冻结发布。
+
+    S6-delivery 分支新增检查（与 check_delivery_gate_evidence 同级，B2 §1.5
+    ``slo_budget_available``）。本检查只会**新增**阻断条件，不会放松任何
+    既有检查（T-0093 AC-06：约束只强化不弱化）。
+
+    - budget HEALTHY/CONSUMING → 放行（CONSUMING 附警告信息）
+    - budget FREEZE（耗尽）   → 阻断（ERROR_BUDGET_EXHAUSTED + 明细）
+    - 数据不足/无法判定       → fail-closed 阻断（原因列出缺失源）
+    - 有效豁免（未过期 + approver 非空）→ 放行（原因含豁免记录）
+    - 开关禁用（config.yaml ``slo_gate.enabled: false`` 或环境变量
+      LOOP_SLO_GATE_ENABLED=0/false）→ 放行（附说明，advisory 模式）
+
+    门禁模块加载/执行异常 → fail-closed 阻断（T-0083 AC-06 姿态）。
+    """
+    try:
+        # hook 可能从插件缓存运行：Path(__file__) 指向缓存目录 → 显式把
+        # 项目根插入 sys.path 后再 import（同 trace_review_evidence_isolation
+        # 的既有模式，L876）。但仅插 sys.path 还不够：插件缓存是项目的完整
+        # 副本（含陈旧 loop_core 包，T-0093 之前、没有 slo_gate.py），hook
+        # 模块加载期 try_import_hard_constraints() 已把缓存里的 loop_core
+        # 导入 sys.modules —— 包缓存优先于路径查找，缓存包的 __path__ 里
+        # 找不到 slo_gate 子模块 → ModuleNotFoundError。因此：若 sys.modules
+        # 中的 loop_core 不是来自项目根，先剔除，强制从项目根重新解析。
+        sys.path.insert(0, str(root))
+        cached_pkg = sys.modules.get("loop_core")
+        if cached_pkg is not None:
+            pkg_dirs = getattr(cached_pkg, "__path__", None) or []
+            cached_first = os.path.normcase(
+                str(Path(pkg_dirs[0]).resolve())
+            ) if pkg_dirs else ""
+            root_core = os.path.normcase(str((root / "loop_core").resolve()))
+            if cached_first and cached_first != root_core:
+                sys.modules.pop("loop_core", None)
+        from loop_core.slo_gate import check_slo_gate
+    except Exception as exc:
+        return False, (
+            f"SLO 门禁模块加载失败（fail-closed）："
+            f"{type(exc).__name__}: {exc}"
+        )
+    try:
+        result = check_slo_gate(root)
+    except Exception as exc:
+        return False, (
+            f"SLO 门禁执行异常（fail-closed）："
+            f"{type(exc).__name__}: {exc}"
+        )
+    if result.decision == "PASS":
+        return True, f"SLO 门禁通过：{result.reason}"
+    return False, f"SLO 门禁阻断：{result.reason}"
+
+
 # ── T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据 ───────────────────────────
 
 # 每个阶段的可接受证据文件（相对项目根）。{task_id} 会被替换为
@@ -1387,7 +1440,17 @@ def check_phase_gate_enforcement(root: Path, phase: str) -> tuple[bool, str]:
         sec_ok, sec_reason = check_security_gate_evidence(root)
         if not sec_ok:
             return sec_ok, sec_reason
-        return True, "S6 delivery + runtime quality + security gates passed"
+        # T-0093 (AC-02): SLO 门禁 — error budget 耗尽自动冻结发布。
+        # 新增约束（B2 §1.5 slo_budget_available 接线）；仅在既有三项
+        # S6 检查之后追加，不改动它们各自的语义。开关/豁免/恢复语义见
+        # check_slo_gate_evidence 与 loop_core/slo_gate.py。
+        slo_ok, slo_reason = check_slo_gate_evidence(root)
+        if not slo_ok:
+            return slo_ok, slo_reason
+        return True, (
+            "S6 delivery + runtime quality + security + SLO gates passed "
+            f"({slo_reason})"
+        )
 
     # T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据（overall=PASS 的结构化报告）
     if phase in _PHASE_EVIDENCE_FILES:

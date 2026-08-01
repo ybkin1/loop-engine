@@ -65,6 +65,13 @@ _DEFAULT_MANIFEST: dict[str, tuple[str, str, str, str, bool]] = {
         "策略守卫 — 依据 tool-entry-restrictions.yaml 对动作族/路径/门禁状态做出放行决策",
         True,
     ),
+    "slo_gate_checker": (
+        "checker",
+        ".ai/checkers/slo_gate_checker.py",
+        "checker-result.schema.yaml@1",
+        "SLO 门禁检查器 — 依据 error budget 状态判定发布冻结（FREEZE 阻断 / CONSUMING 警告放行）",
+        True,
+    ),
 }
 
 _HASH_PREFIX_LEN = 12  # version derived from content when no __version__ exists

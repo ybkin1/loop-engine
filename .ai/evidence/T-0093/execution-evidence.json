@@ -1,15 +1,18 @@
 {
   "task_id": "T-0093",
   "gate_id": "G-T-0093-REQUIREMENTS",
-  "status": "in_progress",
+  "status": "completed",
   "started_at": "2026-08-01T00:00:00+08:00",
+  "completed_at": "2026-08-01T00:00:00+08:00",
   "evidence_type": "execution",
   "workstreams": [
-    "slo gate checker (HEALTHY PASS / FREEZE BLOCK / missing fail-closed)",
-    "release chain wiring (toggle)",
-    "exemption mechanism",
-    "recovery (budget healthy -> release)",
-    "regression + acceptance"
+    "slo gate checker (HEALTHY PASS / FREEZE BLOCK / missing fail-closed) — DONE",
+    "release chain wiring (S6 hook, toggle) — DONE",
+    "exemption mechanism (append-only ledger) — DONE",
+    "recovery (window rollover auto release) — DONE",
+    "P1 fix: registry registration + hook sys.modules import fix — DONE",
+    "regression: 3453 passed / 0 failed — DONE",
+    "independent review: CONDITIONAL_GO -> P1 fixed -> GO"
   ],
-  "notes": "执行中：启动证据补齐，实现与验收进行中。"
+  "notes": "全部工作流完成。P1（注册表注册 + hook import 深层修复）已修复并复验。P3 遗留记录于 commands.md。"
 }

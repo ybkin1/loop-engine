@@ -64,6 +64,14 @@ DEFAULT_CONFIG = {
         # 项目可在 config.yaml 中设 false 退出该阻断（只保留日志追踪）。
         "self_review_block": True,
     },
+    "slo_gate": {
+        # T-0093 (AC-02): SLO 门禁（error budget 耗尽 → 自动冻结发布，
+        # B2 §1.5 slo_budget_available 接线）。默认启用（B2 wave 2
+        # enforced）；项目可在 config.yaml 设 slo_gate.enabled: false
+        # 退回 advisory 模式（门禁放行并附说明）。环境变量
+        # LOOP_SLO_GATE_ENABLED=0/false 优先于本配置。
+        "enabled": True,
+    },
 }
 
 
