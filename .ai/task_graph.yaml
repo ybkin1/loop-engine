@@ -997,6 +997,19 @@ tasks:
       - T-0089
     gates:
       - G-T-0090-REQUIREMENTS
+  -
+    id: T-0091
+    title: B5 自举审计回路接线 — LLM 驱动 self-audit + ZCode 模型配置适配
+    phase: S6-delivery
+    status: completed
+    description: >-
+      loop_self_audit 新增 LLM 语义分析环节（风险发现/根因/修复建议 → 报告落盘）；
+      ZCode 模型配置适配（env 优先 → ~/.zcode/v2/config.json provider）；
+      Anthropic Messages 协议驱动（x-api-key + anthropic-version）；LLM 不可用降级规则式。
+    depends_on:
+      - T-0090
+    gates:
+      - G-T-0091-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1022,3 +1035,5 @@ edges:
       to: T-0089
     - from: T-0089
       to: T-0090
+    - from: T-0090
+      to: T-0091

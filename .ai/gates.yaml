@@ -4459,4 +4459,70 @@ gates:
   - no-real-external-call proof + no-hardcoded-secret scan
   - full regression results
   - acceptance evidence
+- id: G-T-0091-REQUIREMENTS
+  task_id: T-0091
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 继续 T-0091，模型配置可以用 Z Code 的模型配置
+  approval_evidence: .ai/evidence/T-0091/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0091/execution-evidence.json
+  scope: >-
+    T-0091 B5 自举审计回路接线 — loop_self_audit 新增 LLM 语义分析环节（风险发现/根因/
+    修复建议 → 报告落盘）；ZCode 模型配置适配（env 优先 → ~/.zcode/v2/config.json
+    provider，用户指定）；Anthropic Messages 协议驱动（x-api-key + anthropic-version）；
+    LLM 不可用 fail-safe 降级规则式。测试全 mock，key 用后即弃不落盘。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - call real external LLM services in tests
+  - write real API keys to any file (use-and-discard only)
+  - hardcode or assert internal base URLs (http://10.213.196.114:3000 etc.) in tests/docs/evidence
+  - create or register T-0092+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0091/
+  high_risk_flags:
+  - key 安全（用后即弃，不落日志/证据/测试快照）
+  - 测试全 fixture mock（不读真实 ~/.zcode/v2/config.json、不调真实 API）
+  - LLM 失败 fail-safe 降级规则式（不阻断审计）
+  evidence_required:
+  - anthropic messages driver tests (complete/stream/headers/SSE/errors)
+  - zcode config resolution tests (env priority + provider fixture, key never logged)
+  - self-audit llm wiring tests (analysis report + degrade path)
+  - no-real-external-call proof + no-hardcoded-secret scan
+  - full regression results
+  - acceptance evidence
 

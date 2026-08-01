@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0091",
+  "gate_id": "G-T-0091-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-01T00:00:00+08:00",
+  "completed_at": "2026-08-01T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "anthropic messages driver (complete/stream/headers/SSE/errors) — DONE",
+    "zcode config resolution (env priority + provider fixture, key redacted) — DONE",
+    "self-audit llm wiring (analysis report + SKIPPED/DEGRADED fail-safe) — DONE",
+    "regression: 3365 passed / 0 failed — DONE",
+    "independent review: GO (5/5 AC, zero constraint weakening, zero key/internal-addr leak)"
+  ],
+  "notes": "全部工作流完成。独立审查 GO。P3 遗留（env 链次序差异）记录于 commands.md。"
+}

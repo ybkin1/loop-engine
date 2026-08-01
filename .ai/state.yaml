@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-01T09:42:17.735069+08:00'
+last_handoff_at: '2026-08-01T10:34:40.795167+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -38,7 +38,9 @@ notes:
 - 'T-0089 COMPLETED 2026-08-01: 学习回路与工程化 — U4 gate 反馈回路（经验沉淀）+ U7 evidence 可靠投递（幂等/退避/卡死重置）+
   U8 可观测性分层（事件落盘，异常不阻断，安全裁决红线保持） + U9 生命周期（dev.py up/down/status），6/6 AC，独立审查 GO，全量
   3126 passed。下一任务待用户发起。'
-- 'T-0090 COMPLETED 2026-08-01: 新能力引入 — D1 LLM 抽象层（协议驱动/重试/JSON 修复/脱敏/钳制）
-  + D5 工具执行器/MCP stdio + D7 异步队列（租约防重）+ D2 SLO/error budget/DORA 指标
-  （B1/B2/B3 设计落地，测试全 mock 无外部调用），6/6 AC，独立审查 GO，全量 3281 passed。
-  下一任务待用户发起。'
+- 'T-0090 COMPLETED 2026-08-01: 新能力引入 — D1 LLM 抽象层（协议驱动/重试/JSON 修复/脱敏/钳制） + D5 工具执行器/MCP
+  stdio + D7 异步队列（租约防重）+ D2 SLO/error budget/DORA 指标 （B1/B2/B3 设计落地，测试全 mock 无外部调用），6/6
+  AC，独立审查 GO，全量 3281 passed。 下一任务待用户发起。'
+- 'T-0091 COMPLETED 2026-08-01: B5 自举审计回路接线 — LLM 驱动 self-audit（--llm 分析报告 +
+  SKIPPED/DEGRADED fail-safe）+ ZCode 模型配置适配（Anthropic Messages 驱动 + env/配置解析，
+  key 零泄漏），5/5 AC，独立审查 GO，全量 3365 passed。下一任务待用户发起。'

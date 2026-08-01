@@ -14,6 +14,7 @@ Security invariants (enforced by tests, tests/test_llm_layer.py):
 """
 from __future__ import annotations
 
+from loop_core.llm.anthropic_driver import AnthropicMessagesDriver
 from loop_core.llm.errors import (
     ErrorCode,
     JSONRepairError,
@@ -50,6 +51,7 @@ __all__ = [
     "repair_json",
     "KEY_ENV_VARS",
     "resolve_api_key",
+    "AnthropicMessagesDriver",
     "OpenAICompatibleDriver",
     "ProtocolDriver",
     "CompletionResult",
