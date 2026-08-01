@@ -72,6 +72,13 @@ _DEFAULT_MANIFEST: dict[str, tuple[str, str, str, str, bool]] = {
         "SLO 门禁检查器 — 依据 error budget 状态判定发布冻结（FREEZE 阻断 / CONSUMING 警告放行）",
         True,
     ),
+    "second_failure_checker": (
+        "checker",
+        ".ai/checkers/second_failure_checker.py",
+        "checker-result.schema.yaml@1",
+        "Second-failure 门禁检查器 — 同类失败复发未解决（关联复盘无 open 行动项）时阻断（B2 §3.4）",
+        True,
+    ),
 }
 
 _HASH_PREFIX_LEN = 12  # version derived from content when no __version__ exists

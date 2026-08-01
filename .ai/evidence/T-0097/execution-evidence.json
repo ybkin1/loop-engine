@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0097",
+  "gate_id": "G-T-0097-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "completed_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "incident records (schema/idempotent/persist/retrieval) — DONE",
+    "retrospectives (action items owner/deadline/status, open->closed) — DONE",
+    "second-failure (recurrence fingerprint -> draft + block until owned, default off) — DONE",
+    "gate_lessons bridge (>=2 rejections -> incident) — DONE",
+    "existing defect fix (_import_loop_core_gate, subprocess flake) — DONE",
+    "regression: 3675 passed / 0 failed — DONE",
+    "independent review: GO (6/6 AC, zero relaxation, no auto task registration)"
+  ],
+  "notes": "全部工作流完成。独立审查 GO。P3 遗留 2 项记录于 commands.md。"
+}

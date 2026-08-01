@@ -52,13 +52,13 @@ def make_binding(capability_id: str, impl_path: str,
 # ── AC-01: seal immutability + deterministic snapshot ──────────────────────
 
 def test_default_registry_registers_all_governance_assets():
-    """The built-in registry covers .ai/checkers/ (4) + .ai/guards/ (1)."""
+    """The built-in registry covers .ai/checkers/ (5) + .ai/guards/ (1)."""
     registry = build_default_registry(ROOT)
     assert registry.sealed
     snap = registry.snapshot()
     assert set(snap.entries) == {
         "compile_gate", "run_governance_checks", "validate_gate_register",
-        "policy_guard", "slo_gate_checker",
+        "policy_guard", "slo_gate_checker", "second_failure_checker",
     }
     providers = {b.provider_id for b in snap.entries.values()}
     assert providers == {"checker", "guard"}

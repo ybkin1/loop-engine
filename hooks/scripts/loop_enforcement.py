@@ -18,6 +18,7 @@ Blocking logic:
 Exit codes: 0 = allow, 2 = block
 """
 import hashlib
+import importlib
 import json
 import logging
 import os
@@ -1206,6 +1207,61 @@ def check_runtime_quality_gate(root: Path) -> tuple[bool, str]:
     return True, f"运行时质量门通过（overall={overall}）"
 
 
+def _import_loop_core_gate(root: Path, submodule: str):
+    """从项目根解析 loop_core 门禁子模块（slo_gate / second_failure）。
+
+    hook 可能从插件缓存运行：Path(__file__) 指向缓存目录 → 显式把项目根
+    插入 sys.path 后再 import（同 trace_review_evidence_isolation 的既有
+    模式）。但仅插 sys.path 还不够：插件缓存是项目的完整副本（含陈旧的
+    loop_core 包，早于门禁模块加入时的副本、没有对应子模块文件），hook
+    模块加载期 try_import_hard_constraints() 已把缓存里的 loop_core 导入
+    sys.modules —— 包缓存优先于路径查找，缓存包的 __path__ 里找不到目标
+    子模块 → 直接 import 会 ModuleNotFoundError。
+
+    精确修复（T-0097，替代"pop 整个 loop_core 再强制重解析"）：只有目标
+    子模块确实缺失时才把它从项目根解析出来，且**从不替换已加载的
+    loop_core 包对象**——只临时把现有包的 __path__ 前置项目根目录，import
+    完成后立即恢复。这样：
+    - 已加载的 loop_core 本身可用（如来自真实项目根）时零改动。同进程其他
+      模块（如 pytest 测试套件）持有的包引用与子模块属性不受影响——旧实现
+      pop 掉整个包后重解析得到的新包不再有任何子模块属性
+      （loop_core/__init__.py 不 import 子模块），后续
+      monkeypatch.setattr("loop_core.observability...") 等字符串解析会
+      AttributeError，造成跨测试顺序依赖 flake。
+    - 插件缓存陈旧副本场景（真实 hook 进程，每次调用是新进程）下，目标
+      子模块从项目根加载并挂到现有包对象上；其余 loop_core.* 条目保持原样，
+      fail-closed 语义不变。
+
+    返回导入的子模块对象；导入失败（目标子模块在项目根也不存在、或
+    loop_core 包整体不可用、或无关的缺失依赖如 yaml）时抛出原始异常，
+    由调用方按 fail-closed 处理。
+    """
+    target = f"loop_core.{submodule}"
+    sys.path.insert(0, str(root))
+    try:
+        return importlib.import_module(target)
+    except ModuleNotFoundError as exc:
+        missing = exc.name or ""
+        if not (missing == target or missing.startswith("loop_core.")):
+            raise  # 无关的缺失依赖（如 yaml）— 不是缓存陈旧问题，直接失败
+        # 已加载的 loop_core 无法提供目标子模块（典型：陈旧的插件缓存副本）。
+        cached_pkg = sys.modules.get("loop_core")
+        if cached_pkg is None:
+            raise
+        pkg_dirs = getattr(cached_pkg, "__path__", None)
+        if not pkg_dirs:
+            raise
+        saved_path = list(pkg_dirs)
+        root_core = str((root / "loop_core").resolve())
+        try:
+            # 临时把项目根前置到现有包的 __path__（finally 中恢复）；目标
+            # 子模块从项目根解析并作为属性挂到现有包对象上，包本身不变。
+            cached_pkg.__path__ = [root_core] + saved_path
+            return importlib.import_module(target)
+        finally:
+            cached_pkg.__path__ = saved_path
+
+
 def check_slo_gate_evidence(root: Path) -> tuple[bool, str]:
     """T-0093 (AC-02): SLO 门禁 — error budget 耗尽自动冻结发布。
 
@@ -1225,23 +1281,16 @@ def check_slo_gate_evidence(root: Path) -> tuple[bool, str]:
     try:
         # hook 可能从插件缓存运行：Path(__file__) 指向缓存目录 → 显式把
         # 项目根插入 sys.path 后再 import（同 trace_review_evidence_isolation
-        # 的既有模式，L876）。但仅插 sys.path 还不够：插件缓存是项目的完整
-        # 副本（含陈旧 loop_core 包，T-0093 之前、没有 slo_gate.py），hook
-        # 模块加载期 try_import_hard_constraints() 已把缓存里的 loop_core
-        # 导入 sys.modules —— 包缓存优先于路径查找，缓存包的 __path__ 里
-        # 找不到 slo_gate 子模块 → ModuleNotFoundError。因此：若 sys.modules
-        # 中的 loop_core 不是来自项目根，先剔除，强制从项目根重新解析。
-        sys.path.insert(0, str(root))
-        cached_pkg = sys.modules.get("loop_core")
-        if cached_pkg is not None:
-            pkg_dirs = getattr(cached_pkg, "__path__", None) or []
-            cached_first = os.path.normcase(
-                str(Path(pkg_dirs[0]).resolve())
-            ) if pkg_dirs else ""
-            root_core = os.path.normcase(str((root / "loop_core").resolve()))
-            if cached_first and cached_first != root_core:
-                sys.modules.pop("loop_core", None)
-        from loop_core.slo_gate import check_slo_gate
+        # 的既有模式）。插件缓存可能是 T-0093 之前的完整副本，其 loop_core
+        # 包（hook 模块加载期 try_import_hard_constraints() 已导入
+        # sys.modules，包缓存优先于路径查找）没有 slo_gate.py →
+        # ModuleNotFoundError。_import_loop_core_gate 只在该子模块确实缺失时
+        # 才精确地从项目根解析（临时前置现有包的 __path__，完成后恢复），
+        # 从不替换已加载的 loop_core 包对象——同进程其他模块（如测试套件）
+        # 持有的包引用与子模块属性不受影响（旧实现 pop 整个包会破坏后续
+        # monkeypatch.setattr("loop_core.observability...") 等解析）。
+        module = _import_loop_core_gate(root, "slo_gate")
+        check_slo_gate = module.check_slo_gate
     except Exception as exc:
         return False, (
             f"SLO 门禁模块加载失败（fail-closed）："
@@ -1257,6 +1306,49 @@ def check_slo_gate_evidence(root: Path) -> tuple[bool, str]:
     if result.decision == "PASS":
         return True, f"SLO 门禁通过：{result.reason}"
     return False, f"SLO 门禁阻断：{result.reason}"
+
+
+def check_second_failure_gate_evidence(root: Path) -> tuple[bool, str]:
+    """T-0097 (B2 §3.4): second-failure 门禁 — 同类失败复发未解决时阻断发布。
+
+    S6-delivery 分支新增检查（与 check_slo_gate_evidence 同级，B2 §3.4
+    ``action_item_closed`` 接线）。本检查只会**新增**阻断条件，不会放松任何
+    既有检查（T-0093 AC-06 姿态延续）。
+
+    - 开关未启用（config.yaml ``second_failure_gate.enabled`` 默认 false，
+      或环境变量 LOOP_SECOND_FAILURE_GATE_ENABLED）→ 放行（advisory 模式，
+      wave 1 opt-in）
+    - 无 second-failure 记录            → 放行
+    - 未解决复发（关联复盘无 open 行动项）→ 阻断（SECOND_FAILURE_UNRESOLVED
+      + 明细）
+    - 有 open 行动项 / 复盘闭环 / 已显式 resolved → 放行
+    - 有效豁免（未过期 + approver 非空）→ 放行（原因含豁免记录）
+    - 证据文件不可解析                 → fail-closed 阻断（列出文件）
+
+    门禁模块加载/执行异常 → fail-closed 阻断（T-0083 AC-06 姿态）。
+    """
+    try:
+        # hook 可能从插件缓存运行：显式把项目根插入 sys.path 后再 import
+        # （同 check_slo_gate_evidence 的 _import_loop_core_gate 模式）——
+        # 只在目标子模块确实缺失（陈旧缓存副本）时精确地从项目根解析，
+        # 不替换已加载的 loop_core 包对象（不破坏同进程其他模块的引用）。
+        module = _import_loop_core_gate(root, "second_failure")
+        second_failure_block = module.second_failure_block
+    except Exception as exc:
+        return False, (
+            f"Second-failure 门禁模块加载失败（fail-closed）："
+            f"{type(exc).__name__}: {exc}"
+        )
+    try:
+        result = second_failure_block(root)
+    except Exception as exc:
+        return False, (
+            f"Second-failure 门禁执行异常（fail-closed）："
+            f"{type(exc).__name__}: {exc}"
+        )
+    if result.decision == "PASS":
+        return True, f"Second-failure 门禁通过：{result.reason}"
+    return False, f"Second-failure 门禁阻断：{result.reason}"
 
 
 # ── T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据 ───────────────────────────
@@ -1448,9 +1540,16 @@ def check_phase_gate_enforcement(root: Path, phase: str) -> tuple[bool, str]:
         slo_ok, slo_reason = check_slo_gate_evidence(root)
         if not slo_ok:
             return slo_ok, slo_reason
+        # T-0097 (B2 §3.4): second-failure 门禁 — 同类失败复发未解决阻断。
+        # 默认关闭（wave 1 advisory / opt-in：启用只会新增阻断条件，既有
+        # 检查零放松）。开关/豁免/闭环语义见 check_second_failure_gate_evidence
+        # 与 loop_core/second_failure.py。
+        sf_ok, sf_reason = check_second_failure_gate_evidence(root)
+        if not sf_ok:
+            return sf_ok, sf_reason
         return True, (
-            "S6 delivery + runtime quality + security + SLO gates passed "
-            f"({slo_reason})"
+            "S6 delivery + runtime quality + security + SLO + second-failure "
+            f"gates passed ({slo_reason}; {sf_reason})"
         )
 
     # T-0082 Phase 5 GAP-2: S7-S11 阶段门禁证据（overall=PASS 的结构化报告）

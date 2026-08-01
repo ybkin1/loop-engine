@@ -109,6 +109,14 @@ DEFAULT_CONFIG = {
         # LOOP_SLO_GATE_ENABLED=0/false 优先于本配置。
         "enabled": True,
     },
+    "second_failure_gate": {
+        # T-0097 (B2 §3.4): second-failure 门禁（同类失败复发 → 阻断直到
+        # 有 owner 行动项）。默认关闭（wave 1 advisory / opt-in —— 启用
+        # 只会新增阻断条件，绝不放松既有检查）；项目可在 config.yaml 设
+        # second_failure_gate.enabled: true 开启，或设环境变量
+        # LOOP_SECOND_FAILURE_GATE_ENABLED=1/true（优先于本配置）。
+        "enabled": False,
+    },
 }
 
 

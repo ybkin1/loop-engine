@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T01:52:17.126349+08:00'
+last_handoff_at: '2026-08-02T02:37:51.820178+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -56,6 +56,9 @@ notes:
 - 'T-0095 COMPLETED 2026-08-02: 遗留清理包 — 10 项 P3 清理（死导入/slo.yaml 显式化/事件轮转/ env 链统一/引用边界/metrics
   顶层/SLO 去重/豁免口径统一/lesson 锁/manifest），7/7 AC， 独立审查 CONDITIONAL_GO→P1 修复转 GO，全量 3521
   passed，v3.12.34 提交。'
-- 'T-0096 COMPLETED 2026-08-02: 知识/记忆服务（D3）— 知识存储（schema/幂等/多维检索）+ 记忆服务
-  （规则式提取/注入）+ gate_feedback 单向整合 + context_loader 可选注入，6/6 AC，独立审查
-  CONDITIONAL_GO→P1-1 修复转 GO，全量 3594 passed，v3.12.35 提交。'
+- 'T-0096 COMPLETED 2026-08-02: 知识/记忆服务（D3）— 知识存储（schema/幂等/多维检索）+ 记忆服务 （规则式提取/注入）+
+  gate_feedback 单向整合 + context_loader 可选注入，6/6 AC，独立审查 CONDITIONAL_GO→P1-1 修复转 GO，全量
+  3594 passed，v3.12.35 提交。'
+- 'T-0097 COMPLETED 2026-08-02: B2 学习回路补全 — incident 记录 + 复盘（行动项 owner/deadline）+
+  second-failure（复发→草稿 + 未解决阻断，默认关闭 opt-in）+ gate_lessons 衔接，6/6 AC，独立审查 GO，全量 3675
+  passed，v3.12.36 提交。T-0095~T-0097 批量批次全部完成。下一任务待用户发起。'

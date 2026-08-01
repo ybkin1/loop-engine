@@ -1075,7 +1075,7 @@ tasks:
     id: T-0097
     title: B2 学习回路补全 — incident + 复盘 + second-failure 自动任务
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       IncidentRecord 落盘 + Retrospective（行动项 owner/deadline）+ second-failure
       检测（同类复发 → 建议草稿 + 未解决阻断）；不自动登记 task_graph。
