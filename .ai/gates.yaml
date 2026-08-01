@@ -4525,4 +4525,186 @@ gates:
   - no-real-external-call proof + no-hardcoded-secret scan
   - full regression results
   - acceptance evidence
+- id: G-T-0092-REQUIREMENTS
+  task_id: T-0092
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 继续 T-0092/T-0093/T-0094
+  approval_evidence: .ai/evidence/T-0092/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0092/execution-evidence.json
+  scope: >-
+    T-0092 AI-agent eval 栈（B1 设计落地）— EvalCase schema + EvalRunner（规则评分 +
+    可选 LLM 判定 fail-safe）+ EvalReport（ReportBinding 风格）+ 内置 guard 防护正/负样例集。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - call real external LLM services in tests
+  - create or register T-0095+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0092/
+  high_risk_flags:
+  - LLM 判定测试全 mock
+  - eval 只评测不改变约束语义
+  evidence_required:
+  - eval schema validation tests
+  - eval runner tests (rule scoring >=3 assertion types, LLM optional SKIPPED)
+  - eval report tests (ReportBinding style)
+  - builtin guard sample cases (>=4)
+  - full regression results
+  - acceptance evidence
+- id: G-T-0093-REQUIREMENTS
+  task_id: T-0093
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 继续 T-0092/T-0093/T-0094
+  approval_evidence: .ai/evidence/T-0093/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0093/execution-evidence.json
+  scope: >-
+    T-0093 SLO 门禁 wave 2 — error budget 耗尽自动冻结发布：SLO 门禁检查器
+    （HEALTHY→PASS / FREEZE→BLOCK / 数据缺失→fail-closed BLOCK）+ 接入 S6 发布链
+    （开关可配）+ 豁免记录 + budget 恢复自动放行。新增约束（强化方向）。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0095+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0093/
+  high_risk_flags:
+  - SLO 门禁为新增 fail-closed 检查，现有检查零放松
+  - 数据缺失误判需原因明确（NOT_AVAILABLE 明细）
+  evidence_required:
+  - slo gate checker tests (HEALTHY PASS / FREEZE BLOCK / missing fail-closed)
+  - release chain wiring tests (toggle on/off)
+  - exemption mechanism tests
+  - recovery tests (budget healthy -> release)
+  - full regression results
+  - acceptance evidence
+- id: G-T-0094-REQUIREMENTS
+  task_id: T-0094
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-01T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-01T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 继续 T-0092/T-0093/T-0094
+  approval_evidence: .ai/evidence/T-0094/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0094/execution-evidence.json
+  scope: >-
+    T-0094 前端产品层（D4）— AutoPlan dashboard 升级：任务图/gate 状态/指标/guard 健康
+    可视化 + 快照报告（文本 + 自包含 HTML）；数据源只读；不引入完整 React 栈。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0095+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/evidence/T-0094/
+  high_risk_flags:
+  - dashboard 数据源只读（task_graph/gates/metrics/guard-events 零修改）
+  - HTML 报告自包含（无外部依赖）
+  evidence_required:
+  - task graph view tests
+  - gate view tests
+  - metrics + guard health view tests
+  - snapshot report tests (text + self-contained HTML)
+  - full regression results
+  - acceptance evidence
 

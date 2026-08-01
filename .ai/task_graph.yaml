@@ -1010,6 +1010,42 @@ tasks:
       - T-0090
     gates:
       - G-T-0091-REQUIREMENTS
+  -
+    id: T-0092
+    title: AI-agent eval 栈（B1 设计落地）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      EvalCase schema + EvalRunner（规则评分 + 可选 LLM 判定 fail-safe）+ EvalReport
+      （ReportBinding 风格）+ 内置 guard 防护正/负样例集。
+    depends_on:
+      - T-0091
+    gates:
+      - G-T-0092-REQUIREMENTS
+  -
+    id: T-0093
+    title: SLO 门禁 wave 2 — error budget 耗尽自动冻结发布
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      SLO 门禁检查器（HEALTHY→PASS / FREEZE→BLOCK / 数据缺失→fail-closed BLOCK）；
+      接入 S6 发布链（开关可配）；豁免记录 + budget 恢复自动放行。新增约束（强化方向）。
+    depends_on:
+      - T-0092
+    gates:
+      - G-T-0093-REQUIREMENTS
+  -
+    id: T-0094
+    title: 前端产品层 — AutoPlan dashboard 升级（D4）
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      dashboard 任务图/gate 状态/指标/guard 健康可视化；快照报告（文本 + 自包含 HTML）；
+      数据源只读。不引入完整 React 栈。
+    depends_on:
+      - T-0093
+    gates:
+      - G-T-0094-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1037,3 +1073,9 @@ edges:
       to: T-0090
     - from: T-0090
       to: T-0091
+    - from: T-0091
+      to: T-0092
+    - from: T-0092
+      to: T-0093
+    - from: T-0093
+      to: T-0094
