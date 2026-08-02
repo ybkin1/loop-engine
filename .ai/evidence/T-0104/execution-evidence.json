@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0104",
+  "gate_id": "G-T-0104-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-02T19:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "批 1（设计-1/2/4 纯文档）：task-card 盲点清单/信息完整度声明/相关经验不熟悉处 3 节 + loop-governance SKILL 第 7 步盲点简报 + main-thread §2.3 象限判定 + §5.2/5.3 偏离摘要 + human-review-packet 理解确认节",
+    "批 2（设计-3 记录层）：developer SKILL deviations 数组 + approval_ledger AiDecisionRecord + .ai/ledger/ai-decisions.jsonl（ledger_guard 只读兼容验证）",
+    "批 3（设计-5 开关+调用点）：config.yaml memory_injection 配置节 + role_orchestrator/context_packager S4+ 显式 include_memories",
+    "测试：deviations 格式 / AiDecisionRecord 链校验 / memory_injection 开关 / ApprovalRecord 兼容 / 模板样例",
+    "全量回归 0 failed + compile pass + bump 3.12.42",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0104-REQUIREMENTS 已由用户批准（批准文本：批准）。用户选择方案 C：落地 D-03 全部 5 项设计。硬约束：hook 强制层 0 改动（ledger_guard 仅只读兼容验证）、治理内核 0 触碰、R10/R11 原文零改动、context_loader 默认值零改动。"
+}

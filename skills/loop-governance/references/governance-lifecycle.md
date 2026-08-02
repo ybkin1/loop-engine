@@ -36,6 +36,9 @@
 - PASS 语义分层，互不推导：
   `LOCAL_SLICE_PASS`（本地片段）→ `TASK_REQUIREMENTS_PASS`（任务验收）
   → `USER_ACCEPTED`（用户接受）→ `TASK_CLOSED`（任务关闭）。
+  **`USER_ACCEPTED` 前须完成 Human Review Packet"理解确认"节**：用户答对全部理解性问题
+  （`user_comprehension_confirmed: true`）后才允许标记；用户拒绝回答则记录 false 并降级标记
+  （"用户已接受（未做理解确认）"），如实呈现在下一阶段 Human Review Packet 中。
 
 ## HANDOFF 纪律
 

@@ -25,6 +25,56 @@ PHASE_ROLES = {
     "S11-maintenance": ["developer", "quality-engineer"],
 }
 
+# ── Memory injection switch (T-0104 设计-5 §5.3.2) ─────────────────────────
+# 非 hook 配置：skills/loop-governance/config.yaml 的 memory_injection 节。
+# enabled=false 或配置缺失/损坏 → 完全回退到现状（不注入）。
+_MEMORY_INJECTION_DEFAULT = {"enabled": False, "phases": [], "memory_limit": 5}
+
+
+def _load_memory_injection_config(project_root: str | Path) -> dict:
+    """Read the ``memory_injection`` config section (repo source, then installed copy).
+
+    First readable candidate wins:
+      <root>/skills/loop-governance/config.yaml
+      <root>/.zcode/skills/loop-governance/config.yaml
+    Missing or corrupt config → disabled (fail-closed: same as status quo).
+    """
+    import yaml
+
+    candidates = [
+        Path(project_root) / "skills" / "loop-governance" / "config.yaml",
+        Path(project_root) / ".zcode" / "skills" / "loop-governance" / "config.yaml",
+    ]
+    for path in candidates:
+        try:
+            if not path.exists():
+                continue
+            doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            cfg = doc.get("memory_injection")
+            if not isinstance(cfg, dict):
+                return dict(_MEMORY_INJECTION_DEFAULT)
+            return {
+                "enabled": bool(cfg.get("enabled", False)),
+                "phases": [str(p) for p in (cfg.get("phases") or [])],
+                "memory_limit": int(cfg.get("memory_limit", 5)),
+            }
+        except (OSError, yaml.YAMLError, ValueError, TypeError):
+            return dict(_MEMORY_INJECTION_DEFAULT)
+    return dict(_MEMORY_INJECTION_DEFAULT)
+
+
+def _memory_injection_for(
+    phase: str, project_root: str | Path = ""
+) -> tuple[bool, int]:
+    """Return (include_memories, memory_limit) for a phase under the config switch.
+
+    Phase matching is by prefix (e.g. "S4-implementation" ↔ config "S4"),
+    so both full and short phase ids work.
+    """
+    cfg = _load_memory_injection_config(project_root)
+    phase_key = str(phase).split("-", 1)[0]
+    return (cfg["enabled"] and phase_key in set(cfg["phases"]), cfg["memory_limit"])
+
 def get_roles_for_phase(phase: str) -> list[str]:
     """Return the list of role IDs required for a given phase."""
     return PHASE_ROLES.get(phase, [])
@@ -40,7 +90,11 @@ def build_dispatch_manifest(project_root: str, phase: str, task_id: str = "",
         return {"manifest_id": f"auto-{phase}", "subagents": [], "note": "No roles required for this phase"}
     
     from loop_core.role_loader import load_role_prompt_with_context
-    
+
+    # T-0104 设计-5: S4+ 阶段（config memory_injection.phases）显式开启记忆注入；
+    # enabled=false 或配置缺失 → include_memories=False，行为与现状完全一致。
+    include_memories, memory_limit = _memory_injection_for(phase, project_root)
+
     subagents = []
     for role_id in roles:
         if role_id == "main-thread":
@@ -48,7 +102,9 @@ def build_dispatch_manifest(project_root: str, phase: str, task_id: str = "",
         try:
             prompt = load_role_prompt_with_context(
                 role_id, project_root=project_root, task_id=task_id,
-                extra_files=extra_files
+                extra_files=extra_files,
+                include_memories=include_memories,
+                memory_limit=memory_limit,
             )
             subagents.append({
                 "subagent_id": f"{role_id}-{phase}",

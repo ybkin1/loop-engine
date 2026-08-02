@@ -121,15 +121,26 @@ def load_role_prompt(
 
 
 # T-0074: Context-aware role dispatch
-def build_role_context(role_id, project_root=".", task_id="", extra_files=None):
-    """Build code context for a role sub-agent."""
-    from loop_core.context_packager import build_context
-    return build_context(project_root, role_id, task_id, extra_files)
+def build_role_context(role_id, project_root=".", task_id="", extra_files=None,
+                       *, include_memories: bool = False, memory_limit: int = 5):
+    """Build code context for a role sub-agent.
 
-def load_role_prompt_with_context(role_id, project_root=".", task_id="", extra_files=None):
+    T-0104 设计-5: ``include_memories``/``memory_limit`` 透传给
+    context_packager.build_context（S4+ 调用点显式开启记忆注入）。
+    默认 False 保持现状（零行为变化）。
+    """
+    from loop_core.context_packager import build_context
+    return build_context(project_root, role_id, task_id, extra_files,
+                         include_memories=include_memories,
+                         memory_limit=memory_limit)
+
+def load_role_prompt_with_context(role_id, project_root=".", task_id="", extra_files=None,
+                                  *, include_memories: bool = False, memory_limit: int = 5):
     """Load role identity + code context — the ONE method for agent dispatch."""
     identity = load_role_prompt(role_id, task_id)
-    context = build_role_context(role_id, project_root, task_id, extra_files)
+    context = build_role_context(role_id, project_root, task_id, extra_files,
+                                 include_memories=include_memories,
+                                 memory_limit=memory_limit)
     return identity + "\n\n---\n\n" + context
 # ===== 2. Agent dispatch helper =====
 def build_agent_dispatch_instruction(role_id: str, task_id: str, files: list[str]) -> str:

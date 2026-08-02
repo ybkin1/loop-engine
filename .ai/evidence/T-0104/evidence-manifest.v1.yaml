@@ -1,0 +1,72 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0104-E6A0AFFC
+task_id: T-0104
+gate_id: G-T-0104-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0104
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0104/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: BF1C245E87EF25DA582A546146ADED3E01349416826781247A734B05900A2677
+  size: 4280
+  mtime_ns: 1785673839357769800
+- path: .ai/evidence/T-0104/approval-evidence.json
+  role: result
+  required: true
+  sha256: B0CBBF5356E5A6E411546A478302F359F6D317578B78F9E01C538582266BD59F
+  size: 300
+  mtime_ns: 1785672223001790800
+- path: .ai/evidence/T-0104/commands.md
+  role: result
+  required: true
+  sha256: AA15F00FD7CA887B48C74D2B7DA1ADB176DAC3C6BFB9011CD80B76244686F4CB
+  size: 9993
+  mtime_ns: 1785673111699949600
+- path: .ai/evidence/T-0104/compile-evidence.json
+  role: result
+  required: true
+  sha256: 68FCC7A137E9D3EE9CF218630423895362C8962A1AB59FE93C9923FCBA789455
+  size: 181
+  mtime_ns: 1785673389048078000
+- path: .ai/evidence/T-0104/execution-evidence.json
+  role: result
+  required: true
+  sha256: E8BB241E987FFF63995B0C9AB0979996C7C0EE0418B31896A2FBD0265688FDBE
+  size: 1315
+  mtime_ns: 1785672227112101500
+- path: .ai/evidence/T-0104/fixes/batch1-doc.md
+  role: result
+  required: true
+  sha256: EAE899C05BC4FEAA7538D81179BA9A439426E07719C1001E0E762EC5A927AECE
+  size: 2734
+  mtime_ns: 1785673120245019000
+- path: .ai/evidence/T-0104/fixes/batch2-ledger.md
+  role: result
+  required: true
+  sha256: DD33F76AB99B62D2AE70C6BCF4059467223390BF0C52A3EFCBBDA402AFA9FDF0
+  size: 3655
+  mtime_ns: 1785673130155582500
+- path: .ai/evidence/T-0104/fixes/batch3-memory.md
+  role: result
+  required: true
+  sha256: 9C3C270E89E6B382946466082EC3479C2FB92CE61269E586BAA5223120A60DCC
+  size: 3513
+  mtime_ns: 1785673139022818300
+- path: .ai/evidence/T-0104/review/independent-review.md
+  role: result
+  required: true
+  sha256: CBFE39ED9EBFC82A3EB6FCAA2F0BEC1229F77412190084DB2F790C00B9D5A048
+  size: 19810
+  mtime_ns: 1785673807260985000
+file_count: 9
+total_bytes: 45781
+ordered_entries_sha256: E6A0AFFCF79A0F143B983ACE6F8BD5CBBB32A8621E9821C1663D574EC4FC12FC
+created_at: '2026-08-02T20:30:00+08:00'
+created_by: governance-controller
+semantic_sha256: 4CC6A86B9DB33F900B073C69A38FE5D1E3069E56A5E99830E25929195E9E25E6

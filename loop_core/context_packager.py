@@ -17,7 +17,14 @@ ROLE_CONTEXT = {
     "security-engineer": {"files": ["pyproject.toml"], "git_diff": True, "max_content": 6000},
 }
 
-def build_context(project_root, role_id, task_id="", extra_files=None):
+def build_context(project_root, role_id, task_id="", extra_files=None,
+                  *, include_memories: bool = False, memory_limit: int = 5):
+    """Build code context for a role sub-agent.
+
+    T-0104 设计-5: ``include_memories=True`` 时追加"相关经验（Related
+    Memories）"节（memory_service recall，top-N = memory_limit，渲染格式
+    与 context_loader 一致）。默认 False 保持现状（零行为变化）。
+    """
     root = Path(project_root)
     spec = ROLE_CONTEXT.get(role_id, {"files": [], "git_diff_name_only": True, "max_content": 2000})
     parts = []
@@ -63,6 +70,15 @@ def build_context(project_root, role_id, task_id="", extra_files=None):
                 parts.append("## Knowledge Cases\n" + json.dumps(selected, ensure_ascii=False, indent=2)[:3000])
         except (OSError, json.JSONDecodeError):
             pass
+    if include_memories:
+        # T-0104 设计-5: 记忆注入（S4+ 调用点显式开启）。空召回 = 无节 = no-op；
+        # store 损坏时 fail-closed（与 context_loader 语义一致，不静默猜记忆）。
+        from loop_core.memory_service import memories_to_context, recall
+        if isinstance(memory_limit, int) and memory_limit > 0:
+            entries = recall(root, limit=memory_limit)
+            section = memories_to_context(entries)
+            if section and total < MAX:
+                parts.append(section)
     parts.append("execution_mode: SIMULATED_MAIN_SESSION\nagent_takeover: false")
     parts.append("\n---\nUse the above context to complete your role duties.")
     return "\n\n".join(parts)

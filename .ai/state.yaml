@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T18:13:23.790299+08:00'
+last_handoff_at: '2026-08-02T20:33:12.326738+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -98,3 +98,12 @@ notes:
 - 'T-0103 COMPLETED 2026-08-02: 提示词工程盘点 + 四象限整合设计（candidate-only） — 290+ 文件盘点（D-01
   约 80 条目）+ 差距分析（Q3 盲点自检为唯一空白象限）+ 5 项 整合设计（15 影响文件，hook 强制层 0 触碰）+ eval 实验设计，6/6 AC，独立审查
   GO （P1=0，抽查准确率 97%），生产零改动，版本保持 3.12.41。落地与否待用户 gate 决策 （建议转 T-0104）。'
+- 'T-0104 PENDING 2026-08-02: 四象限整合设计落地（D-03 全部 5 项，用户已选方案 C） — 盲点自检/定位声明/偏离日志/反向考察/简报要素，三批执行；hook
+  0 改动、内核 0 触碰； bump 3.12.42。G-T-0104-REQUIREMENTS pending，待用户批准。'
+- 'T-0104 ACTIVE 2026-08-02: G-T-0104-REQUIREMENTS 已由用户批准。执行中：批 1 （设计-1/2/4 纯文档）→
+  批 2（设计-3 记录层，ledger_guard 只读兼容验证）→ 批 3 （设计-5 开关+调用点）；测试 + 全量回归 0 failed；bump 3.12.42；独立审查
+  → 验收 → 推送同步。'
+- 'T-0104 COMPLETED 2026-08-02: 四象限整合设计落地（D-03 全部 5 项）— 盲点清单节 + 启动检查第 7 步 + 信息完整度声明/象限判定
+  + deviations 数组 + AiDecisionRecord/ ai-decisions.jsonl 链 + 理解确认节 + memory_injection
+  开关（S4+ 显式注入）， 8/8 AC，独立审查 GO（P1=0/P2=0，35/35 抽查，全量 3636 passed 独立复验）， hook 强制层 0
+  改动、内核 0 触碰、R10/R11 原文未动，bump 3.12.42 提交。推送同步完成。'

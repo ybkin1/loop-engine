@@ -80,6 +80,22 @@ implementation_summary.md 的等效 JSON Schema（主控依赖此结构化字段
       "adr_ref": "ADR 编号"
     }
   ],
+  "deviations": [
+    {
+      "deviation_id": "DEV-S4-001",
+      "new_situation": ["实现中发现的、契约未声明的新事实"],
+      "plan_change": "实现的调整（如：按契约实现但发现依赖缺失，改为先实现无依赖部分）",
+      "reason": "调整原因",
+      "ai_decisions_made_for_user": [
+        {
+          "decision": "[AI判断] 选择了 X 而不是 Y",
+          "why_not_ask": "低风险且可在既有批准范围内兜底",
+          "impact_if_wrong": "错误则影响性能而非正确性，可在 S5 质量门发现",
+          "needs_user_review": true
+        }
+      ]
+    }
+  ],
   "lint_status": {"errors": 0, "warnings": 0},
   "test_status": {"total": 0, "passed": 0, "failed": 0},
   "summary": "一句话总结实现状态"
@@ -87,6 +103,14 @@ implementation_summary.md 的等效 JSON Schema（主控依赖此结构化字段
 ```
 
 **以上所有字段为必填。缺任何字段 = 无效输出，将被主控打回重做。**
+
+`deviations` 为**新增可选数组**（无偏离时缺省 `[]`）；现有 `known_deviations` / `unimplemented` /
+`clarification_requests` 字段及其语义**原样保留**，既有消费逻辑不受影响。
+`deviations` 字段规则（D-03 设计-3 §3.3.1）：
+- `new_situation` / `plan_change` 可为空数组，但 `reason` 必填（"改了什么、为什么改"）；缺任一字段 = 无效输出打回。
+- `ai_decisions_made_for_user` 条目必须同时填 `why_not_ask` 与 `impact_if_wrong`，缺一 = 无效输出打回。
+- `needs_user_review: true` 的条目必须进入本阶段 gate 呈现的偏离摘要（main-thread §5.2），不得只写在产出里。
+- 每条 `[AI判断]` 决策应写入 `.ai/ledger/ai-decisions.jsonl`（AiDecisionRecord，见 loop_core/approval_ledger.py）。
 
 ### 5.2 代码产物
 

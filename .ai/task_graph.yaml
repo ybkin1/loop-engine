@@ -1159,6 +1159,19 @@ tasks:
       - T-0102
     gates:
       - G-T-0103-REQUIREMENTS
+  -
+    id: T-0104
+    title: 四象限整合设计落地 — 盲点自检 + 定位声明 + 偏离日志 + 反向考察 + 简报要素
+    phase: S6-delivery
+    status: completed
+    description: >-
+      落地 D-03 全部 5 项设计（三批：①设计-1/2/4 纯文档 ②设计-3 记录层
+      ③设计-5 开关+调用点）；hook 强制层 0 改动（ledger_guard 仅只读验证）、
+      治理内核 0 触碰、context_loader 默认值不动；版本 bump 3.12.42。
+    depends_on:
+      - T-0103
+    gates:
+      - G-T-0104-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

@@ -66,6 +66,22 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 - 自审阻断: developer ≠ reviewer
 - **一个阶段 = 一个 main-thread = 一个 Loop**
 
+## 2.3 象限判定 → 行为选择（开工前必做）
+
+接收阶段定义后、冻结输入前，先读任务卡"信息完整度声明 + 象限判定"节：
+
+| 信息状态 | 象限 | 行为模式 |
+|---|---|---|
+| 目标/受众/边界/格式 四项全明确 | Q1 已知的已知 | 直接执行不猜测：不提问、声明假设为零；产出与任务卡逐项对照 |
+| 至少一项缺失但用户知道自己缺 | Q2 已知的未知 | 围绕缺口提问（每轮 ≤3 个，附"为什么问"）；补齐后回填声明节再开工 |
+| 存在任务卡未明说但影响结果的变量 | Q3 未知的未知 | 按任务卡盲点清单节向用户简报核对（与 R11 合并为一次呈现） |
+| 用户说不清但看到能判断 | Q4 未知的已知 | 出 2-3 个可选方案（方案/效果/风险）随 gate-request 呈现，AI 给推荐+理由，不自行拍板 |
+
+约束：
+- Q2 提问遵守 R10（先给 [AI判断] 再问）与 R11（每轮 ≤3 次，多轮属后续 P2-1 设计，本小节不放开上限）。
+- 象限判定结果写入 SubagentManifest 的 aggregation_prompt（A-01 L198），让汇总阶段知道本阶段行为模式。
+- 判定为 Q1 时，若执行中仍出现未声明变量 → 立即转入偏离记录（见设计-3），不得静默继续。
+
 ## 3. 执行流程
 
 ```
@@ -135,6 +151,7 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 | 单元测试全部通过 | pytest exit 0 |
 | 无硬编码密钥 | security_scan.py |
 | 未自行改需求或架构 | 合同禁止项 |
+| deviations 数组格式合规 | 每个条目含 deviation_id/phase/reason；`ai_decisions_made_for_user` 每条必须同时含 why_not_ask 与 impact_if_wrong；缺 reason / 缺 why_not_ask = 打回 |
 
 ### 质量工程师（S5）
 | 检查项 | 依据 |
@@ -183,6 +200,8 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 | 未覆盖任何角色的 BLOCKED | 合同 §2.2 |
 | 未替角色伪造结论 | 合同禁止项 |
 | SubagentManifest 通过 validate() | loop_core/subagent_manifest.py |
+| 任务卡盲点清单 ≥3 条（每条含三要素） | 任务卡模板"盲点清单"节 |
+| Human Review Packet 含理解确认节 | human-review-packet.md 模板"六、理解确认" |
 
 ## 5. 输出格式
 
@@ -229,6 +248,20 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 }
 ```
 
+**gate_presentation 中文段落内强制包含以下小节（模板文本）：**
+
+```markdown
+### 本阶段偏离摘要
+
+- 新情况：N 条（列出每条一句话；空则写"无"）
+- 方案调整：M 条（每条：原方案 → 现方案，一句话原因）
+- 替您做的决定：K 条（每条：[AI判断] 内容 + 若判断错误的影响 + 是否建议您复核）
+```
+
+偏离数据来自角色产出的 `deviations` 数组（developer SKILL §5.1）：
+`needs_user_review: true` 的条目必须进入本节呈现，不得只写在产出里；
+无偏离时按模板写"无"。
+
 ### 5.3 自检规则
 
 1. verdict 为 PASS 时，所有角色 status 必须为 PASS
@@ -237,3 +270,4 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 4. developer 和 reviewer 的 subagent_id 必须不同
 5. retry_count 必须 ≤ 3
 6. roles 数组不得为空
+7. 角色产出中 `needs_user_review: true` 的条目数 = gate 呈现偏离摘要中"替您做的决定"列出条数（不匹配 = 打回）

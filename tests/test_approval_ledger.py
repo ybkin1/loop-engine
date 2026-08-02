@@ -632,3 +632,99 @@ class TestFindExpired:
             assert expired == []
         finally:
             gates_path.unlink(missing_ok=True)
+
+
+# ── user_comprehension_confirmed (T-0104 设计-4 §4.3.2) ────────────────────
+
+
+class TestUserComprehensionConfirmed:
+    """ApprovalRecord 可选字段：有值/无值（None）两种读取路径。"""
+
+    def test_round_trip_true(self):
+        gates = [{"id": "G-COMP-TRUE", "status": "pending"}]
+        gates_path = _make_temp_gates_yaml(gates)
+        try:
+            rec = _sample_record(
+                gate_id="G-COMP-TRUE",
+                user_comprehension_confirmed=True,
+            )
+            ledger = ApprovalLedger()
+            ledger.record_approval(rec, gates_path)
+
+            loaded = ledger.get_approval("G-COMP-TRUE", gates_path)
+            assert loaded is not None
+            assert loaded.user_comprehension_confirmed is True
+        finally:
+            gates_path.unlink(missing_ok=True)
+
+    def test_round_trip_false(self):
+        gates = [{"id": "G-COMP-FALSE", "status": "pending"}]
+        gates_path = _make_temp_gates_yaml(gates)
+        try:
+            rec = _sample_record(
+                gate_id="G-COMP-FALSE",
+                user_comprehension_confirmed=False,
+            )
+            ledger = ApprovalLedger()
+            ledger.record_approval(rec, gates_path)
+            loaded = ledger.get_approval("G-COMP-FALSE", gates_path)
+            assert loaded is not None
+            assert loaded.user_comprehension_confirmed is False
+        finally:
+            gates_path.unlink(missing_ok=True)
+
+    def test_legacy_record_without_key_reads_none(self):
+        """存量记录无 user_comprehension_confirmed 键 → None（未采集）。"""
+        gates = [{"id": "G-LEGACY", "status": "approved"}]
+        gates_path = _make_temp_gates_yaml(gates)
+        try:
+            import yaml
+            with open(gates_path, "r", encoding="utf-8") as fh:
+                doc = yaml.safe_load(fh) or {}
+            doc["gates"][0]["approval"] = {
+                "approval_id": "AR-legacy",
+                "human_actor": "user",
+                "decision": "approved",
+                "source": "explicit_user_message",
+                "packet_hash": "abc",
+                "scope_hash": "def",
+                "input_fingerprint": "ghi",
+                "recorded_at": "2026-01-01T00:00:00+00:00",
+                "expiration": "2026-02-01T00:00:00+00:00",
+                # 无 user_comprehension_confirmed 键 = 设计-4 落地前的存量记录
+            }
+            with open(gates_path, "w", encoding="utf-8") as fh:
+                yaml.dump(
+                    doc, fh, default_flow_style=False,
+                    allow_unicode=True, sort_keys=False,
+                )
+
+            ledger = ApprovalLedger()
+            loaded = ledger.get_approval("G-LEGACY", gates_path)
+            assert loaded is not None
+            assert loaded.user_comprehension_confirmed is None
+        finally:
+            gates_path.unlink(missing_ok=True)
+
+    def test_record_approval_omits_key_when_none(self):
+        """record 值为 None 时不写入该键（存量写入逻辑零变化）。"""
+        gates = [{"id": "G-COMP-NONE", "status": "pending"}]
+        gates_path = _make_temp_gates_yaml(gates)
+        try:
+            rec = _sample_record(
+                gate_id="G-COMP-NONE",
+                user_comprehension_confirmed=None,
+            )
+            ledger = ApprovalLedger()
+            ledger.record_approval(rec, gates_path)
+
+            import yaml
+            with open(gates_path, "r", encoding="utf-8") as fh:
+                doc = yaml.safe_load(fh)
+            approval = doc["gates"][0]["approval"]
+            assert "user_comprehension_confirmed" not in approval
+
+            loaded = ledger.get_approval("G-COMP-NONE", gates_path)
+            assert loaded.user_comprehension_confirmed is None
+        finally:
+            gates_path.unlink(missing_ok=True)
