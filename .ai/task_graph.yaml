@@ -1145,6 +1145,20 @@ tasks:
       - T-0101
     gates:
       - G-T-0102-REQUIREMENTS
+  -
+    id: T-0103
+    title: 提示词工程全量盘点 + 四象限整合设计（candidate-only）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      盘点 loop 工程全部提示词工程资产（角色 SKILL/技能模板/hook 注入/上下文记忆/
+      LLM/eval/用户级）+ Q1-Q4 四象限与执行前中后三阶段差距分析 + 整合设计
+      candidate（盲点自检/定位声明区/偏离日志/反向考察）+ B1 eval 最小实验设计；
+      不落地生产代码、不 bump 版本（保持 3.12.41）。
+    depends_on:
+      - T-0102
+    gates:
+      - G-T-0103-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

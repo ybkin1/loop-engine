@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T17:19:16.192050+08:00'
+last_handoff_at: '2026-08-02T18:13:23.790299+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -90,3 +90,11 @@ notes:
   + _latest_manifest_path 方案 A，idle 无悬挂引用）+ rollback rc=3 感知 + bump --title 透传 + bump
   3.12.41，7/7 AC，独立审查 GO（2 项 P3 观察），全量 3766 passed（2 瞬时项提交后自愈）， v3.12.41 提交。OPEN-FINDING
   CLOSED。推送与同步完成，工程全绿。下一任务待用户发起。'
+- 'T-0103 PENDING 2026-08-02: 提示词工程全量盘点 + 四象限整合设计（candidate-only，不落地） — 基于用户四象限方法论（Q1
+  直接执行/Q2 老师问答/Q3 盲点自检/Q4 原型逼近 + 执行前中后三阶段）。 G-T-0103-REQUIREMENTS pending，待用户批准。'
+- 'T-0103 ACTIVE 2026-08-02: G-T-0103-REQUIREMENTS 已由用户批准（"准"）。执行中： 只读盘点 agents/skills/hooks/loop_core/tools/docs
+  提示词工程资产 → 四象限差距分析 → 整合设计 candidate（盲点自检/定位声明区/偏离日志/反向考察）+ B1 eval 最小实验 → 独立审查 →
+  决策包交用户。版本保持 3.12.41。'
+- 'T-0103 COMPLETED 2026-08-02: 提示词工程盘点 + 四象限整合设计（candidate-only） — 290+ 文件盘点（D-01
+  约 80 条目）+ 差距分析（Q3 盲点自检为唯一空白象限）+ 5 项 整合设计（15 影响文件，hook 强制层 0 触碰）+ eval 实验设计，6/6 AC，独立审查
+  GO （P1=0，抽查准确率 97%），生产零改动，版本保持 3.12.41。落地与否待用户 gate 决策 （建议转 T-0104）。'
