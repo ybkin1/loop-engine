@@ -51,6 +51,11 @@ def main() -> int:
         "checked_at": integrity["checked_at"],
     }
 
+    # F-01 (T-0100) 修复：death 在 --json 分支之前统一取用，避免仅文本分支
+    # 绑定的局部变量在 --json 模式下触发 UnboundLocalError（打印合法 JSON 后
+    # 仍必崩、退出码=1）。两个模式共用同一份判定，语义不变。
+    death = integrity["death"]
+
     if args.report:
         out = root / ".ai" / "evidence" / "T-0087" / "capability-registry" / "status.json"
         out.parent.mkdir(parents=True, exist_ok=True)
@@ -60,7 +65,6 @@ def main() -> int:
     if args.json:
         print(json.dumps(report, indent=2, ensure_ascii=False))
     else:
-        death = integrity["death"]
         print(f"Capability registry snapshot: {snapshot.snapshot_id[:16]}…")
         print(f"  bindings: {len(snapshot.entries)} "
               f"(checkers: {sum(1 for b in snapshot.entries.values() if b.provider_id == 'checker')}, "

@@ -19,11 +19,19 @@ Rules:
 - Read-only aggregation: this module never writes to its data sources.  The
   report artifact is written by the CLI (tools/loop_metrics.py) to the
   evidence directory.
-- A missing or unparseable data source is surfaced as NOT_AVAILABLE, never
-  guessed or silently zeroed (B2 §2.5: a report with missing data is
-  NOT_VERIFIED, fail-closed).
+- A missing or unparseable *wired* data source is surfaced as NOT_AVAILABLE,
+  never guessed or silently zeroed, and makes the report NOT_VERIFIED
+  (fail-closed, B2 §2.5).  Documented wave-2 wiring items
+  (phase_transitions.jsonl / guard_decisions.jsonl / runtime-events.jsonl,
+  T-0100 F-05) are surfaced as **per-source advisories** instead: computed
+  items are judged on their real values, and the report is not demoted to
+  NOT_VERIFIED merely because an unwired source is absent.
 - Every metric is a pure function of ledger inputs so results are
   reproducible from a commit (B2 §2.3).
+- Release-fee accounting lives in exactly one function
+  (``release_fee_consumption``, used by ``compute_error_budget``) — the SLO
+  gate references the same computation, so metrics and slo_gate budgets are
+  consistent for identical inputs (T-0100 F-05).
 """
 from __future__ import annotations
 
@@ -617,6 +625,40 @@ DEFAULT_SLOS: tuple[dict[str, Any], ...] = (
 DEFAULT_BUDGET_TOTAL_UNITS = 100.0
 DEFAULT_RELEASE_FEE_UNITS = 5.0
 
+# ── Data-source wiring status (T-0100 F-05) ──────────────────────────────
+# REPORT_SOURCE_FILES 中的三项是文档化 wave-2 接线项（B2 §2.2）：
+# 缺失/未接线 → 逐项 advisory 标注（不因它们整体 NOT_VERIFIED）；
+# 其余源（gates/task_graph/guard-events/executions）为已接线源 ——
+# 缺失即 NOT_AVAILABLE 且报告 NOT_VERIFIED（fail-closed，语义不变）。
+WAVE2_UNWIRED_SOURCES: frozenset[str] = frozenset({
+    "phase_transitions.jsonl",
+    "guard_decisions.jsonl",
+    "runtime-events.jsonl",
+})
+
+# 依赖未接线源或尚未落盘的 SLI：其 NOT_AVAILABLE 属于 advisory 类别
+# （evaluate_sli 逐分支标注 advisory=True），不驱动整体 NOT_VERIFIED。
+UNWIRED_SLI_IDS: frozenset[str] = frozenset({
+    "guard_block_rate",       # guard_decisions.jsonl（wave-2）
+    "drift_event_rate",       # runtime-events.jsonl（wave-2）
+    "delta_quality_pass_rate",      # 尚未记录
+    "evidence_regeneration_rate",   # 尚未记录
+    "defect_fail_verdict_rate",     # 尚未记录
+    "ac_invest_rate",               # 尚未记录
+})
+
+
+def release_fee_consumption(release_fee_units: float, releases: int) -> float:
+    """Release-fee consumption: ``releases * release_fee_units``.
+
+    单一共享实现（T-0100 F-05）：metrics 记账（compute_error_budget）与 SLO
+    门禁（loop_core.slo_gate 经 compute_error_budget 引用）使用同一函数，
+    保证口径一致 —— 相同输入必然得到相同 release_consumption。
+    """
+    if not releases:
+        return 0.0
+    return round(releases * release_fee_units, 3)
+
 
 def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dict[str, Any]:
     """Merge .ai/slo.yaml (B2 §1.3) over the B2 §1.2 defaults.
@@ -790,6 +832,11 @@ def evaluate_sli(sli: dict[str, Any], ctx: SliContext) -> dict[str, Any]:
     value: float | None = None
     breach_events: int | None = None
     reason: str | None = None
+    # T-0100 F-05: advisory=True 表示 NOT_AVAILABLE 源于文档化未接线数据源
+    # （wave-2）或尚未落盘的 SLI —— 逐项标注，不驱动整体 NOT_VERIFIED。
+    # guard_block_rate / drift_event_rate 的 advisory 仅在"源缺失（未接线）"
+    # 分支成立；若源已存在但无数据，则属真实数据情形（非 advisory）。
+    advisory = sli_id in UNWIRED_SLI_IDS - {"guard_block_rate", "drift_event_rate"}
 
     if sli_id in ("req_gate_rejection_rate", "design_review_rejection_rate",
                   "quality_gate_rejection_rate", "delivery_gate_rejection_rate"):
@@ -817,6 +864,7 @@ def evaluate_sli(sli: dict[str, Any], ctx: SliContext) -> dict[str, Any]:
         if ctx.guard_decisions is None:
             reason = ("guard_decisions.jsonl absent (hook decision log not yet "
                       "wired — B2 §2.2 wave 1)")
+            advisory = True  # 未接线源缺失 → advisory
         else:
             decided = [d for d in ctx.guard_decisions
                        if d.get("decision") in ("block", "pass")]
@@ -864,6 +912,7 @@ def evaluate_sli(sli: dict[str, Any], ctx: SliContext) -> dict[str, Any]:
     elif sli_id == "drift_event_rate":
         if ctx.drift_events is None:
             reason = "runtime-events.jsonl absent (drift source not yet wired)"
+            advisory = True  # 未接线源缺失 → advisory
         else:
             value = float(len(ctx.drift_events))
             breach_events = len(ctx.drift_events)
@@ -903,6 +952,7 @@ def evaluate_sli(sli: dict[str, Any], ctx: SliContext) -> dict[str, Any]:
         "breach_events": breach_events,
         "consumed_units": consumed,
         "source": sli.get("source", ""),
+        "advisory": advisory,
     }
 
 
@@ -913,12 +963,14 @@ def compute_error_budget(sli_results: Sequence[dict[str, Any]],
     """Error budget accounting (B2 §1.4).
 
     consumed = sum(breach_events * budget_share) over budget-consuming SLOs,
-    plus ``releases * release_fee_units`` when a release count is supplied.
+    plus ``releases * release_fee_units`` when a release count is supplied
+    (release fee via the shared ``release_fee_consumption`` — identical for
+    metrics accounting and the SLO gate, T-0100 F-05).
     Status: HEALTHY (nothing consumed) / CONSUMING (within budget) /
     FREEZE_RECOMMENDED (remaining <= 0 — advisory only in wave 1; release
     blocking is a wave-2 wiring item and is NOT applied here)."""
     consumed = round(sum(float(r.get("consumed_units", 0.0)) for r in sli_results), 3)
-    release_units = round(releases * release_fee_units, 3) if releases else 0.0
+    release_units = release_fee_consumption(release_fee_units, releases)
     total_consumed = round(consumed + release_units, 3)
     remaining = round(total_units - total_consumed, 3)
     if remaining <= 0:
@@ -948,8 +1000,13 @@ def _metric(value: Any, status: str = "computed", **extra: Any) -> dict[str, Any
     return {"status": status, "value": value, **extra}
 
 
-def _not_available(reason: str) -> dict[str, Any]:
-    return {"status": NOT_AVAILABLE, "value": NOT_AVAILABLE, "reason": reason}
+def _not_available(reason: str, advisory: bool = False) -> dict[str, Any]:
+    """NOT_AVAILABLE 指标。advisory=True：源于文档化未接线源（wave-2）——
+    逐项标注，不驱动整体 NOT_VERIFIED（T-0100 F-05）。"""
+    return {
+        "status": NOT_AVAILABLE, "value": NOT_AVAILABLE,
+        "reason": reason, "advisory": advisory,
+    }
 
 
 def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
@@ -1022,7 +1079,8 @@ def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
     if ctx.transitions is None:
         dora["phase_dwell_time"] = _not_available(
             "phase_transitions.jsonl absent (transition journal not yet wired — "
-            "wave 2 item per B2 §2.2)"
+            "wave 2 item per B2 §2.2)",
+            advisory=True,
         )
     else:
         stats = phase_dwell_stats(ctx.transitions)
@@ -1042,7 +1100,7 @@ def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
         )
     if ctx.transitions is None:
         dora["rework_cycles_from_transitions"] = _not_available(
-            "phase_transitions.jsonl absent"
+            "phase_transitions.jsonl absent", advisory=True
         )
     else:
         bounces = rework_cycles_from_transitions(ctx.transitions)
@@ -1076,13 +1134,15 @@ def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
 
     # guard block/pass/error rates — needs the hook decision log
     dora["guard_block_pass_error_rates"] = _not_available(
-        "guard_decisions.jsonl absent (hook decision log not yet wired — B2 §2.2)"
+        "guard_decisions.jsonl absent (hook decision log not yet wired — B2 §2.2)",
+        advisory=True,
     )
 
     # drift events — needs the runtime events ledger
     if ctx.drift_events is None:
         dora["drift_events"] = _not_available(
-            "runtime-events.jsonl absent (drift source not yet wired)"
+            "runtime-events.jsonl absent (drift source not yet wired)",
+            advisory=True,
         )
     else:
         dora["drift_events"] = _metric(drift_event_counts(ctx.drift_events))
@@ -1090,7 +1150,8 @@ def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
     # evidence regeneration — no reliable source in wave 1 (empty
     # evidence_refs would fabricate a meaningless zero)
     dora["evidence_regeneration_events"] = _not_available(
-        "evidence freshness (C8) re-run events not yet recorded"
+        "evidence freshness (C8) re-run events not yet recorded",
+        advisory=True,
     )
 
     # execution cycle time — from the execution ledger
@@ -1145,8 +1206,11 @@ def git_commit(root: str | Path) -> str:
 class MetricsReport:
     """Structured metrics report (B2 §2.3/§2.4), ReportBinding-style:
     binds git_commit + window + generated_at + tool identity.  ``status`` is
-    PASS only when every metric is computed; any NOT_AVAILABLE makes it
-    NOT_VERIFIED (fail-closed, B2 §2.5)."""
+    PASS only when every *wired* metric is computed; a missing/unparseable
+    wired source, or a wired-source NOT_AVAILABLE, makes it NOT_VERIFIED
+    (fail-closed, B2 §2.5).  Documented unwired sources (wave-2 ledger items)
+    are collected in ``advisories`` (per-source annotated, T-0100 F-05) and
+    never demote the overall status by themselves."""
     window: tuple[str, str]
     generated_at: str
     git_commit: str
@@ -1163,6 +1227,7 @@ class MetricsReport:
     status: str
     missing: list[str]
     notes: list[str] = field(default_factory=list)
+    advisories: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1180,6 +1245,7 @@ class MetricsReport:
             "window": {"start": self.window[0], "end": self.window[1]},
             "status": self.status,
             "missing": self.missing,
+            "advisories": self.advisories,
             "dora_metrics": self.dora,
             "slo_evaluation": self.sli_eval,
             "error_budget": self.budget,
@@ -1214,13 +1280,16 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
                  gate_id: str | None = None) -> MetricsReport:
     """Build the full metrics report from the repository data sources.
 
-    Read-only: never writes to any data source.  A missing/unparseable
+    Read-only: never writes to any data source.  A missing/unparseable *wired*
     source is recorded in ``sources``/``missing`` and the affected metrics
-    are NOT_AVAILABLE; the report status then is NOT_VERIFIED."""
+    are NOT_AVAILABLE; the report status then is NOT_VERIFIED.  Documented
+    unwired (wave-2) sources are recorded in ``advisories`` with per-source
+    annotation and do not demote the overall status (T-0100 F-05)."""
     root_path = Path(root)
     data: dict[str, Any] = {}
     sources: list[dict[str, Any]] = []
-    missing: list[str] = []
+    missing: list[str] = []       # 已接线源缺失/不可解析 → NOT_VERIFIED 驱动
+    advisories: list[str] = []    # 未接线源（wave-2）→ 逐项 advisory（T-0100 F-05）
     for rel_path, key in REPORT_SOURCE_FILES:
         path = root_path / rel_path
         exists = path.exists()
@@ -1232,7 +1301,13 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         })
         if not exists:
             data[key] = None
-            missing.append(f"{key} ({rel_path})")
+            if Path(rel_path).name in WAVE2_UNWIRED_SOURCES:
+                advisories.append(
+                    f"数据源未接线（wave-2 项，不影响 computed 判定）: "
+                    f"{key} ({rel_path})"
+                )
+            else:
+                missing.append(f"{key} ({rel_path})")
             continue
         loader = {
             "gates": load_gates,
@@ -1249,7 +1324,10 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
             data[key] = loader(root_path)
         except DataSourceUnavailableError as exc:
             data[key] = None
-            missing.append(f"{key} ({rel_path}): {exc}")
+            if Path(rel_path).name in WAVE2_UNWIRED_SOURCES:
+                advisories.append(f"数据源未接线（wave-2 项）: {key} ({rel_path}): {exc}")
+            else:
+                missing.append(f"{key} ({rel_path}): {exc}")
 
     slo_config = load_slo_config(root_path, slo_path)
 
@@ -1283,12 +1361,21 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         releases=releases,
     )
 
+    # T-0100 F-05: NOT_VERIFIED 只由"已接线源"问题驱动 —— 未接线源（wave-2）
+    # 的 NOT_AVAILABLE 进 advisories（逐项标注），computed 项按实值判定。
     all_not_available = [
         name for name, m in dora.items()
-        if m.get("status") == NOT_AVAILABLE
+        if m.get("status") == NOT_AVAILABLE and not m.get("advisory")
     ] + [
         f"sli:{r['sli_id']}" for r in sli_eval
-        if r.get("status") == NOT_AVAILABLE
+        if r.get("status") == NOT_AVAILABLE and not r.get("advisory")
+    ]
+    advisory_items = [
+        name for name, m in dora.items()
+        if m.get("status") == NOT_AVAILABLE and m.get("advisory")
+    ] + [
+        f"sli:{r['sli_id']} — {r.get('reason')}" for r in sli_eval
+        if r.get("status") == NOT_AVAILABLE and r.get("advisory")
     ]
     status = REPORT_NOT_VERIFIED if (missing or all_not_available) else REPORT_PASS
     report_missing = missing + all_not_available
@@ -1301,10 +1388,17 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         "read-only aggregation: data sources are never modified by this report.",
         budget["note"],
     ]
+    if advisories:
+        notes.append(
+            f"部分数据源未接线（wave-2 ledger 项，共 {len(advisories)} 个）："
+            "逐项 advisory 标注，computed 项正常判定，不因未接线源整体 NOT_VERIFIED"
+        )
     if releases == 0 and slo_config["release_fee_units"]:
         notes.append(
             "release fee not assessed: no release ledger exists yet; pass "
-            "--releases when a release record is available."
+            "--releases when a release record is available. 口径提示：release.py "
+            "check 的 SLO 门禁按 releases=1 评估本次发布，metrics 报告用同一 "
+            "releases 值即与 slo_gate 输出一致（同一 release_fee 函数）。"
         )
 
     return MetricsReport(
@@ -1324,6 +1418,7 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         status=status,
         missing=report_missing,
         notes=notes,
+        advisories=advisories + advisory_items,
     )
 
 
@@ -1351,6 +1446,13 @@ def render_markdown(report: MetricsReport) -> str:
     if report.missing:
         lines.append(f"**Missing data ({len(report.missing)}):** "
                      + "; ".join(report.missing))
+        lines.append("")
+
+    if report.advisories:
+        lines.append(f"**Advisories ({len(report.advisories)} — 未接线数据源/"
+                     "未落盘项，不影响 computed 判定):**")
+        for a in report.advisories:
+            lines.append(f"- {a}")
         lines.append("")
 
     lines.append("## Error budget")

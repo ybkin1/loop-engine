@@ -159,25 +159,26 @@ class TestAC03ReleaseFlow:
         for name in rel.PREFLIGHT_STEPS:
             monkeypatch.setattr(rel, f"step_{name}", lambda root: (True, "mocked ok"))
         monkeypatch.setattr(rel, "git_head_commit", lambda root: "deadbeef12ab")
+        version = rel.load_version(PROJECT_ROOT)  # T-0100: 跟随 pyproject（不再硬编码）
 
         def fake_build(root, dist_dir=None):
             dist = dist_dir or (root / "dist")
             dist.mkdir(parents=True, exist_ok=True)
-            (dist / "loop_engine-3.12.36-py3-none-any.whl").write_bytes(b"fake wheel")
-            (dist / "loop_engine-3.12.36.tar.gz").write_bytes(b"fake sdist")
+            (dist / f"loop_engine-{version}-py3-none-any.whl").write_bytes(b"fake wheel")
+            (dist / f"loop_engine-{version}.tar.gz").write_bytes(b"fake sdist")
             return True, "mocked build ok"
 
         monkeypatch.setattr(rel, "build_artifacts", fake_build)
         assert rel.cmd_release(tmp_root) == 0
 
-        version_dir = tmp_root / ".ai" / "evidence" / "release" / "3.12.36"
+        version_dir = tmp_root / ".ai" / "evidence" / "release" / version
         for name in (rel.DECISION_REQUEST_NAME, rel.MANIFEST_NAME, rel.SHA256SUMS_NAME):
             assert (version_dir / name).exists(), f"release 证据缺失: {name}"
 
         req = json.loads((version_dir / rel.DECISION_REQUEST_NAME).read_text(encoding="utf-8"))
         for key in ("version", "task_id", "owners", "deadline", "status", "requested_at"):
             assert key in req, f"release-decision.request.json 缺字段: {key}"
-        assert req["version"] == "3.12.36"
+        assert req["version"] == version
         assert req["status"] == "requested", "候选决策 status 应为 requested"
 
         manifest = json.loads((version_dir / rel.MANIFEST_NAME).read_text(encoding="utf-8"))

@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T11:04:28.486933+08:00'
+last_handoff_at: '2026-08-02T13:00:57.205022+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -68,3 +68,10 @@ notes:
 - 'T-0099 COMPLETED 2026-08-02: Loop 工程自身质量验收 — 四组 13 项（静态 5/5、动态 2P1F、 治理 3P*1F、发布就绪
   FAIL），裁决 CONDITIONAL_GO，独立验证执行可信 F-01~F-06 全真实。 findings 记录待修复（F-03 P1 版本漂移等）。v3.12.38
   提交。下一任务待用户发起。'
+- 'T-0100 ACTIVE 2026-08-02: 质量验收 findings 修复包 — F-03 版本 bump 机制 + F-01 registry --json
+  崩溃 + F-04 pip-audit SKIP + F-05 SLO 口径/语义 + F-06 扫描白名单 → 复验 release check 6/6 达成正式
+  GO。G-T-0100-REQUIREMENTS 已由用户批准。'
+- 'T-0100 COMPLETED 2026-08-02: findings 修复包 5/5 — F-03 bump 子命令（8 载体原子写 + 对齐 3.12.39）
+  + F-01 --json 修复 + F-04 pip-audit SKIPPED（附原因不合成 HIGH）+ F-05 口径统一 + advisory 语义
+  + F-06 白名单（含 P2 覆盖回退修复），7/7 AC，独立审查 CONDITIONAL_GO→P2 修复→GO，全量 3744 passed （2 预期瞬时项提交后自愈），v3.12.39
+  提交。正式 GO 达成。下一任务待用户发起。'

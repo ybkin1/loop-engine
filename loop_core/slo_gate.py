@@ -44,6 +44,14 @@ Data-completeness policy (fail-closed, B2 §2.5):
     gates in a phase) is likewise not a gate failure — it contributes zero
     consumption and is surfaced in the warnings.
 
+Release fee (T-0100 F-05, one shared definition):
+    The gate's release-fee accounting flows through
+    ``governance_metrics.release_fee_consumption`` (imported below and used by
+    ``compute_error_budget``, which this gate calls).  There is no parallel
+    computation here — metrics reports and the gate therefore produce
+    identical budget numbers for identical (release_fee_units, releases)
+    inputs (verified by test_slo_gate / test_governance_metrics 口径 tests).
+
 Toggle (T-0093 AC-02):
     Default enabled (B2 wave 2 enforced).  Disable via environment variable
     ``LOOP_SLO_GATE_ENABLED=0|false|off|no`` (wins) or via

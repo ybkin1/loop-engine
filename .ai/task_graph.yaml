@@ -1108,6 +1108,18 @@ tasks:
       - T-0098
     gates:
       - G-T-0099-REQUIREMENTS
+  -
+    id: T-0100
+    title: 质量验收 findings 修复包 — F-03~F-06 → 复验正式 GO
+    phase: S6-delivery
+    status: completed
+    description: >-
+      F-03 版本 bump 机制 + F-01 registry --json 崩溃 + F-04 pip-audit 环境 SKIP +
+      F-05 SLO 口径统一/语义细化 + F-06 扫描白名单；复验 release check 6/6。
+    depends_on:
+      - T-0099
+    gates:
+      - G-T-0100-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1151,3 +1163,5 @@ edges:
       to: T-0098
     - from: T-0098
       to: T-0099
+    - from: T-0099
+      to: T-0100

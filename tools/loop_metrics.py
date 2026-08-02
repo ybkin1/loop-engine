@@ -59,7 +59,10 @@ def main(argv: list[str] | None = None) -> int:
                              ".ai/slo.yaml, falls back to B2 defaults)")
     parser.add_argument("--releases", type=int, default=0,
                         help="release count for the release fee (0 = not "
-                             "assessed; no release ledger exists yet)")
+                             "assessed; no release ledger exists yet). "
+                             "口径提示（T-0100 F-05）：release.py check 的 SLO "
+                             "门禁按 releases=1 评估本次发布；metrics 报告传同一 "
+                             "releases 值即与 slo_gate 输出一致（同一 release_fee 函数）")
     parser.add_argument("--json-out", default=None,
                         help="report JSON output path (default: "
                              ".ai/evidence/observability/metrics-report.json)")
@@ -100,6 +103,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"missing:       {len(report.missing)} item(s)")
     for m in report.missing[:10]:
         print(f"  - {m}")
+    if report.advisories:
+        print(f"advisories:    {len(report.advisories)} item(s) "
+              "(未接线数据源/未落盘项，不影响 computed 判定)")
+        for a in report.advisories[:10]:
+            print(f"  - {a}")
     print(f"json:          {json_out}")
     print(f"markdown:      {md_out}")
     return 0

@@ -1,5 +1,33 @@
 # Changelog
 
+## v3.12.39 (2026-08-02) — T-0100: 质量验收 findings 修复包（F-03~F-06）
+
+### Changed (T-0100)
+- 版本同步机制：release.py 新增 bump 子命令（`bump --to <version>` 原子更新
+  pyproject.toml + CHANGELOG 头部 + 全部版本载体，临时文件 + os.replace）；
+  提交流程约定：先 bump 再提交（版本与 git HEAD 一致，version_sync fail-closed 不变）
+- F-01：tool_registry_status `--json` 模式 UnboundLocalError 修复（death 变量
+  作用域），--json 正常退出 0 并输出合法 JSON
+- F-04：安全扫描 dependency_check 语义 —— pip-audit 环境不可用（缺 venv/命令缺失/
+  非预期失败）→ 明确 SKIPPED（附 reason），不再合成阻断级 HIGH；真实 CVE 结果照常判定
+- F-05：SLO 口径统一 —— release_fee 计算收敛为 governance_metrics 单一函数，
+  metrics 与 slo_gate 输出一致；未接线数据源（wave-2 ledger）逐项 advisory 标注，
+  不因部分源未接线而整体 NOT_VERIFIED（computed 项按实值判定）；门禁语义不变
+- F-06：安全扫描误报白名单 —— 规则表自指/测试夹具/seeded_defects/文档示例/
+  SafeLoader 子类 yaml.load 不再误报；真实代码路径不豁免
+
+## v3.12.38 (2026-08-02) — T-0099: Loop 工程自身质量验收（dogfooding）
+
+### Changed (T-0099)
+- 四组全能力端到端验收（静态门禁/动态质量/治理质量/发布就绪，13 项）；
+  裁决 CONDITIONAL_GO，记录 F-01~F-06 待修复（T-0100 修复）
+
+## v3.12.37 (2026-08-02) — T-0098: D8 发布/产物体系（wheel/sdist + release 流程）
+
+### Added (T-0098)
+- release.py check/build/manifest/release/smoke 子命令 + dist/ 产物清单/SHA256SUMS
+- 版本同步基线：pyproject 为唯一事实来源；6/6 AC GO
+
 ## v3.12.36 (2026-08-02) — T-0097: B2 学习回路补全（incident + 复盘 + second-failure）
 
 ### Added (T-0097)

@@ -17,7 +17,11 @@ For binding/verdict features, use the loop_core API directly.
     security_report.json   — 机器可读
     security_summary.md    — 人可读
 
-退出码：0 = PASS（无 BLOCKED 项）；2 = 有 BLOCKED 项。
+退出码：0 = PASS（无 BLOCKED 项；SKIPPED 附原因不阻断）；2 = 有 BLOCKED 项。
+
+F-04 (T-0100)：依赖扫描环境不可用（缺 venv/命令缺失/非预期失败/超时）→
+dependency_scan=SKIPPED 并附 reason，绝不合成 HIGH/BLOCKED；真实 CVE 扫描
+结果（含退出码 1 检出漏洞的正常输出）仍按原逻辑判定（HIGH/CRITICAL → BLOCKED）。
 
 用法：
     python run_security_scan.py --project-root <dir> [--output-dir <dir>] [--json]
@@ -96,8 +100,14 @@ def _reuse_quality_audit(project_root: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
-def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
-    """运行 npm audit 并解析结果。"""
+def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str, Optional[str]]:
+    """运行 npm audit 并解析结果。
+
+    返回 (counts, raw, skip_reason)：
+    - 真实结果（JSON 可解析）→ (counts, raw, None)
+    - 环境不可用（命令缺失/超时/执行异常/输出不可解析）→ (零 counts, raw,
+      明确原因)。F-04 (T-0100)：环境不可用是 SKIPPED，绝不合成 HIGH。
+    """
     counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
     try:
         result = subprocess.run(
@@ -107,38 +117,53 @@ def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
             timeout=120,
             cwd=str(project_root),
         )
-        if result.returncode == 0:
-            return counts, ""
-
-        # npm audit 在检测到漏洞时退出码非零，但仍输出 JSON
-        raw = result.stdout.strip()
-        if raw.startswith("{"):
-            try:
-                data = json.loads(raw)
-                vulns = data.get("vulnerabilities", {}) if isinstance(data, dict) else {}
-                for v in (vulns.values() if isinstance(vulns, dict) else []):
-                    if isinstance(v, dict):
-                        sev = v.get("severity", "").upper()
-                        if sev in counts:
-                            counts[sev] += 1
-                return counts, raw[:500]
-            except json.JSONDecodeError:
-                pass
-        return {"HIGH": 1, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}, raw[:500]
     except FileNotFoundError:
-        return counts, "npm 不可用"
+        return counts, "", "npm audit 命令不可用（未安装或不在 PATH）"
     except subprocess.TimeoutExpired:
-        return counts, "npm audit 超时"
+        return counts, "", "npm audit 超时（>120s）— 环境不可用，跳过"
     except Exception as e:
-        return counts, str(e)
+        return counts, "", f"npm audit 执行异常: {e}"
+
+    raw = result.stdout.strip()
+    if raw.startswith("{"):
+        try:
+            data = json.loads(raw)
+            vulns = data.get("vulnerabilities", {}) if isinstance(data, dict) else {}
+            for v in (vulns.values() if isinstance(vulns, dict) else []):
+                if isinstance(v, dict):
+                    sev = v.get("severity", "").upper()
+                    if sev in counts:
+                        counts[sev] += 1
+            return counts, raw[:500], None  # 真实扫描结果
+        except json.JSONDecodeError:
+            pass
+    # 输出不可解析：非零退出视为工具/环境失败（SKIPPED），零退出视为无漏洞
+    if result.returncode == 0:
+        return counts, raw[:500], None
+    return counts, raw[:500], _tool_failure_reason("npm audit", result)
 
 
-def _run_pip_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
-    """运行 pip-audit 并解析结果。"""
+def _tool_failure_reason(tool: str, result: subprocess.CompletedProcess) -> str:
+    """把工具非预期退出转成明确的 SKIP 原因（F-04：不合成漏洞计数）。"""
+    stderr_tail = (result.stderr or "").strip().splitlines()[-3:]
+    detail = "; ".join(stderr_tail) if stderr_tail else f"退出码 {result.returncode}"
+    return f"{tool} 环境不可用（exit={result.returncode}）: {detail}"
+
+
+def _run_pip_audit(project_root: Path) -> Tuple[Dict[str, int], str, Optional[str]]:
+    """运行 pip-audit 并解析结果。
+
+    返回 (counts, raw, skip_reason)：
+    - 真实 CVE 结果（JSON 数组可解析，含 pip-audit 退出码 1 = 检出漏洞的
+      正常输出）→ (counts, raw, None)，blocked 判定照常（HIGH/CRITICAL）。
+    - 环境不可用（命令缺失/无法创建 venv/崩溃/超时/输出不可解析且非零退出）
+      → (零 counts, raw, 明确原因)。F-04 (T-0100)：标记 SKIPPED 附 reason，
+      绝不合成 HIGH —— 环境问题不是漏洞证据。
+    """
     counts = {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0}
     req_file = project_root / "requirements.txt"
     if not req_file.exists():
-        return counts, "未找到 requirements.txt"
+        return counts, "未找到 requirements.txt", None
     try:
         result = subprocess.run(
             ["pip-audit", "-r", "requirements.txt", "--format", "json"],
@@ -147,31 +172,33 @@ def _run_pip_audit(project_root: Path) -> Tuple[Dict[str, int], str]:
             timeout=120,
             cwd=str(project_root),
         )
-        raw = result.stdout.strip()
-        if raw.startswith("["):
-            try:
-                items = json.loads(raw)
-                for item in items:
-                    if isinstance(item, dict):
-                        vulns = item.get("vulns", [])
-                        if isinstance(vulns, list):
-                            for v in vulns:
-                                if isinstance(v, dict):
-                                    sev = (v.get("severity") or "").upper()
-                                    if sev in counts:
-                                        counts[sev] += 1
-                return counts, raw[:500]
-            except json.JSONDecodeError:
-                pass
-        if result.returncode != 0:
-            counts["HIGH"] = max(1, counts["HIGH"])
-        return counts, raw[:500]
     except FileNotFoundError:
-        return counts, "pip-audit 不可用"
+        return counts, "", "pip-audit 命令不可用（未安装或不在 PATH）"
     except subprocess.TimeoutExpired:
-        return counts, "pip-audit 超时"
+        return counts, "", "pip-audit 超时（>120s）— 环境不可用，跳过"
     except Exception as e:
-        return counts, str(e)
+        return counts, "", f"pip-audit 执行异常: {e}"
+
+    raw = result.stdout.strip()
+    if raw.startswith("["):
+        try:
+            items = json.loads(raw)
+            for item in items:
+                if isinstance(item, dict):
+                    vulns = item.get("vulns", [])
+                    if isinstance(vulns, list):
+                        for v in vulns:
+                            if isinstance(v, dict):
+                                sev = (v.get("severity") or "").upper()
+                                if sev in counts:
+                                    counts[sev] += 1
+            return counts, raw[:500], None  # 真实扫描结果（可能含真实 CVE）
+        except json.JSONDecodeError:
+            pass
+    # 输出不可解析：零退出 = 无漏洞声明；非零退出 = 环境/工具失败 → SKIPPED
+    if result.returncode == 0:
+        return counts, raw[:500], None
+    return counts, raw[:500], _tool_failure_reason("pip-audit", result)
 
 
 def _detect_project_type(project_root: Path) -> str:
@@ -187,6 +214,10 @@ def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
     """
     依赖 CVE 扫描。优先复用质量工程师的结果（1 小时内）。
     若不可用则独立运行 npm audit 或 pip-audit。
+
+    F-04 (T-0100)：工具环境不可用（缺 venv/命令缺失/非预期失败/超时）→
+    status=skipped + 明确 reason，绝不合成 HIGH；真实 CVE 结果照常判定
+    （HIGH/CRITICAL → blocked，阻断语义不变）。
     """
     # 尝试复用
     reused = _reuse_quality_audit(project_root)
@@ -207,15 +238,29 @@ def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
     # 独立扫描
     pt = _detect_project_type(project_root)
     if pt == "javascript":
-        counts, raw = _run_npm_audit(project_root)
+        counts, raw, skip_reason = _run_npm_audit(project_root)
+        tool = "npm audit"
     elif pt == "python":
-        counts, raw = _run_pip_audit(project_root)
+        counts, raw, skip_reason = _run_pip_audit(project_root)
+        tool = "pip-audit"
     else:
         return {
             "name": "dependency_scan",
-            "status": "pass",
+            "status": "skipped",
             "counts": {"HIGH": 0, "CRITICAL": 0, "MODERATE": 0, "LOW": 0},
-            "source": "unknown project type, skipped",
+            "source": "unknown project type",
+            "reason": "无法识别项目类型（无 package.json/pyproject.toml/requirements.txt），跳过",
+            "skipped": True,
+        }
+
+    if skip_reason:
+        # 环境不可用 → 明确 SKIPPED（附原因）；不是漏洞证据，不合成 HIGH/BLOCKED
+        return {
+            "name": "dependency_scan",
+            "status": "skipped",
+            "counts": counts,
+            "source": tool,
+            "reason": skip_reason,
             "skipped": True,
         }
 
@@ -224,7 +269,7 @@ def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
         "name": "dependency_scan",
         "status": "blocked" if blocked else "pass",
         "counts": counts,
-        "source": "npm audit" if pt == "javascript" else "pip-audit",
+        "source": tool,
         "raw": raw[:500] if raw else "",
         "skipped": False,
     }
@@ -268,7 +313,77 @@ EXCLUDE_PATTERNS: List[re.Pattern] = [
     re.compile(r"process\.env", re.IGNORECASE),
     re.compile(r"os\.environ", re.IGNORECASE),
     re.compile(r"ENV\[", re.IGNORECASE),
+    # F-06 (T-0100)：占位符类排除 —— 模板占位符 {name} / changeme / 示例值。
+    # 与既有排除机制一致按行匹配；真实密钥行不含这些占位词。
+    re.compile(r"\{[a-zA-Z_]+\}"),
+    re.compile(r"changeme", re.IGNORECASE),
+    re.compile(r"dummy", re.IGNORECASE),
+    re.compile(r"sample", re.IGNORECASE),
+    re.compile(r"fake", re.IGNORECASE),
+    re.compile(r"test[-_]?(key|token|secret|password)", re.IGNORECASE),
 ]
+
+
+# ── F-06 (T-0100)：误报白名单 ────────────────────────────────────────────
+# 已验证类别（仅豁免这些类别；真实代码路径一律不豁免）：
+#   1. scanner_self  — 扫描器自身规则表（正则字符串必然自命中）
+#   2. test_fixture  — tests/ 下的测试夹具与 tests/seeded_defects 故意缺陷样本
+#   3. docs          — docs/ 与 agents/references/ 文档示例（.md 等）
+#   4. archive       — archive/ 归档的非生产代码（与遗留 security_scan.py 一致）
+# 每条豁免在报告中以 skipped_files 透明呈现，便于复核。
+
+SCANNER_SELF_FILES: Set[str] = {
+    "scripts/security_scan.py",
+    "agents/security-engineer/scripts/run_security_scan.py",
+    "tools/tool_security_scan.py",
+    "loop_core/security_scanner.py",
+}
+
+
+def _path_whitelist_category(rel: Path) -> Optional[str]:
+    """返回路径所属白名单类别；非白名单路径返回 None。"""
+    posix = rel.as_posix()
+    if posix in SCANNER_SELF_FILES:
+        return "scanner_self (扫描器自身规则表)"
+    parts = [p.lower() for p in rel.parts]
+    if "seeded_defects" in parts or "fixture" in parts or "fixtures" in parts:
+        return "test_fixture (seeded_defects/夹具)"
+    if "tests" in parts:
+        return "test_fixture (tests/ 测试夹具)"
+    if "docs" in parts:
+        return "docs (文档示例)"
+    if "references" in parts and rel.suffix.lower() in (".md", ".rst", ".txt"):
+        return "docs (文档示例)"
+    if "archive" in parts:
+        return "archive (归档非生产代码)"
+    return None
+
+
+def _is_safe_loader_call(lines: List[str], line: str) -> bool:
+    """yaml.load(..., Loader=<name>) 是否为安全调用（不报）。
+
+    两种情况视为安全：
+    - Loader 直接是 yaml.SafeLoader / SafeLoader（或以 SafeLoader 结尾的类名）；
+    - Loader 为同文件内定义的类，其基类链含 SafeLoader（如
+      ``class UniqueKeyLoader(yaml.SafeLoader)``，T-0099 F-06 现场）。
+    """
+    m = re.search(r"\bLoader\s*=\s*([A-Za-z_][A-Za-z0-9_.]*)", line)
+    if not m:
+        return False
+    loader_name = m.group(1)
+    if loader_name.endswith("SafeLoader"):
+        return True  # yaml.SafeLoader / SafeLoader 直用
+    class_re = re.compile(
+        r"^\s*class\s+" + re.escape(loader_name) + r"\s*\(([^)]*)\)\s*:"
+    )
+    for other in lines:
+        cm = class_re.match(other)
+        if cm:
+            bases = [b.strip() for b in cm.group(1).split(",")]
+            if any(b.endswith("SafeLoader") or b == "yaml.SafeLoader"
+                   for b in bases):
+                return True
+    return False
 
 
 def _is_excluded(line: str, match_text: str) -> bool:
@@ -285,8 +400,10 @@ def _is_excluded(line: str, match_text: str) -> bool:
 
 
 def run_secret_scan(project_root: Path) -> Dict[str, Any]:
-    """内置正则扫描密钥泄露。"""
+    """内置正则扫描密钥泄露。F-06 (T-0100)：白名单类别文件不扫描
+    （规则表自指/测试夹具/seeded_defects/文档示例/归档），跳过清单透明返回。"""
     findings: List[Dict[str, Any]] = []
+    skipped_files: List[str] = []
     # 搜索常见代码文件
     exts = (".py", ".js", ".ts", ".jsx", ".tsx", ".json", ".yaml", ".yml",
             ".toml", ".env", ".cfg", ".ini", ".sh", ".bash", ".zsh",
@@ -294,13 +411,17 @@ def run_secret_scan(project_root: Path) -> Dict[str, Any]:
     files = _find_files(project_root, exts)
 
     for fp in files:
-        content = _read_file(fp)
-        if not content:
-            continue
         try:
             rel = fp.relative_to(project_root)
         except ValueError:
             rel = fp
+        category = _path_whitelist_category(rel)
+        if category:
+            skipped_files.append(f"{rel.as_posix()} — {category}")
+            continue
+        content = _read_file(fp)
+        if not content:
+            continue
 
         for line_no, line in enumerate(content.splitlines(), 1):
             if not line.strip():
@@ -324,6 +445,7 @@ def run_secret_scan(project_root: Path) -> Dict[str, Any]:
         "status": "blocked" if blocked else "pass",
         "findings": findings,
         "files_scanned": len(files),
+        "skipped_files": skipped_files,
         "skipped": False,
     }
 
@@ -332,20 +454,38 @@ def run_secret_scan(project_root: Path) -> Dict[str, Any]:
 # 3. 注入面检测
 # ──────────────────────────────────────────────
 
+# SQL 语句上下文关键字（F-06/T-0100 精度修正）：仅当关键词构成 SQL 语句形态
+# 才命中 —— 避免 UI 标签（如 "[loop-update] ✅ Updated ..."）被 \bUPDATE\b
+# 误报；真实 SQL 拼接（SELECT ... FROM / INSERT INTO / UPDATE ... SET /
+# DELETE FROM / DROP TABLE 等）照常命中。
+_SQL_STMT = (
+    r"\b(?:SELECT\s+[\w*\"'`.{}(),%]+?\s+FROM|INSERT\s+INTO|"
+    r"UPDATE\s+[\w{}.]+?\s+SET|DELETE\s+FROM|"
+    r"DROP\s+(?:TABLE|DATABASE|INDEX|SCHEMA|VIEW))\b"
+)
+
 # HIGH 风险模式（命中即 BLOCKED）
 HIGH_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
     ("os.system()", re.compile(r"os\.system\s*\("), "shell 命令注入面"),
     ("subprocess shell=True", re.compile(r"subprocess\..*?shell\s*=\s*True"), "shell 注入面"),
     ("eval()", re.compile(r"\beval\s*\("), "eval 代码注入"),
     ("exec()", re.compile(r"\bexec\s*\("), "exec 代码注入"),
-    ("SQL concatenation (f-string)", re.compile(r"f[\"'].*\b(SELECT|INSERT|UPDATE|DELETE|DROP)\b.*[\"']",
+    ("SQL concatenation (f-string)", re.compile(r"f[\"'].*" + _SQL_STMT + r".*[\"']",
                                                   re.IGNORECASE), "SQL 注入面 (f-string)"),
-    ("SQL concatenation (+) ", re.compile(r"[\"'].*\b(SELECT|INSERT|UPDATE|DELETE|DROP)\b.*[\"']\s*\+",
+    ("SQL concatenation (+) ", re.compile(r"[\"'].*" + _SQL_STMT + r".*[\"']\s*\+",
                                              re.IGNORECASE), "SQL 注入面 (字符串拼接)"),
-    ("SQL format (%)", re.compile(r"[\"'].*\b(SELECT|INSERT|UPDATE|DELETE|DROP)\b.*[\"']\s*%\s*\(",
+    ("SQL format (%)", re.compile(r"[\"'].*" + _SQL_STMT + r".*[\"']\s*%\s*\(",
                                      re.IGNORECASE), "SQL 注入面 (格式字符串)"),
+    # P2-1 (T-0100 独立审查)：split-literal SQL 拼接恢复检测 ——
+    # "SELECT " + cols + " FROM " + tbl + " WHERE id=" + uid 形态。旧 `+` 规则
+    # （HIGH 阻断级）可检出；_SQL_STMT 语句上下文规则要求关键词同处一个字面量，
+    # 对此形态漏检。该分支只命中"字面量起始即 SQL 关键词 + 拼接/格式化运算符"
+    # （正则经独立审查实测零误报于 UI 标签），命中即 HIGH 阻断级，与旧规则一致。
+    ("SQL concatenation (split literal)", re.compile(
+        r"""["']\s*(?:SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|DROP\s+(?:TABLE|DATABASE|INDEX|SCHEMA|VIEW))\s+[^"']*["']\s*[+%]""",
+        re.IGNORECASE), "SQL 注入面 (字面量拼接)"),
     ("dangerouslySetInnerHTML", re.compile(r"dangerouslySetInnerHTML"), "React XSS 注入"),
-    ("raw SQL execute", re.compile(r"\.execute\s*\(\s*f?[\"'].*\b(SELECT|INSERT|UPDATE|DELETE)\b",
+    ("raw SQL execute", re.compile(r"\.execute\s*\(\s*f?[\"'].*" + _SQL_STMT,
                                       re.IGNORECASE), "原始 SQL 执行"),
     ("os.popen()", re.compile(r"os\.popen\s*\("), "进程注入面"),
     ("pickle.loads()", re.compile(r"pickle\.loads?\s*\("), "反序列化注入"),
@@ -359,31 +499,49 @@ MEDIUM_RISK_PATTERNS: List[Tuple[str, re.Pattern, str]] = [
     ("document.write()", re.compile(r"document\.write\s*\("), "DOM XSS (document.write)"),
     ("raw HTML filter", re.compile(r"\|\s*raw\b"), "模板 raw 过滤器"),
     ("bypass sanitization", re.compile(r"bypassSecurityTrust\w+\s*\("), "Angular 安全绕过"),
-    ("unsafe HTML binding", re.compile(r"innerHTML|outerHTML|insertAdjacentHTML"), "不安全 HTML 绑定"),
+    # F-06/T-0100 精度修正：HTML 绑定关键词须不在字符串字面量内
+    # （"description": "innerHTML XSS" 这类描述文本不报）
+    # P2-2 (T-0100 独立审查)：追加 bracket-access 分支恢复检测 ——
+    # obj["innerHTML"] = x 形态（旧 MEDIUM 规则可检出，lookaround 将其排除）。
+    # 追加分支（审查者已实测正则）仅命中"赋值"形态（\s*= 结尾），只读索引访问
+    # （x = obj["innerHTML"]）与描述文本不误报；el.innerHTML = x 直接赋值
+    # 仍由 lookaround 分支命中，语义不变。
+    ("unsafe HTML binding", re.compile(
+        r"(?:(?<![\"'])(?:innerHTML|outerHTML|insertAdjacentHTML)(?![\"'])|"
+        r"\.(?:innerHTML|outerHTML|insertAdjacentHTML)\s*=|"
+        r"\[[\"'](?:innerHTML|outerHTML|insertAdjacentHTML)[\"']\]\s*=)"),
+     "不安全 HTML 绑定"),
     ("unvalidated redirect", re.compile(r"redirect\s*\(\s*(?:request\.|req\.)", re.IGNORECASE), "未验证跳转"),
     ("command injection via f-string", re.compile(r"os\.(?:system|popen)\s*\(\s*f[\"']"), "命令注入"),
 ]
 
 
 def run_injection_scan(project_root: Path) -> Dict[str, Any]:
-    """扫描代码中的注入面。"""
+    """扫描代码中的注入面。F-06 (T-0100)：白名单类别文件不扫描；
+    yaml.load 若使用同文件定义的 SafeLoader 子类 Loader 不报（安全调用）。"""
     exts = (".py", ".js", ".ts", ".jsx", ".tsx", ".html", ".jinja2",
             ".jinja", ".hbs", ".ejs", ".php", ".rb")
     files = _find_files(project_root, exts)
 
     high_findings: List[Dict[str, Any]] = []
     medium_findings: List[Dict[str, Any]] = []
+    skipped_files: List[str] = []
 
     for fp in files:
-        content = _read_file(fp)
-        if not content:
-            continue
         try:
             rel = fp.relative_to(project_root)
         except ValueError:
             rel = fp
+        category = _path_whitelist_category(rel)
+        if category:
+            skipped_files.append(f"{rel.as_posix()} — {category}")
+            continue
+        content = _read_file(fp)
+        if not content:
+            continue
+        lines = content.splitlines()
 
-        for line_no, line in enumerate(content.splitlines(), 1):
+        for line_no, line in enumerate(lines, 1):
             stripped = line.strip()
             # 跳过注释行（降低误报）
             if stripped.startswith("#") or stripped.startswith("//") or stripped.startswith("/*"):
@@ -394,6 +552,9 @@ def run_injection_scan(project_root: Path) -> Dict[str, Any]:
             # HIGH 风险
             for rule_name, pattern, description in HIGH_RISK_PATTERNS:
                 if pattern.search(line):
+                    # F-06：yaml.load 使用 SafeLoader 子类 Loader → 安全调用不报
+                    if rule_name == "yaml.load() unsafe" and _is_safe_loader_call(lines, line):
+                        continue
                     high_findings.append({
                         "file": str(rel),
                         "line": line_no,
@@ -422,6 +583,7 @@ def run_injection_scan(project_root: Path) -> Dict[str, Any]:
         "high_findings": high_findings,
         "medium_findings": medium_findings,
         "files_scanned": len(files),
+        "skipped_files": skipped_files,
         "skipped": False,
     }
 
@@ -574,7 +736,11 @@ def run_permission_audit(project_root: Path) -> Dict[str, Any]:
 # ──────────────────────────────────────────────
 
 def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir: Path) -> str:
-    """生成 JSON 报告和 Markdown 摘要。返回 overall 判定。"""
+    """生成 JSON 报告和 Markdown 摘要。返回 overall 判定。
+
+    F-04 (T-0100)：status=skipped（环境不可用，附 reason）不阻断；
+    BLOCKED 仅由真实 blocked 扫描项（真实漏洞/真实问题）驱动。
+    """
     blocked_by = []
     for scan in scans:
         if scan.get("status") == "blocked":
@@ -605,9 +771,16 @@ def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir:
     ]
 
     for scan in scans:
-        status_icon = "✅" if scan["status"] == "pass" else "❌"
+        if scan["status"] == "pass":
+            status_icon = "✅"
+        elif scan["status"] == "skipped":
+            status_icon = "⏭️"
+        else:
+            status_icon = "❌"
         details = ""
-        if scan["name"] == "dependency_scan":
+        if scan["status"] == "skipped":
+            details = f"SKIPPED — {scan.get('reason', '未提供原因')}"
+        elif scan["name"] == "dependency_scan":
             c = scan.get("counts", {})
             details = f"H:{c.get('HIGH',0)} C:{c.get('CRITICAL',0)} M:{c.get('MODERATE',0)} L:{c.get('LOW',0)}"
             if scan.get("source"):
@@ -623,7 +796,7 @@ def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir:
             n = scan.get("high_count", 0)
             total = len(scan.get("findings", []))
             details = f"{n} 个高危未鉴权路由（共 {total} 个）"
-        if scan.get("skipped"):
+        if scan.get("skipped") and scan["status"] != "skipped":
             details = "跳过"
         md_lines.append(f"| {scan['name']} | {status_icon} | {details} |")
 

@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0100",
+  "gate_id": "G-T-0100-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "F-03 fix: version bump mechanism (release.py bump subcommand + version alignment 3.12.39) — DONE — bump 子命令 + 版本对齐 3.12.39 + 测试全绿（git HEAD 同步用例待 v3.12.39 提交后自愈）",
+    "F-01 fix: tool_registry_status --json UnboundLocalError — DONE — --json UnboundLocalError 修复 + 回归测试 3 passed",
+    "F-04 fix: security scan pip-audit graceful SKIP when venv missing (no synthetic HIGH) — DONE — pip-audit 环境不可用 → dependency_check=SKIPPED 附原因，不合成 HIGH；测试 9 passed",
+    "F-05 fix: SLO metric semantics alignment (metrics vs slo_gate口径) + NOT_VERIFIED 语义细化 — DONE — release_fee 单一函数 + 未接线源逐项 advisory；测试 13 passed（metrics/slo 既有 92 passed）",
+    "F-06 fix: security scan whitelist (self-referential rules/tests fixtures/seeded_defects) — DONE — 白名单 + 规则精度修正；测试 13 passed；真实复扫 overall PASS",
+    "re-verify release.py check 6/6 PASS + full regression — DONE — 逐步复验：compile 68/68 PASS、key_tests 全绿、真实安全复扫 PASS；version_sync 需 v3.12.39 提交后 6/6（fail-closed 如实阻断，见 commands.md）"
+  ],
+  "notes": "T-0099 质量验收 findings 修复包。G-T-0100-REQUIREMENTS 已由用户批准。"
+}

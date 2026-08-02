@@ -5,31 +5,32 @@
     "task_id": "T-0090",
     "phase": "S6-delivery",
     "gate_id": null,
-    "git_commit": "31c3c2d44471e68034634a27d9dafa008ed986f4",
-    "timestamp": "2026-08-02T02:42:18.501258+00:00",
+    "git_commit": "387c7befdca3fe396e170cfadef25f41422a32df",
+    "timestamp": "2026-08-02T04:28:53.567114+00:00",
     "tool_name": "loop_metrics",
     "tool_version": "1.0.0"
   },
   "window": {
     "start": "2026-07-06T17:44:53+08:00",
-    "end": "2026-08-02T02:39:00.456403+00:00"
+    "end": "2026-08-02T04:28:28.693420+00:00"
   },
-  "status": "NOT_VERIFIED",
-  "missing": [
-    "transitions (.ai/ledger/phase_transitions.jsonl)",
-    "guard_decisions (.ai/ledger/guard_decisions.jsonl)",
-    "runtime_events (.ai/ledger/runtime-events.jsonl)",
+  "status": "PASS",
+  "missing": [],
+  "advisories": [
+    "数据源未接线（wave-2 项，不影响 computed 判定）: transitions (.ai/ledger/phase_transitions.jsonl)",
+    "数据源未接线（wave-2 项，不影响 computed 判定）: guard_decisions (.ai/ledger/guard_decisions.jsonl)",
+    "数据源未接线（wave-2 项，不影响 computed 判定）: runtime_events (.ai/ledger/runtime-events.jsonl)",
     "phase_dwell_time",
     "rework_cycles_from_transitions",
     "guard_block_pass_error_rates",
     "drift_events",
     "evidence_regeneration_events",
-    "sli:guard_block_rate",
-    "sli:drift_event_rate",
-    "sli:delta_quality_pass_rate",
-    "sli:evidence_regeneration_rate",
-    "sli:defect_fail_verdict_rate",
-    "sli:ac_invest_rate"
+    "sli:guard_block_rate — guard_decisions.jsonl absent (hook decision log not yet wired — B2 §2.2 wave 1)",
+    "sli:drift_event_rate — runtime-events.jsonl absent (drift source not yet wired)",
+    "sli:delta_quality_pass_rate — delta gate results not yet recorded",
+    "sli:evidence_regeneration_rate — evidence re-run tracking not yet recorded",
+    "sli:defect_fail_verdict_rate — FAIL verdict store not yet recorded",
+    "sli:ac_invest_rate — DoD gate acceptance-criteria check not yet recorded"
   ],
   "dora_metrics": {
     "gate_rejection_rate": {
@@ -47,7 +48,7 @@
         "S6-delivery": 0.0
       },
       "phase_unmapped_gates": 50,
-      "decided_gates": 91
+      "decided_gates": 92
     },
     "gate_rejection_rate_by_gate_type": {
       "status": "computed",
@@ -85,19 +86,19 @@
     },
     "gate_decision_coverage": {
       "status": "computed",
-      "value": 0.3077,
+      "value": 0.3043,
       "basis": "decided with evidence / decided"
     },
     "approval_latency": {
       "status": "computed",
       "value": {
-        "count": 30,
+        "count": 31,
         "p50_seconds": 0.0,
         "p95_seconds": 1712.0,
-        "mean_seconds": 310.433,
+        "mean_seconds": 300.419,
         "p50_hours": 0.0,
         "p95_hours": 0.476,
-        "mean_hours": 0.086
+        "mean_hours": 0.083
       }
     },
     "task_cycle_time": {
@@ -113,7 +114,8 @@
     "phase_dwell_time": {
       "status": "NOT_AVAILABLE",
       "value": "NOT_AVAILABLE",
-      "reason": "phase_transitions.jsonl absent (transition journal not yet wired — wave 2 item per B2 §2.2)"
+      "reason": "phase_transitions.jsonl absent (transition journal not yet wired — wave 2 item per B2 §2.2)",
+      "advisory": true
     },
     "task_rework_cycles": {
       "status": "computed",
@@ -124,12 +126,13 @@
     "rework_cycles_from_transitions": {
       "status": "NOT_AVAILABLE",
       "value": "NOT_AVAILABLE",
-      "reason": "phase_transitions.jsonl absent"
+      "reason": "phase_transitions.jsonl absent",
+      "advisory": true
     },
     "guard_anomaly_rate": {
       "status": "computed",
       "value": 0.0,
-      "total_events": 1309,
+      "total_events": 1627,
       "by_guard": {
         ".ai/checkers/second_failure_checker.py": {
           "total": 2,
@@ -142,32 +145,32 @@
           "anomaly_rate": 0.0
         },
         "bash_content_guard": {
-          "total": 300,
+          "total": 369,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "content_guard": {
-          "total": 300,
+          "total": 369,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "gate_guard": {
-          "total": 300,
+          "total": 369,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "guard_health": {
-          "total": 3,
+          "total": 22,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "ledger_guard": {
-          "total": 200,
+          "total": 246,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "path_guard": {
-          "total": 200,
+          "total": 246,
           "fail": 0,
           "anomaly_rate": 0.0
         }
@@ -178,31 +181,34 @@
       "status": "computed",
       "value": {
         "by_result": {
-          "PASS": 1303,
+          "PASS": 1621,
           "REPORT": 6
         },
         "by_check_type": {
-          "health": 800,
-          "death": 500,
+          "health": 984,
+          "death": 615,
           "missing": 6,
-          "integrity": 3
+          "integrity": 22
         }
       }
     },
     "guard_block_pass_error_rates": {
       "status": "NOT_AVAILABLE",
       "value": "NOT_AVAILABLE",
-      "reason": "guard_decisions.jsonl absent (hook decision log not yet wired — B2 §2.2)"
+      "reason": "guard_decisions.jsonl absent (hook decision log not yet wired — B2 §2.2)",
+      "advisory": true
     },
     "drift_events": {
       "status": "NOT_AVAILABLE",
       "value": "NOT_AVAILABLE",
-      "reason": "runtime-events.jsonl absent (drift source not yet wired)"
+      "reason": "runtime-events.jsonl absent (drift source not yet wired)",
+      "advisory": true
     },
     "evidence_regeneration_events": {
       "status": "NOT_AVAILABLE",
       "value": "NOT_AVAILABLE",
-      "reason": "evidence freshness (C8) re-run events not yet recorded"
+      "reason": "evidence freshness (C8) re-run events not yet recorded",
+      "advisory": true
     },
     "execution_cycle_time": {
       "status": "computed",
@@ -234,7 +240,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml (S1 gates, phase-classified)"
+      "source": ".ai/gates.yaml (S1 gates, phase-classified)",
+      "advisory": false
     },
     {
       "sli_id": "design_review_rejection_rate",
@@ -252,7 +259,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml (S2 gates, phase-classified)"
+      "source": ".ai/gates.yaml (S2 gates, phase-classified)",
+      "advisory": false
     },
     {
       "sli_id": "quality_gate_rejection_rate",
@@ -270,7 +278,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml (S5 gates, phase-classified)"
+      "source": ".ai/gates.yaml (S5 gates, phase-classified)",
+      "advisory": false
     },
     {
       "sli_id": "delivery_gate_rejection_rate",
@@ -288,7 +297,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml (S6 gates, phase-classified)"
+      "source": ".ai/gates.yaml (S6 gates, phase-classified)",
+      "advisory": false
     },
     {
       "sli_id": "rework_cycle_rate",
@@ -306,7 +316,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml rejected gates (or .ai/ledger/phase_transitions.jsonl)"
+      "source": ".ai/gates.yaml rejected gates (or .ai/ledger/phase_transitions.jsonl)",
+      "advisory": false
     },
     {
       "sli_id": "guard_block_rate",
@@ -324,7 +335,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": ".ai/ledger/guard_decisions.jsonl (hook decision log — not yet wired)"
+      "source": ".ai/ledger/guard_decisions.jsonl (hook decision log — not yet wired)",
+      "advisory": true
     },
     {
       "sli_id": "guard_anomaly_rate",
@@ -342,7 +354,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/evidence/observability/guard-events.jsonl"
+      "source": ".ai/evidence/observability/guard-events.jsonl",
+      "advisory": false
     },
     {
       "sli_id": "approval_latency_p95",
@@ -361,7 +374,8 @@
       "over_target": false,
       "breach_events": 0,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml requested_at/recorded_at"
+      "source": ".ai/gates.yaml requested_at/recorded_at",
+      "advisory": false
     },
     {
       "sli_id": "gate_decision_coverage",
@@ -374,12 +388,13 @@
         "value": 1.0
       },
       "status": "computed",
-      "value": 0.3076923076923077,
+      "value": 0.30434782608695654,
       "reason": null,
       "over_target": true,
-      "breach_events": 63,
+      "breach_events": 64,
       "consumed_units": 0.0,
-      "source": ".ai/gates.yaml evidence fields"
+      "source": ".ai/gates.yaml evidence fields",
+      "advisory": false
     },
     {
       "sli_id": "drift_event_rate",
@@ -397,7 +412,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": ".ai/ledger/runtime-events.jsonl (drift source — not yet wired)"
+      "source": ".ai/ledger/runtime-events.jsonl (drift source — not yet wired)",
+      "advisory": true
     },
     {
       "sli_id": "delta_quality_pass_rate",
@@ -415,7 +431,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": "delta gate results (not yet recorded)"
+      "source": "delta gate results (not yet recorded)",
+      "advisory": true
     },
     {
       "sli_id": "evidence_regeneration_rate",
@@ -433,7 +450,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": "evidence re-run tracking (not yet recorded)"
+      "source": "evidence re-run tracking (not yet recorded)",
+      "advisory": true
     },
     {
       "sli_id": "defect_fail_verdict_rate",
@@ -451,7 +469,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": "FAIL verdict store (not yet recorded)"
+      "source": "FAIL verdict store (not yet recorded)",
+      "advisory": true
     },
     {
       "sli_id": "ac_invest_rate",
@@ -469,7 +488,8 @@
       "over_target": null,
       "breach_events": null,
       "consumed_units": 0.0,
-      "source": "DoD gate acceptance-criteria check (T-0089 scope)"
+      "source": "DoD gate acceptance-criteria check (T-0089 scope)",
+      "advisory": true
     }
   ],
   "error_budget": {
@@ -488,20 +508,20 @@
     {
       "path": ".ai/gates.yaml",
       "status": "available",
-      "sha256": "b9ea4f1ee4d434812a3b5cbe1738abcf057acdb51c7cd09e808f9e05ef71bceb",
-      "lines": 5023
+      "sha256": "3170a81ad1f2bd5028b3e153a4b7a0c0a7967ffa7faa7ebb5a6222b2cc775bcc",
+      "lines": 5094
     },
     {
       "path": ".ai/task_graph.yaml",
       "status": "available",
-      "sha256": "c7060aa082bfd551fa1c4ab9a1bfea31b7384425d0bc6078ee10bbe3f8a69637",
-      "lines": 1153
+      "sha256": "e799b69fb49f7e847455deeea45cd01a833afbe7265550c18c55dfe1e18bab7c",
+      "lines": 1167
     },
     {
       "path": ".ai/evidence/observability/guard-events.jsonl",
       "status": "available",
-      "sha256": "62f3158b1df928b607cb79c41ae43be057e44448a8a1e5d5e50e0d864e2be7fc",
-      "lines": 1309
+      "sha256": "b48154df35e0c0e6b403d7f5a33544a086b308ff0a7dcc975bddbfbf2442f626",
+      "lines": 1627
     },
     {
       "path": ".ai/ledger/executions.jsonl",
@@ -532,6 +552,7 @@
     "wave 1 advisory: budget exhaustion is reported (FREEZE_RECOMMENDED); no release path is blocked by this module.",
     "read-only aggregation: data sources are never modified by this report.",
     "advisory only (wave 1): budget exhaustion is reported, no release path is blocked by this module",
-    "release fee not assessed: no release ledger exists yet; pass --releases when a release record is available."
+    "部分数据源未接线（wave-2 ledger 项，共 3 个）：逐项 advisory 标注，computed 项正常判定，不因未接线源整体 NOT_VERIFIED",
+    "release fee not assessed: no release ledger exists yet; pass --releases when a release record is available. 口径提示：release.py check 的 SLO 门禁按 releases=1 评估本次发布，metrics 报告用同一 releases 值即与 slo_gate 输出一致（同一 release_fee 函数）。"
   ]
 }

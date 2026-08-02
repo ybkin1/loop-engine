@@ -5020,4 +5020,75 @@ gates:
   - unified quality acceptance report + dashboard snapshot
   - independent review verification
   - acceptance evidence
+- id: G-T-0100-REQUIREMENTS
+  task_id: T-0100
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0100 需求
+  approval_evidence: .ai/evidence/T-0100/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0100/execution-evidence.json
+  scope: >-
+    T-0100 质量验收 findings 修复包 — F-03 版本 bump 机制 + F-01 registry --json 崩溃 +
+    F-04 pip-audit 环境 SKIP（不误报 BLOCKED）+ F-05 SLO 口径统一/未接线源 advisory +
+    F-06 扫描器白名单；复验 release.py check 6/6 PASS + 全量回归。
+  active: true
+  allowed_actions:
+  - read
+  - write governance files
+  - write loop_core files
+  - write hook files
+  - write tool files
+  - write script files
+  - write test files
+  - write evidence files
+  - write docs files
+  - write pyproject.toml
+  - write CHANGELOG.md
+  - write agents files
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - execute real release/publish
+  - create or register T-0101+ task files or gates
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - hooks/
+  - tools/
+  - scripts/
+  - tests/
+  - docs/
+  - pyproject.toml
+  - CHANGELOG.md
+  - agents/
+  - .ai/evidence/T-0100/
+  high_risk_flags:
+  - SKIP 语义不得掩盖真实阻断（附原因，独立审查验证）
+  - 扫描白名单仅限验证过的类别（夹具/规则表/文档），真实代码不豁免
+  - 版本 bump 原子写 + 校验
+  evidence_required:
+  - bump subcommand tests (pyproject/CHANGELOG/carriers atomic)
+  - version sync check passes (pyproject == git HEAD)
+  - registry --json fix tests
+  - pip-audit SKIP tests (no synthetic HIGH)
+  - SLO metrics/slo_gate consistency tests + advisory semantics
+  - security scanner whitelist tests (no false positives)
+  - release check 6/6 PASS + full regression
+  - acceptance evidence
 

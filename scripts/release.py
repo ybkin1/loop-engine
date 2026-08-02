@@ -12,6 +12,12 @@ release.py — D8 发布/产物体系（T-0098，StaffDeck D8 对标）。
     release   check + build + manifest + release 证据落盘
               （.ai/evidence/release/<version>/ 三件套）。
     smoke     临时 venv（tempfile）→ pip install dist/*.whl → import loop_engine/loop_core 验证。
+    bump      版本同步机制（F-03/T-0100）：`bump --to <version>` 原子更新
+              pyproject.toml + CHANGELOG.md 头部 + 全部版本载体
+              （loop_core/__init__.py、src/loop_engine/__init__.py、README.md、
+              docs/06-delivery.md、.zcode-plugin/plugin.json、
+              .ai/version-manifest.yaml 投影）。提交流程约定：**先 bump 再提交**
+              —— 提交 subject 中的版本号必须与 pyproject 一致（version_sync 检查）。
 
 通用:
     --dry-run  只打印计划，不执行、不落盘。
@@ -89,6 +95,174 @@ def git_head_commit(root: Path) -> str:
     return f"{full[:12]}" if full != "unknown" else full
 
 
+# ── bump：版本同步机制（F-03/T-0100）───────────────────────────────────
+# 提交流程约定：先 bump 再提交 —— bump 更新 pyproject/CHANGELOG/载体后，
+# 提交 subject 使用同一版本号，version_sync 步骤（与 git HEAD 对齐，
+# fail-closed）即通过。本机制不改动 version_sync 的判定语义。
+
+STRICT_VERSION_RE = re.compile(r"^\d+\.\d+\.\d+$")
+
+
+def _atomic_write(path: Path, content: str) -> None:
+    """原子写：同目录临时文件 + os.replace（Windows 上 os.replace 同卷原子）。
+
+    写失败时不留下半成品：临时文件被清理，目标文件保持原内容。
+    """
+    fd, tmp_name = tempfile.mkstemp(
+        dir=str(path.parent), prefix=path.name + ".", suffix=".tmp"
+    )
+    tmp = Path(tmp_name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="") as f:
+            f.write(content)
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def _update_pyproject(content: str, version: str) -> str:
+    new, n = PYPROJECT_VERSION_RE.subn(f'version = "{version}"', content, count=1)
+    if n != 1:
+        raise ValueError("pyproject.toml 中找不到 version 字段")
+    return new
+
+
+def _update_init_version(content: str, version: str) -> str:
+    new, n = re.subn(r'(__version__\s*=\s*)"[^"]+"', rf'\g<1>"{version}"', content, count=1)
+    if n != 1:
+        raise ValueError("载体中找不到 __version__ 赋值")
+    return new
+
+
+def _update_readme_version(content: str, version: str) -> str:
+    new, n = re.subn(r'\*\*v?\d+\.\d+\.\d+\*\*', f"**v{version}**", content, count=1)
+    if n != 1:
+        raise ValueError("README.md 中找不到版本行（**vX.Y.Z**）")
+    return new
+
+
+def _update_delivery_doc_version(content: str, version: str) -> str:
+    """docs/06-delivery.md：更新头部版本行与『版本号』表格行（当前交付版本）。"""
+    new = re.sub(r"> Loop Engine v\d+\.\d+\.\d+", f"> Loop Engine v{version}", content, count=1)
+    new, n = re.subn(r"\|\s*版本号\s*\|\s*v\d+\.\d+\.\d+\s*\|",
+                     f"| 版本号 | v{version} |", new, count=1)
+    if n != 1:
+        raise ValueError("docs/06-delivery.md 中找不到『版本号』表格行")
+    return new
+
+
+def _update_plugin_json_version(content: str, version: str) -> str:
+    new, n = re.subn(
+        r'("version"\s*:\s*)"[^"]+"', rf'\g<1>"{version}"', content, count=1
+    )
+    if n != 1:
+        raise ValueError(".zcode-plugin/plugin.json 中找不到 version 字段")
+    return new
+
+
+def _update_version_manifest(content: str, version: str) -> str:
+    """更新 .ai/version-manifest.yaml 的投影字段（历史快照保持不动）。"""
+    out = content
+    for key in ("project_release_version", "core_protocol_version", "plugin_version"):
+        pattern = re.compile(rf"^{key}:\s*\"[^\"]*\"", re.MULTILINE)
+        out, n = pattern.subn(f'{key}: "{version}"', out, count=1)
+        if n != 1:
+            raise ValueError(f"version-manifest.yaml 中找不到 {key} 字段")
+    # consistency_check 块：仅更新版本值，历史快照（historical_snapshots）不动
+    out, n = re.subn(
+        rf"^(\s*(?:pyproject_toml|readme_md|loop_core_init|src_loop_engine_init|"
+        rf"docs_06_delivery|plugin_json):\s*)\"[^\"]*\"",
+        rf'\g<1>"{version}"',
+        out, flags=re.MULTILINE,
+    )
+    if n == 0:
+        raise ValueError("version-manifest.yaml 中找不到 consistency_check 版本值")
+    return out
+
+
+def _update_changelog(content: str, version: str, title: str = "") -> str:
+    """CHANGELOG.md 头部新增版本条目（保留现有格式风格，降序在前）。
+
+    标题缺省时使用通用说明；调用方可事后补充条目正文（heading 格式不变，
+    test_version_consistency 只认第一个 `## vX.Y.Z` 与 pyproject 一致）。
+    """
+    heading_title = title or "版本同步（release.py bump 子命令）"
+    today = datetime.now(timezone.utc).date().isoformat()
+    entry = (
+        f"## v{version} ({today}) — {heading_title}\n"
+        f"\n"
+        f"### Changed ({heading_title})\n"
+        f"- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；"
+        f"提交流程约定：先 bump 再提交（版本与 git HEAD 一致）\n"
+    )
+    # 插入到现有头部条目之前；空文件则直接作为首条目
+    if content.startswith("# Changelog"):
+        head, _, rest = content.partition("\n")
+        return head + "\n\n" + entry + "\n" + rest.lstrip("\n")
+    return entry + "\n" + content
+
+
+# 版本载体清单：(相对路径, 更新函数)。pyproject.toml 是唯一事实来源，
+# 其余载体必须与之一致（test_version_consistency 逐项校验）。
+VERSION_CARRIERS: tuple[tuple[str, object], ...] = (
+    ("pyproject.toml", _update_pyproject),
+    ("CHANGELOG.md", lambda c, v: _update_changelog(c, v)),
+    ("loop_core/__init__.py", _update_init_version),
+    ("src/loop_engine/__init__.py", _update_init_version),
+    ("README.md", _update_readme_version),
+    ("docs/06-delivery.md", _update_delivery_doc_version),
+    (".zcode-plugin/plugin.json", _update_plugin_json_version),
+    (".ai/version-manifest.yaml", _update_version_manifest),
+)
+
+
+def cmd_bump(root: Path, version: str, dry_run: bool = False, title: str = "") -> int:
+    """版本同步（F-03）：bump --to <version> 原子更新 pyproject/CHANGELOG/载体。
+
+    - 版本格式严格校验（x.y.z）；非法 → 用法错误（exit 2）。
+    - 载体逐个原子写（临时文件 + os.replace），任一失败 → 报错退出（不落半成品）。
+    - 缺省载体的项目（如迷你测试根没有 README）→ 提示跳过，不阻断。
+    """
+    if not STRICT_VERSION_RE.match(version):
+        print(f"[release] bump 失败：非法版本号 {version!r}（需要 x.y.z 格式）")
+        return 2
+    current = load_version(root)
+    if version == current:
+        print(f"[release] bump: pyproject 已是 {version}，无需更新")
+        return 0
+    if dry_run:
+        _print_plan([
+            f"版本同步 {current} -> {version}（原子写，先 bump 再提交）：",
+            *[f"  {rel}" for rel, _ in VERSION_CARRIERS],
+            "提交 subject 必须携带同一版本号，version_sync 检查方通过",
+        ])
+        return 0
+    for rel_path, updater in VERSION_CARRIERS:
+        path = root / rel_path
+        if not path.exists():
+            print(f"[release] bump: 跳过缺失载体 {rel_path}（不存在）")
+            continue
+        try:
+            content = path.read_text(encoding="utf-8")
+            new_content = updater(content, version)  # type: ignore[operator]
+            _atomic_write(path, new_content)
+        except ValueError as exc:
+            print(f"[release] bump 失败：{rel_path}: {exc}（已更新的载体不回滚，"
+                  "请人工核对后重试）")
+            return 1
+        except OSError as exc:
+            print(f"[release] bump 失败：{rel_path}: {exc}")
+            return 1
+        print(f"[release] bump: 已更新 {rel_path} -> {version}")
+    print("[release] bump 完成。约定：先 bump 再提交 —— 提交 subject 使用 "
+          f"v{version}，与 pyproject 一致，version_sync 即通过。")
+    return 0
+
+
 # ── check：质量门前置 ───────────────────────────────────────────────────
 
 def step_version_sync(root: Path) -> tuple[bool, str]:
@@ -98,7 +272,11 @@ def step_version_sync(root: Path) -> tuple[bool, str]:
     if git_ver is None:
         return False, "无法从 git HEAD 提交信息解析版本（git 不可用或提交信息无版本号）"
     if version != git_ver:
-        return False, f"版本漂移：pyproject={version} vs git HEAD={git_ver}（先同步版本）"
+        return False, (
+            f"版本漂移：pyproject={version} vs git HEAD={git_ver}。"
+            "约定：先 bump 再提交 —— 运行 `release.py bump --to <版本>` 更新"
+            " pyproject/CHANGELOG/载体后，提交 subject 使用同一版本号"
+        )
     return True, f"pyproject={version} == git HEAD={git_ver}"
 
 
@@ -569,21 +747,35 @@ def cmd_smoke(root: Path, dry_run: bool = False) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="release.py",
-        description="D8 发布/产物体系：check / build / manifest / release / smoke（T-0098）",
+        description="D8 发布/产物体系：check / build / manifest / release / smoke / bump（T-0098/T-0100）",
     )
     parser.add_argument("--dry-run", action="store_true", help="只打印计划，不执行不落盘")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    sub.add_parser("check", help="质量门前置（validate_state 真实校验器 + compile + guard 健康 + SLO 门禁 + 关键测试子集）")
+    check_parser = sub.add_parser("check", help="质量门前置（validate_state 真实校验器 + compile + guard 健康 + SLO 门禁 + 关键测试子集；版本漂移时先 bump 再提交）")
+    # T-0100 F-03：兼容 `check --dry-run`（子命令后置标志）与 `--dry-run check`
+    check_parser.add_argument("--dry-run", dest="check_dry_run", action="store_true",
+                              help="只打印计划，不执行不落盘")
     sub.add_parser("build", help="构建 wheel + sdist 到 dist/")
     sub.add_parser("manifest", help="生成产物清单 + SHA256SUMS")
     sub.add_parser("release", help="check + build + manifest + release 证据落盘")
     sub.add_parser("smoke", help="临时 venv 冒烟安装验证")
+    bump_parser = sub.add_parser(
+        "bump", help="版本同步（原子更新 pyproject/CHANGELOG/载体；先 bump 再提交）"
+    )
+    bump_parser.add_argument("--to", required=True,
+                             help="目标版本（x.y.z 格式）")
+    bump_parser.add_argument("--title", default="",
+                             help="CHANGELOG 新条目标题（缺省用通用说明）")
 
     args = parser.parse_args(argv)
     root = PROJECT_ROOT
+    if args.command == "bump":
+        return cmd_bump(root, args.to, dry_run=args.dry_run, title=args.title)
+    if args.command == "check":
+        # 兼容 `check --dry-run` 与 `--dry-run check` 两种写法
+        return cmd_check(root, dry_run=args.dry_run or args.check_dry_run)
     handlers = {
-        "check": cmd_check,
         "build": cmd_build,
         "manifest": cmd_manifest,
         "release": cmd_release,
