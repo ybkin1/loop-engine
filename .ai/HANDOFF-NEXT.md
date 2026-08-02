@@ -63,13 +63,13 @@ current_task_id: null
 → FileNotFoundError
 ```
 
-现在返回结构化错误：
+现在返回结构化错误（T-0101 起分流为独立 exit code 3，不再与治理损坏共用 exit 2）：
 
 ```text
-NO_ACTIVE_TASK: state.current_task_id is null
+[info] NO_ACTIVE_TASK: state.current_task_id is null（合法阻塞态：等待任务发起；state 不可开工）
 ```
 
-当前 `validate_state.py` 的非零结果是预期的“无活动任务阻断”，不是成功；新会话必须继续处理 `NO_ACTIVE_TASK` 的基线状态。
+`validate_state.py` 的 rc=3 是**合法的 idle 阻塞态**（非损坏、非成功）；新会话必须继续处理 `NO_ACTIVE_TASK` 的基线状态——先创建/恢复一个明确的、用户批准范围内的任务，而不是直接开工。rc=2 才表示真实治理损坏（fail-closed 阻断）。
 
 ### 3.2 生产路径禁止自动模拟 Agent PASS
 
@@ -437,13 +437,14 @@ AGENTS.md
 C:\Python312\python.exe .zcode\tools\validate_state.py C:\Users\Administrator\ZCodeProject\loop-engine
 ```
 
-当前预期结果：
+当前预期结果（T-0101 起）：
 
 ```text
-NO_ACTIVE_TASK
+[info] NO_ACTIVE_TASK: state.current_task_id is null（合法阻塞态：等待任务发起；state 不可开工）
 ```
+退出码 3（idle 合法阻塞态，与治理损坏 exit 2 分流；不输出 usable）。
 
-这不是成功状态；新会话应先创建或恢复一个明确的、用户批准范围内的任务，而不是直接进入大规模实现。
+这不是成功状态、也不是损坏；新会话应先创建或恢复一个明确的、用户批准范围内的任务，而不是直接进入大规模实现。
 
 ## 12. 本交接的第一步建议
 

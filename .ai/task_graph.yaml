@@ -1120,6 +1120,19 @@ tasks:
       - T-0099
     gates:
       - G-T-0100-REQUIREMENTS
+  -
+    id: T-0101
+    title: idle 稳态语义修复 — NO_ACTIVE_TASK exit code 分流 + 消费端对齐
+    phase: S6-delivery
+    status: completed
+    description: >-
+      validate_state/audit_handoff 的 NO_ACTIVE_TASK 独立 exit code（3）+ release
+      check 感知合法阻塞态 + consistency 测试 idle 适配 + self-audit 判定对齐；
+      保留"idle 不输出 usable"安全意图，真实损坏仍 exit 2。
+    depends_on:
+      - T-0100
+    gates:
+      - G-T-0101-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1165,3 +1178,5 @@ edges:
       to: T-0099
     - from: T-0099
       to: T-0100
+    - from: T-0100
+      to: T-0101

@@ -5,7 +5,9 @@ release.py — D8 发布/产物体系（T-0098，StaffDeck D8 对标）。
 子命令:
     check     质量门前置：validate_state（真实校验器）+ compile + guard 健康
               + SLO 门禁 + 关键测试子集（test_version_consistency +
-              test_loop_core）。任一失败 → 退出码 1 阻断。
+              test_loop_core）。任一失败 → 退出码 1 阻断。check 支持 idle
+              稳态运行：validate_state 的 rc=3（NO_ACTIVE_TASK 合法阻塞态，
+              无活动任务）视为通过并标注，不阻断。
     build     构建 wheel + sdist 到 dist/（python -m build；构建工具缺失 → 明确报错）。
     manifest  生成产物清单 dist/release-manifest.json + dist/SHA256SUMS
               （产物名 / sha256 / size / git_commit / 时间戳；sha256 可复验）。
@@ -281,13 +283,18 @@ def step_version_sync(root: Path) -> tuple[bool, str]:
 
 
 def step_validate_state(root: Path) -> tuple[bool, str]:
-    """调用**真实校验器** .zcode/tools/validate_state.py（退出码非 0 → 阻断）。
+    """调用**真实校验器** .zcode/tools/validate_state.py。
 
     独立审查修复（P1-1）：此前为自定义轻量实现（仅 YAML 可解析 +
     version-manifest 与 pyproject 一致），对连续性漂移等盲视；现改为
     subprocess 直接运行真实校验器（含 state/task/待决门禁/治理不变量/
     ProjectContinuity/handoff/角色合同全量检查）。fail-closed：校验器
     缺失、超时或无法启动均视为门禁失败，不放松任何门禁语义。
+
+    T-0101（idle 稳态语义分流）：校验器 rc 语义 —— 0 = state usable（PASS）；
+    3 = idle 合法阻塞态（current_task_id=null，无活动任务，**非损坏**），
+    check 支持 idle 稳态运行，视为通过并明确标注"合法阻塞态"；其他非 0
+    （含 2 = 真实治理损坏）→ FAIL（fail-closed 语义不变）。
     """
     validator = root / VALIDATE_STATE_SCRIPT
     if not validator.exists():
@@ -304,6 +311,12 @@ def step_validate_state(root: Path) -> tuple[bool, str]:
         )
     except OSError as exc:
         return False, f"无法运行 validate_state.py: {exc}（fail-closed 阻断）"
+    if proc.returncode == 3:
+        tail = (proc.stdout or proc.stderr).strip().splitlines()[-5:]
+        return True, (
+            "validate_state.py 通过（rc=3：idle 合法阻塞态，current_task_id=null，"
+            "无活动任务，等待任务发起；非治理损坏）: " + " | ".join(tail)
+        )
     if proc.returncode != 0:
         tail = (proc.stdout or proc.stderr).strip().splitlines()[-10:]
         return False, (

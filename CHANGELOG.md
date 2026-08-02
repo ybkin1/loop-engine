@@ -1,5 +1,21 @@
 # Changelog
 
+## v3.12.40 (2026-08-02) — T-0101: idle 稳态语义修复（NO_ACTIVE_TASK exit 3 分流 + 消费端对齐）
+
+### Changed (T-0101)
+- validate_state / audit_handoff：NO_ACTIVE_TASK 独立 exit code 3 + 独立 [info] 输出段
+  （idle 合法阻塞态：current_task_id=null 且无其他 blocker）；真实治理损坏（连续性
+  漂移/缺文件）保持 [error] + exit 2（fail-closed 不变）；idle 不输出
+  "[ok] state is usable"（安全意图保留）
+- release.py check：step_validate_state 感知 rc=3 → PASS 并标注"idle 合法阻塞态"
+  （check 支持 idle 稳态运行，6/6 可达）；rc 0/2 语义不变
+- test_governance_consistency：idle 适配（None 断言 idle 契约，消除 TypeError；
+  激活态断言原样保留，repo/idle 双场景参数化）
+- loop_self_audit：validate_state rc 判定 0/2 → 0/2/3（三处约定对齐）
+- 新增 tests/test_idle_semantics.py（idle exit 3 / 损坏 exit 2 / idle+blocker exit 2）
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；
+  提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.39 (2026-08-02) — T-0100: 质量验收 findings 修复包（F-03~F-06）
 
 ### Changed (T-0100)

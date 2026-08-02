@@ -309,8 +309,12 @@ def main() -> int:
         checks = set(results.keys())
     failed = [k for k, r in results.items()
               if k in checks and r.get("rc", -1) != 0 and k not in ("validate_state",)]
-    # validate_state returns 2 when NO_ACTIVE_TASK (expected idle) — treat rc 0/2 as OK
-    if results.get("validate_state", {}).get("rc") not in (0, 2):
+    # validate_state rc 语义（T-0101 三处约定对齐 0/2/3）：
+    #   0 = state usable（正常）；
+    #   2 = 真实治理损坏（fail-closed 阻断，审计层面仍属"工具按预期返回"）；
+    #   3 = idle 合法阻塞态（NO_ACTIVE_TASK：current_task_id=null，等待任务发起）。
+    # 三者均为合法结果（不是工具自身失败），视为审计 OK；其余 rc 视为失败。
+    if results.get("validate_state", {}).get("rc") not in (0, 2, 3):
         failed.append("validate_state")
     # guard health: rc 0 = PASS, rc 2 = guard broken
     gh = results.get("guard_health", {})

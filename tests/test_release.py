@@ -248,6 +248,37 @@ class TestReviewFixes:
         assert ok is False, "校验器退出码非 0 必须阻断"
         assert "validate_state.py" in message and "exit=2" in message
 
+    def test_validate_state_rc3_idle_passes(self, tmp_root: Path, monkeypatch):
+        """T-0101: 校验器 rc=3（idle 合法阻塞态，current_task_id=null）→ PASS
+        并标注"合法阻塞态"，不阻断（真实损坏仍为 rc=2 阻断，见上个测试）。"""
+        stub = tmp_root / ".zcode" / "tools" / "validate_state.py"
+        stub.parent.mkdir(parents=True)
+        stub.write_text("", encoding="utf-8")
+
+        class FakeProc:
+            returncode = 3
+            stdout = "[info] NO_ACTIVE_TASK: state.current_task_id is null（合法阻塞态：等待任务发起；state 不可开工）\n"
+            stderr = ""
+
+        monkeypatch.setattr(rel.subprocess, "run", lambda *a, **k: FakeProc())
+        ok, message = rel.step_validate_state(tmp_root)
+        assert ok is True, "校验器 rc=3（idle 合法阻塞态）不得阻断 check"
+        assert "rc=3" in message and "idle 合法阻塞态" in message
+
+    def test_check_validate_state_rc3_passes(self, tmp_root: Path, monkeypatch, capsys):
+        """T-0101: check 在 idle 稳态（validate_state rc=3）下整体 PASS。"""
+        for name in ("version_sync", "validate_state", "compile", "guard_health",
+                     "slo_gate", "key_tests"):
+            if name == "validate_state":
+                monkeypatch.setattr(
+                    rel, "step_validate_state",
+                    lambda root: (True, "rc=3 idle 合法阻塞态（mocked）"))
+            else:
+                monkeypatch.setattr(rel, f"step_{name}",
+                                    lambda root: (True, "mocked ok"))
+        assert rel.cmd_check(tmp_root) == 0, "idle 稳态下 check 必须 PASS（6/6 可达）"
+        assert "PASS" in capsys.readouterr().out
+
     def test_validate_state_timeout_blocks(self, tmp_root: Path, monkeypatch):
         stub = tmp_root / ".zcode" / "tools" / "validate_state.py"
         stub.parent.mkdir(parents=True)

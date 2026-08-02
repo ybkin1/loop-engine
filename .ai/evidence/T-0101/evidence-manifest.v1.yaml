@@ -1,0 +1,84 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0101-D2B12377
+task_id: T-0101
+gate_id: G-T-0101-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0101
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0101/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 4B3A15B3B40C0F26F9E261CC5B3F288368EC358DB5750307AE6428C2AB7E5AE9
+  size: 14920
+  mtime_ns: 1785652945316916300
+- path: .ai/evidence/T-0101/approval-evidence.json
+  role: result
+  required: true
+  sha256: 606A76C9F8F38F0A54A90F93989A20B45B14AD44BB546D3A310622E18C9B09F2
+  size: 300
+  mtime_ns: 1785650769715496100
+- path: .ai/evidence/T-0101/commands.md
+  role: result
+  required: true
+  sha256: 65CE218AE013C12D275EF601FE28B48486B735E0E1E7D0DF2400F9CC78CD2E1E
+  size: 5212
+  mtime_ns: 1785651793084695600
+- path: .ai/evidence/T-0101/compile-evidence.json
+  role: result
+  required: true
+  sha256: A4E0C3B3C4077075CF47CF280A5932D1E26C6F6A9B3CDBD0D117C6526671E79B
+  size: 181
+  mtime_ns: 1785651779342304900
+- path: .ai/evidence/T-0101/execution-evidence.json
+  role: result
+  required: true
+  sha256: DF9EB5BC8A8DFA561888390C216A38C2A9AEB33FFB0ED07BCC1C931B83B96548
+  size: 1741
+  mtime_ns: 1785651519953804000
+- path: .ai/evidence/T-0101/fixes/f-01-exit-code.md
+  role: result
+  required: true
+  sha256: E2AB29FF43E6172D36063A6863A15716DDCE0DC5ACFF2574B8D8683B52DC1E4D
+  size: 3804
+  mtime_ns: 1785651478331332500
+- path: .ai/evidence/T-0101/fixes/f-02-release-check.md
+  role: result
+  required: true
+  sha256: 890BD4A947640541032495D4C2E82410DADC429FA960990EDB6FD7FB39BC535D
+  size: 1767
+  mtime_ns: 1785651483953458500
+- path: .ai/evidence/T-0101/fixes/f-03-consistency-tests.md
+  role: result
+  required: true
+  sha256: EF65CB012DC872D05D445C7F21469FC464BA69378521FEFF46AE3CF669800AD3
+  size: 2518
+  mtime_ns: 1785651491869878100
+- path: .ai/evidence/T-0101/fixes/f-04-self-audit.md
+  role: result
+  required: true
+  sha256: DB6B7BD7E967CE6FB9CD7489F6F56F211BA1AB2E79B04CA431D1E0AC7C999C70
+  size: 2037
+  mtime_ns: 1785651499420161400
+- path: .ai/evidence/T-0101/fixes/f-05-bump.md
+  role: result
+  required: true
+  sha256: A05BF53C9519EEF661640FE7CF6EA019F7C42C720707EE34B54135B22B92E499
+  size: 2562
+  mtime_ns: 1785651786814905000
+- path: .ai/evidence/T-0101/review/independent-review.md
+  role: result
+  required: true
+  sha256: 6A9F86FA2DC6A0F92C92ED1FB0751979F4A22F48DC047B27A9AE94DF7AB7908A
+  size: 9737
+  mtime_ns: 1785652715305895100
+file_count: 11
+total_bytes: 44779
+ordered_entries_sha256: D2B123779E619A9AE17C1B7C325A0B4D76C2A75DE4E794A07BA2BC5B7D5B08BE
+created_at: '2026-08-02T14:42:32+08:00'
+created_by: governance-controller
+semantic_sha256: 10D742151B3B93BEB4ECA43EEC87F9745AE4AC3FC319669044DB58A103865F58

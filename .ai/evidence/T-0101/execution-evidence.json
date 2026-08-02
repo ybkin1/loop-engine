@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0101",
+  "gate_id": "G-T-0101-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "validate_state/audit_handoff: NO_ACTIVE_TASK 独立 exit code 3 + 独立 [info] 输出段（idle 合法态；损坏仍 exit 2；不输出 usable）— DONE（idle worktree 实测 rc 2→3；tests/test_idle_semantics.py 5 passed；损坏态 rc=2 实测 + fixture 测试）",
+    "release.py check: step_validate_state 感知 rc=3 合法阻塞态（PASS + 标注；0/2 语义不变）— DONE（idle worktree 端到端 check 6/6 PASS exit 0；tests/test_release.py rc=3 分支 2 项 passed）",
+    "test_governance_consistency: idle 适配（None 断言 idle 契约，消除 TypeError；激活态断言保留；repo/idle 双场景）— DONE（激活态 22 passed；idle worktree 22 passed，0 failed）",
+    "loop_self_audit: rc 判定 0/2 → 0/2/3 对齐（3=idle 合法态）+ HANDOFF-NEXT.md 文档同步 rc=3 语义 — DONE",
+    "版本 bump 3.12.40（F-03 bump 机制闭环：8 载体原子更新 + version_consistency 7 passed）— DONE",
+    "复验：idle 稳态 release check 6/6 PASS（worktree 实测）+ 全量回归（激活态运行；version==HEAD 瞬时项提交后自愈）— DONE（提交后 idle 稳态最终复验由主会话执行）"
+  ],
+  "notes": "OPEN-FINDING 2026-08-02（idle 稳态语义割裂）修复任务。G-T-0101-REQUIREMENTS 已由用户批准。遗留：主会话 T-0101 完成流程需重生成 project_continuity.yaml + HANDOFF.md（本任务对 HANDOFF-NEXT.md 的文档编辑造成连续性漂移，fail-closed 已拦截；恢复路径 repair_continuity + close_session 已在 worktree 实证）。"
+}

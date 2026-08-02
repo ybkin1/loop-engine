@@ -2,6 +2,12 @@
 test_governance_consistency.py — Cross-validate .ai/ governance files (T-0046).
 
 Checks consistency between state.yaml, task_graph.yaml, gates.yaml, and HANDOFF.md.
+
+T-0101: idle 稳态适配 —— current_task_id=null（idle 合法阻塞态）时断言 idle 契约
+（state 为 null、task_graph/gates 无"当前任务/当前 gate"引用、HANDOFF 当前任务/
+当前 gate 段与 state 一致 null↔null），消除 `None in str` TypeError；激活态断言
+原样保留。每个测试参数化两个场景：repo（真实 .ai/ 文件，按实际状态走 idle/激活
+分支）+ idle（合成 idle fixture，始终走 idle 分支）。
 """
 import os
 import re
@@ -11,14 +17,59 @@ import pytest
 PROJECT_ROOT = os.path.join(os.path.dirname(__file__), "..")
 
 
-def _read(rel_path):
-    full = os.path.join(PROJECT_ROOT, rel_path)
+def _read(rel_path, base=PROJECT_ROOT):
+    full = os.path.join(base, rel_path)
     with open(full, "r", encoding="utf-8") as f:
         return f.read()
 
 
-def _load_yaml(rel_path):
-    return yaml.safe_load(_read(rel_path))
+def _load_yaml(rel_path, base=PROJECT_ROOT):
+    return yaml.safe_load(_read(rel_path, base))
+
+
+def _section(text, heading):
+    """提取 markdown 中指定 heading 的正文段（无该 heading → 空串）。"""
+    start = text.find(heading)
+    if start < 0:
+        return ""
+    start += len(heading)
+    end = text.find("\n## ", start)
+    return text[start:] if end < 0 else text[start:end]
+
+
+def _build_idle_fixture(root):
+    """构造最小 idle 态 fixture（T-0101）：state 无当前任务/gate；task_graph/gates
+    有注册项；HANDOFF 当前任务/当前 gate 段不引用任何 id（null ↔ null idle 契约）。"""
+    base = os.path.join(str(root), ".ai")
+    os.makedirs(base)
+    for name in (
+        "PROJECT.md", "NON_GOALS.md", "ARCHITECTURE.md", "CONTRACTS.md",
+        "CODING_STANDARDS.md", "CONVENTIONS.md", "CODEMAP.md", "PROGRESS.md",
+        "QUALITY_GATES.md", "ACCEPTANCE.md", "DECISIONS.md", "KNOWN_ISSUES.md",
+    ):
+        with open(os.path.join(base, name), "w", encoding="utf-8") as f:
+            f.write(f"# {name}\n")
+    with open(os.path.join(base, "state.yaml"), "w", encoding="utf-8") as f:
+        f.write(
+            "schema_version: 1\ncurrent_phase: S6-delivery\n"
+            "current_task_id: null\ncurrent_gate_id: null\n"
+        )
+    with open(os.path.join(base, "task_graph.yaml"), "w", encoding="utf-8") as f:
+        f.write(
+            "schema_version: 1\ntasks:\n  - id: T-FIX-1\n    status: completed\n"
+            "  - id: T-FIX-2\n    status: completed\nedges: []\n"
+        )
+    with open(os.path.join(base, "gates.yaml"), "w", encoding="utf-8") as f:
+        f.write(
+            "schema_version: 1\ngates:\n  - id: G-FIX-1\n    task_id: T-FIX-1\n"
+            "    status: approved\n"
+        )
+    with open(os.path.join(base, "HANDOFF.md"), "w", encoding="utf-8") as f:
+        f.write(
+            "# Handoff\n\n## Current Task\n\nnone\n\nStatus: `unknown`\n\n"
+            "## Current Gate\n\nnone\n"
+        )
+    return str(root)
 
 
 class TestGovernanceConsistency:
@@ -34,24 +85,42 @@ class TestGovernanceConsistency:
         assert "tasks" in tg
         assert isinstance(tg["tasks"], list)
 
-    def test_current_task_in_graph(self):
-        state = _load_yaml(".ai/state.yaml")
-        tg = _load_yaml(".ai/task_graph.yaml")
+    @pytest.mark.parametrize("scenario", ["repo", "idle"])
+    def test_current_task_in_graph(self, scenario, tmp_path):
+        root = PROJECT_ROOT if scenario == "repo" else _build_idle_fixture(tmp_path)
+        state = _load_yaml(".ai/state.yaml", root)
+        tg = _load_yaml(".ai/task_graph.yaml", root)
         current = state["current_task_id"]
         task_ids = [t["id"] for t in tg["tasks"] if isinstance(t, dict)]
+        if current is None:
+            # idle 契约：无"当前任务"引用（None 不参与 in 判断，杜绝 TypeError）
+            assert current not in task_ids
+            return
         assert current in task_ids, f"{current} not in task_graph"
 
-    def test_current_task_file_exists(self):
-        state = _load_yaml(".ai/state.yaml")
+    @pytest.mark.parametrize("scenario", ["repo", "idle"])
+    def test_current_task_file_exists(self, scenario, tmp_path):
+        root = PROJECT_ROOT if scenario == "repo" else _build_idle_fixture(tmp_path)
+        state = _load_yaml(".ai/state.yaml", root)
         current = state["current_task_id"]
-        task_file = os.path.join(PROJECT_ROOT, ".ai", "tasks", f"{current}.md")
+        if current is None:
+            # idle 契约：无当前任务即无任务文件要求（不构造 "None.md" 路径）
+            assert not os.path.exists(os.path.join(root, ".ai", "tasks", "None.md"))
+            return
+        task_file = os.path.join(root, ".ai", "tasks", f"{current}.md")
         assert os.path.exists(task_file), f"Task file {task_file} missing"
 
-    def test_current_gate_in_register(self):
-        state = _load_yaml(".ai/state.yaml")
-        gates = _load_yaml(".ai/gates.yaml")
+    @pytest.mark.parametrize("scenario", ["repo", "idle"])
+    def test_current_gate_in_register(self, scenario, tmp_path):
+        root = PROJECT_ROOT if scenario == "repo" else _build_idle_fixture(tmp_path)
+        state = _load_yaml(".ai/state.yaml", root)
+        gates = _load_yaml(".ai/gates.yaml", root)
         current_gate = state["current_gate_id"]
         gate_ids = [str(g["id"]) for g in gates.get("gates", []) if isinstance(g, dict)]
+        if current_gate is None:
+            # idle 契约：gate register 无"当前 gate"（None 不参与 in 判断）
+            assert current_gate not in gate_ids
+            return
         assert current_gate in gate_ids, f"{current_gate} not in gates.yaml"
 
     def test_current_gate_task_matches(self):
@@ -59,6 +128,8 @@ class TestGovernanceConsistency:
         gates = _load_yaml(".ai/gates.yaml")
         current_gate = state["current_gate_id"]
         current_task = state["current_task_id"]
+        if current_gate is None:
+            return  # idle 契约：无当前 gate，无匹配对象
         for g in gates.get("gates", []):
             if isinstance(g, dict) and str(g.get("id")) == current_gate:
                 assert str(g.get("task_id")) == current_task, (
@@ -70,6 +141,8 @@ class TestGovernanceConsistency:
         state = _load_yaml(".ai/state.yaml")
         gates = _load_yaml(".ai/gates.yaml")
         current_gate = state["current_gate_id"]
+        if current_gate is None:
+            return  # idle 契约：无当前 gate，无需 approved 断言
         for g in gates.get("gates", []):
             if isinstance(g, dict) and str(g.get("id")) == current_gate:
                 assert g.get("status") == "approved", (
@@ -77,18 +150,31 @@ class TestGovernanceConsistency:
                 )
                 break
 
-    def test_handoff_current_task_matches_state(self):
-        state = _load_yaml(".ai/state.yaml")
-        handoff = _read(".ai/HANDOFF.md")
+    @pytest.mark.parametrize("scenario", ["repo", "idle"])
+    def test_handoff_current_task_matches_state(self, scenario, tmp_path):
+        root = PROJECT_ROOT if scenario == "repo" else _build_idle_fixture(tmp_path)
+        state = _load_yaml(".ai/state.yaml", root)
+        handoff = _read(".ai/HANDOFF.md", root)
         current_task = state["current_task_id"]
+        if current_task is None:
+            # idle 契约：null ↔ null —— HANDOFF 当前任务段不得引用任何任务 id；
+            # 禁止 `None in handoff`（str 左操作数 TypeError 源）
+            assert not re.search(r"\bT-\d+\b", _section(handoff, "## Current Task"))
+            return
         assert current_task in handoff, (
             f"HANDOFF.md does not reference current task {current_task}"
         )
 
-    def test_handoff_current_gate_matches_state(self):
-        state = _load_yaml(".ai/state.yaml")
-        handoff = _read(".ai/HANDOFF.md")
+    @pytest.mark.parametrize("scenario", ["repo", "idle"])
+    def test_handoff_current_gate_matches_state(self, scenario, tmp_path):
+        root = PROJECT_ROOT if scenario == "repo" else _build_idle_fixture(tmp_path)
+        state = _load_yaml(".ai/state.yaml", root)
+        handoff = _read(".ai/HANDOFF.md", root)
         current_gate = state["current_gate_id"]
+        if current_gate is None:
+            # idle 契约：null ↔ null —— HANDOFF 当前 gate 段不得引用任何 gate id
+            assert not re.search(r"\bG-\d+\b", _section(handoff, "## Current Gate"))
+            return
         assert current_gate in handoff, (
             f"HANDOFF.md does not reference current gate {current_gate}"
         )

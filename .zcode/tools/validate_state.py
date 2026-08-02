@@ -430,7 +430,25 @@ def main() -> int:
         print(error)
     for error in legacy_errors:
         print(f"[warn] {error}")
-    for error in list(dict.fromkeys(blocker_errors)):
+
+    # T-0101: idle 稳态语义分流 —— NO_ACTIVE_TASK（合法阻塞态）与真实治理损坏 exit code 分离。
+    # idle 合法态（current_task_id=null 且无其他任何 blocker 错误）→ 独立 [info] 段 + exit 3；
+    # 存在其他 blocker（连续性漂移/缺文件/损坏）→ 保持 [error] + exit 2（fail-closed 不变）。
+    # 安全意图保留：idle 绝不输出 "[ok] state is usable"（新会话不得误以为可开工）。
+    no_active_task_msg = "NO_ACTIVE_TASK: state.current_task_id is null"
+    unique_blockers = list(dict.fromkeys(blocker_errors))
+    idle_legal_block = (
+        task_id is None
+        and len(unique_blockers) == 1
+        and str(unique_blockers[0]) == no_active_task_msg
+    )
+    if idle_legal_block:
+        print(
+            f"[info] {no_active_task_msg}（合法阻塞态：state 无活动任务，等待任务发起；"
+            "state 不可开工）"
+        )
+        return 3
+    for error in unique_blockers:
         print(f"[error] {error}")
 
     if blocker_errors:
