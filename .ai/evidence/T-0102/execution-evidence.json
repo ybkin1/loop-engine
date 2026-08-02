@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0102",
+  "gate_id": "G-T-0102-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "handoff 生成器 idle 占位修复（.ai/evidence/none/ 悬挂引用，bc6680f 引入）— DONE（idle worktree 端到端：close_session 生成 HANDOFF 无 none 引用，Evidence manifest 渲染为实际存在的最近任务 manifest；test_manifest_t0095 4/4 全绿；激活态行为不变）",
+    "rollback.py _verify_state rc=3 感知（idle 合法态放行并标注，rc=2 损坏仍阻断 fail-closed）— DONE（tests/test_operations.py 新增 4 项：rc=0/3 通过、rc=2/1 阻断，全部 passed）",
+    "release.py bump --title 透传修复（VERSION_CARRIERS lambda 丢 title → 显式透传标志）— DONE（tests/test_release_bump.py 新增 test_bump_title_passthrough_to_changelog passed；CLI bump --title 实机验证 CHANGELOG 条目使用标题）",
+    "版本 bump 3.12.41 — DONE（8 载体原子同步 3.12.41；CHANGELOG 头部条目含 --title 标题；test_version_consistency 7 passed；test_release_bump 硬编码版本连带维护 3.12.40→3.12.41）",
+    "全量回归 + compile + 全工程最终验证 — DONE（全量 3766 passed, 2 failed, 64 skipped, 12 xfailed；2 失败均为提交后自愈瞬时项：version_sync HEAD=3.12.40、T-0102 manifest 未生成；compile pass 68/68）"
+  ],
+  "notes": "OPEN-FINDING 2026-08-02（handoff none 占位）+ T-0101 独立审查 P3 观察项清零（rollback idle 阻断、bump --title 透传）。G-T-0102-REQUIREMENTS 已由用户批准。遗留：主会话 T-0102 完成流程需创建 .ai/evidence/T-0102/evidence-manifest.v1.yaml + 以 v3.12.41 提交（提交后 version_sync 与 test_manifest_t0095 自愈）。"
+}

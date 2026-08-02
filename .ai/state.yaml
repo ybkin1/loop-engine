@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T14:44:02.982766+08:00'
+last_handoff_at: '2026-08-02T17:19:16.192050+08:00'
 notes:
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
@@ -84,6 +84,9 @@ notes:
   idle 双场景适配（消除 TypeError）+ self-audit rc 0/2/3 对齐 + bump 3.12.40 （F-03 机制首次闭环），7/7
   AC，独立审查 GO（3 项 P3 观察留待后续），全量 3761 passed （2 瞬时项提交后自愈），v3.12.40 提交。OPEN-FINDING CLOSED。下一任务待用户发起。'
 - 'OPEN-FINDING 2026-08-02: handoff 生成器 idle 占位缺陷（.ai/evidence/none/ 悬挂引用）— T-0097
-  （bc6680f）引入，T-0101 首个 idle 态 HANDOFF 提交暴露；test_manifest_t0095 持续性失败（P3，
-  不阻断 release check）。修复方向见 .ai/evidence/observability/finding-handoff-none-placeholder.md。
-  待用户裁决是否立项。'
+  （bc6680f）引入，T-0101 首个 idle 态 HANDOFF 提交暴露；test_manifest_t0095 持续性失败（P3， 不阻断 release
+  check）。修复方向见 .ai/evidence/observability/finding-handoff-none-placeholder.md。 待用户裁决是否立项。'
+- 'T-0102 COMPLETED 2026-08-02: handoff idle 占位修复（render_handoff 拆 active_task_id
+  + _latest_manifest_path 方案 A，idle 无悬挂引用）+ rollback rc=3 感知 + bump --title 透传 + bump
+  3.12.41，7/7 AC，独立审查 GO（2 项 P3 观察），全量 3766 passed（2 瞬时项提交后自愈）， v3.12.41 提交。OPEN-FINDING
+  CLOSED。推送与同步完成，工程全绿。下一任务待用户发起。'

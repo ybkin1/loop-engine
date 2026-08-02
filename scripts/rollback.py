@@ -206,8 +206,12 @@ def _verify_state(project_root: Path) -> bool:
             text=True,
             timeout=30,
         )
-        if result.returncode == 0:
-            print("[rollback] validate_state.py 通过。")
+        # rc=0 通过；rc=3 为 idle 合法阻塞态（T-0101 validate_state 分流，
+        # 无活动任务属预期状态，不阻断回滚）；其余非 0（含 rc=2 真实损坏）
+        # 保持 fail-closed 阻断。
+        if result.returncode in (0, 3):
+            note = "（idle 合法阻塞态 rc=3）" if result.returncode == 3 else ""
+            print(f"[rollback] validate_state.py 通过{note}。")
             return True
         else:
             print(f"[rollback] validate_state.py 失败 (exit {result.returncode}):")

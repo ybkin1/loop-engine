@@ -38,7 +38,7 @@ CARRIER_FILES = (
 
 @pytest.fixture
 def mini_project(tmp_path: Path) -> Path:
-    """迷你项目根：复制真实项目的全部版本载体（3.12.40 对齐后状态）。"""
+    """迷你项目根：复制真实项目的全部版本载体（3.12.41 对齐后状态）。"""
     root = tmp_path / "project"
     for rel_path in CARRIER_FILES:
         src = PROJECT_ROOT / rel_path
@@ -83,9 +83,9 @@ class TestBumpUpdatesCarriers:
         assert rel.cmd_bump(mini_project, "9.8.7") == 0
         content = (mini_project / "CHANGELOG.md").read_text(encoding="utf-8")
         # 新条目在头部，旧条目保留且降序（新版本在旧版本之前）
-        assert content.index("## v9.8.7") < content.index("## v3.12.40")
+        assert content.index("## v9.8.7") < content.index("## v3.12.41")
         assert "先 bump 再提交" in content
-        assert "## v3.12.40" in content  # 原条目未丢失
+        assert "## v3.12.41" in content  # 原条目未丢失
 
     def test_bump_readme_and_docs(self, mini_project: Path):
         assert rel.cmd_bump(mini_project, "9.8.7") == 0
@@ -124,7 +124,7 @@ class TestBumpUpdatesCarriers:
         assert rel.cmd_bump(mini_project, "abc") == 2
         assert rel.cmd_bump(mini_project, "3.12") == 2
         assert rel.cmd_bump(mini_project, "3.12.39-beta") == 2
-        assert rel.load_version(mini_project) == "3.12.40"  # 未改动
+        assert rel.load_version(mini_project) == "3.12.41"  # 未改动
 
     def test_bump_missing_optional_carrier_skips(self, tmp_path: Path):
         root = tmp_path / "project"
@@ -151,18 +151,33 @@ class TestBumpAtomicity:
         monkeypatch.setattr(rel.os, "replace", boom)
         with pytest.raises(OSError):
             rel._atomic_write(target, target.read_text(encoding="utf-8").replace(
-                "3.12.40", "9.8.7"))
+                "3.12.41", "9.8.7"))
         assert target.read_bytes() == original, "写失败必须保持原内容"
         assert not list(mini_project.glob("*.tmp")), "写失败必须清理临时文件"
 
     def test_bump_carrier_failure_reports_error(self, mini_project: Path, monkeypatch):
         """某载体更新失败 → bump 报错（exit 1）；pyproject 未被写坏。"""
-        def bad_updater(content, version):
+        def bad_updater(content, version, title=""):
             raise ValueError("simulated carrier error")
 
-        carriers = [(p, bad_updater if p == "CHANGELOG.md" else u)
-                    for p, u in rel.VERSION_CARRIERS]
+        carriers = [(p, bad_updater if p == "CHANGELOG.md" else u, t)
+                    for p, u, t in rel.VERSION_CARRIERS]
         monkeypatch.setattr(rel, "VERSION_CARRIERS", carriers)
         assert rel.cmd_bump(mini_project, "9.8.7") == 1
         # pyproject（首个载体）已更新 —— 报错信息明确提示人工核对
         assert rel.load_version(mini_project) == "9.8.7"
+
+    def test_bump_title_passthrough_to_changelog(self, mini_project: Path):
+        """bump --title 透传：CHANGELOG 新条目标题使用 --title（T-0102 F-03）。
+
+        修复前（T-0100 F-03 引入时 lambda 丢 title）：条目使用缺省标题
+        "版本同步（release.py bump 子命令）"。
+        """
+        assert rel.cmd_bump(mini_project, "9.8.7", title="自定义标题") == 0
+        content = (mini_project / "CHANGELOG.md").read_text(encoding="utf-8")
+        assert "## v9.8.7" in content
+        entry_head = content.split("## v9.8.7", 1)[1].split("## v3.12.41", 1)[0]
+        assert "自定义标题" in entry_head
+        assert "版本同步（release.py bump 子命令）" not in entry_head
+        # 旧条目不受影响
+        assert "## v3.12.41" in content

@@ -208,17 +208,18 @@ def _update_changelog(content: str, version: str, title: str = "") -> str:
     return entry + "\n" + content
 
 
-# 版本载体清单：(相对路径, 更新函数)。pyproject.toml 是唯一事实来源，
-# 其余载体必须与之一致（test_version_consistency 逐项校验）。
-VERSION_CARRIERS: tuple[tuple[str, object], ...] = (
-    ("pyproject.toml", _update_pyproject),
-    ("CHANGELOG.md", lambda c, v: _update_changelog(c, v)),
-    ("loop_core/__init__.py", _update_init_version),
-    ("src/loop_engine/__init__.py", _update_init_version),
-    ("README.md", _update_readme_version),
-    ("docs/06-delivery.md", _update_delivery_doc_version),
-    (".zcode-plugin/plugin.json", _update_plugin_json_version),
-    (".ai/version-manifest.yaml", _update_version_manifest),
+# 版本载体清单：(相对路径, 更新函数, 是否透传 bump --title)。
+# pyproject.toml 是唯一事实来源，其余载体必须与之一致（test_version_consistency 逐项校验）。
+# T-0102 F-03：CHANGELOG 更新器透传 --title（T-0100 F-03 引入时 lambda 丢 title）。
+VERSION_CARRIERS: tuple[tuple[str, object, bool], ...] = (
+    ("pyproject.toml", _update_pyproject, False),
+    ("CHANGELOG.md", _update_changelog, True),
+    ("loop_core/__init__.py", _update_init_version, False),
+    ("src/loop_engine/__init__.py", _update_init_version, False),
+    ("README.md", _update_readme_version, False),
+    ("docs/06-delivery.md", _update_delivery_doc_version, False),
+    (".zcode-plugin/plugin.json", _update_plugin_json_version, False),
+    (".ai/version-manifest.yaml", _update_version_manifest, False),
 )
 
 
@@ -239,18 +240,19 @@ def cmd_bump(root: Path, version: str, dry_run: bool = False, title: str = "") -
     if dry_run:
         _print_plan([
             f"版本同步 {current} -> {version}（原子写，先 bump 再提交）：",
-            *[f"  {rel}" for rel, _ in VERSION_CARRIERS],
+            *[f"  {rel}" for rel, _, _ in VERSION_CARRIERS],
             "提交 subject 必须携带同一版本号，version_sync 检查方通过",
         ])
         return 0
-    for rel_path, updater in VERSION_CARRIERS:
+    for rel_path, updater, use_title in VERSION_CARRIERS:
         path = root / rel_path
         if not path.exists():
             print(f"[release] bump: 跳过缺失载体 {rel_path}（不存在）")
             continue
         try:
             content = path.read_text(encoding="utf-8")
-            new_content = updater(content, version)  # type: ignore[operator]
+            new_content = (updater(content, version, title) if use_title
+                           else updater(content, version))  # type: ignore[operator]
             _atomic_write(path, new_content)
         except ValueError as exc:
             print(f"[release] bump 失败：{rel_path}: {exc}（已更新的载体不回滚，"

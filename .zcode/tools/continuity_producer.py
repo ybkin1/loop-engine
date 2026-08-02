@@ -140,6 +140,31 @@ def _manifest_path(root: Path, task_id: str) -> str:
     return repair if safe_project_path(root, repair).exists() else f".ai/evidence/{task_id}/evidence-manifest.v1.yaml"
 
 
+def _latest_manifest_path(root: Path) -> str | None:
+    """idle 态兜底：.ai/evidence/<task>/ 下最新的真实 manifest（mtime 序）。
+
+    T-0102 F-01：idle 态（无活动任务）不得渲染 "none" 占位路径
+    （`.ai/evidence/none/` 悬挂引用，bc6680f 引入）；改渲染实际存在的
+    最近任务 manifest（复用 _manifest_path 的 repair 优先语义）。
+    没有任何 manifest 时返回 None（调用方渲染"无"文案，不产生悬挂引用）。
+    """
+    evidence_root = safe_project_path(root, ".ai/evidence")
+    if not evidence_root.is_dir():
+        return None
+    candidates: list[tuple[int, str]] = []
+    for task_dir in evidence_root.iterdir():
+        if not task_dir.is_dir() or task_dir.name == "none":
+            continue
+        rel = _manifest_path(root, task_dir.name)
+        path = safe_project_path(root, rel)
+        if path.is_file():
+            candidates.append((path.stat().st_mtime_ns, rel))
+    if not candidates:
+        return None
+    candidates.sort()
+    return candidates[-1][1]
+
+
 def _lifecycle_projection(gate: dict | None, evidence_ok: bool) -> dict:
     flags = {
         "independent_rereview_authorized": False, "installation_authorized": False,
@@ -217,7 +242,10 @@ def render_handoff(root: Path, note: str = "") -> tuple[str, dict]:
     model = build_handoff_model(root)
     action = model["action"]
     status = action["current_task_status"] or "unknown"
+    # display 用 task_id（idle 态显示 "none"）；manifest 引用用真实 task_id
+    # （None 时不得拼 "none" 占位路径，见 _latest_manifest_path）
     task_id = action["current_task_id"] or "none"
+    active_task_id = action["current_task_id"]
     checkpoint = model["checkpoint"]
     state = load_yaml(root / ".ai" / "state.yaml")
 
@@ -290,7 +318,7 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Evidence
 
-Evidence manifest: {f".ai/evidence/{task_id}/evidence-manifest.v1.yaml" if task_id else 'not available (no active task)'}.
+Evidence manifest: {f".ai/evidence/{active_task_id}/evidence-manifest.v1.yaml" if active_task_id else (_latest_manifest_path(root) or 'not available (no active task)')}.
 
 ## Integration Impact
 

@@ -38,6 +38,15 @@ from governor_lib import load_yaml  # noqa: E402
 
 # ── Helpers ─────────────────────────────────────────────────────────────
 
+class _RC:
+    """subprocess.run 返回值的轻量替身（returncode 可配，输出为空）。"""
+
+    def __init__(self, returncode: int):
+        self.returncode = returncode
+        self.stdout = ""
+        self.stderr = ""
+
+
 def _make_empty_project() -> Path:
     """Create an empty temp directory to serve as a target project root."""
     tmpdir = tempfile.mkdtemp(prefix="loop_test_")
@@ -695,3 +704,39 @@ class TestEdgeCases:
 
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
+
+    # ── _verify_state rc 判定（T-0102 F-02）───────────────────────────────
+
+    @staticmethod
+    def _fake_run_factory(rc: int):
+        def fake_run(cmd, capture_output, text, timeout):
+            assert Path(cmd[-1]).is_dir()  # project_root 参数
+            return _RC(rc)
+        return fake_run
+
+    def test_verify_state_accepts_rc0(self, monkeypatch):
+        """rc=0 → verify 通过（既有语义）。"""
+        from scripts.rollback import _verify_state
+        monkeypatch.setattr("scripts.rollback.subprocess.run", self._fake_run_factory(0))
+        assert _verify_state(Path(".")) is True
+
+    def test_verify_state_accepts_idle_rc3(self, monkeypatch):
+        """rc=3（idle 合法阻塞态）→ verify 通过（T-0102 F-02）。
+
+        修复前 rc==0 才通过，idle 稳态回滚会被"状态验证未通过"误阻断。
+        """
+        from scripts.rollback import _verify_state
+        monkeypatch.setattr("scripts.rollback.subprocess.run", self._fake_run_factory(3))
+        assert _verify_state(Path(".")) is True
+
+    def test_verify_state_blocks_rc2_corruption(self, monkeypatch):
+        """rc=2（真实治理损坏）→ 仍阻断（fail-closed 保持，T-0102 F-02）。"""
+        from scripts.rollback import _verify_state
+        monkeypatch.setattr("scripts.rollback.subprocess.run", self._fake_run_factory(2))
+        assert _verify_state(Path(".")) is False
+
+    def test_verify_state_blocks_other_nonzero(self, monkeypatch):
+        """其他非 0 rc（如 1）→ 仍阻断（fail-closed 保持）。"""
+        from scripts.rollback import _verify_state
+        monkeypatch.setattr("scripts.rollback.subprocess.run", self._fake_run_factory(1))
+        assert _verify_state(Path(".")) is False

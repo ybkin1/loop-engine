@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.41 (2026-08-02) — T-0102 — handoff 生成器 idle 占位修复 + P3 观察项清零
+
+### Changed (T-0102 — handoff 生成器 idle 占位修复 + P3 观察项清零)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.40 (2026-08-02) — T-0101: idle 稳态语义修复（NO_ACTIVE_TASK exit 3 分流 + 消费端对齐）
 
 ### Changed (T-0101)

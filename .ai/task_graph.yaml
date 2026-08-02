@@ -1133,6 +1133,18 @@ tasks:
       - T-0100
     gates:
       - G-T-0101-REQUIREMENTS
+  -
+    id: T-0102
+    title: handoff 生成器 idle 占位缺陷修复 + P3 观察项清零
+    phase: S6-delivery
+    status: completed
+    description: >-
+      修复 idle 态 HANDOFF 的 .ai/evidence/none/ 悬挂引用（T-0097 引入）+ rollback
+      rc=3 感知 + bump --title 透传；全量回归 0 failed，达成"工程完全没问题"。
+    depends_on:
+      - T-0101
+    gates:
+      - G-T-0102-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1180,3 +1192,5 @@ edges:
       to: T-0100
     - from: T-0100
       to: T-0101
+    - from: T-0101
+      to: T-0102
