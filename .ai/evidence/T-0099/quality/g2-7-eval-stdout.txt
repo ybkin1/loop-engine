@@ -1,0 +1,11 @@
+# G2-7 tool_eval (AC-02 item 7)
+command: C:/Python312/python.exe tools/tool_eval.py --report .ai/evidence/T-0099/quality/eval-report.json
+recorded_at: 2026-08-02T02:41:00+00:00
+---
+Suite: loop-agent-eval v1 (6 cases)
+  PASS:  6
+  FAIL:  0
+  SKIP:  0
+Overall: PASS
+exit_code: 0
+result: PASS (6/6) — full JSON in eval-report.json

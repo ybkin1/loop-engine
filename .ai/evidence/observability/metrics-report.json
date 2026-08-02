@@ -5,14 +5,14 @@
     "task_id": "T-0090",
     "phase": "S6-delivery",
     "gate_id": null,
-    "git_commit": "e2eb30d9ceb00ef2528ce88f518d0ef429ba6b68",
-    "timestamp": "2026-08-01T01:26:44.781587+00:00",
+    "git_commit": "31c3c2d44471e68034634a27d9dafa008ed986f4",
+    "timestamp": "2026-08-02T02:42:18.501258+00:00",
     "tool_name": "loop_metrics",
     "tool_version": "1.0.0"
   },
   "window": {
     "start": "2026-07-06T17:44:53+08:00",
-    "end": "2026-08-01T01:26:07.107031+00:00"
+    "end": "2026-08-02T02:39:00.456403+00:00"
   },
   "status": "NOT_VERIFIED",
   "missing": [
@@ -47,7 +47,7 @@
         "S6-delivery": 0.0
       },
       "phase_unmapped_gates": 50,
-      "decided_gates": 82
+      "decided_gates": 91
     },
     "gate_rejection_rate_by_gate_type": {
       "status": "computed",
@@ -85,19 +85,19 @@
     },
     "gate_decision_coverage": {
       "status": "computed",
-      "value": 0.3415,
+      "value": 0.3077,
       "basis": "decided with evidence / decided"
     },
     "approval_latency": {
       "status": "computed",
       "value": {
-        "count": 21,
+        "count": 30,
         "p50_seconds": 0.0,
         "p95_seconds": 1712.0,
-        "mean_seconds": 443.476,
+        "mean_seconds": 310.433,
         "p50_hours": 0.0,
         "p95_hours": 0.476,
-        "mean_hours": 0.123
+        "mean_hours": 0.086
       }
     },
     "task_cycle_time": {
@@ -129,30 +129,45 @@
     "guard_anomaly_rate": {
       "status": "computed",
       "value": 0.0,
-      "total_events": 299,
+      "total_events": 1309,
       "by_guard": {
+        ".ai/checkers/second_failure_checker.py": {
+          "total": 2,
+          "fail": 0,
+          "anomaly_rate": 0.0
+        },
+        ".ai/checkers/slo_gate_checker.py": {
+          "total": 4,
+          "fail": 0,
+          "anomaly_rate": 0.0
+        },
         "bash_content_guard": {
-          "total": 69,
+          "total": 300,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "content_guard": {
-          "total": 69,
+          "total": 300,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "gate_guard": {
-          "total": 69,
+          "total": 300,
+          "fail": 0,
+          "anomaly_rate": 0.0
+        },
+        "guard_health": {
+          "total": 3,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "ledger_guard": {
-          "total": 46,
+          "total": 200,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "path_guard": {
-          "total": 46,
+          "total": 200,
           "fail": 0,
           "anomaly_rate": 0.0
         }
@@ -163,11 +178,14 @@
       "status": "computed",
       "value": {
         "by_result": {
-          "PASS": 299
+          "PASS": 1303,
+          "REPORT": 6
         },
         "by_check_type": {
-          "health": 184,
-          "death": 115
+          "health": 800,
+          "death": 500,
+          "missing": 6,
+          "integrity": 3
         }
       }
     },
@@ -356,10 +374,10 @@
         "value": 1.0
       },
       "status": "computed",
-      "value": 0.34146341463414637,
+      "value": 0.3076923076923077,
       "reason": null,
       "over_target": true,
-      "breach_events": 54,
+      "breach_events": 63,
       "consumed_units": 0.0,
       "source": ".ai/gates.yaml evidence fields"
     },
@@ -465,25 +483,25 @@
     "status": "HEALTHY",
     "note": "advisory only (wave 1): budget exhaustion is reported, no release path is blocked by this module"
   },
-  "slo_source": "defaults (B2 §1.2 table); .ai/slo.yaml absent",
+  "slo_source": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\.ai\\slo.yaml",
   "sources": [
     {
       "path": ".ai/gates.yaml",
       "status": "available",
-      "sha256": "68393b25064b1dbbcc980d2b19582e380dfdf56723958e4a2658e101729c670b",
-      "lines": 4462
+      "sha256": "b9ea4f1ee4d434812a3b5cbe1738abcf057acdb51c7cd09e808f9e05ef71bceb",
+      "lines": 5023
     },
     {
       "path": ".ai/task_graph.yaml",
       "status": "available",
-      "sha256": "b269525a1f3399039c3a067ad4b752b7e17abd873b235095a781ee003d935265",
-      "lines": 1024
+      "sha256": "c7060aa082bfd551fa1c4ab9a1bfea31b7384425d0bc6078ee10bbe3f8a69637",
+      "lines": 1153
     },
     {
       "path": ".ai/evidence/observability/guard-events.jsonl",
       "status": "available",
-      "sha256": "7e86ee80b5469d4440086250f6af9b7998b8b1c69152e40c9e3ad975946a8cda",
-      "lines": 299
+      "sha256": "62f3158b1df928b607cb79c41ae43be057e44448a8a1e5d5e50e0d864e2be7fc",
+      "lines": 1309
     },
     {
       "path": ".ai/ledger/executions.jsonl",

@@ -1,0 +1,28 @@
+# G3-9 loop_metrics (AC-03 item 9)
+command: C:/Python312/python.exe tools/loop_metrics.py --report
+recorded_at: 2026-08-02T02:39:00+00:00
+---
+root:          C:\Users\Administrator\ZCodeProject\loop-engine
+window:        2026-07-06T17:44:53+08:00 -> 2026-08-02T02:39:00.456403+00:00
+status:        NOT_VERIFIED
+error budget:  HEALTHY (remaining 100.0 / 100.0 units)
+missing:       14 item(s)
+  - transitions (.ai/ledger/phase_transitions.jsonl)
+  - guard_decisions (.ai/ledger/guard_decisions.jsonl)
+  - runtime_events (.ai/ledger/runtime-events.jsonl)
+  - phase_dwell_time
+  - rework_cycles_from_transitions
+  - guard_block_pass_error_rates
+  - drift_events
+  - evidence_regeneration_events
+  - sli:guard_block_rate
+  - sli:drift_event_rate
+  (14 total; tail shown)
+json:          .ai/evidence/observability/metrics-report.json
+markdown:      .ai/evidence/observability/metrics-report.md
+exit_code: 0
+result: PASS-with-caveat — error budget HEALTHY (remaining 100/100 units), but report status
+NOT_VERIFIED because 14 observability data sources are missing; SLOs could not be verified
+against real ledger data (see finding F-05).
+NOTE: release slo_gate step reports consumed 5.0 / remaining 95.0 — budget accounting
+discrepancy vs metrics 100.0/100.0 (both HEALTHY; see F-05).

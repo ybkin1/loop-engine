@@ -1,0 +1,18 @@
+# G4-13 release check preflight (AC-04 item 13)
+command: C:/Python312/python.exe scripts/release.py check
+recorded_at: 2026-08-02T02:44:10+00:00
+---
+[release] check 质量门前置（root=C:\Users\Administrator\ZCodeProject\loop-engine，version=3.12.36）
+[release]   [FAIL] version_sync: 版本漂移：pyproject=3.12.36 vs git HEAD=3.12.37（先同步版本）
+[release] check 失败 → 发布阻断（质量门前置未通过）
+exit_code: 1
+result: FAIL — blocked at step 1/6 (version_sync, fail-fast). Per-step isolated results in
+release-check-steps.json:
+  version_sync  : FAIL  版本漂移：pyproject=3.12.36 vs git HEAD=3.12.37
+  validate_state: PASS  validate_state.py 校验通过（真实校验器，含连续性/角色合同/handoff）
+  compile       : PASS  compileall 通过（loop_core, src, scripts, hooks, tools）
+  guard_health  : PASS  guard 健康 PASS（5 个 guard 全部存活）
+  slo_gate      : PASS  error budget within limits — release allowed (consumed 5.0/100.0, remaining 95.0)
+  key_tests     : PASS  关键测试子集通过（test_version_consistency + test_loop_core）
+Overall: 5/6 PASS, 1 FAIL → fail-closed block (correct behavior — gate fired on real drift).
+Root cause = finding F-03 (version drift: stale v3.12.37 prefix in T-0098 commit subject).

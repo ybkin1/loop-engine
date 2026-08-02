@@ -1,0 +1,14 @@
+{
+  "acceptance_item": "G1-4 tool_registry_status (AC-01 item 4)",
+  "recorded_at": "2026-08-02T02:35:58+00:00",
+  "command": "C:/Python312/python.exe tools/tool_registry_status.py --json",
+  "data_verdict": "PASS",
+  "missing": [],
+  "drift": [],
+  "integrity_overall": "PASS",
+  "guards": {"alive": 5, "dormant": 0, "broken": 0, "guard_overall": "PASS"},
+  "cli_exit_code": 1,
+  "cli_bug": "UnboundLocalError: cannot access local variable 'death' (tools/tool_registry_status.py:82) — 'death' only bound in the non-json branch (line 63); the --json path always crashes AFTER printing valid JSON. Text mode (no flag) exits 0. Registry data itself is healthy; the nonzero exit code is a tool defect — see finding F-01.",
+  "text_mode_exit_code": 0,
+  "note": "JSON body printed by the tool is complete and shows missing:[] drift:[] overall PASS; crash occurs after print, before exit-code evaluation."
+}

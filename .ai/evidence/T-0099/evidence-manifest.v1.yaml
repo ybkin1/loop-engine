@@ -1,0 +1,60 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0099-B0B9CA47
+task_id: T-0099
+gate_id: G-T-0099-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0099
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0099/approval-evidence.json
+  role: result
+  required: true
+  sha256: E601B908FD81C704FF7A4854B03C42FC787C69BB8DB86FDF1C65AFF2525C1A50
+  size: 394
+  mtime_ns: 1785638011440554800
+- path: .ai/evidence/T-0099/execution-evidence.json
+  role: result
+  required: true
+  sha256: 618F5A64ECDE79F104104AE7D950CEC8736761AC523AEA6F12995BAD3D569CA1
+  size: 621
+  mtime_ns: 1785638017428237700
+- path: .ai/evidence/T-0099/compile-evidence.json
+  role: result
+  required: true
+  sha256: 8B40D5D87B81E7B228AA04AF27D9786E2DC10D38824687CE26A02118A41DB29A
+  size: 181
+  mtime_ns: 1785638030420350400
+- path: .ai/evidence/T-0099/quality/eval-report.json
+  role: result
+  required: true
+  sha256: 86920C4003829176E7AE144221ED8DE447430406F4D95C76375E9411978BB62D
+  size: 2774
+  mtime_ns: 1785638521862625500
+- path: .ai/evidence/T-0099/quality/g3-11-security-notes.md
+  role: result
+  required: true
+  sha256: 21DBFFA2F173F0F7AA7D8CE268E5947713D346782B7338D800FFECD85E7B1356
+  size: 3721
+  mtime_ns: 1785638759676209100
+- path: .ai/evidence/T-0099/acceptance/quality-acceptance-report.md
+  role: result
+  required: true
+  sha256: 73278C35C34DF7A3960967E2C959635C8FE032417D119ED7457E7CBF8F02497D
+  size: 11025
+  mtime_ns: 1785639656360737800
+- path: .ai/evidence/T-0099/acceptance/quality-acceptance-summary.json
+  role: result
+  required: true
+  sha256: D62991ADC2F89339464575F57C129745202A7D694182F55D8B9114AA883ABCD3
+  size: 4518
+  mtime_ns: 1785638813351622800
+file_count: 7
+total_bytes: 23234
+ordered_entries_sha256: B0B9CA478967045B681D0913608498AC03F69B458F41A4C537DF984CE3CBF699
+created_at: '2026-08-02T00:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: 284A40DCBCDAAF90EA66728D63166B3E22B900DDE7546A50D57E96E1E36703AF

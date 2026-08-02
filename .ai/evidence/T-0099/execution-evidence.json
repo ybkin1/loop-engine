@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0099",
+  "gate_id": "G-T-0099-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-02T00:00:00+08:00",
+  "completed_at": "2026-08-02T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "static gates (5/5 PASS: validate/compile/version/registry/guard health) — DONE",
+    "dynamic quality (2 PASS / 1 FAIL: full tests 2 failed F-02/F-03, eval 6/6, conformance PASS) — DONE",
+    "governance quality (3 PASS* / 1 FAIL: SLO NOT_VERIFIED, second_failure PASS, security BLOCKED, self-audit PASS) — DONE",
+    "release readiness (FAIL: F-03 version drift, fail-closed triggered correctly) — DONE",
+    "unified acceptance report + dashboard snapshot — DONE",
+    "independent review: execution trustworthy, F-01~F-06 all real — DONE",
+    "findings recorded (F-03 P1 / F-01,F-04,F-05 P2 / F-02,F-06 P3), not fixed"
+  ],
+  "notes": "质量验收完成。裁决建议 CONDITIONAL_GO（发布就绪未达标：F-03）。findings 修复需用户另行发起。"
+}

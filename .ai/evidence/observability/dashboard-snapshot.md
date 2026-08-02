@@ -1,25 +1,25 @@
 # AutoPlan Dashboard Snapshot
 
 - **Status**: PASS
-- **Generated**: 2026-08-01T04:03:49.215110+00:00
-- **Git commit**: cbe29a8775ceda099f88151f0abb035d495ff171
+- **Generated**: 2026-08-02T02:44:46.000569+00:00
+- **Git commit**: 31c3c2d44471e68034634a27d9dafa008ed986f4
 - **Tool**: loop_dashboard v1.0.0
 
 ## 1. Task graph
 
 | Status | Count |
 |---|---|
-| Total | 81 |
-| Completed | 80 |
+| Total | 86 |
+| Completed | 85 |
 | In progress | 1 |
 | Pending | 0 |
 | Other | 0 |
 
-**Topological order** (81 tasks):
+**Topological order** (86 tasks):
 
-T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, T-0010, T-0011, T-0012, T-0013, T-0014, T-0015, T-0016, T-0017, T-0018, T-0019, T-0020, T-0021, T-0022, T-0023, T-0024, T-0025, T-0026, T-0027, T-0028, T-0029, T-0030, T-0034, T-0036, T-0040, T-0049, T-0050, T-0051, T-0052, T-0053, T-0054, T-0055, T-0056, T-0057, T-0058, T-0059, T-0060, T-0061, T-0062, T-0063, T-0064, T-0065, T-0066, T-0067, T-0069, T-0070, T-0071, T-0072, T-0075, T-0076, T-0078, T-0081, T-0082, T-0041, T-0042, T-0043, T-0044, T-0079, T-0083, T-0046, T-0080, T-0085, T-0047, T-0086, T-0048, T-0087, T-0088, T-0089, T-0090, T-0091, T-0092, T-0093, T-0094
+T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, T-0010, T-0011, T-0012, T-0013, T-0014, T-0015, T-0016, T-0017, T-0018, T-0019, T-0020, T-0021, T-0022, T-0023, T-0024, T-0025, T-0026, T-0027, T-0028, T-0029, T-0030, T-0034, T-0036, T-0040, T-0049, T-0050, T-0051, T-0052, T-0053, T-0054, T-0055, T-0056, T-0057, T-0058, T-0059, T-0060, T-0061, T-0062, T-0063, T-0064, T-0065, T-0066, T-0067, T-0069, T-0070, T-0071, T-0072, T-0075, T-0076, T-0078, T-0081, T-0082, T-0041, T-0042, T-0043, T-0044, T-0079, T-0083, T-0046, T-0080, T-0085, T-0047, T-0086, T-0048, T-0087, T-0088, T-0089, T-0090, T-0091, T-0092, T-0093, T-0094, T-0095, T-0096, T-0097, T-0098, T-0099
 
-**Dependency edges** (20):
+**Dependency edges** (25):
 
 | From | To |
 |---|---|
@@ -43,8 +43,13 @@ T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, T-0010, 
 | T-0091 | T-0092 |
 | T-0092 | T-0093 |
 | T-0093 | T-0094 |
+| T-0094 | T-0095 |
+| T-0095 | T-0096 |
+| T-0096 | T-0097 |
+| T-0097 | T-0098 |
+| T-0098 | T-0099 |
 
-**Nodes** (81):
+**Nodes** (86):
 
 | Task | Title | Status | Phase |
 |---|---|---|---|
@@ -128,22 +133,32 @@ T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, T-0010, 
 | T-0091 | B5 自举审计回路接线 — LLM 驱动 self-audit + ZCode 模型配置适配 | completed | S6-delivery |
 | T-0092 | AI-agent eval 栈（B1 设计落地） | completed | S6-delivery |
 | T-0093 | SLO 门禁 wave 2 — error budget 耗尽自动冻结发布 | completed | S6-delivery |
-| T-0094 | 前端产品层 — AutoPlan dashboard 升级（D4） | in_progress | S6-delivery |
+| T-0094 | 前端产品层 — AutoPlan dashboard 升级（D4） | completed | S6-delivery |
+| T-0095 | 遗留清理包 — P3 技术遗留系统性清理 | completed | S6-delivery |
+| T-0096 | 知识/记忆服务（D3） | completed | S6-delivery |
+| T-0097 | B2 学习回路补全 — incident + 复盘 + second-failure 自动任务 | completed | S6-delivery |
+| T-0098 | D8 发布/产物体系 — 版本同步 + 构建产物 + release 流程 + 冒烟验证 | completed | S6-delivery |
+| T-0099 | Loop 工程自身质量验收 — 全能力端到端验收 | in_progress | S6-delivery |
 
 ## 2. Gates
 
 | Status | Count |
 |---|---|
 | Pending | 0 |
-| Approved | 86 |
+| Approved | 91 |
 | Rejected | 0 |
 | Other | 0 |
-| Total | 86 |
+| Total | 91 |
 
-**Decision records** (86):
+**Decision records** (91):
 
 | Gate | Task | Decision | Actor | Recorded at |
 |---|---|---|---|---|
+| G-T-0099-REQUIREMENTS | T-0099 | approved | user | 2026-08-02T00:00:00+08:00 |
+| G-T-0098-REQUIREMENTS | T-0098 | approved | user | 2026-08-02T00:00:00+08:00 |
+| G-T-0097-REQUIREMENTS | T-0097 | approved | user | 2026-08-02T00:00:00+08:00 |
+| G-T-0096-REQUIREMENTS | T-0096 | approved | user | 2026-08-02T00:00:00+08:00 |
+| G-T-0095-REQUIREMENTS | T-0095 | approved | user | 2026-08-02T00:00:00+08:00 |
 | G-T-0094-REQUIREMENTS | T-0094 | approved | user | 2026-08-01T00:00:00+08:00 |
 | G-T-0093-REQUIREMENTS | T-0093 | approved | user | 2026-08-01T00:00:00+08:00 |
 | G-T-0092-REQUIREMENTS | T-0092 | approved | user | 2026-08-01T00:00:00+08:00 |
@@ -240,37 +255,39 @@ T-0001, T-0002, T-0003, T-0004, T-0005, T-0006, T-0007, T-0008, T-0009, T-0010, 
 |---|---|---|---|
 | `gate_rejection_rate` | computed | 0.0 | rejected / (approved + rejected) |
 | `gate_rejection_rate_by_phase` | computed | {"S1-requirements": 0.0, "S2-architecture": 0.0, "S4-implementation": 0.0, "S5-quality": 0.0, "S6-delivery": 0.0} | None |
-| `gate_decision_coverage` | computed | 0.3415 | decided with evidence / decided |
-| `approval_latency` | computed | {"count": 21, "p50_seconds": 0.0, "p95_seconds": 1712.0, "mean_seconds": 443.476, "p50_hours": 0.0, "p95_hours": 0.476, "mean_hours": 0.123} | None |
+| `gate_decision_coverage` | computed | 0.3077 | decided with evidence / decided |
+| `approval_latency` | computed | {"count": 30, "p50_seconds": 0.0, "p95_seconds": 1712.0, "mean_seconds": 310.433, "p50_hours": 0.0, "p95_hours": 0.476, "mean_hours": 0.086} | None |
 | `task_cycle_time` | computed | {"count": 27, "p50_days": 0.011, "p95_days": 0.369, "mean_days": 0.084, "basis": "created_at -> updated_at"} | None |
 | `phase_dwell_time` | NOT_AVAILABLE | NOT_AVAILABLE | phase_transitions.jsonl absent (transition journal not yet wired — wave 2 item per B2 §2.2) |
 | `task_rework_cycles` | computed | {} | rejected gates per task (rejection -> fix -> re-audit) |
 | `guard_anomaly_rate` | computed | 0.0 | FAIL events / total guard-check events (U8 guard-events.jsonl) |
-| `guard_events_summary` | computed | {"by_result": {"PASS": 299}, "by_check_type": {"health": 184, "death": 115}} | None |
+| `guard_events_summary` | computed | {"by_result": {"PASS": 1303, "REPORT": 6}, "by_check_type": {"health": 800, "death": 500, "missing": 6, "integrity": 3}} | None |
 | `execution_cycle_time` | computed | {"count": 6, "p50_seconds": 1203.132, "p95_seconds": 1217.614, "mean_seconds": 1008.031, "p50_hours": 0.334, "p95_hours": 0.338, "mean_hours": 0.28} | None |
 
 ## 4. Guard health
 
-- **Total events**: 706
+- **Total events**: 1335
 - **Failures (FAIL)**: 0
-- **Avg duration (ms)**: 374.248
+- **Avg duration (ms)**: 370.78
 
 | Guard | Checks | Failures |
 |---|---|---|
+| .ai/checkers/second_failure_checker.py | 2 | 0 |
 | .ai/checkers/slo_gate_checker.py | 4 | 0 |
-| bash_content_guard | 162 | 0 |
-| content_guard | 162 | 0 |
-| gate_guard | 162 | 0 |
-| ledger_guard | 108 | 0 |
-| path_guard | 108 | 0 |
+| bash_content_guard | 306 | 0 |
+| content_guard | 306 | 0 |
+| gate_guard | 306 | 0 |
+| guard_health | 3 | 0 |
+| ledger_guard | 204 | 0 |
+| path_guard | 204 | 0 |
 
-**By result**: {'PASS': 702, 'REPORT': 4}
+**By result**: {'PASS': 1329, 'REPORT': 6}
 
-**By check type**: {'death': 270, 'health': 432, 'missing': 4}
+**By check type**: {'death': 510, 'health': 816, 'integrity': 3, 'missing': 6}
 
 ## Data source hashes (read-only proof)
 
-- `.ai/evidence/observability/guard-events.jsonl`: 73b92327f573e45cb2fb17fa055432d59d84c46b398a57349e34d10850bcb1f6
-- `.ai/evidence/observability/metrics-report.json`: a031c9a90fc2c92d708804276ce188809055ab5a34aae6a1a4aeb512b07ee52a
-- `.ai/gates.yaml`: e7477d99e085ccb28449dd5a10fdb235876e0fc8e21d2cae76d7251a069874b0
-- `.ai/task_graph.yaml`: a3b8a41bd142c761a17d84bd88791ffa3726f773ab5e038810a9a1638398c884
+- `.ai/evidence/observability/guard-events.jsonl`: b2e1eb175c43c2482e5cf3e5a99d8f5ef38116f79db742493d263fa26ab67c3a
+- `.ai/evidence/observability/metrics-report.json`: 40d2ba14c147bfdb71cf46c7def37223d78dbd8fc95a0853777e07bc4204bdfa
+- `.ai/gates.yaml`: b9ea4f1ee4d434812a3b5cbe1738abcf057acdb51c7cd09e808f9e05ef71bceb
+- `.ai/task_graph.yaml`: c7060aa082bfd551fa1c4ab9a1bfea31b7384425d0bc6078ee10bbe3f8a69637

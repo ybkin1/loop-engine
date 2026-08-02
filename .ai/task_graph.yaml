@@ -1095,6 +1095,19 @@ tasks:
       - T-0097
     gates:
       - G-T-0098-REQUIREMENTS
+  -
+    id: T-0099
+    title: Loop 工程自身质量验收 — 全能力端到端验收
+    phase: S6-delivery
+    status: completed
+    description: >-
+      把 loop-engine 自身作为待验收项目：静态门禁（validate/compile/registry/guard 健康）+
+      动态质量（全量测试/eval/conformance）+ 治理质量（SLO/学习回路/安全/自举审计）+
+      发布就绪（release check）+ 统一验收报告 + 独立审查验证。
+    depends_on:
+      - T-0098
+    gates:
+      - G-T-0099-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1136,3 +1149,5 @@ edges:
       to: T-0097
     - from: T-0097
       to: T-0098
+    - from: T-0098
+      to: T-0099

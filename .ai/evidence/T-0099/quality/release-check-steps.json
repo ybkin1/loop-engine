@@ -1,0 +1,26 @@
+{
+  "version_sync": {
+    "status": "FAIL",
+    "message": "版本漂移：pyproject=3.12.36 vs git HEAD=3.12.37（先同步版本）"
+  },
+  "validate_state": {
+    "status": "PASS",
+    "message": "validate_state.py 校验通过（真实校验器，含连续性/角色合同/handoff）"
+  },
+  "compile": {
+    "status": "PASS",
+    "message": "compileall 通过（loop_core, src, scripts, hooks, tools）"
+  },
+  "guard_health": {
+    "status": "PASS",
+    "message": "guard 健康 PASS（5 个 guard 全部存活）"
+  },
+  "slo_gate": {
+    "status": "PASS",
+    "message": "SLO 门禁通过: error budget within limits — release allowed (consumed 5.0 / 100.0 units, remaining 95.0)"
+  },
+  "key_tests": {
+    "status": "PASS",
+    "message": "关键测试子集通过（test_version_consistency + test_loop_core）"
+  }
+}

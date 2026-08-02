@@ -1,0 +1,18 @@
+{
+  "acceptance_item": "G1-5 loop_guard_health (AC-01 item 5)",
+  "recorded_at": "2026-08-02T02:35:50+00:00",
+  "command": "C:/Python312/python.exe tools/loop_guard_health.py --json",
+  "exit_code": 0,
+  "guards_checked": 5,
+  "alive": 5,
+  "dormant": 0,
+  "broken": 0,
+  "overall": "PASS",
+  "per_guard": [
+    {"guard": "bash_content_guard", "status": "ALIVE", "blocked": 1, "allowed": 1},
+    {"guard": "content_guard", "status": "ALIVE", "blocked": 1, "allowed": 1},
+    {"guard": "gate_guard", "status": "ALIVE", "blocked": 1, "allowed": 1},
+    {"guard": "ledger_guard", "status": "ALIVE", "blocked": 1, "allowed": 0},
+    {"guard": "path_guard", "status": "ALIVE", "blocked": 1, "allowed": 0}
+  ]
+}

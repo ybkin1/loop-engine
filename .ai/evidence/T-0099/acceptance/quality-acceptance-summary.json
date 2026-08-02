@@ -1,0 +1,43 @@
+{
+  "schema": "quality-acceptance-summary/v1",
+  "task_id": "T-0099",
+  "gate_id": "G-T-0099-REQUIREMENTS",
+  "role": "quality-engineer",
+  "recorded_at": "2026-08-02T02:46:00+00:00",
+  "git_head": "31c3c2d44471e68034634a27d9dafa008ed986f4",
+  "git_head_subject": "v3.12.37: T-0098 — D8 发布/产物体系（版本同步 3.12.36 + wheel/sdist + release 流程 + 冒烟，6/6 AC GO）",
+  "pyproject_version": "3.12.36",
+  "version_manifest": "3.12.36",
+  "results": {
+    "G1-1": {"group": 1, "status": "PASS", "standard": "state usable", "actual": "[ok] state is usable, exit 0"},
+    "G1-2": {"group": 1, "status": "PASS", "standard": "compile pass", "actual": "68/68 compiled, 0 failed"},
+    "G1-3": {"group": 1, "status": "PASS", "standard": "version consistency tests pass", "actual": "7/7 passed"},
+    "G1-4": {"group": 1, "status": "PASS", "standard": "missing 0 / drift 0", "actual": "missing:[] drift:[] overall PASS; --json CLI exit 1 due to F-01 (text mode exit 0)"},
+    "G1-5": {"group": 1, "status": "PASS", "standard": "guard 5/5 ALIVE", "actual": "5 ALIVE / 0 DORMANT / 0 BROKEN, overall PASS"},
+    "G2-6": {"group": 2, "status": "FAIL", "standard": "0 failed", "actual": "2 failed / 3698 passed / 64 skipped / 12 xfailed (291.87s) — F-02 (transient HANDOFF manifest ref), F-03 (version drift)"},
+    "G2-7": {"group": 2, "status": "PASS", "standard": "builtin eval cases pass", "actual": "6/6 PASS, 0 FAIL, 0 SKIP"},
+    "G2-8": {"group": 2, "status": "PASS", "standard": "vertical slice gate PASS", "actual": "contract_planes 37/37, slice e2e 86/86"},
+    "G3-9": {"group": 3, "status": "PASS", "standard": "SLO/error budget HEALTHY or documented", "actual": "error budget HEALTHY 100/100 but status NOT_VERIFIED, 14 data sources missing (F-05)"},
+    "G3-10": {"group": 3, "status": "PASS", "standard": "no unresolved second-failure", "actual": "decision PASS, status_detail DISABLED (advisory opt-in), no blocking"},
+    "G3-11": {"group": 3, "status": "FAIL", "standard": "no blocking-level security findings", "actual": "verdict BLOCKED: dependency_scan blocked (pip-audit env broken, fail-closed HIGH:1, F-04), secret_scan 7 (fixtures/docs), injection_scan 26H/4M (self-flags/fixtures, F-06), permission_audit pass — no confirmed vulnerability"},
+    "G3-12": {"group": 3, "status": "PASS", "standard": "self audit rule checks pass", "actual": "overall PASS, failed: []"},
+    "G4-13": {"group": 4, "status": "FAIL", "standard": "6 preflight steps PASS", "actual": "5/6 PASS; version_sync FAIL (3.12.36 vs 3.12.37, F-03) → release blocked fail-closed"}
+  },
+  "summary": {"total": 13, "pass": 9, "pass_with_caveat": 1, "fail": 3},
+  "findings": [
+    {"id": "F-01", "severity": "P2", "location": "tools/tool_registry_status.py:82", "summary": "--json mode UnboundLocalError 'death' after printing valid JSON; exit 1 on healthy registry"},
+    {"id": "F-02", "severity": "P3", "location": "tests/test_manifest_t0095.py:32-42", "summary": "test scans ALL HANDOFF manifest refs; active task's not-yet-created manifest makes it red (transient; resolves at T-0099 evidence finalization)"},
+    {"id": "F-03", "severity": "P1", "location": "git HEAD subject vs pyproject.toml", "summary": "version drift 3.12.36 (pyproject) vs 3.12.37 (HEAD subject prefix); blocks release.py check step 1 and test_release version sync"},
+    {"id": "F-04", "severity": "P2", "location": "environment (Python 3.12 missing stdlib venv)", "summary": "pip-audit crashes (exit 120); dependency CVE verification unavailable; scanner fail-closed HIGH:1"},
+    {"id": "F-05", "severity": "P2", "location": "tools/loop_metrics.py / .ai/ledger/", "summary": "14 observability data sources missing → metrics NOT_VERIFIED; budget 100/100 unverified; consumed units discrepancy (0.0 vs 5.0) with slo_gate"},
+    {"id": "F-06", "severity": "P3", "location": "agents/security-engineer/scripts/run_security_scan.py; scripts/security_scan.py", "summary": "injection/secret scanner lacks allowlist: flags own rule tables, test fixtures, seeded defects, SafeLoader yaml.load; 26H+7 findings are false positives"}
+  ],
+  "verdict": "CONDITIONAL_GO",
+  "conditions": [
+    "F-03 version drift resolved → release.py check 6/6 PASS",
+    "F-02: T-0099 evidence manifest generated → full suite 0 failed",
+    "F-01 tool exit-code defect fixed or text mode used in CI",
+    "F-05 ledger data sources restored → metrics VERIFIED",
+    "F-04/F-06: pip-audit env restored + scanner allowlist → security verdict PASS"
+  ]
+}

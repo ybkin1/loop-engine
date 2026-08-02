@@ -1,0 +1,17 @@
+{
+  "acceptance_item": "G3-10 second_failure_checker (AC-03 item 10)",
+  "recorded_at": "2026-08-02T02:42:18+00:00",
+  "command": "C:/Python312/python.exe .ai/checkers/second_failure_checker.py .",
+  "exit_code": 0,
+  "checker_id": "second_failure",
+  "decision": "PASS",
+  "passed": true,
+  "status_detail": "DISABLED",
+  "gate_enabled": false,
+  "reason": "second-failure gate disabled by config/env (LOOP_SECOND_FAILURE_GATE_ENABLED or second_failure_gate.enabled=true required) — advisory-only mode, no block applied",
+  "blocking": [],
+  "warnings": [],
+  "notes": [
+    "B2 §3.4 wave 1 advisory: second-failure blocks are opt-in; enabling only adds blocking conditions, never relaxes checks"
+  ]
+}

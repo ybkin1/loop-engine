@@ -1,0 +1,26 @@
+# G2-6 full test suite (AC-02 item 6)
+command: C:/Python312/python.exe -m pytest tests/ -q
+recorded_at: 2026-08-02T02:40:30+00:00
+duration: 291.87s (0:04:51)
+---
+= 2 failed, 3698 passed, 64 skipped, 12 xfailed, 38 warnings in 291.87s (0:04:51) =
+FAILED tests/test_manifest_t0095.py::TestT0095EvidenceManifest::test_manifest_exists_and_handoff_reference_is_real
+FAILED tests/test_release.py::TestAC01VersionSync::test_pyproject_version_matches_git_head
+exit_code: 1
+result: FAIL (2 failed / 3698 passed) — see findings F-02, F-03
+
+## Focused re-run detail
+--- tests/test_manifest_t0095.py::TestT0095EvidenceManifest::test_manifest_exists_and_handoff_reference_is_real
+E   AssertionError: dangling HANDOFF ref: .ai/evidence/T-0099/evidence-manifest.v1.yaml
+E   assert False  (WindowsPath('C:/Users/Administrator/ZCodeProject/loop-engine') / '.ai/evidence/T-0099/evidence-manifest.v1.yaml').is_file()
+cause: .ai/HANDOFF.md:128 references the CURRENT task T-0099 evidence manifest, which is
+produced at task evidence finalization — transient expected state during task execution,
+not a product regression. Also a test design flaw: test_manifest_t0095.py locks T-0095's
+manifest but scans ALL manifest refs in HANDOFF.md (see finding F-02).
+
+--- tests/test_release.py::TestAC01VersionSync::test_pyproject_version_matches_git_head
+E   AssertionError: pyproject=3.12.36 vs git HEAD=3.12.37
+E   assert '3.12.36' == '3.12.37'
+cause: git HEAD subject "v3.12.37: T-0098 - D8 发布/产物体系（版本同步 3.12.36 + ...）" carries
+stale version prefix 3.12.37 while pyproject/version-manifest were resynced to 3.12.36.
+Real version drift — blocks release.py check step version_sync (see G4-13, finding F-03).
