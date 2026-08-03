@@ -495,15 +495,20 @@ class TestArchiveAndContinuity:
             assert (REPO_ROOT / source["path"]).is_file(), source["path"]
 
     def test_validate_state_still_passes_on_repo(self):
-        """归档 + 清单同步后 validate_state 全绿（continuity 干净）。"""
+        """归档 + 清单同步后 validate_state 全绿（continuity 干净）。
+
+        rc 兼容 idle 合法阻塞态（rc=3 NO_ACTIVE_TASK，T-0101 分流；
+        T-0102 rollback 同款语义）：idle 稳态下 rc=3 且含 [info] NO_ACTIVE_TASK
+        属预期，不视为失败。
+        """
         r = subprocess.run(
             [sys.executable, str(REPO_ROOT / ".zcode" / "tools"
                                 / "validate_state.py"), str(REPO_ROOT)],
             capture_output=True, text=True,
         )
         out = r.stdout + r.stderr
-        assert r.returncode == 0, out
-        assert "[ok] state is usable" in out
+        assert r.returncode in (0, 3), out
+        assert "[ok] state is usable" in out or "NO_ACTIVE_TASK" in out
 
 
 class TestDesignedFiles:
@@ -555,14 +560,20 @@ class TestDesignedFiles:
 
 class TestValidateStateRegression:
     def test_existing_verdicts_unchanged_on_repo(self):
-        """既有判定测试全绿（F2-1 回归：validate_state exit 0 + 判定不变）。"""
+        """既有判定测试全绿（F2-1 回归：validate_state 判定不变）。
+
+        rc 兼容 idle 合法阻塞态（rc=3 NO_ACTIVE_TASK，T-0101 分流）：
+        idle 稳态下 rc=3 + [info] NO_ACTIVE_TASK 属预期；激活态下 rc=0。
+        本测试聚焦"既有判定输出不变"（usable / NO_ACTIVE_TASK 文案），
+        不绑定单一 rc。
+        """
         r = subprocess.run(
             [sys.executable, str(REPO_ROOT / ".zcode" / "tools"
                                 / "validate_state.py"), str(REPO_ROOT)],
             capture_output=True, text=True,
         )
-        assert r.returncode == 0
+        assert r.returncode in (0, 3)
         out = r.stdout + r.stderr
         assert "stale view" not in out  # 无视图时不告警（默认路径）
-        assert "[ok] state is usable" in out  # 既有判定输出不变
-        assert "current_task_id: T-0108" in out
+        assert "[ok] state is usable" in out or "NO_ACTIVE_TASK" in out
+        assert "current_task_id: T-0108" in out or "current_task_id: none" in out
