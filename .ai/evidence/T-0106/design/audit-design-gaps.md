@@ -3,7 +3,7 @@
 - 任务：T-0106（candidate-only 设计任务，零产品代码变更）
 - 范围：`loop_core/` + `tools/` + `scripts/` + `hooks/scripts/` + `agents/*/scripts/` + `.zcode/tools/`（全部 .py，排除 tests/ 与 archive/）
 - 日期：2026-08-03
-- 状态：只读审计完成，产出本清单；修复排布见 T-0107（正确性）与 T-0109（性能/预算）
+- 状态：只读审计完成，产出本清单；修复排布见 T-0107（正确性/P1+P2+P3 首批）、T-0108/T-0110/T-0111（P3 剩余，见 plan-task-roadmap.md『P3 项归属总表』）
 
 ## 一、方法
 

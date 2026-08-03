@@ -137,7 +137,11 @@ T-0107 漏洞修复（LOW）─┬─> T-0108 BH 融合·收敛期（LOW-MED）�
 
 ---
 
-## 新增前置机制项：session-source-disabled（T-0112 候选，独立于 T-0107）
+## 新增前置机制项：session-source-disabled（已撤销——2026-08-03 用户决策，见下）
+
+> 撤销记录：原 T-0112 候选（恢复/启用 Qoder 工作区会话证据源）已撤销——Qoder 为外部会话宿主，
+> 其会话数据不能作为 ZCode 验收证据（HANDOFF Scope Correction）。本问题保留为
+> KNOWN_ISSUES 记录，不立项修复；如后续需要，改走 ZCode 原生会话证据路径独立立项。
 
 ### 问题定性
 

@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "C22211251C55D85F743B115D146980A4B1F40F665AB42684BA9D6D50B9500CD5",
+  "persisted_file_sha256": "B3B089C5D9C09BBC8C17A4E732C4067D64F0CC68DE6AFDE0A48E820CA7F883B1",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "20B326A93E2DA24B25ABF25AF82BA9C5B9C1A150A5E5964C1200BBD28C3623A2",
+  "source_sha256": "6FC079A8C0FAB4B0664C935C21C69C79D6FAEA11673714D44D8B17F83DA285B9",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
