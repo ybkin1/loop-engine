@@ -31,6 +31,7 @@ from pathlib import Path
 
 from .verdicts import ReportBinding, Verdict
 from loop_core.schemas.finding_contract import mark_schema_status, validate_finding
+from loop_core.constants import SNIPPET_MAX_CHARS, truncate_with_marker
 
 
 @dataclass
@@ -54,7 +55,7 @@ class SecFinding:
             "file": self.file,
             "line": self.line,
             "snippet": self.snippet,
-            "truncated": len(self.snippet) >= 100,
+            "truncated": len(self.snippet) >= SNIPPET_MAX_CHARS,
             "expected_output": f"消除安全缺陷 {self.rule_id}（{self.message}）",
             "fix_boundary": {
                 "allowed_paths": [f"{domain}/"],
@@ -228,7 +229,7 @@ def scan_security(root: str | Path, task_id: str = "", phase: str = "",
                     findings.append(SecFinding(
                         rule_id=rule_id, severity=severity, file=rel,
                         line=line_no, message=msg,
-                        snippet=stripped[:100],
+                        snippet=truncate_with_marker(stripped, SNIPPET_MAX_CHARS),
                     ))
 
             # Command injection
@@ -236,7 +237,8 @@ def scan_security(root: str | Path, task_id: str = "", phase: str = "",
                 if pattern.search(line):
                     findings.append(SecFinding(
                         rule_id=rule_id, severity=severity, file=rel,
-                        line=line_no, message=msg, snippet=line.strip()[:100],
+                        line=line_no, message=msg,
+                        snippet=truncate_with_marker(line.strip(), SNIPPET_MAX_CHARS),
                     ))
 
             # Path traversal
@@ -244,7 +246,8 @@ def scan_security(root: str | Path, task_id: str = "", phase: str = "",
                 if pattern.search(line):
                     findings.append(SecFinding(
                         rule_id=rule_id, severity=severity, file=rel,
-                        line=line_no, message=msg, snippet=line.strip()[:100],
+                        line=line_no, message=msg,
+                        snippet=truncate_with_marker(line.strip(), SNIPPET_MAX_CHARS),
                     ))
 
             # Env var reads
@@ -257,7 +260,7 @@ def scan_security(root: str | Path, task_id: str = "", phase: str = "",
                         findings.append(SecFinding(
                             rule_id=rule_id, severity=severity, file=rel,
                             line=line_no, message=f"Reads env var '{var_name}'",
-                            snippet=line.strip()[:100],
+                            snippet=truncate_with_marker(line.strip(), SNIPPET_MAX_CHARS),
                         ))
 
     report = SecurityReport(files_scanned=len(py_files), findings=findings)

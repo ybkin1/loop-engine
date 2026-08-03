@@ -5,6 +5,21 @@ Analyses a natural-language description to detect domains, estimate
 complexity, and recommend the appropriate Loop mode.  Built on top of
 the existing router.py for backward compatibility.
 
+T-0110 批 B-1 拆分后本文件为 **re-export 壳**：路由主流程与数据模型保留
+在本文件（IntentRouter 类 / IntentAnalysis / ActiveTaskSnapshot / TaskFrame /
+RoutedIntent / route_user_input / analyse_intent / _route_internal 等），
+检测/评分/切分辅助外提至新模块并由本壳 re-export（行为与拆分前
+逐字节/逐字段等价）：
+
+- ``loop_core/intent_keywords.py`` — 词表常量（D5-4 外提：DOMAIN_KEYWORDS/
+  SCALE_INDICATORS/变更类型词表/_NEGATION_PATTERNS 等）
+- ``loop_core/intent_detection.py`` — 检测/评分辅助（_detect_domains/
+  _extract_risk_factors/_is_negated/_set_if_match/_compute_complexity/
+  _build_reasoning）
+- ``loop_core/intent_split.py`` — 意图切分/切换辅助（split_intents/
+  _INTENT_SPLIT_RE/detect_intent_switch/_other_task_refs/
+  _active_task_completion_signal + 专属常量）
+
 Core rules (as specified by the user):
 1. Any high-risk factor (database / auth / payments / production data / security)
    automatically escalates to FULL — cannot be downgraded.
@@ -14,12 +29,51 @@ Core rules (as specified by the user):
 """
 from __future__ import annotations
 
-import math
-import re
-from collections import Counter
+import math  # noqa: F401 — 命名空间保持（拆分前同源绑定，dir() 面不变）
+import re  # noqa: F401 — 命名空间保持
+from collections import Counter  # noqa: F401 — 命名空间保持
 from dataclasses import dataclass, field
 from enum import Enum
 
+from loop_core.constants import (
+    CONFIDENCE_CONFLICT_MAX_RISK_FACTORS,
+    CONFIDENCE_CONFLICT_MIN_DOMAINS,
+    KEYWORD_BOUNDARY_MAX_LEN,  # noqa: F401 — 命名空间保持（检测逻辑已外提）
+)
+from loop_core.intent_detection import (
+    _build_reasoning,
+    _compute_complexity,
+    _detect_domains,
+    _extract_risk_factors,
+    _is_negated,
+    _set_if_match,
+)
+from loop_core.intent_keywords import (
+    _NEGATION_PATTERNS,
+    BUG_FIX_KEYWORDS,
+    DOMAIN_KEYWORDS,
+    FEATURE_ADD_KEYWORDS,
+    HIGH_RISK_KEYWORDS,
+    LIGHTWEIGHT_KEYWORDS,
+    MAX_COMPLEXITY,
+    MEDIUM_RISK_KEYWORDS,
+    MIN_COMPLEXITY,
+    QUALITY_FIX_KEYWORDS,
+    REFACTOR_KEYWORDS,
+    REQUIREMENT_CHANGE_KEYWORDS,
+    SCALE_INDICATORS,
+)
+from loop_core.intent_split import (
+    _COMPLETION_VERBS,
+    _INTENT_SPLIT_RE,
+    _MAX_TASK_FRAMES,
+    _TASK_ID_RE,
+    INTENT_SWITCH_KEYWORDS,
+    _active_task_completion_signal,
+    _other_task_refs,
+    detect_intent_switch,
+    split_intents,
+)
 from loop_core.router import (
     LoopMode,
     ProjectProfile,
@@ -27,135 +81,6 @@ from loop_core.router import (
     RouteResult,
     route_intent,
 )
-
-# ---------------------------------------------------------------------------
-# Domain-detection keyword maps
-# ---------------------------------------------------------------------------
-
-DOMAIN_KEYWORDS: dict[str, list[str]] = {
-    "web": [
-        "html", "css", "javascript", "typescript", "react", "vue", "angular",
-        "svelte", "next.js", "nuxt", "frontend", "front-end", "browser",
-        "dom", "responsive", "webpack", "vite", "spa", "ssr", "seo",
-        "tailwind", "bootstrap", "web app", "webapp", "website", "web",
-    ],
-    "mobile": [
-        "ios", "android", "react native", "flutter", "swift", "kotlin",
-        "mobile", "app store", "google play", "cordova", "capacitor",
-        "pwa",
-    ],
-    "api": [
-        "rest", "graphql", "grpc", "api", "endpoint", "openapi", "swagger",
-        "http", "websocket", "rpc", "soap", "json api", "webhook",
-        "backend",
-    ],
-    "data": [
-        "database", "sql", "nosql", "postgresql", "mysql", "mongodb",
-        "sqlite", "redis", "etl", "data pipeline", "analytics", "olap",
-        "data warehouse", "migration", "schema", "orm", "query",
-        "cassandra", "dynamodb", "bigquery", "snowflake", "databricks",
-        "data lake",
-    ],
-    "cli": [
-        "cli", "command line", "terminal", "console", "argparse", "click",
-        "typer", "shell", "bash", "scripting", "cron", "batch",
-    ],
-    "embedded": [
-        "iot", "embedded", "firmware", "microcontroller", "arduino",
-        "raspberry pi", "esp32", "rtos", "hardware", "sensor",
-        "bluetooth low energy", "ble", "mqtt",
-    ],
-    "cloud_infra": [
-        "aws", "azure", "gcp", "terraform", "kubernetes", "docker",
-        "ci/cd", "pipeline", "infrastructure", "serverless", "lambda",
-        "ec2", "s3", "cloudfront", "iam", "vpc", "helm", "ansible",
-    ],
-    "ai_ml": [
-        "machine learning", "ml", "ai", "deep learning", "neural network",
-        "llm", "transformer", "gpt", "bert", "nlp", "computer vision",
-        "training", "inference", "fine-tuning", "rag", "embedding",
-        "model", "pytorch", "tensorflow", "scikit-learn", "jupyter",
-        "data science",
-    ],
-}
-
-# Low-risk keyword indicators (suggest LIGHTWEIGHT-eligible tasks)
-LIGHTWEIGHT_KEYWORDS: list[str] = [
-    "simple", "quick", "small", "one-off", "oneoff", "single file",
-    "single-file", "bug fix", "bugfix", "minor", "typo", "spelling",
-    "comment", "rename", "refactor single", "fix lint", "lint fix",
-    "format", "add docstring", "update readme", "readme", "changelog",
-    "trivial", "cosmetic", "clean up import", "organize import",
-]
-
-# High-risk keywords that trigger automatic escalation
-HIGH_RISK_KEYWORDS: list[str] = [
-    "payment", "billing", "invoice", "credit card", "subscription",
-    "production", "live environment", "prod data",
-    "auth", "authentication", "authorization", "permission", "acl", "rbac",
-    "password", "secret", "token", "credential", "api key",
-    "database migration", "schema migration", "data migration",
-    "pii", "gdpr", "hipaa", "compliance", "regulatory",
-    "encryption", "cryptography", "ssl", "tls", "certificate",
-    "security", "vulnerability", "xss", "csrf", "sql injection",
-    "audit", "logging sensitive", "access control",
-    "deploy to production", "release to prod",
-    "user data", "customer data", "personal data",
-]
-
-# Medium-risk keywords (suggest at least STANDARD)
-MEDIUM_RISK_KEYWORDS: list[str] = [
-    "api", "rest", "graphql", "endpoint", "backend",
-    "deploy", "deployment", "ci/cd", "pipeline",
-    "integration", "third-party", "external service",
-    "module", "package", "library", "plugin",
-    "refactor", "rewrite", "restructure",
-    "test suite", "unit test", "integration test", "e2e test",
-    "performance", "optimize", "cache", "caching",
-    "async", "concurrency", "parallel", "threading",
-    "microservice", "service",
-    "breaking change", "deprecation",
-    "multi-module", "monorepo",
-]
-
-# Scale indicators (each occurrence increments a complexity counter)
-SCALE_INDICATORS: list[tuple[str, float]] = [
-    (r"\bmicroservice", 0.05),
-    (r"\bmonorepo", 0.05),
-    (r"\benterprise", 0.05),
-    (r"\bscal(e|able|ing|ability)", 0.04),
-    (r"\breal.?time", 0.03),
-    (r"\bdistributed", 0.04),
-    (r"\bhigh.?availability", 0.05),
-    (r"\bfault.?tolerant", 0.04),
-    (r"\bmulti.?tenant", 0.04),
-    (r"\blegacy", 0.03),
-    (r"\bmigration", 0.03),
-    (r"\bregression", 0.03),
-    (r"\bzero.?downtime", 0.05),
-    (r"\bblue.?green", 0.05),
-    (r"\bcanary", 0.05),
-    (r"\bfeature.?flag", 0.03),
-    (r"\bab\s+test", 0.03),
-    (r"\bobservability", 0.03),
-    (r"\bmonitoring", 0.03),
-    (r"\balerting", 0.03),
-    (r"\breplication", 0.04),
-    (r"\bsharding", 0.04),
-    (r"\bpartitioning", 0.03),
-    (r"\bmessage.?queue", 0.04),
-    (r"\bevent.?driven", 0.04),
-    (r"\bstreaming", 0.04),
-    (r"\bbatch.?processing", 0.03),
-    (r"\bml\b|machine.?learning|ai\b|\bllm\b", 0.05),
-    (r"\bcompliance", 0.05),
-    (r"\bregulatory", 0.05),
-    (r"\bsox\b|\bhipaa\b|\bgdpr\b|\bpci", 0.06),
-]
-
-MAX_COMPLEXITY = 1.0
-MIN_COMPLEXITY = 0.0
-
 
 # ---------------------------------------------------------------------------
 # Change Type Detection (v3.1 — iteration support)
@@ -193,34 +118,6 @@ CHANGE_TYPE_MIN_PHASES: dict[ChangeType, list[str]] = {
     ChangeType.QUALITY_FIX:         ["S5-quality", "S6-delivery"],
     ChangeType.UNKNOWN:             [],
 }
-
-# Keyword maps for change type detection
-BUG_FIX_KEYWORDS: list[str] = [
-    "bug", "fix bug", "修复", "defect", "缺陷", "crash", "崩溃",
-    "broken", "坏了", "不工作", "not working", "异常", "exception",
-    "报错", "出错",
-]
-
-FEATURE_ADD_KEYWORDS: list[str] = [
-    "新增", "添加功能", "加一个", "新功能", "new feature", "add feature",
-    "implement", "实现", "增加", "支持", "support for",
-]
-
-REFACTOR_KEYWORDS: list[str] = [
-    "重构", "refactor", "clean up", "整理", "restructure", "重组",
-    "simplify", "简化", "优化结构", "拆分", "合并",
-]
-
-REQUIREMENT_CHANGE_KEYWORDS: list[str] = [
-    "需求变了", "需求变更", "改成", "调整需求", "requirement change",
-    "不再需要", "变更范围", "change scope", "修改需求",
-]
-
-QUALITY_FIX_KEYWORDS: list[str] = [
-    "测试没过", "覆盖率", "lint", "type check", "类型检查",
-    "性能问题", "performance issue", "加测试", "补测试", "安全漏洞",
-    "security fix", "补文档", "测试", "单元测试", "集成测试",
-]
 
 
 def _detect_change_type(desc_lower: str) -> ChangeType:
@@ -614,7 +511,8 @@ class IntentRouter:
 
         # Penalise conflicting signals: many domains but few risk factors,
         # or few domains but high complexity
-        if len(domains) >= 4 and sum(risk_factors.values()) <= 2:
+        if (len(domains) >= CONFIDENCE_CONFLICT_MIN_DOMAINS
+                and sum(risk_factors.values()) <= CONFIDENCE_CONFLICT_MAX_RISK_FACTORS):
             confidence -= 0.10
             warnings.append(
                 "Many domains detected but few risk factors – "
@@ -625,296 +523,8 @@ class IntentRouter:
 
 
 # ---------------------------------------------------------------------------
-# Module-level helpers (detection / scoring / conversion)
+# Module-level helpers (conversion)
 # ---------------------------------------------------------------------------
-
-def _detect_domains(desc_lower: str) -> set[str]:
-    """Return a set of domain labels matching the description.
-
-    Uses word-boundary matching only for very short keywords (<= 3 chars)
-    to avoid false positives (e.g. "ai" matching inside "maintain").
-    Longer keywords and multi-word phrases use substring matching.
-    """
-    domains: set[str] = set()
-    for domain, keywords in DOMAIN_KEYWORDS.items():
-        for kw in keywords:
-            matched = False
-            if " " in kw or "/" in kw or "-" in kw or len(kw) > 3:
-                if kw in desc_lower:
-                    matched = True
-            else:
-                if re.search(r'\b' + re.escape(kw) + r'\b', desc_lower):
-                    matched = True
-            if matched:
-                domains.add(domain)
-                break  # one match per domain is enough
-    return domains
-
-
-def _extract_risk_factors(desc_lower: str) -> dict[str, bool]:
-    """Build a risk-factors dict by keyword matching against the description.
-
-    Uses both the existing ProjectProfile fields and additional markers.
-    """
-    factors: dict[str, bool] = {
-        # High-risk
-        "has_database": False,
-        "has_auth_permissions": False,
-        "has_payments": False,
-        "has_production_data": False,
-        "has_security_requirements": False,
-        # Medium-risk
-        "has_multiple_modules": False,
-        "has_external_api": False,
-        "has_concurrency_performance": False,
-        "requires_deployment": False,
-        "requires_monitoring_rollback": False,
-        "requires_ongoing_iteration": False,
-        "has_high_uncertainty": False,
-    }
-
-    # ---- database ----
-    _set_if_match(factors, "has_database", desc_lower, [
-        "database", "sql", "postgresql", "mysql", "mongodb", "sqlite",
-        "redis", "migration", "schema", "orm", "query",
-        "cassandra", "dynamodb", "bigquery",
-    ])
-
-    # ---- auth / permissions ----
-    _set_if_match(factors, "has_auth_permissions", desc_lower, [
-        "auth", "authentication", "authorization", "permission",
-        "acl", "rbac", "login", "logout", "session", "jwt",
-        "oauth", "sso", "ldap", "role", "access control",
-    ])
-
-    # ---- payments ----
-    _set_if_match(factors, "has_payments", desc_lower, [
-        "payment", "billing", "invoice", "credit card", "subscription",
-        "stripe", "paypal", "checkout", "transaction",
-    ])
-
-    # ---- production data ----
-    _set_if_match(factors, "has_production_data", desc_lower, [
-        "production", "live environment", "prod data", "prod db",
-        "user data", "customer data", "personal data", "pii",
-    ])
-
-    # ---- security ----
-    _set_if_match(factors, "has_security_requirements", desc_lower, [
-        "security", "vulnerability", "xss", "csrf", "sql injection",
-        "encryption", "cryptography", "ssl", "tls", "certificate",
-        "gdpr", "hipaa", "compliance", "regulatory", "audit",
-    ])
-
-    # ---- multiple modules ----
-    _set_if_match(factors, "has_multiple_modules", desc_lower, [
-        "module", "multi-module", "monorepo", "package",
-        "library", "plugin", "multiple components",
-        "microservice", "several files",
-    ])
-
-    # ---- external API ----
-    _set_if_match(factors, "has_external_api", desc_lower, [
-        "api", "rest", "graphql", "grpc", "endpoint",
-        "webhook", "openapi", "swagger", "http client",
-        "third-party", "external service", "integration",
-    ])
-
-    # ---- concurrency / performance ----
-    _set_if_match(factors, "has_concurrency_performance", desc_lower, [
-        "async", "concurrency", "parallel", "thread",
-        "performance", "optimize", "cache", "caching",
-        "latency", "throughput", "race condition",
-        "deadlock", "coroutine",
-    ])
-
-    # ---- deployment ----
-    _set_if_match(factors, "requires_deployment", desc_lower, [
-        "deploy", "deployment", "ci/cd", "pipeline",
-        "docker", "kubernetes", "terraform", "release",
-        "ship", "launch", "production",
-    ])
-
-    # ---- monitoring / rollback ----
-    _set_if_match(factors, "requires_monitoring_rollback", desc_lower, [
-        "rollback", "monitoring", "alerting", "observability",
-        "logging", "metrics", "tracing", "dashboards",
-        "blue-green", "canary", "feature flag",
-    ])
-
-    # ---- ongoing iteration ----
-    _set_if_match(factors, "requires_ongoing_iteration", desc_lower, [
-        "iterat", "mvp", "agile", "sprint", "roadmap",
-        "ongoing", "maintain", "continue", "evolve",
-        "phase 1", "phase one", "v2", "version 2",
-    ])
-
-    # ---- high uncertainty ----
-    _set_if_match(factors, "has_high_uncertainty", desc_lower, [
-        "maybe", "not sure", "uncertain", "explor",
-        "prototype", "proof of concept", "poc",
-        "experiment", "spike", "research",
-    ])
-
-    return factors
-
-
-# Negation patterns — if these appear near a keyword, don't set the flag
-_NEGATION_PATTERNS: list[str] = [
-    r'\b(?:remove|delete|drop|eliminate|get rid of|ditch)\s+(?:the\s+)?',
-    r"\b(?:don't|do not|won't|will not)\s+(?:need|use|have|want)\s+(?:a\s+)?(?:the\s+)?",
-    r'\b(?:without|no)\s+(?:a\s+)?(?:the\s+)?(?:any\s+)?',
-    r'\bnot\s+(?:using|needing|having)\s+(?:a\s+)?(?:the\s+)?',
-]
-
-
-def _is_negated(desc_lower: str, kw: str) -> bool:
-    """Check if a keyword match is likely negated in context.
-    
-    Example: "I want to remove the database" → "database" is negated.
-    """
-    for pat in _NEGATION_PATTERNS:
-        # Build a pattern that checks if negation appears before the keyword
-        full_pat = pat + re.escape(kw)
-        if re.search(full_pat, desc_lower):
-            return True
-    return False
-
-
-def _set_if_match(
-    factors: dict[str, bool],
-    key: str,
-    desc_lower: str,
-    keywords: list[str],
-) -> None:
-    """Set factors[key] = True if any keyword is found in desc_lower.
-    
-    v3.2: Checks negation context before setting flag.
-    """
-    for kw in keywords:
-        if " " in kw or "/" in kw or "-" in kw or len(kw) > 3:
-            # Multi-word phrase or longer word — safe as substring
-            if kw in desc_lower:
-                if _is_negated(desc_lower, kw):
-                    continue  # Skip negated match
-                factors[key] = True
-                return
-        else:
-            # Short single word — word-boundary regex match
-            if re.search(r'\b' + re.escape(kw) + r'\b', desc_lower):
-                if _is_negated(desc_lower, kw):
-                    continue  # Skip negated match
-                factors[key] = True
-                return
-
-
-def _compute_complexity(
-    desc_lower: str,
-    domains: set[str],
-    risk_factors: dict[str, bool],
-    domain_weight: float,
-    keyword_weight: float,
-    scale_weight: float,
-    context: dict,
-) -> float:
-    """Compute a 0-1 complexity score from weighted sub-scores."""
-
-    # ---- domain sub-score (more domains = more complex) ----------------
-    domain_score = min(len(domains) / 5.0, 1.0) if domains else 0.0
-
-    # ---- keyword sub-score --------------------------------------------
-    high_count = sum(
-        1 for f in [
-            "has_database", "has_auth_permissions", "has_payments",
-            "has_production_data", "has_security_requirements",
-        ] if risk_factors.get(f)
-    )
-    medium_count = sum(
-        1 for f in [
-            "has_multiple_modules", "has_external_api",
-            "has_concurrency_performance", "requires_deployment",
-            "requires_monitoring_rollback", "requires_ongoing_iteration",
-            "has_high_uncertainty",
-        ] if risk_factors.get(f)
-    )
-    # High risk: each contributes 0.25, medium: 0.10
-    keyword_score = min(high_count * 0.25 + medium_count * 0.10, 1.0)
-
-    # ---- scale sub-score -----------------------------------------------
-    scale_score = 0.0
-    for pattern, inc in SCALE_INDICATORS:
-        if re.search(pattern, desc_lower, re.IGNORECASE):
-            scale_score += inc
-    # Incorporate context hints
-    file_count = context.get("file_count", 0)
-    module_count = context.get("module_count", 0)
-    if file_count > 10:
-        scale_score += min(file_count / 100.0, 0.15)
-    if module_count > 3:
-        scale_score += min(module_count / 20.0, 0.10)
-    scale_score = min(scale_score, 1.0)
-
-    # ---- weighted sum --------------------------------------------------
-    raw = (domain_weight * domain_score
-           + keyword_weight * keyword_score
-           + scale_weight * scale_score)
-
-    # ---- lightweight discount ------------------------------------------
-    # Check if the description looks deliberately simple
-    lightweight_hint_count = sum(
-        1 for kw in LIGHTWEIGHT_KEYWORDS if kw in desc_lower
-    )
-    if lightweight_hint_count >= 2:
-        raw *= 0.5  # strong discount for explicitly simple things
-
-    # ---- boost for high-risk overlaps ----------------------------------
-    if high_count >= 2:
-        raw = max(raw, 0.70)  # floor when multiple high-risk factors exist
-
-    return max(min(raw, MAX_COMPLEXITY), MIN_COMPLEXITY)
-
-
-def _build_reasoning(
-    domains: set[str],
-    complexity_score: float,
-    risk_factors: dict[str, bool],
-    mode: LoopMode,
-    escalated: bool,
-    escalate_reason: str,
-    confidence: float,
-) -> str:
-    """Build human-readable reasoning for the analysis."""
-    parts: list[str] = []
-
-    if domains:
-        parts.append(f"Detected domains: {', '.join(sorted(domains))}.")
-    else:
-        parts.append("No specific domains detected.")
-
-    parts.append(f"Complexity score: {complexity_score:.2f}.")
-
-    active_risks = [k for k, v in risk_factors.items() if v]
-    if active_risks:
-        # Group high vs medium
-        high = [r for r in active_risks if r.startswith("has_") and r not in (
-            "has_multiple_modules", "has_concurrency_performance",
-        ) and r in [
-            "has_database", "has_auth_permissions", "has_payments",
-            "has_production_data", "has_security_requirements",
-        ]]
-        medium = [r for r in active_risks if r not in high]
-        if high:
-            parts.append(f"High-risk factors: {', '.join(high)}.")
-        if medium:
-            parts.append(f"Medium-risk factors: {', '.join(medium)}.")
-
-    if escalated:
-        parts.append(f"ESCALATION: {escalate_reason}")
-    else:
-        parts.append(f"Mode {mode.value} selected at confidence {confidence:.2f}.")
-
-    return " ".join(parts)
-
 
 def _phases_for_mode(mode: LoopMode) -> list[str]:
     """Return the recommended phases for a given mode.
@@ -981,30 +591,6 @@ def _analysis_to_profile(analysis: IntentAnalysis) -> ProjectProfile:
 # enforcement (C1-C11, path/scope/verdict checks) is untouched.
 # ===========================================================================
 
-# Max task frames produced in one round (defensive cap)
-_MAX_TASK_FRAMES: int = 5
-
-# Explicit invalidation conditions for sticky routing: a new-task marker
-# or a task-completion/closure marker overrides the default "continue the
-# active task" behaviour.  Heuristic list — kept explicit and documented.
-INTENT_SWITCH_KEYWORDS: list[str] = [
-    # --- new-task markers ---
-    "new task", "start a new task", "start another task", "another task",
-    "other task", "different task", "separate task", "unrelated task",
-    "next task", "switch task", "switch to",
-    "新任务", "开始新任务", "换个任务", "另一个任务", "其他任务",
-    "别的任务", "下一个任务", "切换任务", "换一个任务", "换一项工作",
-    # --- completion / closure markers ---
-    "task is done", "task is complete", "task done", "task completed",
-    "mark complete", "mark as complete", "mark completed",
-    "mark as completed", "close the task", "close task",
-    "cancel the task", "abort the task",
-    "任务完成", "任务已完成", "任务结束", "结束任务", "关闭任务",
-    "取消任务", "终止任务", "收尾任务", "已完成", "完成了",
-]
-
-_TASK_ID_RE = re.compile(r"\bT-\d{4}\b", re.IGNORECASE)
-
 
 @dataclass
 class ActiveTaskSnapshot:
@@ -1028,7 +614,7 @@ class ActiveTaskSnapshot:
         return self.status in ("active", "in_progress", "ACTIVE", "IN_PROGRESS")
 
     @staticmethod
-    def from_task(task: dict) -> "ActiveTaskSnapshot":
+    def from_task(task: dict) -> ActiveTaskSnapshot:
         """Build a snapshot from a task_graph.yaml task entry (dict).
 
         Unknown/missing loop_mode falls back to LIGHTWEIGHT; unknown status
@@ -1127,116 +713,6 @@ class RoutedIntent:
     def main_frame(self) -> TaskFrame | None:
         """The main (first) task frame, if any."""
         return self.task_frames[0] if self.task_frames else None
-
-
-def split_intents(description: str, max_frames: int = _MAX_TASK_FRAMES) -> list[str]:
-    """Heuristically split one user input into multiple intents (U5).
-
-    Conservative, explicit-marker-only splitting (no sentence-level
-    splitting) to avoid fragmenting a single intent into noise:
-
-    - semicolons (``；`` / ``;``)
-    - numbered task lists (``1. ... 2. ...``)
-    - English sequential/additive connectors (``then``, ``after that``,
-      ``afterwards``, ``next``, ``finally``, ``also``, ``additionally``,
-      ``moreover``, ``meanwhile``)
-    - Chinese connectors when preceded by punctuation (``，然后``,
-      ``。接下来``, ``；之后``, ...): ``然后/接下来/之后/接着/其次/再次/
-      最后/同时/另外/此外/除此之外``
-    - a sentence break followed by an action starter (``。新增``,
-      ``。修复``, ``。写``, ...)
-
-    Returns the ordered intents (max ``max_frames``), or ``[]`` for
-    empty/invalid input.
-    """
-    if not isinstance(description, str) or not description.strip():
-        return []
-    parts: list[str] = []
-    for raw in _INTENT_SPLIT_RE.split(description):
-        part = re.sub(r"^\d+\.\s*", "", raw.strip())
-        # Drop leading Chinese connectors left over from a split (e.g. a
-        # segment that began right after a semicolon).
-        part = re.sub(
-            r"^(?:然后|接下来|之后|接着|其次|再次|最后|同时|另外|此外|除此之外)\s*",
-            "", part,
-        )
-        part = part.strip(" \t，。；;,.：:、")
-        if part:
-            parts.append(part)
-        if len(parts) >= max_frames:
-            break
-    return parts
-
-
-# Split markers — see split_intents() docstring.  The Chinese connector
-# branch requires a preceding punctuation char (lookbehind) so phrases
-# like "登录之后" (temporal reference inside one intent) are NOT split;
-# the sentence-break branch uses a zero-width lookahead so the action
-# verb ("新增" in "。新增...") stays attached to the follow-up frame.
-_INTENT_SPLIT_RE = re.compile(
-    r"[；;]"
-    r"|(?:\s+\d+\.\s+)"
-    r"|(?i:\s+(?:then|after\s+that|afterwards|next|finally|also|additionally|moreover|meanwhile)\s*[,，]?\s+)"
-    r"|(?<=[，。；,.;：:、])(?:然后|接下来|之后|接着|其次|再次|最后|同时|另外|此外|除此之外)"
-    r"|(?<=。)(?=新增|添加|加|修复|重构|实现|部署|优化|更新|写|创建|移除|删除|升级|支持|增加|设计)"
-)
-
-
-def detect_intent_switch(description: str) -> tuple[bool, str]:
-    """Detect explicit intent-switch / task-completion signals (U5).
-
-    These are the explicit invalidation conditions for sticky routing:
-    a new-task marker or a completion/closure marker overrides the
-    default "continue the active task" behaviour, allowing the route to
-    cut out of the active task domain.
-
-    Returns ``(switched, reason)``.
-    """
-    desc_lower = description.lower()
-    for kw in INTENT_SWITCH_KEYWORDS:
-        if kw in desc_lower:
-            return True, f"intent-switch marker {kw!r} detected"
-    return False, ""
-
-
-def _other_task_refs(desc_lower: str, active_task_id: str) -> list[str]:
-    """Task ids mentioned in the input that differ from the active task."""
-    seen: list[str] = []
-    for m in _TASK_ID_RE.finditer(desc_lower):
-        tid = m.group(0).upper()
-        if tid != active_task_id.upper() and tid not in seen:
-            seen.append(tid)
-    return seen
-
-
-# Completion/closure verbs used by _active_task_completion_signal()
-_COMPLETION_VERBS: list[str] = [
-    "complete", "completed", "done", "finished", "close", "closed",
-    "abort", "cancel", "canceled", "cancelled",
-    "结束", "完成", "关闭", "取消", "终止", "收尾",
-]
-
-
-def _active_task_completion_signal(desc_lower: str, active_task_id: str) -> str:
-    """Detect "mark <active task> complete"-style closure signals.
-
-    When the active task id is mentioned together with a
-    completion/closure verb in its vicinity (proximity window), the
-    active task is being closed and stickiness must not apply.  Returns
-    the evidence string, or "" when no signal is found.
-    """
-    upper = desc_lower.upper()
-    task_pos = upper.find(active_task_id.upper())
-    if task_pos < 0:
-        return ""
-    window = desc_lower[max(0, task_pos - 20): task_pos + len(active_task_id) + 40]
-    for verb in _COMPLETION_VERBS:
-        if verb in window:
-            return (
-                f"active task {active_task_id} referenced together with "
-                f"completion/closure marker {verb!r}"
-            )
-    return ""
 
 
 def _status_quo_route_result(mode: LoopMode) -> RouteResult:

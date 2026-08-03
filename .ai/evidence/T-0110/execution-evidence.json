@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0110",
+  "gate_id": "G-T-0110-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-03T18:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "批 A 常量集中：loop_core/constants.py + loop_enforcement_constants.py + tool 常量 + slo.yaml（M-16）+ P3 消解（D2-3~7/D1-5/6/8/D3-6/8/D4-9）",
+    "批 B loop_core 四巨文件拆分：governance_metrics → intent_router → human_review_packet → context_loader（golden 逐字节/逐字段一致）",
+    "批 C hook 拆分（最后）：loop_enforcement 外提契约解析/命令工具/常量表/gate 证据检查 + 自愈路径实测",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.47",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0110-REQUIREMENTS 已由用户批准（批准文本：批准T-0110）。硬约束：不改变任何行为（golden 等价硬门槛）、hooks/ 仅批 C 五文件、零删除、治理内核判定零触碰。"
+}

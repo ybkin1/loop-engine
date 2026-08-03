@@ -32,6 +32,7 @@ from loop_core.state_machine import (
     can_approve_gate, can_enter_phase, can_transition_phase,
 )
 from loop_core.router import LoopMode
+from loop_core.constants import FAILED_STDERR_MAX_CHARS, truncate_with_marker
 
 logger = logging.getLogger(__name__)
 
@@ -810,7 +811,7 @@ class PhaseExecutor:
                 import logging
                 logging.warning(
                     f"COMPILE_FAILED: exit code {result.returncode}. "
-                    f"stderr: {result.stderr[:500]}"
+                    f"stderr: {truncate_with_marker(result.stderr, FAILED_STDERR_MAX_CHARS)}"
                 )
                 return False
 

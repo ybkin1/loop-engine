@@ -1241,6 +1241,19 @@ tasks:
     gates:
       - G-T-0109-REQUIREMENTS
   -
+    id: T-0110
+    title: 共同弱点·常量集中（M-1~17）+ 5 巨文件行为等价拆分
+    phase: S6-delivery
+    status: completed
+    description: >-
+      T-0106 排布第四项：常量集中（constants.py + loop_enforcement_constants.py +
+      slo.yaml M-16 + P3 消解）+ 5 巨文件行为等价拆分（golden 逐字节/逐字段一致；
+      hook 拆分最后做 + 自愈路径实测）；不改变任何行为、零删除；bump 3.12.47。
+    depends_on:
+      - T-0109
+    gates:
+      - G-T-0110-REQUIREMENTS
+  -
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery

@@ -28,17 +28,64 @@ D3 (T-0096) — Optional memory injection:
     (loop_core.memory_service.recall — lessons/acceptance-derived entries).
   - Default behavior is unchanged: include_memories=False never reads the
     knowledge store, so existing callers are byte-for-byte compatible.
-"""
 
+T-0110 批 B-2（行为等价拆分）：本文件为瘦身壳 —— 字段解析 / 摘要 / 引用解析 /
+节选择已外提至 loader_fields.py / loader_summary.py / citation_resolver.py /
+loader_sections.py（design-common-weakness.md 1.5 边界表），全部公开+私有符号
+经 re-export 保持公开面逐名一致（含正则族、_ROUTING_CACHE 同一 dict 对象、
+标准库绑定，dir()/import * 与拆分前相同）；LoadLevel/LoadedContext/
+DocumentIndex/CompressionResult/ContextCompressor/ContextLoader 主加载流程
+（含 D3 记忆注入默认 False 语义）保留在本壳，行为不变。
+"""
 from __future__ import annotations
 
 import json
 import logging
-import re
+import re  # noqa: F401 — 保持拆分前模块命名空间（dir() 逐名一致）
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any  # noqa: F401 — 保持拆分前模块命名空间（dir() 逐名一致）
+
+from loop_core.citation_resolver import (  # noqa: F401 — re-export，公开面保持
+    CITATION_MAX_CHARS,
+    UNRESOLVED_MARKER,
+    CitationResolution,
+    CitationResolver,
+    _find_citation_tokens,
+    _truncate_citation,
+    repair_truncated_references,
+)
+from loop_core.loader_fields import (  # noqa: F401 — re-export，公开面保持
+    _ABBREV_RE,
+    _CITATION_TOKEN_RE,
+    _DECISION_RE,
+    _GATE_ID_RE,
+    _HEADING_RE,
+    _KEY_FIELD_LINE_RE,
+    _PHASE_RE,
+    _SENTENCE_SPLIT_RE,
+    _TASK_ID_RE,
+    _format_key_fields,
+    extract_key_fields,
+)
+from loop_core.loader_sections import (  # noqa: F401 — re-export，公开面保持
+    _ROUTING_CACHE,
+    _extract_framework_titles,
+    _load_section_routing,
+    _parse_front_matter_yaml,
+    _select_relevant_sections,
+)
+from loop_core.loader_summary import (  # noqa: F401 — re-export，公开面保持
+    CITATION_LINE_CAP,
+    _level_body_cap,
+    _level_line_params,
+    _select_body_lines,
+    _split_sentences,
+    _truncate_line,
+    estimate_tokens,
+    summarize_text,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -117,17 +164,15 @@ class DocumentIndex:
 #     UNRESOLVED instead of being guessed.
 # ============================================================================
 
-DEFAULT_BUDGET_TOKENS = 2600      # matches FULL load level (~2600 tokens)
+# 模块级类型注解保留：原文件 _ROUTING_CACHE 的注解赋值创建了模块 __annotations__
+# 属性（dir() 成员之一）；拆分后该常量迁至 loader_sections.py，此处以既有常量
+# 的注解赋值保持模块 __annotations__ 存在（T-0110 批 B-2 dir() 逐名一致）。
+DEFAULT_BUDGET_TOKENS: int = 2600      # matches FULL load level (~2600 tokens)
 DEFAULT_TRIGGER_RATIO = 0.7       # compress when estimate > budget * 0.7
 DEFAULT_MAX_SUMMARY_LEVELS = 2    # "summary of the summary" depth
-UNRESOLVED_MARKER = "UNRESOLVED"  # explicit marker for unrecoverable refs
 
 # D3 (T-0096): default memory-injection bound for optional context loading.
 DEFAULT_MEMORY_LIMIT = 5          # top-N recalled entries injected at most
-
-# Max characters before a citation path is truncated during summarization;
-# the truncated form keeps enough tail segments to stay uniquely recoverable.
-CITATION_MAX_CHARS = 60
 
 
 @dataclass
@@ -157,485 +202,6 @@ class CompressionResult:
     trigger_ratio: float
     max_levels: int
     citations: list[CitationResolution] = field(default_factory=list)
-
-
-@dataclass
-class CitationResolution:
-    """Result of resolving a (possibly truncated) evidence citation.
-
-    Attributes:
-        original: The reference as found in the text.
-        status: One of RESOLVED / AMBIGUOUS / NOT_FOUND.
-        resolved: Canonical project-root-relative reference
-            (e.g. ".ai/evidence/T-0088/approval-evidence.json") when RESOLVED.
-        matches: Candidate references found (diagnostics).
-    """
-
-    original: str
-    status: str  # RESOLVED | AMBIGUOUS | NOT_FOUND
-    resolved: str | None = None
-    matches: list[str] = field(default_factory=list)
-
-    @property
-    def is_resolved(self) -> bool:
-        return self.status == "RESOLVED"
-
-
-# --------------------------------------------------------------------------
-# Key-field extraction (task ID / gate / phase / decision points) — these
-# fields are preserved verbatim at every summary level.
-# --------------------------------------------------------------------------
-
-_TASK_ID_RE = re.compile(r"\bT-\d{4}\b")
-_GATE_ID_RE = re.compile(r"\bG-T-\d{4}-[A-Z0-9-]+\b")
-_PHASE_RE = re.compile(r"\bS(?:0|[1-9]\d?)\b")
-_DECISION_RE = re.compile(
-    r"\b(APPROVED|PASS|FAIL|NOGO|BLOCKED|REJECTED|ACCEPTED|COMPLETED|"
-    r"approved|passed|failed|blocked|rejected|accepted|completed|"
-    r"in_progress)\b"
-)
-_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+\S")
-# Lines that carry key context fields verbatim (kept at every summary level).
-# Also matches the "- task_ids: ..." field lines of previous summary headers
-# so that "summary of the summary" keeps the full key-field trail.
-_KEY_FIELD_LINE_RE = re.compile(
-    r"^\s*(?:-?\s*)?(?:task[_ -]?id|task_ids|gate|gates|phase|phases|decision|decisions)"
-    r"\s*[:：]",
-    re.IGNORECASE,
-)
-# Whitespace-delimited path-like tokens that look like evidence citations.
-_CITATION_TOKEN_RE = re.compile(
-    r"[^\s\"'(),;\[\]]*(?:\.ai/|evidence/|T-\d{4}/|…/)[^\s\"'(),;\[\]]*"
-)
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[。．！？!?])\s*|(?<=\.)\s+")
-# Common abbreviations after which a period is not a sentence boundary.
-_ABBREV_RE = re.compile(r"\b(?:e\.g|i\.e|etc|vs|Mr|Ms|Dr|St|No)\.$")
-
-
-def _level_line_params(level: int) -> tuple[int, int]:
-    """(max_line_chars, keep_sentences) — deeper levels truncate harder."""
-    if level >= 3:
-        return 80, 1
-    if level == 2:
-        return 110, 1
-    return 160, 2
-
-
-def _level_body_cap(level: int) -> int:
-    """Max body lines kept at a given summary level (headings/key fields exempt)."""
-    return {1: 64, 2: 32, 3: 16}.get(level, 8)
-
-
-def _select_body_lines(lines: list[str], cap: int) -> list[str]:
-    """Pick up to *cap* body lines, preserving document order.
-
-    Decision-point lines (decision keywords or the word "decision") are
-    prioritised so that every summary level keeps the salient decision
-    content; the remaining slots are filled with the earliest lines.
-    """
-    chosen_idx: list[int] = []
-    for i, line in enumerate(lines):
-        if len(chosen_idx) >= cap:
-            break
-        if _DECISION_RE.search(line) or "decision" in line.lower():
-            chosen_idx.append(i)
-    for i in range(len(lines)):
-        if len(chosen_idx) >= cap:
-            break
-        if i not in chosen_idx:
-            chosen_idx.append(i)
-    chosen_idx.sort()
-    return [lines[i] for i in chosen_idx]
-
-
-# Max evidence-reference lines kept verbatim per summary level.  Citation
-# lines are reserved outside the body-line budget so decision-heavy prose
-# can never starve the evidence trail out of the compressed view.
-CITATION_LINE_CAP = 8
-
-
-def _find_citation_tokens(text: str) -> list[str]:
-    """Return unique citation-like tokens found in *text*, longest first.
-
-    Longest-first ordering keeps replacement of overlapping tokens safe
-    (e.g. a full path and its truncated tail appearing together).
-    """
-    tokens = {m for m in _CITATION_TOKEN_RE.findall(text) if m}
-    return sorted(tokens, key=len, reverse=True)
-
-
-def _truncate_citation(path: str, max_chars: int = CITATION_MAX_CHARS) -> str:
-    """Truncate an over-long citation path, keeping its tail segments.
-
-    ``.ai/evidence/T-0088/context-compression/design.md`` becomes
-    ``…/context-compression/design.md``.  The ``…`` prefix marks the
-    reference as truncated; CitationResolver strips it and matches the
-    remaining suffix uniquely against the filesystem.
-    """
-    if len(path) <= max_chars:
-        return path
-    parts = [p for p in path.split("/") if p]
-    kept = parts[-2:] if len(parts) >= 2 else parts
-    return "…/" + "/".join(kept)
-
-
-def _split_sentences(line: str) -> list[str]:
-    """Split *line* into sentences at punctuation boundaries.
-
-    Latin periods are only treated as boundaries when followed by
-    whitespace, and splits after common abbreviations (e.g., i.e., etc.)
-    are merged back so "e.g. .ai/evidence/..." stays one sentence.
-    """
-    parts = _SENTENCE_SPLIT_RE.split(line)
-    sentences: list[str] = []
-    for part in parts:
-        if sentences and _ABBREV_RE.search(sentences[-1]):
-            sentences[-1] += (" " if sentences[-1].endswith(".") else "") + part
-        else:
-            sentences.append(part)
-    return sentences
-
-
-def _truncate_line(
-    line: str,
-    max_chars: int = 160,
-    keep_sentences: int = 2,
-) -> str:
-    """Keep the first *keep_sentences* sentences of *line*, capped at *max_chars*."""
-    line = line.strip()
-    if len(line) <= max_chars:
-        return line
-    sentences = _split_sentences(line)
-    kept = sentences[0]
-    for sentence in sentences[1:keep_sentences]:
-        # Re-insert the separator: Latin periods were consumed by the split.
-        kept += (" " if kept.endswith(".") else "") + sentence
-    if len(kept) > max_chars:
-        cut = kept[:max_chars]
-        if " " in cut:
-            cut = cut.rsplit(" ", 1)[0]
-        kept = cut + "…"
-    return kept
-
-
-def extract_key_fields(text: str) -> dict[str, list[str]]:
-    """Extract key context fields (task IDs / gates / phases / decisions).
-
-    These fields are what every summary level preserves, so that even the
-    deepest "summary of the summary" stays traceable to its task/gate/phase
-    and to the decision points recorded in the original context.
-    """
-    fields: dict[str, list[str]] = {
-        "task_ids": [],
-        "gate_ids": [],
-        "phases": [],
-        "decisions": [],
-    }
-
-    def _add(key: str, value: str) -> None:
-        if value and value not in fields[key] and len(fields[key]) < 5:
-            fields[key].append(value)
-
-    for m in _GATE_ID_RE.finditer(text):
-        _add("gate_ids", m.group(0))
-    # Strip gate spans first so "T-0088" inside "G-T-0088-REQUIREMENTS"
-    # is not double-counted as a task ID.
-    text_without_gates = _GATE_ID_RE.sub(" ", text)
-    for m in _TASK_ID_RE.finditer(text_without_gates):
-        _add("task_ids", m.group(0))
-    for m in _PHASE_RE.finditer(text):
-        _add("phases", m.group(0))
-    for m in _DECISION_RE.finditer(text):
-        _add("decisions", m.group(0))
-    return fields
-
-
-def _format_key_fields(fields: dict[str, list[str]], level: int) -> str:
-    """Render the key-field header prepended to every summary level."""
-    lines = [f"[CONTEXT SUMMARY L{level}]"]
-    for label, key in (
-        ("task_ids", "task_ids"),
-        ("gates", "gate_ids"),
-        ("phases", "phases"),
-        ("decisions", "decisions"),
-    ):
-        values = fields[key]
-        if values:
-            lines.append(f"- {label}: {', '.join(values)}")
-    return "\n".join(lines)
-
-
-def summarize_text(
-    text: str,
-    level: int = 1,
-    *,
-    citation_max_chars: int = CITATION_MAX_CHARS,
-) -> str:
-    """Deterministic, rule-based summarization of *text* (level 1..N).
-
-    Every level keeps:
-      - the key-field header (task IDs / gates / phases / decisions),
-      - all headings,
-      - lines that carry key fields verbatim (``task_id: ...`` etc.),
-      - evidence-reference lines (up to a small cap, outside the body
-        budget), so the evidence trail survives compression and can be
-        repaired later,
-      - decision-point lines first, then the earliest body lines, up to a
-        per-level cap (deeper levels keep fewer body lines and truncate
-        sentences harder, so "summary of the summary" keeps shrinking).
-
-    Over-long evidence citations are truncated to their tail (restorable
-    via CitationResolver / repair_truncated_references).  Pure function:
-    never reads or writes files.
-    """
-    fields = extract_key_fields(text)
-    max_line_chars, keep_sentences = _level_line_params(level)
-    body_cap = _level_body_cap(level)
-
-    headings: list[str] = []
-    key_field_lines: list[str] = []
-    citation_lines: list[str] = []
-    body_lines: list[str] = []
-
-    for line in text.splitlines():
-        stripped = line.strip()
-        if not stripped:
-            continue
-        if _HEADING_RE.match(stripped):
-            headings.append(stripped)
-        elif _KEY_FIELD_LINE_RE.match(stripped):
-            key_field_lines.append(stripped)
-        else:
-            # Truncate over-long citations before sentence-level cutting so
-            # citation tails are never split mid-path.
-            citation_tokens = _find_citation_tokens(stripped)
-            for token in citation_tokens:
-                if len(token) > citation_max_chars:
-                    stripped = stripped.replace(
-                        token, _truncate_citation(token, citation_max_chars)
-                    )
-            # Citation-bearing lines are key content: keep them whole (only
-            # their over-long path tails are shortened above) so the
-            # evidence trail survives compression and can be repaired.
-            if citation_tokens:
-                citation_lines.append(stripped)
-            elif len(stripped) > max_line_chars:
-                truncated = _truncate_line(stripped, max_line_chars, keep_sentences)
-                if truncated:
-                    body_lines.append(truncated)
-            elif stripped:
-                body_lines.append(stripped)
-
-    # Cap body lines: never keep more than half of what the previous level
-    # kept, which guarantees each level strictly reduces the view.
-    cap = min(body_cap, max(1, (len(body_lines) + 1) // 2))
-    selected = _select_body_lines(body_lines, cap)
-
-    out_lines: list[str] = []
-    seen: set[str] = set()
-    for block in (
-        headings,
-        key_field_lines,
-        citation_lines[:CITATION_LINE_CAP],
-        selected,
-    ):
-        for line in block:
-            if line not in seen:
-                out_lines.append(line)
-                seen.add(line)
-
-    header = _format_key_fields(fields, level)
-    body = "\n".join(out_lines)
-    return header + "\n" + body if body else header
-
-
-def estimate_tokens(text: str) -> int:
-    """Estimate the token count of *text* without external tokenizer libraries.
-
-    Rule of thumb:
-    - English / Latin-script text: ~1.3 tokens per word
-    - CJK characters (Chinese, Japanese, Korean): ~2 tokens per character
-    - Mixed text: both counts are summed
-
-    This is a rough approximation; real tokenizers (GPT, Claude) produce
-    slightly different counts, but the estimate is close enough for budget
-    triggers and for the 15% analysis-to-output ratio check in INTERNAL_LOOP.
-    """
-    if not text:
-        return 0
-
-    # Count CJK characters (Unicode ranges for Chinese, Japanese, Korean)
-    cjk_pattern = re.compile(
-        r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff"
-        r"\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]"
-    )
-    cjk_chars = len(cjk_pattern.findall(text))
-
-    # Count "words" in non-CJK text: split on whitespace after removing
-    # CJK characters (so we don't double-count)
-    non_cjk_text = cjk_pattern.sub(" ", text)
-    words = len(non_cjk_text.split())
-
-    # English word → token ratio is roughly 1.3:1
-    # CJK char → token ratio is roughly 2:1
-    return int(words * 1.3 + cjk_chars * 2.0)
-
-
-class CitationResolver:
-    """Resolve truncated evidence citations via unique filesystem matching.
-
-    Handles, in order:
-      1. Exact references that already exist on disk (full
-         ``.ai/evidence/T-xxxx/...`` paths).
-      2. References whose ``.ai/`` prefix was dropped
-         (``evidence/T-xxxx/file.json``).
-      3. Truncated suffixes (``…/T-xxxx/file.json`` or
-         ``T-xxxx/file.json``) matched against files under the search roots.
-      4. Bare file names (``file.json``) matched by basename.
-
-    A reference is RESOLVED only when exactly one file matches.  Multiple
-    matches are AMBIGUOUS (never guessed); no match is NOT_FOUND.
-    """
-
-    def __init__(
-        self,
-        project_root: Path,
-        search_roots: list[Path] | None = None,
-    ) -> None:
-        self._project_root = Path(project_root)
-        if search_roots is not None:
-            self._search_roots = [Path(r) for r in search_roots]
-        else:
-            self._search_roots = self._default_search_roots()
-
-    def _default_search_roots(self) -> list[Path]:
-        evidence_dir = self._project_root / ".ai" / "evidence"
-        if evidence_dir.exists():
-            return [evidence_dir]
-        ai_dir = self._project_root / ".ai"
-        if ai_dir.exists():
-            return [ai_dir]
-        return [self._project_root]
-
-    def _all_relative_files(self) -> list[str]:
-        """All files under the search roots, project-root-relative, posix form."""
-        files: list[str] = []
-        for root in self._search_roots:
-            if not root.exists():
-                continue
-            for p in root.rglob("*"):
-                if p.is_file():
-                    files.append(p.relative_to(self._project_root).as_posix())
-        return sorted(set(files))
-
-    def resolve(self, truncated: str) -> CitationResolution:
-        """Resolve *truncated* to a full project-relative reference.
-
-        Never guesses: AMBIGUOUS / NOT_FOUND results are returned as-is and
-        callers are expected to mark them UNRESOLVED.
-        """
-        token = str(truncated).strip().strip('"\'`[](){}<>')
-        token = token.replace("\\", "/").rstrip(".,;:!?")
-        if not token:
-            return CitationResolution(original=str(truncated), status="NOT_FOUND")
-
-        # 1+2. Exact path (with or without the .ai/ prefix)
-        norm = token.lstrip("/")
-        candidates: list[Path] = []
-        if norm:
-            candidates.append(self._project_root / norm)
-            if not norm.startswith(".ai"):
-                candidates.append(self._project_root / ".ai" / norm)
-        for cand in candidates:
-            if cand.is_file():
-                rel = cand.relative_to(self._project_root).as_posix()
-                return CitationResolution(
-                    original=str(truncated),
-                    status="RESOLVED",
-                    resolved=rel,
-                    matches=[rel],
-                )
-
-        # 3+4. Truncated suffix / bare basename
-        suffix = token
-        for marker in ("…", "..."):
-            if marker in suffix:
-                suffix = suffix.split(marker)[-1].lstrip("/")
-        suffix = suffix.lstrip("/")
-        if not suffix:
-            return CitationResolution(original=str(truncated), status="NOT_FOUND")
-
-        files = self._all_relative_files()
-        if "/" in suffix:
-            matches = [
-                rel for rel in files if rel == suffix or rel.endswith("/" + suffix)
-            ]
-        else:
-            matches = [rel for rel in files if rel.rsplit("/", 1)[-1] == suffix]
-
-        matches = sorted(set(matches))
-        if len(matches) == 1:
-            return CitationResolution(
-                original=str(truncated),
-                status="RESOLVED",
-                resolved=matches[0],
-                matches=matches,
-            )
-        if len(matches) > 1:
-            return CitationResolution(
-                original=str(truncated),
-                status="AMBIGUOUS",
-                matches=matches,
-            )
-        return CitationResolution(original=str(truncated), status="NOT_FOUND")
-
-
-def repair_truncated_references(
-    text: str, project_root: Path
-) -> tuple[str, list[CitationResolution]]:
-    """Restore truncated evidence citations inside *text*.
-
-    Resolved references are replaced with their canonical
-    ``.ai/evidence/T-xxxx/...`` path.  References that cannot be uniquely
-    recovered are explicitly wrapped as ``[UNRESOLVED: <ref>]`` — never
-    guessed.
-
-    T-0095 substring-boundary guard: tokens are processed longest-first, and
-    a token that is a *substring of a longer token already resolved* is
-    skipped.  Without this, a full path and its prefix-dropped sibling
-    appearing in the same text would corrupt each other on replacement
-    (``str.replace`` rewrites inside the already-repaired span, producing a
-    ``.ai/.ai/`` double prefix).
-
-    Returns:
-        (repaired_text, resolutions) where resolutions records every
-        citation token found and its resolution status.
-    """
-    resolver = CitationResolver(project_root)
-    resolutions: list[CitationResolution] = []
-    repaired = text
-    resolved_tokens: list[str] = []
-    for token in _find_citation_tokens(repaired):
-        # Skip tokens covered by a longer already-resolved token: replacing
-        # them would rewrite inside the repaired canonical path.
-        if any(token in resolved for resolved in resolved_tokens
-               if len(resolved) > len(token)):
-            continue
-        result = resolver.resolve(token)
-        resolutions.append(result)
-        if result.status == "RESOLVED":
-            # Record the canonical form even when no replacement was needed
-            # (token was already canonical): its prefix-dropped substring
-            # must still be skipped by the guard above.
-            if result.resolved != token:
-                repaired = repaired.replace(token, result.resolved)
-            resolved_tokens.append(result.resolved)
-        elif result.status != "RESOLVED":
-            repaired = repaired.replace(
-                token, f"[{UNRESOLVED_MARKER}: {token}]"
-            )
-            resolved_tokens.append(f"[{UNRESOLVED_MARKER}: {token}]")
-    return repaired, resolutions
 
 
 class ContextCompressor:
@@ -1209,15 +775,16 @@ def _parse_yaml(raw: str) -> Any:
         import yaml
         return yaml.safe_load(raw)
     except ImportError:
-                import logging; logging.getLogger("context_loader").debug("YAML not available, falling back to JSON")
+        logging.getLogger("context_loader").debug(
+            "YAML not available, falling back to JSON")
     except Exception as _e:
-                import logging; logging.getLogger("context_loader").debug("Parse error: %s", _e)
+        logging.getLogger("context_loader").debug("Parse error: %s", _e)
 
     # Fall back to JSON
     try:
         return json.loads(raw)
     except Exception as _e:
-                import logging; logging.getLogger("context_loader").debug("Parse error: %s", _e)
+        logging.getLogger("context_loader").debug("Parse error: %s", _e)
 
     # Last resort: return raw — the caller will handle it
     return raw
@@ -1270,163 +837,3 @@ def _extract_contract_extras(contract: dict) -> str | None:
         parts.append("\n".join(lines))
 
     return "\n\n".join(parts) if parts else None
-
-
-def _extract_framework_titles(framework_path: Path) -> str | None:
-    """Extract Step 1-4 titles from THINKING_FRAMEWORK.md.
-
-    Returns a compact summary with just the step names, not the full
-    content.  This is used for STANDARD-level loading (~300 additional
-    tokens vs ~1200 for the full framework).
-    """
-    raw = framework_path.read_text(encoding="utf-8")
-    lines = raw.splitlines()
-
-    titles: list[str] = []
-    in_step = False
-    for line in lines:
-        stripped = line.strip()
-        # Match "### Step N: ..." headings
-        if re.match(r'^###\s+Step\s+\d+:', stripped):
-            titles.append(stripped)
-            in_step = True
-        elif stripped.startswith("## ") and in_step:
-            # We've gone past the steps into a new top-level section
-            break
-
-    if not titles:
-        return None
-
-    result_lines = ["## Thinking Framework (Summary)"]
-    for t in titles:
-        result_lines.append(f"- {t}")
-    return "\n".join(result_lines)
-
-
-def _select_relevant_sections(
-    role_id: str, doc_index: DocumentIndex, project_root: Path | str | None = None
-) -> list[str]:
-    """Select document sections relevant to a given role.
-
-    T-0108 F4 (D5-3 消解): when *project_root* is given, section selection
-    is driven by the Switchboard routing table in ``.ai/README.md``
-    (front-matter ``section_routing:`` — role → keyword list, substring
-    match on lowercased section names, same semantics as the legacy
-    heuristic so golden snapshots are unchanged).  If the routing table is
-    missing/unparseable, falls back to the legacy keyword heuristic and
-    logs a warning (fail-closed: never silently return an empty context).
-
-    Falls back to returning the first 3 section names when no match is
-    found (the caller can decide how many to include).
-    """
-    available = list(doc_index.sections.keys())
-    if not available:
-        return []
-
-    routing = _load_section_routing(project_root)
-    if routing is not None:
-        keywords = routing.get(role_id, routing.get("default", []))
-        if not isinstance(keywords, list):
-            keywords = []
-        keywords = [str(k) for k in keywords]
-        if not keywords:
-            return available[:3]
-        matched = [s for s in available if any(kw in s.lower() for kw in keywords)]
-        return matched if matched else available[:3]
-
-    if project_root is not None:
-        logger.warning(
-            "[context_loader] .ai/README.md section_routing missing — "
-            "falling back to legacy keyword heuristic (D5-3)"
-        )
-
-    # ── Legacy keyword heuristic (fallback, kept byte-for-byte) ─────────
-    # Map role keywords to likely section-name keywords
-    role_keywords: dict[str, list[str]] = {
-        "quality-engineer": ["test", "quality", "coverage", "lint", "gate"],
-        "security-engineer": ["security", "auth", "encrypt", "vulnerab"],
-        "frontend": ["frontend", "ui", "component", "page", "style"],
-        "developer": ["implement", "code", "module", "build"],
-        "architect": ["architect", "design", "pattern", "structure"],
-        "system-architect": ["architect", "design", "pattern", "structure", "system"],
-        "module-architect": ["architect", "design", "module", "pattern"],
-        "project-manager": ["plan", "schedule", "milestone", "risk"],
-        "product-manager": ["requirement", "feature", "user", "story"],
-        "delivery-manager": ["deploy", "release", "delivery", "ship"],
-        "release-engineer": ["deploy", "release", "ci", "pipeline"],
-    }
-
-    keywords = role_keywords.get(role_id, [])
-
-    if not keywords:
-        # Generic fallback: return first 3 sections
-        return available[:3]
-
-    matched: list[str] = []
-    for section_name in available:
-        lower = section_name.lower()
-        if any(kw in lower for kw in keywords):
-            matched.append(section_name)
-
-    return matched if matched else available[:3]
-
-
-# T-0108 F4: Switchboard routing-table loader (D5-3).
-# key = (readme_path, mtime_ns, size) → routing dict or None (missing/invalid).
-_ROUTING_CACHE: dict[tuple[str, int, int], dict | None] = {}
-
-
-def _parse_front_matter_yaml(text: str) -> Any:
-    """Parse a leading ``--- ... ---`` YAML front-matter block, else None."""
-    lines = text.splitlines()
-    if not lines or lines[0].strip() != "---":
-        return None
-    end = None
-    for i in range(1, len(lines)):
-        if lines[i].strip() == "---":
-            end = i
-            break
-    if end is None:
-        return None
-    block = "\n".join(lines[1:end])
-    try:
-        import yaml
-        return yaml.safe_load(block)
-    except ImportError:
-        pass
-    except Exception:
-        pass
-    try:
-        return json.loads(block)
-    except Exception:
-        return None
-
-
-def _load_section_routing(project_root: Path | str | None) -> dict | None:
-    """Load the ``section_routing`` table from ``.ai/README.md``.
-
-    Returns None when the README is missing or has no usable
-    ``section_routing`` mapping — the caller falls back to the legacy
-    heuristic.  Never raises.
-    """
-    if project_root is None:
-        return None
-    readme = Path(project_root) / ".ai" / "README.md"
-    try:
-        stat = readme.stat()
-    except OSError:
-        return None
-    key = (str(readme), stat.st_mtime_ns, stat.st_size)
-    if key in _ROUTING_CACHE:
-        return _ROUTING_CACHE[key]
-    result: dict | None = None
-    try:
-        front_matter = _parse_front_matter_yaml(readme.read_text(encoding="utf-8"))
-        if isinstance(front_matter, dict):
-            routing = front_matter.get("section_routing")
-            if isinstance(routing, dict):
-                result = routing
-    except Exception:
-        result = None
-    _ROUTING_CACHE[key] = result
-    return result

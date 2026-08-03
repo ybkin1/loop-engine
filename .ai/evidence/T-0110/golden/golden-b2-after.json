@@ -1,0 +1,1850 @@
+{
+ "context_loader": {
+  "_complexity_to_level": {
+   "0.0": "minimal",
+   "0.29": "minimal",
+   "0.3": "standard",
+   "0.5": "standard",
+   "0.59": "standard",
+   "0.6": "full",
+   "0.61": "full",
+   "0.99": "full",
+   "1.0": "full"
+  },
+  "_extract_contract_extras": {
+   "all": "## Responsibilities\n- r1\n- r2\n\n## Prohibitions\n- p1\n\n## Veto Power\n- v1\n- v2",
+   "none": null,
+   "not_lists": null,
+   "partial": "## Responsibilities\n- only"
+  },
+  "_extract_fixed_stance": {
+   "identity_fallback": "Role: 自定义\nNo fixed_stance defined.",
+   "identity_not_dict": "Role: role-x\nNo fixed_stance defined.",
+   "list": "## Fixed Stance\n- A\n- B",
+   "missing": "Role: role-x\nNo fixed_stance defined."
+  },
+  "_extract_framework_titles": {
+   "no_steps": null,
+   "with_steps": "## Thinking Framework (Summary)\n- ### Step 1: One\n- ### Step 2: Two"
+  },
+  "_find_citation_tokens": {
+   "empty": [],
+   "text": [
+    ".ai/evidence/T-0088/context-compression/design.md（重复路径）。",
+    ".ai/evidence/T-0088/context-compression/design.md",
+    "…/T-0088/approval-evidence.json",
+    "evidence/T-0088/final.md。"
+   ]
+  },
+  "_format_key_fields": {
+   "empty": "[CONTEXT SUMMARY L2]",
+   "level1": "[CONTEXT SUMMARY L1]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED",
+   "level3": "[CONTEXT SUMMARY L3]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED"
+  },
+  "_level_body_cap": {
+   "0": 8,
+   "1": 64,
+   "2": 32,
+   "3": 16,
+   "4": 8
+  },
+  "_level_line_params": {
+   "-1": [
+    160,
+    2
+   ],
+   "0": [
+    160,
+    2
+   ],
+   "1": [
+    160,
+    2
+   ],
+   "2": [
+    110,
+    1
+   ],
+   "3": [
+    80,
+    1
+   ],
+   "4": [
+    80,
+    1
+   ]
+  },
+  "_load_section_routing": {
+   "cached_second_call": {
+    "default": [
+     "design"
+    ],
+    "quality-engineer": [
+     "quality",
+     "gate"
+    ]
+   },
+   "invalid_readme": null,
+   "missing": null,
+   "none_root": null,
+   "valid": {
+    "default": [
+     "design"
+    ],
+    "quality-engineer": [
+     "quality",
+     "gate"
+    ]
+   }
+  },
+  "_parse_front_matter_yaml": {
+   "garbage": {
+    "::": "bad"
+   },
+   "json_block": {
+    "a": 1
+   },
+   "no_front": null,
+   "unclosed": null,
+   "valid": {
+    "key": "value"
+   }
+  },
+  "_parse_yaml": {
+   "garbage": {
+    "::": "not parseable"
+   },
+   "json": {
+    "a": 1
+   },
+   "yaml": {
+    "a": 1,
+    "b": [
+     1,
+     2
+    ]
+   }
+  },
+  "_select_body_lines": {
+   "cap0": [],
+   "cap10": [
+    "decision: APPROVED for the gate",
+    "plain earliest line one",
+    "another body line two",
+    "decision review needed here",
+    "plain line three",
+    "plain line four",
+    "plain line five"
+   ],
+   "cap2": [
+    "decision: APPROVED for the gate",
+    "decision review needed here"
+   ],
+   "cap4": [
+    "decision: APPROVED for the gate",
+    "plain earliest line one",
+    "another body line two",
+    "decision review needed here"
+   ],
+   "empty": []
+  },
+  "_select_relevant_sections": {
+   "empty_index": [],
+   "legacy_first3": [
+    "Quality Gate",
+    "Deployment",
+    "API Design"
+   ],
+   "legacy_match": [
+    "Quality Gate"
+   ],
+   "routed_default": [
+    "API Design"
+   ],
+   "routed_match": [
+    "Quality Gate"
+   ],
+   "routed_missing_legacy": [
+    "Quality Gate"
+   ],
+   "routed_no_keywords": [
+    "API Design"
+   ]
+  },
+  "_split_sentences": {
+   "abbrev": [
+    "See e.g. .ai/evidence/T-0088/a.md for details.",
+    "Next."
+   ],
+   "cn": [
+    "第一句。",
+    "第二句！",
+    "第三句？",
+    ""
+   ],
+   "latin": [
+    "First sentence.",
+    "Second sentence!",
+    "Third?",
+    ""
+   ],
+   "single": [
+    "No punctuation here"
+   ]
+  },
+  "_truncate_citation": {
+   "edge": ".ai",
+   "long": "…/hierarchical-summary/final-design.md",
+   "short": ".ai/evidence/T-0088/a.md"
+  },
+  "_truncate_line": {
+   "cn": "汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉汉…",
+   "long1": "word word word word word word…",
+   "long2": "word word word word word word word word word word word word…",
+   "short": "short line"
+  },
+  "_validate_budget_params": {
+   "bad_budget": {
+    "message": "budget_tokens must be a positive int, got 0",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "bad_budget_type": {
+    "message": "budget_tokens must be a positive int, got 1.5",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "bad_levels": {
+    "message": "max_levels must be >= 1, got 0",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "bad_ratio_high": {
+    "message": "trigger_ratio must be in (0, 1], got 1.1",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "bad_ratio_low": {
+    "message": "trigger_ratio must be in (0, 1], got 0.0",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "ok": {
+    "ok": true,
+    "value": null
+   }
+  },
+  "build_document_index": {
+   "doc_path": "<ROOT>\\architecture.md",
+   "sections": {
+    "API Design": [
+     9,
+     10
+    ],
+    "Deployment": [
+     6,
+     8
+    ],
+    "Quality Gate": [
+     3,
+     5
+    ]
+   },
+   "total_lines": 10
+  },
+  "citation_resolver": {
+   "ambiguous": {
+    "matches": [
+     ".ai/evidence/T-0088/context-compression/design.md"
+    ],
+    "original": "design.md",
+    "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+    "status": "RESOLVED"
+   },
+   "bare_name": {
+    "matches": [
+     ".ai/evidence/T-0088/final.md"
+    ],
+    "original": "final.md",
+    "resolved": ".ai/evidence/T-0088/final.md",
+    "status": "RESOLVED"
+   },
+   "empty": {
+    "matches": [],
+    "original": "",
+    "resolved": null,
+    "status": "NOT_FOUND"
+   },
+   "exact": {
+    "matches": [
+     ".ai/evidence/T-0088/context-compression/design.md"
+    ],
+    "original": ".ai/evidence/T-0088/context-compression/design.md",
+    "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+    "status": "RESOLVED"
+   },
+   "is_resolved": true,
+   "no_suffix": {
+    "matches": [],
+    "original": "…/",
+    "resolved": null,
+    "status": "NOT_FOUND"
+   },
+   "not_found": {
+    "matches": [],
+    "original": ".ai/evidence/T-0088/nope.md",
+    "resolved": null,
+    "status": "NOT_FOUND"
+   },
+   "prefix_dropped": {
+    "matches": [
+     ".ai/evidence/T-0088/context-compression/design.md"
+    ],
+    "original": "evidence/T-0088/context-compression/design.md",
+    "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+    "status": "RESOLVED"
+   },
+   "truncated": {
+    "matches": [
+     ".ai/evidence/T-0088/context-compression/design.md"
+    ],
+    "original": "…/T-0088/context-compression/design.md",
+    "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+    "status": "RESOLVED"
+   }
+  },
+  "citation_resolver_custom_roots": {
+   "matches": [
+    ".ai/evidence/T-0088/context-compression/design.md"
+   ],
+   "original": "design.md",
+   "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+   "status": "RESOLVED"
+  },
+  "compressor": {
+   "invalid_budget": {
+    "message": "budget_tokens must be a positive int, got 0",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "invalid_levels": {
+    "message": "max_levels must be >= 1, got 0",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "invalid_ratio": {
+    "message": "trigger_ratio must be in (0, 1], got 1.5",
+    "ok": false,
+    "type": "ValueError"
+   },
+   "over_budget_l1": {
+    "budget_tokens": 50,
+    "citations": [],
+    "estimated_tokens": 128,
+    "levels_applied": 1,
+    "max_levels": 1,
+    "original_tokens": 132,
+    "text": "[CONTEXT SUMMARY L1]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\n## 背景\ntask_id: T-0101\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n本任务 T-0101 在 S4-implementation 阶段完成支付网关 G-T-0101-PAYMENT 的集成。\n本次补充单元测试并重新提交，状态为 APPROVED。",
+    "trigger_ratio": 1.0,
+    "triggered": true
+   },
+   "over_budget_l2": {
+    "budget_tokens": 2600,
+    "citations": [],
+    "estimated_tokens": 132,
+    "levels_applied": 0,
+    "max_levels": 2,
+    "original_tokens": 132,
+    "text": "## 背景\n本任务 T-0101 在 S4-implementation 阶段完成支付网关 G-T-0101-PAYMENT 的集成。\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n本次补充单元测试并重新提交，状态为 APPROVED。\ntask_id: T-0101\n决策点：是否批准进入 S5-quality 阶段。\n",
+    "trigger_ratio": 0.7,
+    "triggered": false
+   },
+   "overrides": {
+    "budget_tokens": 40,
+    "citations": [],
+    "estimated_tokens": 115,
+    "levels_applied": 2,
+    "max_levels": 3,
+    "original_tokens": 132,
+    "text": "[CONTEXT SUMMARY L2]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\n## 背景\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\ntask_id: T-0101\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n[CONTEXT SUMMARY L1]\n本次补充单元测试并重新提交，状态为 APPROVED。",
+    "trigger_ratio": 1.0,
+    "triggered": true
+   },
+   "under_budget": {
+    "budget_tokens": 2600,
+    "citations": [],
+    "estimated_tokens": 2,
+    "levels_applied": 0,
+    "max_levels": 2,
+    "original_tokens": 2,
+    "text": "short text",
+    "trigger_ratio": 0.7,
+    "triggered": false
+   },
+   "with_citation_repair": {
+    "budget_tokens": 60,
+    "citations": [],
+    "estimated_tokens": 26,
+    "levels_applied": 0,
+    "max_levels": 1,
+    "original_tokens": 26,
+    "text": "参考 .ai/evidence/T-0088/context-compression/design.md 与\n…/T-0088/approval-evidence.json 及 evidence/T-0088/final.md。\n另见 .ai/evidence/T-0088/context-compression/design.md（重复路径）。\n",
+    "trigger_ratio": 1.0,
+    "triggered": false
+   }
+  },
+  "constants": {
+   "CITATION_LINE_CAP": 8,
+   "CITATION_MAX_CHARS": 60,
+   "DEFAULT_BUDGET_TOKENS": 2600,
+   "DEFAULT_MAX_SUMMARY_LEVELS": 2,
+   "DEFAULT_MEMORY_LIMIT": 5,
+   "DEFAULT_TRIGGER_RATIO": 0.7,
+   "LoadLevel_values": [
+    "minimal",
+    "standard",
+    "full"
+   ],
+   "MINIMAL_MAX": 0.3,
+   "STANDARD_MAX": 0.6,
+   "UNRESOLVED_MARKER": "UNRESOLVED",
+   "regex_patterns": {
+    "_ABBREV_RE": "\\b(?:e\\.g|i\\.e|etc|vs|Mr|Ms|Dr|St|No)\\.$",
+    "_CITATION_TOKEN_RE": "[^\\s\\\"'(),;\\[\\]]*(?:\\.ai/|evidence/|T-\\d{4}/|…/)[^\\s\\\"'(),;\\[\\]]*",
+    "_DECISION_RE": "\\b(APPROVED|PASS|FAIL|NOGO|BLOCKED|REJECTED|ACCEPTED|COMPLETED|approved|passed|failed|blocked|rejected|accepted|completed|in_progress)\\b",
+    "_GATE_ID_RE": "\\bG-T-\\d{4}-[A-Z0-9-]+\\b",
+    "_HEADING_RE": "^\\s{0,3}#{1,6}\\s+\\S",
+    "_KEY_FIELD_LINE_RE": "^\\s*(?:-?\\s*)?(?:task[_ -]?id|task_ids|gate|gates|phase|phases|decision|decisions)\\s*[:：]",
+    "_PHASE_RE": "\\bS(?:0|[1-9]\\d?)\\b",
+    "_SENTENCE_SPLIT_RE": "(?<=[。．！？!?])\\s*|(?<=\\.)\\s+",
+    "_TASK_ID_RE": "\\bT-\\d{4}\\b"
+   },
+   "signature_defaults": {
+    "load_for_role": {
+     "budget_tokens": null,
+     "include_memories": false,
+     "max_levels": 2,
+     "memory_limit": 5,
+     "memory_task_id": null,
+     "trigger_ratio": 0.7
+    },
+    "load_role_context": {
+     "budget_tokens": null,
+     "include_memories": false,
+     "max_levels": 2,
+     "memory_limit": 5,
+     "memory_task_id": null,
+     "trigger_ratio": 0.7
+    }
+   }
+  },
+  "doc_failures": {
+   "empty_doc": {
+    "sections": {},
+    "total_lines": 0
+   },
+   "missing_doc": {
+    "message": "Document not found: no-such-file.md",
+    "ok": false,
+    "type": "FileNotFoundError"
+   },
+   "subheading_not_section": {
+    "sections": {
+     "H1": [
+      1,
+      2
+     ],
+     "H2": [
+      3,
+      3
+     ]
+    },
+    "total_lines": 3
+   }
+  },
+  "estimate_tokens": {
+   "cjk": 12,
+   "empty": 0,
+   "latin": 7,
+   "mixed": 14,
+   "none": 0
+  },
+  "extract_key_fields": {
+   "corpus": {
+    "decisions": [
+     "REJECTED",
+     "APPROVED"
+    ],
+    "gate_ids": [
+     "G-T-0101-PAYMENT"
+    ],
+    "phases": [
+     "S4",
+     "S5"
+    ],
+    "task_ids": [
+     "T-0101"
+    ]
+   },
+   "empty": {
+    "decisions": [],
+    "gate_ids": [],
+    "phases": [],
+    "task_ids": []
+   },
+   "gates_not_tasks": {
+    "decisions": [
+     "approved"
+    ],
+    "gate_ids": [
+     "G-T-0088-REQUIREMENTS"
+    ],
+    "phases": [
+     "S3"
+    ],
+    "task_ids": []
+   }
+  },
+  "load_budget_compressed": {
+   "compression": {
+    "budget_tokens": 100,
+    "citations": [],
+    "estimated_tokens": 161,
+    "levels_applied": 1,
+    "max_levels": 1,
+    "original_tokens": 237,
+    "text": "[CONTEXT SUMMARY L1]\n## Fixed Stance\n## Responsibilities\n## Prohibitions\n## Veto Power\n# 思考框架\n## 概述\n### Step 1: 质量全局视角\n### Step 2: 证据优先\n## 其他章节\n# 内部 Loop\n- 我的职责是找问题，不是证明没问题\n- 设计测试策略\n- 审查证据链\n- 禁止凭空断言\n- 质量门禁否决权",
+    "trigger_ratio": 1.0,
+    "triggered": true
+   },
+   "level": "full",
+   "loaded_sections": [
+    "quality-engineer/CONTRACT.yaml#fixed_stance",
+    "quality-engineer/CONTRACT.yaml#extras",
+    "quality-engineer/THINKING_FRAMEWORK.md",
+    "quality-engineer/INTERNAL_LOOP.md",
+    "[compressed: 1 level(s), 237 → 161 tokens]"
+   ],
+   "system_prompt": "[CONTEXT SUMMARY L1]\n## Fixed Stance\n## Responsibilities\n## Prohibitions\n## Veto Power\n# 思考框架\n## 概述\n### Step 1: 质量全局视角\n### Step 2: 证据优先\n## 其他章节\n# 内部 Loop\n- 我的职责是找问题，不是证明没问题\n- 设计测试策略\n- 审查证据链\n- 禁止凭空断言\n- 质量门禁否决权"
+  },
+  "load_document_section": {
+   "found": "## Quality Gate\n质量门禁说明，覆盖测试策略。\n",
+   "missing": null
+  },
+  "load_failures": {
+   "missing_contract": {
+    "message": "Role directory not found: <ROOT>\\r-no-contract\\agents\\quality-engineer",
+    "ok": false,
+    "type": "FileNotFoundError"
+   },
+   "missing_role": {
+    "message": "Role directory not found: <ROOT>\\r-loader\\agents\\ghost-role",
+    "ok": false,
+    "type": "FileNotFoundError"
+   },
+   "not_mapping_contract": {
+    "message": "Role directory not found: <ROOT>\\r-bad-contract\\agents\\quality-engineer",
+    "ok": false,
+    "type": "FileNotFoundError"
+   }
+  },
+  "load_for_role_budget": {
+   "compression": {
+    "budget_tokens": 50,
+    "citations": [],
+    "estimated_tokens": 182,
+    "levels_applied": 1,
+    "max_levels": 1,
+    "original_tokens": 268,
+    "text": "[CONTEXT SUMMARY L1]\n## Fixed Stance\n## Responsibilities\n## Prohibitions\n## Veto Power\n# 思考框架\n## 概述\n### Step 1: 质量全局视角\n### Step 2: 证据优先\n## 其他章节\n# 内部 Loop\n## Quality Gate\n- 我的职责是找问题，不是证明没问题\n- 设计测试策略\n- 审查证据链\n- 禁止凭空断言\n- 质量门禁否决权\n先看整体再看局部。",
+    "trigger_ratio": 1.0,
+    "triggered": true
+   }
+  },
+  "load_for_role_legacy": {
+   "estimated_tokens": 268,
+   "prompt_has_gate": true,
+   "sections": [
+    "<ROOT>\\r-loader\\architecture.md#Quality Gate"
+   ]
+  },
+  "load_for_role_routed": {
+   "estimated_tokens": 268,
+   "prompt_has_deployment": false,
+   "prompt_has_gate": true,
+   "sections": [
+    "<ROOT>\\r-routed\\architecture.md#Quality Gate"
+   ]
+  },
+  "load_full": {
+   "compression": null,
+   "estimated_tokens": 237,
+   "level": "full",
+   "loaded_sections": [
+    "quality-engineer/CONTRACT.yaml#fixed_stance",
+    "quality-engineer/CONTRACT.yaml#extras",
+    "quality-engineer/THINKING_FRAMEWORK.md",
+    "quality-engineer/INTERNAL_LOOP.md"
+   ],
+   "system_prompt": "## Fixed Stance\n- 我的职责是找问题，不是证明没问题\n\n## Responsibilities\n- 设计测试策略\n- 审查证据链\n\n## Prohibitions\n- 禁止凭空断言\n\n## Veto Power\n- 质量门禁否决权\n\n# 思考框架\n\n## 概述\n\n### Step 1: 质量全局视角\n先看整体再看局部。\n\n### Step 2: 证据优先\n先收集证据再下结论。\n\n## 其他章节\n不应出现在摘要中。\n\n\n# 内部 Loop\n\n- 合同合规自检\n- 门禁证据自查"
+  },
+  "load_minimal": {
+   "compression": null,
+   "estimated_tokens": 36,
+   "level": "minimal",
+   "loaded_sections": [
+    "quality-engineer/CONTRACT.yaml#fixed_stance"
+   ],
+   "system_prompt": "## Fixed Stance\n- 我的职责是找问题，不是证明没问题"
+  },
+  "load_standard": {
+   "compression": null,
+   "estimated_tokens": 72,
+   "level": "standard",
+   "loaded_sections": [
+    "quality-engineer/CONTRACT.yaml#fixed_stance",
+    "quality-engineer/THINKING_FRAMEWORK.md#titles"
+   ],
+   "system_prompt": "## Fixed Stance\n- 我的职责是找问题，不是证明没问题\n\n## Thinking Framework (Summary)\n- ### Step 1: 质量全局视角\n- ### Step 2: 证据优先"
+  },
+  "memory_injection": {
+   "corrupt_store_default_off": {
+    "no_memory_section": true,
+    "ok": true,
+    "prompt_matches_pristine": true
+   },
+   "corrupt_store_on_fail_closed": {
+    "message": "无法解析 knowledge 文件 <ROOT>\\r-mem-corrupt\\.ai\\evidence\\knowledge\\knowledge-store.yaml: while parsing a flow mapping\n  in \"<ROOT>\\r-mem-corrupt\\.ai\\evidence\\knowledge\\knowledge-store.yaml\", line 1, column 1\nexpected ',' or '}', but got '<stream end>'\n  in \"<ROOT>\\r-mem-corrupt\\.ai\\evidence\\knowledge\\knowledge-store.yaml\", line 1, column 9",
+    "ok": false,
+    "type": "KnowledgeStoreError"
+   },
+   "default_unchanged": {
+    "loaded_sections": [
+     "quality-engineer/CONTRACT.yaml#fixed_stance",
+     "quality-engineer/CONTRACT.yaml#extras",
+     "quality-engineer/THINKING_FRAMEWORK.md",
+     "quality-engineer/INTERNAL_LOOP.md"
+    ],
+    "no_memory_section": true,
+    "same_as_off": true
+   },
+   "limited2": {
+    "bullets": 2,
+    "recalled": true
+   },
+   "on": {
+    "has_section": true,
+    "recalled": true,
+    "section": "## 相关经验（Related Memories）\n- (lesson) G-T-0100-REVIEW-2 [gate, rejected, evidence]: Rejection reason number 2 for the closeout review.\n- (lesson) G-T-0100-REVIEW-1 [gate, rejected, evidence]: Rejection reason number 1 for the closeout review.\n- (lesson) G-T-0100-REVIEW-0 [gate, rejected, evidence]: Rejection reason number 0 for the closeout review."
+   },
+   "task_filtered": {
+    "recalled": true
+   }
+  },
+  "repair_guard": {
+   "statuses": [
+    "RESOLVED"
+   ],
+   "text": ".ai/evidence/T-0088/context-compression/design.md 与 evidence/T-0088/context-compression/design.md"
+  },
+  "repair_truncated_references": {
+   "resolutions": [
+    {
+     "matches": [
+      ".ai/evidence/T-0088/context-compression/design.md"
+     ],
+     "original": ".ai/evidence/T-0088/context-compression/design.md",
+     "resolved": ".ai/evidence/T-0088/context-compression/design.md",
+     "status": "RESOLVED"
+    },
+    {
+     "matches": [],
+     "original": "…/T-0088/approval-evidence.json，另见",
+     "resolved": null,
+     "status": "NOT_FOUND"
+    },
+    {
+     "matches": [],
+     "original": "evidence/T-0088/final.md。",
+     "resolved": null,
+     "status": "NOT_FOUND"
+    }
+   ],
+   "text": "见 .ai/evidence/T-0088/context-compression/design.md 与 [UNRESOLVED: …/T-0088/approval-evidence.json，另见] [UNRESOLVED: evidence/T-0088/final.md。]"
+  },
+  "repair_unresolved": {
+   "statuses": [
+    "NOT_FOUND"
+   ],
+   "text": "参考 [UNRESOLVED: evidence/T-9999/missing-file.md]"
+  },
+  "summarize_text": {
+   "citation": "[CONTEXT SUMMARY L1]\n- task_ids: T-0088\n参考 .ai/evidence/T-0088/context-compression/design.md 与\n…/T-0088/approval-evidence.json 及 evidence/T-0088/final.md。\n另见 .ai/evidence/T-0088/context-compression/design.md（重复路径）。",
+   "empty": "[CONTEXT SUMMARY L1]",
+   "l1": "[CONTEXT SUMMARY L1]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\n## 背景\ntask_id: T-0101\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n本任务 T-0101 在 S4-implementation 阶段完成支付网关 G-T-0101-PAYMENT 的集成。\n本次补充单元测试并重新提交，状态为 APPROVED。",
+   "l2": "[CONTEXT SUMMARY L2]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\n## 背景\ntask_id: T-0101\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n本任务 T-0101 在 S4-implementation 阶段完成支付网关 G-T-0101-PAYMENT 的集成。\n本次补充单元测试并重新提交，状态为 APPROVED。",
+   "l3": "[CONTEXT SUMMARY L3]\n- task_ids: T-0101\n- gates: G-T-0101-PAYMENT\n- phases: S4, S5\n- decisions: REJECTED, APPROVED\n## 背景\ntask_id: T-0101\n上一轮评审结论为 REJECTED：证据链缺失 .ai/evidence/T-0101/gate-requirements.md。\n本任务 T-0101 在 S4-implementation 阶段完成支付网关 G-T-0101-PAYMENT 的集成。\n本次补充单元测试并重新提交，状态为 APPROVED。"
+  }
+ },
+ "dir_snapshots": {
+  "loop_core.context_loader": [
+   "Any",
+   "CITATION_LINE_CAP",
+   "CITATION_MAX_CHARS",
+   "CitationResolution",
+   "CitationResolver",
+   "CompressionResult",
+   "ContextCompressor",
+   "ContextLoader",
+   "DEFAULT_BUDGET_TOKENS",
+   "DEFAULT_MAX_SUMMARY_LEVELS",
+   "DEFAULT_MEMORY_LIMIT",
+   "DEFAULT_TRIGGER_RATIO",
+   "DocumentIndex",
+   "Enum",
+   "LoadLevel",
+   "LoadedContext",
+   "MINIMAL_MAX",
+   "Path",
+   "STANDARD_MAX",
+   "UNRESOLVED_MARKER",
+   "_ABBREV_RE",
+   "_CITATION_TOKEN_RE",
+   "_DECISION_RE",
+   "_GATE_ID_RE",
+   "_HEADING_RE",
+   "_KEY_FIELD_LINE_RE",
+   "_PHASE_RE",
+   "_ROUTING_CACHE",
+   "_SENTENCE_SPLIT_RE",
+   "_TASK_ID_RE",
+   "__annotations__",
+   "__builtins__",
+   "__cached__",
+   "__doc__",
+   "__file__",
+   "__loader__",
+   "__name__",
+   "__package__",
+   "__spec__",
+   "_complexity_to_level",
+   "_extract_contract_extras",
+   "_extract_fixed_stance",
+   "_extract_framework_titles",
+   "_find_citation_tokens",
+   "_format_key_fields",
+   "_level_body_cap",
+   "_level_line_params",
+   "_load_section_routing",
+   "_parse_front_matter_yaml",
+   "_parse_yaml",
+   "_select_body_lines",
+   "_select_relevant_sections",
+   "_split_sentences",
+   "_truncate_citation",
+   "_truncate_line",
+   "_validate_budget_params",
+   "annotations",
+   "dataclass",
+   "estimate_tokens",
+   "extract_key_fields",
+   "field",
+   "json",
+   "logger",
+   "logging",
+   "re",
+   "repair_truncated_references",
+   "summarize_text"
+  ],
+  "loop_core.human_review_packet": [
+   "DecisionPoint",
+   "DecisionRequired",
+   "Enum",
+   "HumanReviewPacket",
+   "HumanReviewPacketBuilder",
+   "KeyChoice",
+   "Optional",
+   "PacketType",
+   "Path",
+   "RESUME_PAYLOAD_PRESENTATION_VERSION",
+   "RESUME_PAYLOAD_SCHEMA",
+   "RESUME_PAYLOAD_SCHEMA_VERSION",
+   "ResumeContext",
+   "ResumePayload",
+   "ResumePayloadError",
+   "ResumeSnapshot",
+   "RiskItem",
+   "StateDriftError",
+   "_GATE_RECOVERY_FIELDS",
+   "_TASK_RECOVERY_FIELDS",
+   "__builtins__",
+   "__cached__",
+   "__doc__",
+   "__file__",
+   "__loader__",
+   "__name__",
+   "__package__",
+   "__spec__",
+   "_find_gate",
+   "_find_task",
+   "_format_ts",
+   "_gate_recovery_record",
+   "_load_authoritative_yaml",
+   "_pending_tasks",
+   "_phase_label",
+   "_task_recovery_record",
+   "annotations",
+   "build_resume_payload",
+   "dataclass",
+   "datetime",
+   "field",
+   "resume_from_payload",
+   "timezone"
+  ]
+ },
+ "human_review_packet": {
+  "_extract_key_choices": {
+   "architecture": [
+    {
+     "option_a": "Modular design (doc.md)",
+     "option_b": "Single large program",
+     "question": "How should the system be organised?",
+     "risk_if_wrong": "If the modules are split incorrectly, we may need to reorganise later. This costs time but is still easier than starting from a single large program.",
+     "why_a": "设计文档. A modular design makes it easier to change one part without affecting everything else — like being able to renovate the kitchen without touching the bedroom.",
+     "why_not_b": "A single large program is simpler at first but becomes harder to maintain as the system grows — like a house where every room shares one light switch."
+    }
+   ],
+   "empty": [],
+   "generic": [
+    {
+     "option_a": "Structured, step-by-step approach",
+     "option_b": "Rapid, all-at-once delivery",
+     "question": "How did we approach the Delivery phase?",
+     "risk_if_wrong": "If the order of steps was wrong, we may need to revisit earlier decisions. The cost is usually small at this stage.",
+     "why_a": "We produced r.md and related outputs in a deliberate order so each step builds on the last.",
+     "why_not_b": "Doing everything at once is faster initially but makes it harder to spot and fix problems."
+    }
+   ],
+   "implementation": [
+    {
+     "option_a": "Test each piece independently first",
+     "option_b": "Build everything then test at the end",
+     "question": "How do we ensure each piece works before combining them?",
+     "risk_if_wrong": "If our tests miss something, a bug could reach users. But finding it in isolated testing is much faster to fix.",
+     "why_a": "Testing each piece on its own catches problems early, when they are cheaper and faster to fix — like checking each ingredient before cooking.",
+     "why_not_b": "Testing only at the end means problems pile up and become harder to untangle — like tasting a dish only after everything is mixed together."
+    }
+   ]
+  },
+  "_format_ts": [
+   "2026-08-03 14:30 UTC",
+   "2026-08-03 14:30 UTC",
+   "2026-08-03 14:30 UTC",
+   "2026-08-03 00:00 UTC",
+   "",
+   null,
+   "not-a-date"
+  ],
+  "_phase_label": [
+   "Project Start",
+   "Requirements",
+   "Architecture Design",
+   "Interface Design",
+   "Implementation",
+   "Quality Assurance",
+   "Delivery",
+   "Integration",
+   "Functional Testing",
+   "Fixes and Optimisation",
+   "Performance Testing",
+   "Maintenance",
+   "Unknown Phase",
+   ""
+  ],
+  "_phase_label_none": {
+   "message": "'NoneType' object has no attribute 'replace'",
+   "ok": false,
+   "type": "AttributeError"
+  },
+  "build_failures": {
+   "gate_mismatch": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "gate_missing": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "gate_wrong_task": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "missing_state": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "missing_task_graph": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "phase_mismatch": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "state_not_mapping": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "task_mismatch": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "task_missing": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   },
+   "unparseable_state": {
+    "message": "build_resume_payload() missing 1 required keyword-only argument: 'decision_type'",
+    "ok": false,
+    "type": "TypeError"
+   }
+  },
+  "build_resume_payload_ok": {
+   "generated_at": "<TS>",
+   "recovery": {
+    "gate": {
+     "approval_actor": null,
+     "approval_source": null,
+     "decision": null,
+     "evidence": [],
+     "gate_type": "delivery",
+     "id": "G-T-0110-DELIVERY",
+     "recorded_at": null,
+     "status": "pending",
+     "task_id": "T-0110"
+    },
+    "pending_tasks": [
+     {
+      "id": "T-0110",
+      "priority": "P1",
+      "status": "in_progress",
+      "title": "共同弱点治理"
+     },
+     {
+      "id": "T-0111",
+      "priority": "P2",
+      "status": "pending",
+      "title": "后续治理"
+     }
+    ],
+    "phase": "S6-delivery",
+    "task": {
+     "depends_on": [
+      "T-0109"
+     ],
+     "gates": [
+      "G-T-0110-DELIVERY"
+     ],
+     "id": "T-0110",
+     "note": "五文件拆分",
+     "phase": "S6-delivery",
+     "priority": "P1",
+     "status": "in_progress",
+     "title": "共同弱点治理"
+    }
+   },
+   "schema": "resume_payload",
+   "schema_version": 1,
+   "snapshot": {
+    "context_pointers": [
+     "<ROOT>\\.ai\\state.yaml",
+     "<ROOT>\\.ai\\task_graph.yaml",
+     "<ROOT>\\.ai\\gates.yaml",
+     "<ROOT>\\.ai\\tasks\\T-0110.md",
+     "<ROOT>\\.ai\\evidence\\T-0110"
+    ],
+    "decision_point": {
+     "decision_type": "gate_approval",
+     "packet_id": "HRP-FIXEDID",
+     "presentation_version": 1
+    },
+    "gate_id": "G-T-0110-DELIVERY",
+    "phase": "S6-delivery",
+    "sources": {
+     "gates.yaml": "<ROOT>\\.ai\\gates.yaml",
+     "state.yaml": "<ROOT>\\.ai\\state.yaml",
+     "task_graph.yaml": "<ROOT>\\.ai\\task_graph.yaml"
+    },
+    "task_id": "T-0110"
+   }
+  },
+  "builder_phase": {
+   "decision_required": {
+    "deadline": "3 days from now",
+    "options": [
+     "Approve — move to the next phase",
+     "Request changes — I want something adjusted",
+     "Pause — I need time to think or have other questions"
+    ],
+    "question": "Do you approve moving forward from Delivery?",
+    "recommendation": "We recommend approving and moving forward. All quality checks for Delivery passed, and the outputs match what was planned. If anything looks unclear, choose 'Request changes' and tell us what to adjust."
+   },
+   "evidence_summary": "- All checks passed\n- consistency: ok\n- coverage: ok",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [
+    {
+     "option_a": "Structured, step-by-step approach",
+     "option_b": "Rapid, all-at-once delivery",
+     "question": "How did we approach the Delivery phase?",
+     "risk_if_wrong": "If the order of steps was wrong, we may need to revisit earlier decisions. The cost is usually small at this stage.",
+     "why_a": "We produced architecture.md and related outputs in a deliberate order so each step builds on the last.",
+     "why_not_b": "Doing everything at once is faster initially but makes it harder to spot and fix problems."
+    }
+   ],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "gate_approval",
+   "phase": "S6-delivery",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like leaving the cash register unlocked when the shop is open",
+     "impact": "Unauthorised person could access or change stored information",
+     "likelihood": "High",
+     "mitigation": "All data requests are validated before being sent to storage",
+     "risk": "Unauthorised person could access or change stored information"
+    }
+   ],
+   "task_id": "T-0110",
+   "vetoes": [],
+   "what_changed": "The work from this phase was reviewed by: quality-engineer, security-engineer. Compared to the previous phase, we now have concrete deliverables that you can review directly rather than plans on paper.",
+   "what_we_did": "For your project, we completed the **Delivery** phase. We produced: architecture.md, api-spec.md. Each piece was checked for consistency and completeness. The work is now ready for your review and decision.",
+   "who_reviewed": [
+    "quality-engineer",
+    "security-engineer"
+   ]
+  },
+  "builder_phase_empty": {
+   "decision_required": {
+    "deadline": "3 days from now",
+    "options": [
+     "Approve — move to the next phase",
+     "Request changes — I want something adjusted",
+     "Pause — I need time to think or have other questions"
+    ],
+    "question": "Do you approve moving forward from Architecture Design?",
+    "recommendation": "We recommend approving and moving forward. All quality checks for Architecture Design passed, and the outputs match what was planned. If anything looks unclear, choose 'Request changes' and tell us what to adjust."
+   },
+   "evidence_summary": "- All checks passed",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "gate_approval",
+   "phase": "S2-architecture",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like checking the weather forecast and seeing clear skies",
+     "impact": "Minimal — standard quality checks all passed",
+     "likelihood": "Low",
+     "mitigation": "We ran all standard checks and they passed",
+     "risk": "No major risks identified at this stage"
+    }
+   ],
+   "task_id": "T-0200",
+   "vetoes": [],
+   "what_changed": "We moved from planning to producing concrete deliverables. The outputs from this phase replace the outlines from the previous stage.",
+   "what_we_did": "We completed the **Architecture Design** phase for your project. All required outputs for this stage have been produced and checked.",
+   "who_reviewed": []
+  },
+  "builder_phase_pass_str": {
+   "decision_required": {
+    "deadline": "3 days from now",
+    "options": [
+     "Approve — move to the next phase",
+     "Request changes — I want something adjusted",
+     "Pause — I need time to think or have other questions"
+    ],
+    "question": "Do you approve moving forward from Implementation?",
+    "recommendation": "We recommend approving and moving forward. All quality checks for Implementation passed, and the outputs match what was planned. If anything looks unclear, choose 'Request changes' and tell us what to adjust."
+   },
+   "evidence_summary": "- Checks completed: 3/5\n- a",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [
+    {
+     "option_a": "Test each piece independently first",
+     "option_b": "Build everything then test at the end",
+     "question": "How do we ensure each piece works before combining them?",
+     "risk_if_wrong": "If our tests miss something, a bug could reach users. But finding it in isolated testing is much faster to fix.",
+     "why_a": "Testing each piece on its own catches problems early, when they are cheaper and faster to fix — like checking each ingredient before cooking.",
+     "why_not_b": "Testing only at the end means problems pile up and become harder to untangle — like tasting a dish only after everything is mixed together."
+    }
+   ],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "gate_approval",
+   "phase": "S4-implementation",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like checking the weather forecast and seeing clear skies",
+     "impact": "Minimal — standard quality checks all passed",
+     "likelihood": "Low",
+     "mitigation": "We ran all standard checks and they passed",
+     "risk": "No major risks identified at this stage"
+    }
+   ],
+   "task_id": "T-0300",
+   "vetoes": [],
+   "what_changed": "The work from this phase was reviewed by: r1. Compared to the previous phase, we now have concrete deliverables that you can review directly rather than plans on paper.",
+   "what_we_did": "For your project, we completed the **Implementation** phase. We produced: m1.py. Each piece was checked for consistency and completeness. The work is now ready for your review and decision.",
+   "who_reviewed": [
+    "r1"
+   ]
+  },
+  "builder_veto": {
+   "decision_required": {
+    "deadline": "5 days from now (the team cannot proceed until resolved)",
+    "options": [
+     "Accept the reviewer concerns — revise the work and resubmit",
+     "Override the veto — proceed without changes",
+     "Request more information — I need a clearer explanation",
+     "Escalate to a senior reviewer for a tie-breaking opinion"
+    ],
+    "question": "How should we resolve the disagreement about task T-0400?",
+    "recommendation": "We recommend accepting the reviewer concerns and revising the work. Reviewers are independent and have no stake in the outcome — their concerns usually point to real issues. The cost of revising now is almost always lower than fixing problems after delivery."
+   },
+   "evidence_summary": "- 2 reviewer(s) raised concerns\n- Concern: 证据不完整\n- Concern: 依赖漏洞",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [
+    {
+     "option_a": "Accept the concern and revise the work",
+     "option_b": "Override the concern and proceed as-is",
+     "question": "Disagreement #1: Should we follow quality-engineer's concern?",
+     "risk_if_wrong": "If the reviewer is wrong, we spend time on unnecessary changes. If the reviewer is right and we ignore it, the issue could affect users or require major rework later.",
+     "why_a": "The reviewer believes: 证据不完整. Addressing this now prevents bigger problems later.",
+     "why_not_b": "Ignoring this concern could lead to rework later — potentially more expensive and time-consuming."
+    },
+    {
+     "option_a": "Accept the concern and revise the work",
+     "option_b": "Override the concern and proceed as-is",
+     "question": "Disagreement #2: Should we follow security-engineer's concern?",
+     "risk_if_wrong": "If the reviewer is wrong, we spend time on unnecessary changes. If the reviewer is right and we ignore it, the issue could affect users or require major rework later.",
+     "why_a": "The reviewer believes: 依赖漏洞. Addressing this now prevents bigger problems later.",
+     "why_not_b": "Ignoring this concern could lead to rework later — potentially more expensive and time-consuming."
+    }
+   ],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "veto_escalation",
+   "phase": "S5-quality",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like a traffic light stuck on red — nobody moves until it is fixed",
+     "impact": "No further progress can be made on this task",
+     "likelihood": "Certain — until you decide",
+     "mitigation": "We have prepared clear options for you to choose from",
+     "risk": "The project is blocked until this disagreement is resolved"
+    },
+    {
+     "analogy": "Like buying a house without reading the inspection report",
+     "impact": "You might approve something you later regret",
+     "likelihood": "Medium",
+     "mitigation": "We have explained each reviewer's concern in plain language. Take the time you need.",
+     "risk": "Rushing a decision without understanding the trade-offs"
+    }
+   ],
+   "task_id": "T-0400",
+   "vetoes": [
+    "证据不完整",
+    "依赖漏洞"
+   ],
+   "what_changed": "The review process flagged issues that the team could not resolve on their own. quality-engineer, security-engineer believe the current approach needs reconsideration. This is a normal part of quality control — it means the system caught something worth your attention.",
+   "what_we_did": "We completed work on task **T-0400** and submitted it for review. 2 reviewer(s) raised concerns that blocked the work from moving forward. This means the team cannot proceed without your input.",
+   "who_reviewed": [
+    "quality-engineer",
+    "security-engineer"
+   ]
+  },
+  "builder_veto_empty": {
+   "decision_required": {
+    "deadline": "5 days from now (the team cannot proceed until resolved)",
+    "options": [
+     "Accept the reviewer concerns — revise the work and resubmit",
+     "Override the veto — proceed without changes",
+     "Request more information — I need a clearer explanation",
+     "Escalate to a senior reviewer for a tie-breaking opinion"
+    ],
+    "question": "How should we resolve the disagreement about task T-0500?",
+    "recommendation": "We recommend accepting the reviewer concerns and revising the work. Reviewers are independent and have no stake in the outcome — their concerns usually point to real issues. The cost of revising now is almost always lower than fixing problems after delivery."
+   },
+   "evidence_summary": "- 0 reviewer(s) raised concerns",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "veto_escalation",
+   "phase": "unknown",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like a traffic light stuck on red — nobody moves until it is fixed",
+     "impact": "No further progress can be made on this task",
+     "likelihood": "Certain — until you decide",
+     "mitigation": "We have prepared clear options for you to choose from",
+     "risk": "The project is blocked until this disagreement is resolved"
+    },
+    {
+     "analogy": "Like buying a house without reading the inspection report",
+     "impact": "You might approve something you later regret",
+     "likelihood": "Medium",
+     "mitigation": "We have explained each reviewer's concern in plain language. Take the time you need.",
+     "risk": "Rushing a decision without understanding the trade-offs"
+    }
+   ],
+   "task_id": "T-0500",
+   "vetoes": [],
+   "what_changed": "The review process flagged issues that the team could not resolve on their own.  believe the current approach needs reconsideration. This is a normal part of quality control — it means the system caught something worth your attention.",
+   "what_we_did": "We completed work on task **T-0500** and submitted it for review. 0 reviewer(s) raised concerns that blocked the work from moving forward. This means the team cannot proceed without your input.",
+   "who_reviewed": []
+  },
+  "builder_veto_raw": {
+   "decision_required": {
+    "deadline": "5 days from now (the team cannot proceed until resolved)",
+    "options": [
+     "Accept the reviewer concerns — revise the work and resubmit",
+     "Override the veto — proceed without changes",
+     "Request more information — I need a clearer explanation",
+     "Escalate to a senior reviewer for a tie-breaking opinion"
+    ],
+    "question": "How should we resolve the disagreement about task T-0600?",
+    "recommendation": "We recommend accepting the reviewer concerns and revising the work. Reviewers are independent and have no stake in the outcome — their concerns usually point to real issues. The cost of revising now is almost always lower than fixing problems after delivery."
+   },
+   "evidence_summary": "- 1 reviewer(s) raised concerns\n- Concern: plain string veto",
+   "expires_at": "<TS>",
+   "generated_at": "<TS>",
+   "key_choices": [],
+   "packet_id": "<PACKET_ID>",
+   "packet_type": "veto_escalation",
+   "phase": "unknown",
+   "related_experience": "",
+   "resume_payload": null,
+   "risks": [
+    {
+     "analogy": "Like a traffic light stuck on red — nobody moves until it is fixed",
+     "impact": "No further progress can be made on this task",
+     "likelihood": "Certain — until you decide",
+     "mitigation": "We have prepared clear options for you to choose from",
+     "risk": "The project is blocked until this disagreement is resolved"
+    },
+    {
+     "analogy": "Like buying a house without reading the inspection report",
+     "impact": "You might approve something you later regret",
+     "likelihood": "Medium",
+     "mitigation": "We have explained each reviewer's concern in plain language. Take the time you need.",
+     "risk": "Rushing a decision without understanding the trade-offs"
+    }
+   ],
+   "task_id": "T-0600",
+   "vetoes": [
+    "plain string veto"
+   ],
+   "what_changed": "The review process flagged issues that the team could not resolve on their own. A reviewer believe the current approach needs reconsideration. This is a normal part of quality control — it means the system caught something worth your attention.",
+   "what_we_did": "We completed work on task **T-0600** and submitted it for review. 1 reviewer(s) raised concerns that blocked the work from moving forward. This means the team cannot proceed without your input.",
+   "who_reviewed": [
+    "A reviewer"
+   ]
+  },
+  "constants": {
+   "PacketType_values": [
+    "change_request",
+    "gate_approval",
+    "risk_acceptance",
+    "veto_escalation"
+   ],
+   "RESUME_PAYLOAD_PRESENTATION_VERSION": 1,
+   "RESUME_PAYLOAD_SCHEMA": "resume_payload",
+   "RESUME_PAYLOAD_SCHEMA_VERSION": 1,
+   "ResumePayloadError_mro": [
+    "ResumePayloadError",
+    "Exception",
+    "BaseException",
+    "object"
+   ],
+   "StateDriftError_mro": [
+    "StateDriftError",
+    "ResumePayloadError",
+    "Exception",
+    "BaseException",
+    "object"
+   ]
+  },
+  "model_defaults": {
+   "DecisionPoint": {
+    "decision_type": "gate_approval",
+    "packet_id": null,
+    "presentation_version": 1
+   },
+   "DecisionRequired": {
+    "deadline": null,
+    "options": [
+     "a"
+    ],
+    "question": "q",
+    "recommendation": "rec"
+   },
+   "KeyChoice": {
+    "option_a": "a",
+    "option_b": "b",
+    "question": "q",
+    "risk_if_wrong": "r",
+    "why_a": "w",
+    "why_not_b": "n"
+   },
+   "ResumeContext_defaults": {
+    "context_pointers": [],
+    "decision_point": null,
+    "gate": {},
+    "gate_id": "G",
+    "pending_tasks": [],
+    "phase": "S",
+    "resumed_at": "2026-08-03T00:00:00+00:00",
+    "sources": {},
+    "task": {},
+    "task_id": "T"
+   },
+   "ResumePayload": {
+    "generated_at": "2026-08-03T00:00:00+00:00",
+    "recovery": {},
+    "schema": "resume_payload",
+    "schema_version": 1,
+    "snapshot": {
+     "context_pointers": [],
+     "decision_point": {
+      "decision_type": "x",
+      "packet_id": null,
+      "presentation_version": 1
+     },
+     "gate_id": "G-1",
+     "phase": "S1",
+     "sources": {},
+     "task_id": "T-1"
+    }
+   },
+   "ResumeSnapshot": {
+    "context_pointers": [],
+    "decision_point": {
+     "decision_type": "x",
+     "packet_id": null,
+     "presentation_version": 1
+    },
+    "gate_id": "G-1",
+    "phase": "S1",
+    "sources": {},
+    "task_id": "T-1"
+   },
+   "RiskItem": {
+    "analogy": "an",
+    "impact": "i",
+    "likelihood": "M",
+    "mitigation": "m",
+    "risk": "r"
+   }
+  },
+  "recovery_helpers": {
+   "_find_gate_hit": {
+    "approval_actor": null,
+    "approval_source": null,
+    "decision": null,
+    "evidence": [],
+    "gate_type": "delivery",
+    "id": "G-T-0110-DELIVERY",
+    "recorded_at": null,
+    "status": "pending",
+    "task_id": "T-0110"
+   },
+   "_find_gate_miss": null,
+   "_find_task_hit": {
+    "id": "T-0111",
+    "phase": "S6-delivery",
+    "priority": "P2",
+    "status": "pending",
+    "title": "后续治理"
+   },
+   "_find_task_miss": null,
+   "_gate_recovery_record": {
+    "approval_actor": "user",
+    "approval_source": "ui",
+    "decision": null,
+    "evidence": [],
+    "gate_type": "delivery",
+    "id": "G-1",
+    "recorded_at": "2026-01-01",
+    "status": "pending",
+    "task_id": "T-1"
+   },
+   "_gate_recovery_record_min": {
+    "id": "G"
+   },
+   "_pending_tasks": [
+    {
+     "id": "T-0110",
+     "priority": "P1",
+     "status": "in_progress",
+     "title": "共同弱点治理"
+    },
+    {
+     "id": "T-0111",
+     "priority": "P2",
+     "status": "pending",
+     "title": "后续治理"
+    }
+   ],
+   "_pending_tasks_empty": [],
+   "_task_recovery_record": {
+    "depends_on": [
+     "T-1"
+    ],
+    "gates": [
+     "G-1"
+    ],
+    "id": "T-0110",
+    "note": "n",
+    "phase": "S1",
+    "priority": "P1",
+    "status": "pending",
+    "title": "t"
+   },
+   "_task_recovery_record_min": {
+    "id": "T"
+   }
+  },
+  "render_full": {
+   "markdown": "# Phase Delivery Decision Packet — Delivery\n\n**Packet ID:** HRP-FIXEDID  \n**Generated:** 2026-08-03 00:00 UTC  \n**Decision needed by:** 2026-08-10 00:00 UTC  \n\n## What We Did\n\n我们完成了交付阶段的全部产出并逐项检查。\n\n## What Changed\n\n从计划推进到可评审的具体交付物。\n\n## Key Choices\n\n### 1. How should we store user data?\n\n| We Chose | Did Not Choose | Why |\n|----------|---------------|-----|\n| A cloud-based database | Files saved on the server | Scales with the business |\n\n**Why not the alternative:** Becomes hard to keep consistent\n\n**If we are wrong:** We may need to migrate later\n\n## Main Risks\n\n| Risk | Likelihood | Impact | What We Did |\n|------|-----------|--------|-------------|\n| SQL 注入风险 | High | Unauthorised data access | All data requests are validated |\n\n- **SQL 注入风险** — *Analogy:* Leaving the cash register unlocked\n\n## Quality Check\n\n- All checks passed\n- coverage: +\n\n## Who Reviewed This Work\n\n- quality-engineer\n- security-engineer\n\n## Vetoes Raised\n\n- scope drift detected\n\n## Related Past Experience\n\nPast gate decisions with similar context may help your review:\n\n## 历史教训\n上次同一 gate 因证据缺失被拒。\n\n## You Need to Decide\n\n**Do you approve moving to the delivery phase?**\n\n- [ ] Approve\n- [ ] Request changes\n- [ ] Pause project\n\n**Our recommendation:** We recommend approving.\n\nPlease decide by **3 days from now**. If you have questions, your product manager can walk through each piece with you.",
+   "plain": "PHASE DELIVERY DECISION PACKET — Delivery\nPacket ID: HRP-FIXEDID\nGenerated: 2026-08-03 00:00 UTC\nDecision needed by: 2026-08-10 00:00 UTC\n\nWHAT WE DID\n我们完成了交付阶段的全部产出并逐项检查。\n\nWHAT CHANGED\n从计划推进到可评审的具体交付物。\n\nKEY CHOICES\n  1. How should we store user data?\n     We chose: A cloud-based database\n     Did not choose: Files saved on the server\n     Why: Scales with the business\n     Why not the other: Becomes hard to keep consistent\n     If wrong: We may need to migrate later\n\nMAIN RISKS\n  - SQL 注入风险\n    Likelihood: High\n    Impact: Unauthorised data access\n    Analogy: Leaving the cash register unlocked\n    What we did: All data requests are validated\n\nQUALITY CHECK\n- All checks passed\n- coverage: +\n\nWHO REVIEWED THIS WORK\n  - quality-engineer\n  - security-engineer\n\nVETOES RAISED\n  - scope drift detected\n\nRELATED PAST EXPERIENCE\nPast gate decisions with similar context may help your review:\n\n## 历史教训\n上次同一 gate 因证据缺失被拒。\n\nYOU NEED TO DECIDE\n  Do you approve moving to the delivery phase?\n  [ ] Approve\n  [ ] Request changes\n  [ ] Pause project\n  Recommendation: We recommend approving.\n  Deadline: 3 days from now"
+  },
+  "render_minimal": {
+   "markdown": "# Phase Delivery Decision Packet — Delivery\n\n**Packet ID:** HRP-FIXEDID  \n**Generated:** 2026-08-03 00:00 UTC  \n\n## What We Did\n\n我们完成了交付阶段的全部产出并逐项检查。\n",
+   "plain": "PHASE DELIVERY DECISION PACKET — Delivery\nPacket ID: HRP-FIXEDID\nGenerated: 2026-08-03 00:00 UTC\n\nWHAT WE DID\n我们完成了交付阶段的全部产出并逐项检查。\n"
+  },
+  "render_veto": "# Phase Delivery Decision Packet — Delivery\n\n**Packet ID:** HRP-FIXEDID  \n**Generated:** 2026-08-03 00:00 UTC  \n**Decision needed by:** 2026-08-10 00:00 UTC  \n\n## What We Did\n\n我们完成了交付阶段的全部产出并逐项检查。\n\n## What Changed\n\n从计划推进到可评审的具体交付物。\n\n## Quality Check\n\n- All checks passed\n- coverage: +\n\n## Who Reviewed This Work\n\n- quality-engineer\n- security-engineer\n\n## Vetoes Raised\n\n- scope drift detected\n\n## Related Past Experience\n\nPast gate decisions with similar context may help your review:\n\n## 历史教训\n上次同一 gate 因证据缺失被拒。\n\n## You Need to Decide\n\n**How to resolve?**\n\n- [ ] Accept\n- [ ] Override\n\n**Our recommendation:** Accept",
+  "resume_failures": {
+   "gate_decided": {
+    "message": "状态已漂移 (STATE_DRIFT): gate G-T-0110-DELIVERY 已裁决 (status='approved') — 决策已完成，无需恢复",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "gate_rebound": {
+    "message": "状态已漂移 (STATE_DRIFT): gate G-T-0110-DELIVERY 现绑定 task 'T-OTHER' != payload task_id='T-0110' — 无法恢复",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "gate_removed": {
+    "message": "状态已漂移 (STATE_DRIFT): gates.yaml 中已不存在 gate G-T-0110-DELIVERY — 无法恢复",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "invalid_type": {
+    "message": "无效 resume payload: str",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "no_snapshot": {
+    "message": "无效 resume payload: 缺少 snapshot",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "state_gate_drift": {
+    "message": "状态已漂移 (STATE_DRIFT): state.yaml current_gate_id='G-9999' != payload gate_id='G-T-0110-DELIVERY' — 无法恢复，不猜测",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "state_phase_drift": {
+    "message": "状态已漂移 (STATE_DRIFT): state.yaml current_phase='S5-quality' != payload phase='S6-delivery' — 无法恢复，不猜测",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "state_task_drift": {
+    "message": "状态已漂移 (STATE_DRIFT): state.yaml current_task_id='T-9999' != payload task_id='T-0110' — 无法恢复，不猜测",
+    "ok": false,
+    "type": "StateDriftError"
+   },
+   "task_removed": {
+    "message": "状态已漂移 (STATE_DRIFT): task_graph.yaml 中已不存在任务 T-0110 — 无法恢复",
+    "ok": false,
+    "type": "StateDriftError"
+   }
+  },
+  "resume_from_dict": {
+   "context_pointers": [
+    "<ROOT>\\.ai\\state.yaml",
+    "<ROOT>\\.ai\\task_graph.yaml",
+    "<ROOT>\\.ai\\gates.yaml"
+   ],
+   "decision_point": {
+    "decision_type": "gate_approval",
+    "packet_id": null,
+    "presentation_version": 1
+   },
+   "gate": {
+    "approval_actor": null,
+    "approval_source": null,
+    "decision": null,
+    "evidence": [],
+    "gate_type": "delivery",
+    "id": "G-T-0110-DELIVERY",
+    "recorded_at": null,
+    "status": "pending",
+    "task_id": "T-0110"
+   },
+   "gate_id": "G-T-0110-DELIVERY",
+   "pending_tasks": [
+    {
+     "id": "T-0110",
+     "priority": "P1",
+     "status": "in_progress",
+     "title": "共同弱点治理"
+    },
+    {
+     "id": "T-0111",
+     "priority": "P2",
+     "status": "pending",
+     "title": "后续治理"
+    }
+   ],
+   "phase": "S6-delivery",
+   "resumed_at": "<TS>",
+   "sources": {
+    "gates.yaml": "<ROOT>\\.ai\\gates.yaml",
+    "state.yaml": "<ROOT>\\.ai\\state.yaml",
+    "task_graph.yaml": "<ROOT>\\.ai\\task_graph.yaml"
+   },
+   "task": {
+    "depends_on": [
+     "T-0109"
+    ],
+    "gates": [
+     "G-T-0110-DELIVERY"
+    ],
+    "id": "T-0110",
+    "note": "五文件拆分",
+    "phase": "S6-delivery",
+    "priority": "P1",
+    "status": "in_progress",
+    "title": "共同弱点治理"
+   },
+   "task_id": "T-0110"
+  },
+  "resume_ok": {
+   "context_pointers": [
+    "<ROOT>\\.ai\\state.yaml",
+    "<ROOT>\\.ai\\task_graph.yaml",
+    "<ROOT>\\.ai\\gates.yaml"
+   ],
+   "decision_point": {
+    "decision_type": "gate_approval",
+    "packet_id": null,
+    "presentation_version": 1
+   },
+   "gate": {
+    "approval_actor": null,
+    "approval_source": null,
+    "decision": null,
+    "evidence": [],
+    "gate_type": "delivery",
+    "id": "G-T-0110-DELIVERY",
+    "recorded_at": null,
+    "status": "pending",
+    "task_id": "T-0110"
+   },
+   "gate_id": "G-T-0110-DELIVERY",
+   "pending_tasks": [
+    {
+     "id": "T-0110",
+     "priority": "P1",
+     "status": "in_progress",
+     "title": "共同弱点治理"
+    },
+    {
+     "id": "T-0111",
+     "priority": "P2",
+     "status": "pending",
+     "title": "后续治理"
+    }
+   ],
+   "phase": "S6-delivery",
+   "resumed_at": "<TS>",
+   "sources": {
+    "gates.yaml": "<ROOT>\\.ai\\gates.yaml",
+    "state.yaml": "<ROOT>\\.ai\\state.yaml",
+    "task_graph.yaml": "<ROOT>\\.ai\\task_graph.yaml"
+   },
+   "task": {
+    "depends_on": [
+     "T-0109"
+    ],
+    "gates": [
+     "G-T-0110-DELIVERY"
+    ],
+    "id": "T-0110",
+    "note": "五文件拆分",
+    "phase": "S6-delivery",
+    "priority": "P1",
+    "status": "in_progress",
+    "title": "共同弱点治理"
+   },
+   "task_id": "T-0110"
+  },
+  "serialize": {
+   "decision_point_roundtrip": {
+    "decision_type": "gate_approval",
+    "packet_id": "HRP-FIXEDID",
+    "presentation_version": 1
+   },
+   "from_dict_roundtrip": {
+    "generated_at": "2026-08-03T00:00:00+00:00",
+    "recovery": {
+     "gate": {
+      "id": "G-T-0110-DELIVERY",
+      "status": "pending"
+     },
+     "pending_tasks": [
+      {
+       "id": "T-0111",
+       "status": "pending"
+      }
+     ],
+     "phase": "S6-delivery",
+     "task": {
+      "id": "T-0110",
+      "status": "in_progress"
+     }
+    },
+    "schema": "resume_payload",
+    "schema_version": 1,
+    "snapshot": {
+     "context_pointers": [
+      "<ROOT>/.ai/state.yaml",
+      "<ROOT>/.ai/tasks/T-0110.md"
+     ],
+     "decision_point": {
+      "decision_type": "gate_approval",
+      "packet_id": "HRP-FIXEDID",
+      "presentation_version": 1
+     },
+     "gate_id": "G-T-0110-DELIVERY",
+     "phase": "S6-delivery",
+     "sources": {
+      "state.yaml": "<ROOT>/.ai/state.yaml",
+      "task_graph.yaml": "<ROOT>/.ai/task_graph.yaml"
+     },
+     "task_id": "T-0110"
+    }
+   },
+   "from_json_roundtrip": {
+    "generated_at": "2026-08-03T00:00:00+00:00",
+    "recovery": {
+     "gate": {
+      "id": "G-T-0110-DELIVERY",
+      "status": "pending"
+     },
+     "pending_tasks": [
+      {
+       "id": "T-0111",
+       "status": "pending"
+      }
+     ],
+     "phase": "S6-delivery",
+     "task": {
+      "id": "T-0110",
+      "status": "in_progress"
+     }
+    },
+    "schema": "resume_payload",
+    "schema_version": 1,
+    "snapshot": {
+     "context_pointers": [
+      "<ROOT>/.ai/state.yaml",
+      "<ROOT>/.ai/tasks/T-0110.md"
+     ],
+     "decision_point": {
+      "decision_type": "gate_approval",
+      "packet_id": "HRP-FIXEDID",
+      "presentation_version": 1
+     },
+     "gate_id": "G-T-0110-DELIVERY",
+     "phase": "S6-delivery",
+     "sources": {
+      "state.yaml": "<ROOT>/.ai/state.yaml",
+      "task_graph.yaml": "<ROOT>/.ai/task_graph.yaml"
+     },
+     "task_id": "T-0110"
+    }
+   },
+   "snapshot_roundtrip": {
+    "context_pointers": [
+     "<ROOT>/.ai/state.yaml",
+     "<ROOT>/.ai/tasks/T-0110.md"
+    ],
+    "decision_point": {
+     "decision_type": "gate_approval",
+     "packet_id": "HRP-FIXEDID",
+     "presentation_version": 1
+    },
+    "gate_id": "G-T-0110-DELIVERY",
+    "phase": "S6-delivery",
+    "sources": {
+     "state.yaml": "<ROOT>/.ai/state.yaml",
+     "task_graph.yaml": "<ROOT>/.ai/task_graph.yaml"
+    },
+    "task_id": "T-0110"
+   },
+   "to_dict": {
+    "generated_at": "2026-08-03T00:00:00+00:00",
+    "recovery": {
+     "gate": {
+      "id": "G-T-0110-DELIVERY",
+      "status": "pending"
+     },
+     "pending_tasks": [
+      {
+       "id": "T-0111",
+       "status": "pending"
+      }
+     ],
+     "phase": "S6-delivery",
+     "task": {
+      "id": "T-0110",
+      "status": "in_progress"
+     }
+    },
+    "schema": "resume_payload",
+    "schema_version": 1,
+    "snapshot": {
+     "context_pointers": [
+      "<ROOT>/.ai/state.yaml",
+      "<ROOT>/.ai/tasks/T-0110.md"
+     ],
+     "decision_point": {
+      "decision_type": "gate_approval",
+      "packet_id": "HRP-FIXEDID",
+      "presentation_version": 1
+     },
+     "gate_id": "G-T-0110-DELIVERY",
+     "phase": "S6-delivery",
+     "sources": {
+      "state.yaml": "<ROOT>/.ai/state.yaml",
+      "task_graph.yaml": "<ROOT>/.ai/task_graph.yaml"
+     },
+     "task_id": "T-0110"
+    }
+   },
+   "to_json": "{\n  \"schema\": \"resume_payload\",\n  \"schema_version\": 1,\n  \"generated_at\": \"<TS>\",\n  \"snapshot\": {\n    \"task_id\": \"T-0110\",\n    \"gate_id\": \"G-T-0110-DELIVERY\",\n    \"phase\": \"S6-delivery\",\n    \"decision_point\": {\n      \"decision_type\": \"gate_approval\",\n      \"presentation_version\": 1,\n      \"packet_id\": \"HRP-FIXEDID\"\n    },\n    \"context_pointers\": [\n      \"<ROOT>/.ai/state.yaml\",\n      \"<ROOT>/.ai/tasks/T-0110.md\"\n    ],\n    \"sources\": {\n      \"state.yaml\": \"<ROOT>/.ai/state.yaml\",\n      \"task_graph.yaml\": \"<ROOT>/.ai/task_graph.yaml\"\n    }\n  },\n  \"recovery\": {\n    \"task\": {\n      \"id\": \"T-0110\",\n      \"status\": \"in_progress\"\n    },\n    \"gate\": {\n      \"id\": \"G-T-0110-DELIVERY\",\n      \"status\": \"pending\"\n    },\n    \"phase\": \"S6-delivery\",\n    \"pending_tasks\": [\n      {\n        \"id\": \"T-0111\",\n        \"status\": \"pending\"\n      }\n    ]\n  }\n}"
+  },
+  "serialize_failures": {
+   "bad_json": {
+    "message": "invalid resume payload JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "bad_schema": {
+    "message": "unsupported payload schema: 'other'",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "bad_schema_version": {
+    "message": "unsupported payload schema_version: 99",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "dp_bad_version": {
+    "message": "invalid decision_point: missing 'decision_type' or 'presentation_version'",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "dp_missing_fields": {
+    "message": "invalid decision_point: missing 'decision_type' or 'presentation_version'",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "missing_snapshot": {
+    "message": "invalid resume payload: missing snapshot",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "payload_not_dict": {
+    "message": "invalid resume payload: 'nope'",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "snapshot_bad_dp": {
+    "message": "invalid decision_point: None",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "snapshot_missing_field": {
+    "message": "invalid snapshot: missing 'gate_id'",
+    "ok": false,
+    "type": "ResumePayloadError"
+   },
+   "snapshot_not_dict": {
+    "message": "invalid resume payload: missing snapshot",
+    "ok": false,
+    "type": "ResumePayloadError"
+   }
+  },
+  "translate_technical_risk": {
+   "generic": {
+    "analogy": "Like an unexpected bump in the road — manageable but worth watching",
+    "impact": "May affect system reliability or user experience",
+    "likelihood": "Medium",
+    "mitigation": "We have flagged this for monitoring and will address it if it occurs",
+    "risk": "Potential issue identified: mystery failure mode"
+   },
+   "race_medium": {
+    "analogy": "Like two people trying to book the same flight seat at the same moment",
+    "impact": "Two actions happening at the same time could produce wrong results",
+    "likelihood": "Medium",
+    "mitigation": "We ensure actions that conflict wait their turn",
+    "risk": "Two actions happening at the same time could produce wrong results"
+   },
+   "sql_critical": {
+    "analogy": "Like leaving the cash register unlocked when the shop is open",
+    "impact": "Unauthorised person could access or change stored information",
+    "likelihood": "High",
+    "mitigation": "All data requests are validated before being sent to storage",
+    "risk": "Unauthorised person could access or change stored information"
+   },
+   "truncated": {
+    "analogy": "Like an unexpected bump in the road — manageable but worth watching",
+    "impact": "May affect system reliability or user experience",
+    "likelihood": "Medium",
+    "mitigation": "We have flagged this for monitoring and will address it if it occurs",
+    "risk": "Potential issue identified: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "xss_minor": {
+    "analogy": "Like someone putting up a misleading sign on your shop window",
+    "impact": "Harmful content could appear to other users of the system",
+    "likelihood": "Low",
+    "mitigation": "All user-provided content is checked and cleaned before display",
+    "risk": "Harmful content could appear to other users of the system"
+   }
+  }
+ }
+}

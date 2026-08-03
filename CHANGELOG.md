@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.47 (2026-08-03) — T-0110 — 共同弱点（常量集中 M-1~17 + 5 巨文件行为等价拆分）
+
+### Changed (T-0110 — 共同弱点（常量集中 M-1~17 + 5 巨文件行为等价拆分）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.46 (2026-08-03) — T-0109 — BH 融合·分层期（F2-2 写入收敛/F3 gates 分层/F1 评估模型/F5 工具 capability 化）
 
 ### Changed (T-0109 — BH 融合·分层期（F2-2 写入收敛/F3 gates 分层/F1 评估模型/F5 工具 capability 化）)

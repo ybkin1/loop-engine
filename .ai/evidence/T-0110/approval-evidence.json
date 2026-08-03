@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0110",
+  "gate_id": "G-T-0110-REQUIREMENTS",
+  "gate_type": "user-approval",
+  "status": "approved",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "批准T-0110",
+  "recorded_at": "2026-08-03T18:30:00+08:00",
+  "evidence_type": "approval"
+}

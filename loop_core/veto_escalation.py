@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 
+from loop_core.constants import USER_GATE_MIN_DISTINCT_ROLES
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Enums
@@ -241,8 +243,8 @@ class VetoEscalation:
             )
             return decision
 
-        # ── Rule 2: 3+ distinct roles → USER_GATE ─────────────────────
-        if len(distinct_roles) >= 3:
+        # ── Rule 2: >= USER_GATE_MIN_DISTINCT_ROLES 个不同角色 → USER_GATE ──
+        if len(distinct_roles) >= USER_GATE_MIN_DISTINCT_ROLES:
             decision = self._build_decision(
                 level=EscalationLevel.USER_GATE,
                 reason=(

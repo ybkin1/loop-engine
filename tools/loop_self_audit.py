@@ -37,6 +37,19 @@ from loop_core.llm.anthropic_driver import AnthropicMessagesDriver
 from loop_core.llm.errors import LLMError, LLMKeyError
 from loop_core.llm.openai_driver import OpenAICompatibleDriver
 from loop_core.llm.zcode_config import ResolvedModelConfig, resolve_model_config
+# T-0110 批 A：魔法数字集中（M-2 exit code 族 / M-11 截断族 / D3-8 git 超时）
+from loop_core.constants import (
+    AUDIT_RUN_TIMEOUT_SECONDS,
+    AUDIT_STDERR_TAIL_CHARS,
+    AUDIT_STDOUT_TAIL_CHARS,
+    AUDIT_SUMMARY_STDERR_TAIL_CHARS,
+    AUDIT_SUMMARY_STDOUT_TAIL_CHARS,
+    EXIT_IDLE_BLOCKED,
+    EXIT_OK,
+    EXIT_VALIDATION_FAILED,
+    GIT_SHORT_SHA_TIMEOUT_SECONDS,
+    tail_with_marker,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -74,11 +87,13 @@ USER_PROMPT_TEMPLATE = (
 )
 
 
-def run(cmd: list[str], timeout: int = 300) -> dict:
+def run(cmd: list[str], timeout: int = AUDIT_RUN_TIMEOUT_SECONDS) -> dict:
     try:
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout,
                            cwd=str(PROJECT_ROOT))
-        return {"rc": p.returncode, "stdout": p.stdout[-4000:], "stderr": p.stderr[-2000:]}
+        return {"rc": p.returncode,
+                "stdout": tail_with_marker(p.stdout, AUDIT_STDOUT_TAIL_CHARS),
+                "stderr": tail_with_marker(p.stderr, AUDIT_STDERR_TAIL_CHARS)}
     except subprocess.TimeoutExpired:
         return {"rc": -1, "stdout": "", "stderr": f"TIMEOUT>{timeout}s"}
     except FileNotFoundError:
@@ -86,10 +101,24 @@ def run(cmd: list[str], timeout: int = 300) -> dict:
 
 
 def git_commit() -> str:
-    """Short HEAD sha (seam for tests)."""
-    return subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True,
-        cwd=str(PROJECT_ROOT)).stdout.strip()
+    """Short HEAD sha (seam for tests).
+
+    T-0110 D3-8: git 缺失/挂起时不再 crash —— 补 timeout + 异常兜底返回 ''
+    （与 evals.py git_commit 同款：timeout=GIT_SHORT_SHA_TIMEOUT_SECONDS +
+    OSError/SubprocessError 兜底）。
+    """
+    try:
+        p = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True,
+            cwd=str(PROJECT_ROOT),
+            timeout=GIT_SHORT_SHA_TIMEOUT_SECONDS,
+        )
+        if p.returncode == 0:
+            return p.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return ""
 
 
 def rule_report_path() -> Path:
@@ -135,8 +164,10 @@ def build_llm_summary(results: dict, failed: list) -> dict:
         checks[name] = {
             "rc": r.get("rc"),
             "status": "FAIL" if name in failed else "PASS",
-            "stdout_tail": sanitize_text((r.get("stdout") or "")[-800:]),
-            "stderr_tail": sanitize_text((r.get("stderr") or "")[-400:]),
+            "stdout_tail": sanitize_text(tail_with_marker(
+                r.get("stdout") or "", AUDIT_SUMMARY_STDOUT_TAIL_CHARS)),
+            "stderr_tail": sanitize_text(tail_with_marker(
+                r.get("stderr") or "", AUDIT_SUMMARY_STDERR_TAIL_CHARS)),
         }
     return {
         "checks": checks,
@@ -309,16 +340,18 @@ def main() -> int:
         checks = set(results.keys())
     failed = [k for k, r in results.items()
               if k in checks and r.get("rc", -1) != 0 and k not in ("validate_state",)]
-    # validate_state rc 语义（T-0101 三处约定对齐 0/2/3）：
+    # validate_state rc 语义（T-0101 三处约定对齐 0/2/3，M-2 集中为
+    # loop_core.constants EXIT_OK/EXIT_VALIDATION_FAILED/EXIT_IDLE_BLOCKED）：
     #   0 = state usable（正常）；
     #   2 = 真实治理损坏（fail-closed 阻断，审计层面仍属"工具按预期返回"）；
     #   3 = idle 合法阻塞态（NO_ACTIVE_TASK：current_task_id=null，等待任务发起）。
     # 三者均为合法结果（不是工具自身失败），视为审计 OK；其余 rc 视为失败。
-    if results.get("validate_state", {}).get("rc") not in (0, 2, 3):
+    if results.get("validate_state", {}).get("rc") not in (
+            EXIT_OK, EXIT_VALIDATION_FAILED, EXIT_IDLE_BLOCKED):
         failed.append("validate_state")
     # guard health: rc 0 = PASS, rc 2 = guard broken
     gh = results.get("guard_health", {})
-    if gh.get("rc") == 2:
+    if gh.get("rc") == EXIT_VALIDATION_FAILED:
         failed.append("guard_health")
 
     report = {

@@ -27,6 +27,29 @@ SCRIPTS = Path(__file__).resolve().parent.parent / "hooks" / "scripts"
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PYTHON = sys.executable
 
+# T-0110 批 C: loop_enforcement 行为等价拆分后的 4 个拆分模块——
+# 隔离运行夹具（把 hook 复制到项目树外）必须连同复制，否则壳的
+# re-export 导入会 ModuleNotFoundError（夹具语义不变：仍验证
+# loop_core 缺失时的退化/fallback 路径）。
+_SPLIT_MODULES = (
+    "loop_contract_parser.py",
+    "loop_command_utils.py",
+    "gate_evidence_checks.py",
+    "loop_enforcement_constants.py",
+)
+
+
+def _copy_hook_set(tmp_dir: Path, script_name: str) -> Path:
+    """把 hook 主脚本 + 共享辅助 + T-0110 批 C 拆分模块复制到隔离目录。"""
+    import shutil
+    hook_copy = tmp_dir / script_name
+    shutil.copy(str(SCRIPTS / script_name), str(hook_copy))
+    shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
+    shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
+    for name in _SPLIT_MODULES:
+        shutil.copy(str(SCRIPTS / name), str(tmp_dir / name))
+    return hook_copy
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Helpers
@@ -581,13 +604,8 @@ class RegressionConsistencyTest(unittest.TestCase):
 
     def _run_in_isolation(self, root, hook_input):
         """Run with HardConstraints unavailable by copying hook outside project tree."""
-        import shutil
         tmp_dir = Path(tempfile.mkdtemp())
-        hook_copy = tmp_dir / "loop_enforcement.py"
-        shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
-        shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
-
-        shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
+        hook_copy = _copy_hook_set(tmp_dir, "loop_enforcement.py")
         env = dict(os.environ)
         env["ZCODE_PROJECT_DIR"] = str(root)
         payload = json.dumps(hook_input or {})
@@ -676,13 +694,8 @@ class GracefulDegradationTest(unittest.TestCase):
 
     def _run_loop_enforcement_with_broken_hardconstraints(self, root, hook_input):
         """Run loop_enforcement from a temp location where loop_core can't be found."""
-        import shutil
         tmp_dir = Path(tempfile.mkdtemp())
-        hook_copy = tmp_dir / "loop_enforcement.py"
-        shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
-        shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
-
-        shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
+        hook_copy = _copy_hook_set(tmp_dir, "loop_enforcement.py")
         env = dict(os.environ)
         env["ZCODE_PROJECT_DIR"] = str(root)
         payload = json.dumps(hook_input or {})
@@ -722,7 +735,6 @@ class GracefulDegradationTest(unittest.TestCase):
 
     def test_loop_enforcement_fallback_blocks_out_of_scope(self):
         """Fallback logic still blocks out-of-scope writes when no HardConstraints."""
-        import shutil
         with tempfile.TemporaryDirectory() as tmp_proj:
             root = _make_project(
                 tmp_proj,
@@ -732,11 +744,7 @@ class GracefulDegradationTest(unittest.TestCase):
                 task_files={"T-0001.md": TASK_IN_SCOPE},
             )
             tmp_dir = Path(tempfile.mkdtemp())
-            hook_copy = tmp_dir / "loop_enforcement.py"
-            shutil.copy(str(SCRIPTS / "loop_enforcement.py"), str(hook_copy))
-            shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
-
-            shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
+            hook_copy = _copy_hook_set(tmp_dir, "loop_enforcement.py")
             env = dict(os.environ)
             env["ZCODE_PROJECT_DIR"] = str(root)
             payload = json.dumps(_write_input(str(root / "docs" / "readme.md")))

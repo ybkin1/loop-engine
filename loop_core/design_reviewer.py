@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Any
 
 from loop_core.schemas.finding_contract import mark_schema_status, validate_finding
+from loop_core.constants import SNIPPET_MAX_CHARS, truncate_with_marker
 
 
 @dataclass
@@ -132,7 +133,7 @@ def _check_host_leaks(file_path: Path, source: str) -> list[DesignFinding]:
                     rule_id="DR-001", severity="error",
                     file=rel, line=line_no,
                     message=f"Host-specific import '{host_name}' in loop_core/ — violates host-independence",
-                    snippet=stripped[:100],
+                    snippet=truncate_with_marker(stripped, SNIPPET_MAX_CHARS),
                 ))
 
         for pattern in _HOST_PATH_PATTERNS:
@@ -141,7 +142,7 @@ def _check_host_leaks(file_path: Path, source: str) -> list[DesignFinding]:
                     rule_id="DR-002", severity="error",
                     file=rel, line=line_no,
                     message="Host-specific path in loop_core/ — use HostAdapter injection",
-                    snippet=stripped[:100],
+                    snippet=truncate_with_marker(stripped, SNIPPET_MAX_CHARS),
                 ))
 
     return findings

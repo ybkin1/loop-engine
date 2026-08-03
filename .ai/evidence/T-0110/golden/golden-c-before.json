@@ -1,0 +1,1567 @@
+{
+ "dir_snapshot": [
+  "DEFAULT_CONFIG",
+  "EXIT_BLOCK",
+  "EXIT_PASS",
+  "GOVERNANCE_EXEMPT",
+  "GOVERNANCE_TOOL_DIRS",
+  "MAIN_THREAD_ALLOWED",
+  "MINIMAL_METADATA_READ",
+  "Path",
+  "_AUTO_SYNC_AVAILABLE",
+  "_EvidenceEnvelope",
+  "_HARD_CONSTRAINTS_AVAILABLE",
+  "_HOOK_SHA_WARNED",
+  "_HardConstraints",
+  "_LOADED_HOOK_SHAS",
+  "_PHASE_EVIDENCE_FILES",
+  "_PYTHON_INTERPRETER_RE",
+  "_Phase",
+  "_REEXEC_COUNT_ENV",
+  "_REEXEC_MAX",
+  "_REEXEC_PAYLOAD_ENV",
+  "_SHARED_FRONT_MATTER_PARSER",
+  "_SIDE_EFFECT_CAPABLE",
+  "_Severity",
+  "__annotations__",
+  "__builtins__",
+  "__cached__",
+  "__doc__",
+  "__file__",
+  "__loader__",
+  "__name__",
+  "__package__",
+  "__spec__",
+  "_check_phase_evidence_file",
+  "_command_references_outside",
+  "_front_matter_parser",
+  "_get_file_write_count_file",
+  "_hook_files_changed_since_load",
+  "_import_loop_core_gate",
+  "_increment_file_write_count",
+  "_is_governance_tool_segment",
+  "_is_python_interpreter",
+  "_is_safe_cd_segment",
+  "_is_safe_display_segment",
+  "_load_evidence_envelopes_for_context",
+  "_load_quality_results_for_context",
+  "_load_review_status_for_context",
+  "_msys_to_windows",
+  "_parse_task_front_matter_legacy",
+  "_read_file_write_count",
+  "_read_hook_input",
+  "_read_task_max_files",
+  "_reexec_with_fresh_code",
+  "_script_in_governance_dirs",
+  "_self_review_block_enabled",
+  "_snapshot_hook_file_shas",
+  "_split_command_segments",
+  "_task_mcp_allowed_tools",
+  "auto_sync_to_plugin_cache",
+  "build_hard_constraints_context",
+  "check_delivery_gate_evidence",
+  "check_diff_scope",
+  "check_phase_gate_enforcement",
+  "check_quality_gate_evidence",
+  "check_runtime_quality_gate",
+  "check_second_failure_gate_evidence",
+  "check_security_gate_evidence",
+  "check_slo_gate_evidence",
+  "datetime",
+  "extract_target_path",
+  "hashlib",
+  "importlib",
+  "is_governance_project",
+  "is_governance_tool_command",
+  "is_governance_write",
+  "is_in_task_scope",
+  "is_legacy_synthetic_hook_fixture",
+  "is_loop_mode_enforced",
+  "is_minimal_metadata_read",
+  "is_path_safe",
+  "is_readonly_command",
+  "is_readonly_exempt",
+  "json",
+  "load_config",
+  "load_gates_for_context",
+  "load_phase_gates_for_context",
+  "load_state",
+  "load_task_contract",
+  "load_tasks_for_context",
+  "logger",
+  "logging",
+  "main",
+  "normalize_rel",
+  "os",
+  "project_root",
+  "re",
+  "read_stdin_json",
+  "should_fail_closed",
+  "subprocess",
+  "sys",
+  "tempfile",
+  "timezone",
+  "trace_review_evidence_isolation",
+  "try_import_hard_constraints",
+  "warnings"
+ ],
+ "direct_calls": {
+  "build_hard_constraints_context": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/"
+    ],
+    "current_hashes": {
+     "review-evidence.json": "ba62e00edfdd6c3a216da22fd74c98cd7ad24f07759c22c9db976fb7e0d38fa0"
+    },
+    "current_phase": "S4-implementation",
+    "evidence_list": [
+     {
+      "content_hash": "ba62e00edfdd6c3a216da22fd74c98cd7ad24f07759c22c9db976fb7e0d38fa0",
+      "created_at": "<TS>",
+      "evidence_id": "review-evidence.json",
+      "expires_at": null,
+      "phase": null
+     }
+    ],
+    "gates": {
+     "G-T-0001-ARCHITECTURE": "approved",
+     "G-T-0001-REQUIREMENTS": "approved"
+    },
+    "max_files": 10,
+    "phase_gates": {
+     "S1-requirements": "approved",
+     "S2-architecture": "approved"
+    },
+    "quality_results": {},
+    "review_status": {
+     "findings": [],
+     "independent-reviewer": "PASS"
+    },
+    "root": "<ROOT>",
+    "scan_paths": [
+     "<ROOT>"
+    ],
+    "target_path": "src/main.py",
+    "target_phase": null,
+    "task_id": "T-0001",
+    "tasks": [
+     {
+      "id": "T-0001",
+      "status": "active"
+     }
+    ]
+   }
+  },
+  "check_delivery_gate_evidence_certified": {
+   "ok": true,
+   "value": [
+    true,
+    "交付经理认证状态为 CERTIFIED（last_challenge=2026-08-01）"
+   ]
+  },
+  "check_delivery_gate_evidence_conditional_go_full": {
+   "ok": true,
+   "value": [
+    true,
+    "CONDITIONAL_GO: owners=['a'] deadline=2026-08-10（版本=v3.12.99）"
+   ]
+  },
+  "check_delivery_gate_evidence_conditional_go_incomplete": {
+   "ok": true,
+   "value": [
+    false,
+    "CONDITIONAL_GO 缺少 owners/deadline（版本=v3.12.99）— 发布阻断"
+   ]
+  },
+  "check_delivery_gate_evidence_go": {
+   "ok": true,
+   "value": [
+    true,
+    "交付经理决策：GO（版本=v3.12.99）"
+   ]
+  },
+  "check_delivery_gate_evidence_invalid": {
+   "ok": true,
+   "value": [
+    false,
+    "决策值非法或缺失: 'MAYBE'（版本=v3.12.99，须为 GO/CONDITIONAL_GO/NOGO）— 发布阻断"
+   ]
+  },
+  "check_delivery_gate_evidence_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "缺少 delivery-manager 的 GO/NOGO 决策证据。请运行 delivery-manager 完成发布决策检查：生成 release_decision.json（decision=GO/NOGO）或确保 certifications/state.yaml 中 delivery-manager 已 CERTIFIED。"
+   ]
+  },
+  "check_delivery_gate_evidence_nogo": {
+   "ok": true,
+   "value": [
+    false,
+    "交付经理决策：NOGO（版本=v3.12.99）— 发布阻断"
+   ]
+  },
+  "check_diff_scope_git_failure_not_verified": {
+   "ok": true,
+   "value": [
+    false,
+    "变更范围无法验证（git diff 失败）— NOT_VERIFIED"
+   ]
+  },
+  "check_diff_scope_git_missing_not_verified": {
+   "ok": true,
+   "value": [
+    false,
+    "变更范围无法验证（git 不可用）— NOT_VERIFIED"
+   ]
+  },
+  "check_diff_scope_git_timeout_not_verified": {
+   "message": "TimeoutExpired.__init__() missing 1 required positional argument: 'timeout'",
+   "ok": false,
+   "type": "TypeError"
+  },
+  "check_diff_scope_governance_only_passes": {
+   "ok": true,
+   "value": [
+    true,
+    "git diff 变更均在任务范围内（2 个文件）"
+   ]
+  },
+  "check_diff_scope_no_allowed_paths_skips": {
+   "ok": true,
+   "value": [
+    true,
+    "任务未声明 allowed_paths，跳过 diff 范围检查"
+   ]
+  },
+  "check_diff_scope_no_changes_passes": {
+   "ok": true,
+   "value": [
+    true,
+    "无未提交变更"
+   ]
+  },
+  "check_diff_scope_non_git_skips": {
+   "ok": true,
+   "value": [
+    true,
+    "非 git 仓库，跳过 diff 范围检查"
+   ]
+  },
+  "check_diff_scope_out_of_scope_files_blocks": {
+   "ok": true,
+   "value": [
+    true,
+    "git diff 变更均在任务范围内（1 个文件）"
+   ]
+  },
+  "check_quality_gate_evidence_empty_overall": {
+   "ok": true,
+   "value": [
+    false,
+    "quality_report.json 存在但 'overall' 字段为空。quality-engineer 报告不完整，请重新运行质量门禁。"
+   ]
+  },
+  "check_quality_gate_evidence_fabricated": {
+   "ok": true,
+   "value": [
+    false,
+    "证据真实性校验失败 — 以下检查声称 PASS 但实际未成功执行：lint: command 'lint' exited 127 but claimed PASS; lint: command 'lint' unavailable (exit 127) but claimed PASS。请重新运行质量门禁并确保所有工具可用。"
+   ]
+  },
+  "check_quality_gate_evidence_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "缺少 quality-engineer 的结构化输出：.ai/evidence/quality/quality_report.json 不存在。请运行 quality-engineer 质量门禁检查（run_quality_gates.py）并生成 quality_report.json。"
+   ]
+  },
+  "check_quality_gate_evidence_pass": {
+   "ok": true,
+   "value": [
+    true,
+    "质量证据已通过（overall=PASS，证据真实性校验通过）"
+   ]
+  },
+  "check_quality_gate_evidence_unparsable": {
+   "ok": true,
+   "value": [
+    false,
+    "quality_report.json 无法解析：Expecting property name enclosed in double quotes: line 1 column 2 (char 1)。请重新运行 quality-engineer 生成有效报告。"
+   ]
+  },
+  "check_runtime_quality_gate_fail": {
+   "ok": true,
+   "value": [
+    false,
+    "运行时质量门未通过：overall=FAIL，阻断项：b1。诊断：D1: cause-1。修复所有阻断项后重新运行 runtime_delivery_gate.py。"
+   ]
+  },
+  "check_runtime_quality_gate_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "缺少运行时质量门报告：runtime_quality_report.json 不存在。请运行 scripts/runtime_delivery_gate.py 生成运行时质量检查报告。"
+   ]
+  },
+  "check_runtime_quality_gate_pass": {
+   "ok": true,
+   "value": [
+    true,
+    "运行时质量门通过（overall=PASS）"
+   ]
+  },
+  "check_security_gate_evidence_blocked": {
+   "ok": true,
+   "value": [
+    false,
+    "安全审计 verdict=BLOCKED：存在阻断级安全缺陷"
+   ]
+  },
+  "check_security_gate_evidence_md_blocked": {
+   "ok": true,
+   "value": [
+    false,
+    "安全工程师报告中包含 BLOCKED 判定"
+   ]
+  },
+  "check_security_gate_evidence_md_fallback": {
+   "ok": true,
+   "value": [
+    true,
+    "安全工程师报告存在且无 BLOCKED 判定"
+   ]
+  },
+  "check_security_gate_evidence_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "S5/S6 需要安全审计证据：.ai/evidence/security/security_audit.json 不存在，且 .ai/evidence/{task_id}/phase-3/security-engineer-report.md 不存在。"
+   ]
+  },
+  "check_security_gate_evidence_pass": {
+   "ok": true,
+   "value": [
+    true,
+    "安全审计证据已通过（verdict=PASS）"
+   ]
+  },
+  "command_references_outside_flags_only": {
+   "ok": true,
+   "value": false
+  },
+  "command_references_outside_inside": {
+   "ok": true,
+   "value": false
+  },
+  "command_references_outside_no_path": {
+   "ok": true,
+   "value": false
+  },
+  "command_references_outside_none": {
+   "ok": true,
+   "value": false
+  },
+  "command_references_outside_outside_abs": {
+   "ok": true,
+   "value": true
+  },
+  "command_references_outside_outside_rel": {
+   "ok": true,
+   "value": true
+  },
+  "constants": {
+   "EXIT_BLOCK": 2,
+   "EXIT_PASS": 0,
+   "GOVERNANCE_EXEMPT": [
+    ".ai/gates.yaml",
+    ".ai/state.yaml",
+    ".ai/task_graph.yaml",
+    ".ai/HANDOFF.md",
+    ".ai/PROGRESS.md",
+    ".ai/project_continuity.yaml",
+    ".zcode/config.json"
+   ],
+   "GOVERNANCE_TOOL_DIRS": [
+    ".zcode/tools/",
+    ".ai/checkers/",
+    ".ai/guards/",
+    "scripts/",
+    "hooks/",
+    "tools/"
+   ],
+   "MAIN_THREAD_ALLOWED": [
+    ".ai/evidence/",
+    ".ai/tasks/",
+    ".ai/certifications/"
+   ],
+   "MINIMAL_METADATA_READ": [
+    ".ai/state.yaml",
+    ".ai/gates.yaml",
+    ".ai/task_graph.yaml",
+    ".ai/HANDOFF.md",
+    ".ai/PROGRESS.md",
+    ".ai/project_continuity.yaml",
+    ".ai/transaction_registry.yaml",
+    ".ai/tasks/",
+    ".ai/evidence/",
+    ".ai/schemas/",
+    ".ai/certifications/",
+    ".ai/runtime/",
+    ".ai/checkers/",
+    ".ai/guards/",
+    "AGENTS.md",
+    ".zcode/config.json",
+    ".zcode/tools/",
+    ".zcode/skills/",
+    "loop_core/",
+    "hooks/",
+    "tools/",
+    "agents/",
+    "tests/"
+   ],
+   "_AUTO_SYNC_AVAILABLE": true,
+   "_HARD_CONSTRAINTS_AVAILABLE": true,
+   "_REEXEC_COUNT_ENV": "LOOP_ENFORCEMENT_REEXEC_COUNT",
+   "_REEXEC_MAX": 1,
+   "_REEXEC_PAYLOAD_ENV": "LOOP_ENFORCEMENT_REEXEC_PAYLOAD"
+  },
+  "file_write_count_after_increments": {
+   "ok": true,
+   "value": 2
+  },
+  "file_write_count_missing_is_zero": {
+   "ok": true,
+   "value": 0
+  },
+  "file_write_count_path": {
+   "ok": true,
+   "value": "<ROOT>/.ai/evidence/T-0001/file_write_count.json"
+  },
+  "front_matter_parser_available": {
+   "ok": true,
+   "value": true
+  },
+  "front_matter_parser_parse_sample": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/"
+    ],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__a"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "import_loop_core_gate_slo_gate": {
+   "ok": true,
+   "value": "loop_core.slo_gate"
+  },
+  "increment_file_write_count_first": {
+   "ok": true,
+   "value": 1
+  },
+  "increment_file_write_count_second": {
+   "ok": true,
+   "value": 2
+  },
+  "is_governance_tool_command_abs_inside_root": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_abs_outside_root": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_cd_msys_compound": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_cd_outside_root": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_exempt_direct_dot": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_direct_exec": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_py3": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python311": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_ai_checkers": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_ai_guards": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_close_session": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_hooks": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_repair": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_scripts": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_tools": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_python_zcode_tools": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_exempt_quoted_script": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_no_root_cd": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_arbitrary_script": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_bash_interp": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_cd_inside_tools": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_compound_redirect": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_compound_rm": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_dash_script": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_tool_command_not_empty": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_none": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_php": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_python_c": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_python_m": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_python_version_only": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_not_sh_interp": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_tool_command_pytest_display": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_write_business": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_write_evidence_sub": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_gates_yaml": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_handoff": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_none": {
+   "ok": true,
+   "value": false
+  },
+  "is_governance_write_project_continuity": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_state_yaml": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_tasks_sub": {
+   "ok": true,
+   "value": true
+  },
+  "is_governance_write_zcode_config": {
+   "ok": true,
+   "value": true
+  },
+  "is_in_task_scope_docs_out": {
+   "ok": true,
+   "value": false
+  },
+  "is_in_task_scope_empty_allowed": {
+   "ok": true,
+   "value": false
+  },
+  "is_in_task_scope_no_contract": {
+   "ok": true,
+   "value": false
+  },
+  "is_in_task_scope_none": {
+   "ok": true,
+   "value": false
+  },
+  "is_in_task_scope_src_exact": {
+   "ok": true,
+   "value": true
+  },
+  "is_in_task_scope_tests_dot_slash": {
+   "ok": true,
+   "value": true
+  },
+  "is_in_task_scope_zcode_tools_dot": {
+   "ok": true,
+   "value": true
+  },
+  "is_legacy_synthetic_hook_fixture_marker": {
+   "ok": true,
+   "value": true
+  },
+  "is_legacy_synthetic_hook_fixture_unset": {
+   "ok": true,
+   "value": false
+  },
+  "is_loop_mode_enforced_corrupt_state_fail_closed": {
+   "ok": true,
+   "value": true
+  },
+  "is_loop_mode_enforced_full": {
+   "ok": true,
+   "value": true
+  },
+  "is_loop_mode_enforced_lightweight": {
+   "ok": true,
+   "value": false
+  },
+  "is_loop_mode_enforced_standard": {
+   "ok": true,
+   "value": true
+  },
+  "is_loop_mode_enforced_unset": {
+   "ok": true,
+   "value": false
+  },
+  "is_minimal_metadata_read_agents_md": {
+   "ok": true,
+   "value": true
+  },
+  "is_minimal_metadata_read_business": {
+   "ok": true,
+   "value": false
+  },
+  "is_minimal_metadata_read_business_sub": {
+   "ok": true,
+   "value": false
+  },
+  "is_minimal_metadata_read_evidence_dir": {
+   "ok": true,
+   "value": true
+  },
+  "is_minimal_metadata_read_evidence_sub": {
+   "ok": true,
+   "value": true
+  },
+  "is_minimal_metadata_read_loop_core": {
+   "ok": true,
+   "value": true
+  },
+  "is_minimal_metadata_read_state_yaml": {
+   "ok": true,
+   "value": true
+  },
+  "is_minimal_metadata_read_tasks_dir": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_bash": {
+   "ok": true,
+   "value": false
+  },
+  "is_python_interpreter_exe": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_node": {
+   "ok": true,
+   "value": false
+  },
+  "is_python_interpreter_py": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_python": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_python312": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_python3_11": {
+   "ok": true,
+   "value": true
+  },
+  "is_python_interpreter_win_path": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_cd_segment_cd_dash": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_cd_msys": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_cd_no_target": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_cd_outside": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_cd_root": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_cd_segment_cd_tilde": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_no_root": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_not_cd": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_cd_segment_pushd_root": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_display_segment_cat": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_display_segment_echo": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_display_segment_empty": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_display_segment_grep": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_display_segment_head": {
+   "ok": true,
+   "value": true
+  },
+  "is_safe_display_segment_python_display": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_display_segment_rm": {
+   "ok": true,
+   "value": false
+  },
+  "is_safe_display_segment_tail": {
+   "ok": true,
+   "value": true
+  },
+  "legacy_parse_allowed_actions": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/"
+    ],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [],
+    "reviewer_agent_id": null
+   }
+  },
+  "legacy_parse_inline": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__a",
+     "mcp__b"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "legacy_parse_list": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__a",
+     "mcp__b"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "legacy_parse_table": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__a"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "load_evidence_envelopes_for_context": {
+   "ok": true,
+   "value": [
+    [
+     {
+      "content_hash": "ba62e00edfdd6c3a216da22fd74c98cd7ad24f07759c22c9db976fb7e0d38fa0",
+      "created_at": "<TS>",
+      "evidence_id": "review-evidence.json",
+      "expires_at": null,
+      "phase": null
+     }
+    ],
+    {
+     "review-evidence.json": "ba62e00edfdd6c3a216da22fd74c98cd7ad24f07759c22c9db976fb7e0d38fa0"
+    }
+   ]
+  },
+  "load_evidence_envelopes_for_context_empty": {
+   "ok": true,
+   "value": [
+    [],
+    {}
+   ]
+  },
+  "load_quality_results_for_context": {
+   "ok": true,
+   "value": {}
+  },
+  "load_review_status_for_context_found": {
+   "ok": true,
+   "value": {
+    "findings": [],
+    "independent-reviewer": "PASS"
+   }
+  },
+  "load_review_status_for_context_none": {
+   "ok": true,
+   "value": {}
+  },
+  "load_task_contract_inline": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/"
+    ],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__node_repl__js",
+     "mcp__foo__bar"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "load_task_contract_missing_file": {
+   "ok": true,
+   "value": null
+  },
+  "load_task_contract_plain": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/",
+     "tests/"
+    ],
+    "developer_agent_id": "agent-001",
+    "mcp_allowed_tools": [],
+    "reviewer_agent_id": "agent-002"
+   }
+  },
+  "load_task_contract_table": {
+   "ok": true,
+   "value": {
+    "allowed_paths": [
+     "src/"
+    ],
+    "developer_agent_id": null,
+    "mcp_allowed_tools": [
+     "mcp__node_repl__js"
+    ],
+    "reviewer_agent_id": null
+   }
+  },
+  "msys_to_windows_drive": {
+   "ok": true,
+   "value": "C:/Users/x"
+  },
+  "msys_to_windows_msys": {
+   "ok": true,
+   "value": "C:/Users/Administrator/x"
+  },
+  "msys_to_windows_plain": {
+   "ok": true,
+   "value": "relative/path"
+  },
+  "msys_to_windows_root_slash": {
+   "ok": true,
+   "value": "/x"
+  },
+  "phase_evidence_file_fail_status": {
+   "ok": true,
+   "value": [
+    false,
+    "S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json。详情：.ai/evidence/T-0001/integration-report.json overall=FAIL 非 PASS（fail-closed）"
+   ]
+  },
+  "phase_evidence_file_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json。详情：.ai/evidence/T-0001/integration-report.json 不存在"
+   ]
+  },
+  "phase_evidence_file_no_regression": {
+   "ok": true,
+   "value": [
+    false,
+    "S8-functional-test 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/regression/baseline.json。详情：.ai/evidence/regression/baseline.json overall=None 非 PASS（fail-closed）"
+   ]
+  },
+  "phase_evidence_file_no_task_id": {
+   "ok": true,
+   "value": [
+    false,
+    "S7-integration 阶段证据缺失：state 中没有 current_task_id，无法定位阶段报告。"
+   ]
+  },
+  "phase_evidence_file_pass": {
+   "ok": true,
+   "value": [
+    true,
+    "S7-integration 阶段证据已通过（.ai/evidence/T-0001/integration-report.json overall=PASS）"
+   ]
+  },
+  "phase_evidence_file_verdict_fallback": {
+   "ok": true,
+   "value": [
+    true,
+    "S7-integration 阶段证据已通过（.ai/evidence/T-0001/integration-report.json overall=PASS）"
+   ]
+  },
+  "phase_gate_empty_phase": {
+   "ok": true,
+   "value": [
+    true,
+    ""
+   ]
+  },
+  "phase_gate_s4_config_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "当前阶段需要质量门禁配置，但 .zcode/skills/loop-governance/config.yaml 不存在。请运行 /loop-onboard 初始化项目，或手动创建质量门禁配置。"
+   ]
+  },
+  "phase_gate_s5_full_evidence": {
+   "ok": true,
+   "value": [
+    true,
+    "安全审计证据已通过（verdict=PASS）"
+   ]
+  },
+  "phase_gate_s5_no_evidence": {
+   "ok": true,
+   "value": [
+    false,
+    "缺少 quality-engineer 的结构化输出：.ai/evidence/quality/quality_report.json 不存在。请运行 quality-engineer 质量门禁检查（run_quality_gates.py）并生成 quality_report.json。"
+   ]
+  },
+  "phase_gate_s6_slo_disabled": {
+   "ok": true,
+   "value": [
+    true,
+    "S6 delivery + runtime quality + security + SLO + second-failure gates passed (SLO 门禁通过：slo gate disabled by config/env (LOOP_SLO_GATE_ENABLED or slo_gate.enabled=false) — advisory-only mode, no block applied; Second-failure 门禁通过：second-failure gate disabled by config/env (LOOP_SECOND_FAILURE_GATE_ENABLED or second_failure_gate.enabled=true required) — advisory-only mode, no block applied)"
+   ]
+  },
+  "phase_gate_s6_slo_missing_sources": {
+   "ok": true,
+   "value": [
+    false,
+    "SLO 门禁阻断：data insufficient (fail-closed): cannot determine the error budget — missing or unparseable required source(s): gates register (.ai/gates.yaml): gates register missing: <ROOT>/.ai/gates.yaml; task graph (.ai/task_graph.yaml): task graph missing: <ROOT>/.ai/task_graph.yaml; guard events (.ai/evidence/observability/guard-events.jsonl): guard events missing: <ROOT>/.ai/evidence/observability/guard-events.jsonl"
+   ]
+  },
+  "phase_gate_s7_missing": {
+   "ok": true,
+   "value": [
+    false,
+    "S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json; .ai/evidence/integration/integration_report.json。详情：.ai/evidence/T-0001/integration-report.json 不存在; .ai/evidence/integration/integration_report.json 不存在"
+   ]
+  },
+  "phase_gate_s7_present": {
+   "ok": true,
+   "value": [
+    true,
+    "S7-integration 阶段证据已通过（.ai/evidence/T-0001/integration-report.json overall=PASS）"
+   ]
+  },
+  "phase_gate_unknown_phase": {
+   "ok": true,
+   "value": [
+    true,
+    ""
+   ]
+  },
+  "read_task_max_files_absent": {
+   "ok": true,
+   "value": null
+  },
+  "read_task_max_files_malformed": {
+   "ok": true,
+   "value": null
+  },
+  "read_task_max_files_present": {
+   "ok": true,
+   "value": 1
+  },
+  "read_task_max_files_zero": {
+   "ok": true,
+   "value": 0
+  },
+  "script_in_governance_dirs_abs_without_root": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_ai_checkers": {
+   "ok": true,
+   "value": true
+  },
+  "script_in_governance_dirs_dash_option": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_dot_slash": {
+   "ok": true,
+   "value": true
+  },
+  "script_in_governance_dirs_empty": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_hooks_dir": {
+   "ok": true,
+   "value": true
+  },
+  "script_in_governance_dirs_not_py": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_outside": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_plain_name": {
+   "ok": true,
+   "value": false
+  },
+  "script_in_governance_dirs_scripts_dir": {
+   "ok": true,
+   "value": true
+  },
+  "script_in_governance_dirs_zcode_tools": {
+   "ok": true,
+   "value": true
+  },
+  "second_failure_gate_evidence_default_disabled": {
+   "ok": true,
+   "value": [
+    true,
+    "Second-failure 门禁通过：second-failure gate disabled by config/env (LOOP_SECOND_FAILURE_GATE_ENABLED or second_failure_gate.enabled=true required) — advisory-only mode, no block applied"
+   ]
+  },
+  "self_review_block_enabled_default": {
+   "ok": true,
+   "value": true
+  },
+  "self_review_block_opt_out": {
+   "ok": true,
+   "value": false
+  },
+  "self_review_block_standard_mode": {
+   "ok": true,
+   "value": false
+  },
+  "slo_gate_evidence_disabled": {
+   "ok": true,
+   "value": [
+    true,
+    "SLO 门禁通过：slo gate disabled by config/env (LOOP_SLO_GATE_ENABLED or slo_gate.enabled=false) — advisory-only mode, no block applied"
+   ]
+  },
+  "slo_gate_evidence_missing_sources": {
+   "ok": true,
+   "value": [
+    false,
+    "SLO 门禁阻断：data insufficient (fail-closed): cannot determine the error budget — missing or unparseable required source(s): gates register (.ai/gates.yaml): gates register missing: <ROOT>/.ai/gates.yaml; task graph (.ai/task_graph.yaml): task graph missing: <ROOT>/.ai/task_graph.yaml; guard events (.ai/evidence/observability/guard-events.jsonl): guard events missing: <ROOT>/.ai/evidence/observability/guard-events.jsonl"
+   ]
+  },
+  "split_command_segments_chain_and": {
+   "ok": true,
+   "value": [
+    "a ",
+    " b"
+   ]
+  },
+  "split_command_segments_chain_or": {
+   "ok": true,
+   "value": [
+    "a ",
+    " b"
+   ]
+  },
+  "split_command_segments_chain_semicolon": {
+   "ok": true,
+   "value": [
+    "cd /x",
+    " git status"
+   ]
+  },
+  "split_command_segments_empty": {
+   "ok": true,
+   "value": []
+  },
+  "split_command_segments_newline": {
+   "ok": true,
+   "value": [
+    "a",
+    "b"
+   ]
+  },
+  "split_command_segments_none": {
+   "ok": true,
+   "value": []
+  },
+  "split_command_segments_quoted": {
+   "ok": true,
+   "value": [
+    "python \".zcode/tools/validate_state.py\" ."
+   ]
+  },
+  "split_command_segments_quotes_inner_semicolon": {
+   "ok": true,
+   "value": [
+    "echo \"a;b\""
+   ]
+  },
+  "split_command_segments_simple": {
+   "ok": true,
+   "value": [
+    "python .zcode/tools/validate_state.py ."
+   ]
+  },
+  "split_command_segments_single_quotes": {
+   "ok": true,
+   "value": [
+    "echo 'x | y'"
+   ]
+  },
+  "task_mcp_allowed_tools_inline": {
+   "ok": true,
+   "value": [
+    "mcp__node_repl__js",
+    "mcp__foo__bar"
+   ]
+  },
+  "task_mcp_allowed_tools_missing_file": {
+   "ok": true,
+   "value": []
+  },
+  "task_mcp_allowed_tools_none": {
+   "ok": true,
+   "value": []
+  },
+  "task_mcp_allowed_tools_table": {
+   "ok": true,
+   "value": [
+    "mcp__node_repl__js"
+   ]
+  },
+  "trace_review_evidence_isolation_distinct": {
+   "ok": true,
+   "value": false
+  },
+  "trace_review_evidence_isolation_no_dir": {
+   "ok": true,
+   "value": false
+  },
+  "trace_review_evidence_isolation_no_task": {
+   "ok": true,
+   "value": false
+  },
+  "trace_review_evidence_isolation_opt_out_trace": {
+   "ok": true,
+   "value": false
+  },
+  "trace_review_evidence_isolation_self_review_blocks": {
+   "ok": true,
+   "value": true
+  }
+ },
+ "hook_entry_matrix": {
+  "c11_first_write_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stdout": ""
+  },
+  "c11_second_write_blocks_limit": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: Task 'T-0001' has reached its file write limit (1/1 files written). Update the task contract's max_files or split the task.\n",
+   "stdout": ""
+  },
+  "full_no_task_blocks_business_write": {
+   "rc": 2,
+   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "full_task_in_scope_write_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stdout": ""
+  },
+  "full_task_out_of_scope_write_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: Path 'docs/readme.md' is outside allowed scope\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "git_commit_exempt_with_task": {
+   "rc": 0,
+   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stdout": ""
+  },
+  "git_local_op_with_task_passes": {
+   "rc": 0,
+   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stdout": ""
+  },
+  "governance_evidence_exempt": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "governance_gates_yaml_exempt": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "governance_handoff_exempt": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "governance_state_yaml_exempt": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "governance_task_graph_exempt": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "governance_tool_compound_main_session_passes": {
+   "rc": 0,
+   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stdout": ""
+  },
+  "governance_tool_compound_with_write_segment_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stdout": ""
+  },
+  "governance_tool_outside_target_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Target 'C:/Windows/Temp/evil.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
+   "stdout": ""
+  },
+  "governance_tool_python_c_snippet_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stdout": ""
+  },
+  "governance_tool_validate_state_passes": {
+   "rc": 0,
+   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stdout": ""
+  },
+  "legacy_synthetic_fixture_uses_task_scope": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stdout": ""
+  },
+  "lightweight_write_anywhere": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "mcp_in_allowlist_with_identity": {
+   "rc": 2,
+   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "mcp_no_task_blocks_dispatch_required": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: mcp__node_repl__js; MCP side-effect tools require an active task (DISPATCH_REQUIRED)\n",
+   "stdout": ""
+  },
+  "mcp_not_in_allowlist_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: mcp__ tool mcp__node_repl__js not in task T-0001 allowed list\n",
+   "stdout": ""
+  },
+  "non_governance_project_write": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "orchestration_agent_no_target_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: DISPATCH_REQUIRED: Agent/Skill/Task orchestration allowed; no execution takeover evidence; this is not a dispatch receipt\n",
+   "stdout": ""
+  },
+  "read_no_task_business_file_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Read tool without active task. Only governance metadata reads (.ai/*, AGENTS.md, .zcode/*) are allowed. Target: src/main.py\n",
+   "stdout": ""
+  },
+  "read_no_task_governance_metadata_passes": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "read_only_external_read_passes": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "readonly_bash_no_task_exploration_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Readonly Bash command without active task. Project-level exploration requires a task. Command: grep -r TODO src/\n",
+   "stdout": ""
+  },
+  "readonly_bash_no_task_gov_ref_passes": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "runtime_projection_governance_recovery_controller_passes": {
+   "rc": 0,
+   "stderr": "",
+   "stdout": ""
+  },
+  "runtime_projection_governance_write_controller_only_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED by RuntimeController: GOVERNANCE_CONTROLLER_ONLY\n",
+   "stdout": ""
+  },
+  "runtime_projection_missing_setup_incomplete": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stdout": ""
+  },
+  "runtime_projection_valid_identity_missing_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: IDENTITY_REQUIRED; runtime projection requires caller identity\n",
+   "stdout": ""
+  },
+  "s11_no_evidence_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S11-maintenance 需要门禁证据，但证据不完整。S11-maintenance 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/maintenance-report.json。详情：.ai/evidence/T-0001/maintenance-report.json 不存在\n",
+   "stdout": ""
+  },
+  "s4_baselines_without_review_blocks_c6": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "s4_no_baselines_blocks_c1c2c6": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "s5_quality_no_security_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。S5/S6 需要安全审计证据：.ai/evidence/security/security_audit.json 不存在，且 .ai/evidence/{task_id}/phase-3/security-engineer-report.md 不存在。\n",
+   "stdout": ""
+  },
+  "s5_quality_with_security_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stdout": ""
+  },
+  "s5_security_verdict_blocked_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。安全审计 verdict=BLOCKED：存在阻断级安全缺陷\n",
+   "stdout": ""
+  },
+  "s6_slo_disabled_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stdout": ""
+  },
+  "s6_slo_sources_missing_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S6-delivery 需要门禁证据，但证据不完整。SLO 门禁阻断：data insufficient (fail-closed): cannot determine the error budget — missing or unparseable required source(s): gates register (.ai/gates.yaml): gates register missing: <ROOT>/.ai/gates.yaml; task graph (.ai/task_graph.yaml): task graph missing: <ROOT>/.ai/task_graph.yaml; guard events (.ai/evidence/observability/guard-events.jsonl): guard events missing: <ROOT>/.ai/evidence/observability/guard-events.jsonl\n",
+   "stdout": ""
+  },
+  "s7_no_evidence_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S7-integration 需要门禁证据，但证据不完整。S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json; .ai/evidence/integration/integration_report.json。详情：.ai/evidence/T-0001/integration-report.json 不存在; .ai/evidence/integration/integration_report.json 不存在\n",
+   "stdout": ""
+  },
+  "s7_with_integration_report_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stdout": ""
+  },
+  "s8_regression_baseline_no_regression_passes": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stdout": ""
+  },
+  "self_review_evidence_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[HOOK_LOGGER] WARNING: BLOCKED: SELF_REVIEW evidence detected (reviewer==developer session) for task T-0001 — independent review required\n",
+   "stdout": ""
+  },
+  "self_review_opt_out_trace_only": {
+   "rc": 0,
+   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stdout": ""
+  },
+  "standard_no_task_blocks": {
+   "rc": 2,
+   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
+   "stdout": ""
+  },
+  "write_outside_project_root_blocks": {
+   "rc": 2,
+   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Target '<ROOT>/outside.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
+   "stdout": ""
+  }
+ },
+ "public_names": [
+  "DEFAULT_CONFIG",
+  "EXIT_BLOCK",
+  "EXIT_PASS",
+  "GOVERNANCE_EXEMPT",
+  "GOVERNANCE_TOOL_DIRS",
+  "MAIN_THREAD_ALLOWED",
+  "MINIMAL_METADATA_READ",
+  "Path",
+  "auto_sync_to_plugin_cache",
+  "build_hard_constraints_context",
+  "check_delivery_gate_evidence",
+  "check_diff_scope",
+  "check_phase_gate_enforcement",
+  "check_quality_gate_evidence",
+  "check_runtime_quality_gate",
+  "check_second_failure_gate_evidence",
+  "check_security_gate_evidence",
+  "check_slo_gate_evidence",
+  "datetime",
+  "extract_target_path",
+  "hashlib",
+  "importlib",
+  "is_governance_project",
+  "is_governance_tool_command",
+  "is_governance_write",
+  "is_in_task_scope",
+  "is_legacy_synthetic_hook_fixture",
+  "is_loop_mode_enforced",
+  "is_minimal_metadata_read",
+  "is_path_safe",
+  "is_readonly_command",
+  "is_readonly_exempt",
+  "json",
+  "load_config",
+  "load_gates_for_context",
+  "load_phase_gates_for_context",
+  "load_state",
+  "load_task_contract",
+  "load_tasks_for_context",
+  "logger",
+  "logging",
+  "main",
+  "normalize_rel",
+  "os",
+  "project_root",
+  "re",
+  "read_stdin_json",
+  "should_fail_closed",
+  "subprocess",
+  "sys",
+  "tempfile",
+  "timezone",
+  "trace_review_evidence_isolation",
+  "try_import_hard_constraints",
+  "warnings"
+ ]
+}

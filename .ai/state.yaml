@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T21:22:18.475985+08:00'
+last_handoff_at: '2026-08-04T00:29:26.697468+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -152,3 +152,8 @@ notes:
   双证）+ F5 工具 capability （36/36 注册表 + 6 薄壳消除逐字节等价 + dashboard/证据链合并 + 白名单注释级同步）， 8/8
   AC，独立审查 CONDITIONAL_GO→GO（P1 DR-002 宿主路径注入化修复），全量 4048 passed （3 项已登记瞬态），hooks/
   仅白名单一处、内核零触碰、零工具删除（10 项候选留档待独立 gate）， bump 3.12.46 提交推送。T-0110（常量集中+巨文件拆分）待用户批准。'
+- 'T-0110 COMPLETED 2026-08-03: 共同弱点 — 常量集中（26 常量 + P3 消解 D2-3~7/D1-5/6/8/ D3-6/8/D4-9）+
+  5 巨文件行为等价拆分（loop_enforcement 2115→1052 壳 + governance_metrics 1508→612 + intent_router
+  1484→965 + human_review_packet 1307→643 + context_loader 1432→839），三批 golden 逐字节一致（425,977/66,082/49,858
+  B）+ 自愈 re-exec 实测 （恰一次判定一致）+ hook 套件 1273 passed 0 failed，6/6 AC，独立审查 GO（P0/P1/P2=0），
+  全量 4138 passed（5 项已登记/瞬态），hooks/ 仅批 C 五文件、内核零触碰、零删除， bump 3.12.47 提交推送。T-0111（修复器治理+终态审计）待用户批准。'

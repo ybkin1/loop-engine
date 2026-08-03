@@ -1,0 +1,138 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0110-35690624
+task_id: T-0110
+gate_id: G-T-0110-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0110
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0110/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: A2DA56F235C3E3C01A41EE0C4C3F8AA9D4351C7F60AE6BF6A54326DB750C9308
+  size: 3953
+  mtime_ns: 1785774335787056200
+- path: .ai/evidence/T-0110/approval-evidence.json
+  role: result
+  required: true
+  sha256: C4A51935EE233EFE5DE8C051FE31756BA2E474C5CF807A846CF80BBEC8924F11
+  size: 306
+  mtime_ns: 1785767918821801500
+- path: .ai/evidence/T-0110/commands.md
+  role: result
+  required: true
+  sha256: 6E6D10487514BCD27CF19E56A1E243C9AE7C3677D70BD7CD9E773B654E51A1DC
+  size: 24152
+  mtime_ns: 1785773658989446600
+- path: .ai/evidence/T-0110/compile-evidence.json
+  role: result
+  required: true
+  sha256: 480E2D839E92F9630D36BC44669F8B39EB79860BA88AD0B7221079AEC90D3461
+  size: 181
+  mtime_ns: 1785767948166229500
+- path: .ai/evidence/T-0110/execution-evidence.json
+  role: result
+  required: true
+  sha256: BD5AB6066AB3DF2ABC4E82A97C23A58DBCA4CF201D0CAAE64BB071E16EC2C6E2
+  size: 995
+  mtime_ns: 1785767918844805300
+- path: .ai/evidence/T-0110/fixes/batch-a-constants.md
+  role: result
+  required: true
+  sha256: BC8D97DD83CB625AD5DB103D0B287A43E9837BE31138A2095778171EA1116A39
+  size: 10610
+  mtime_ns: 1785769060919748800
+- path: .ai/evidence/T-0110/fixes/batch-b1-metrics-intent.md
+  role: result
+  required: true
+  sha256: B056847E19F0868393BC8823A2BAB53269A693B08EF23715947863D472238BEE
+  size: 13306
+  mtime_ns: 1785770166584849700
+- path: .ai/evidence/T-0110/fixes/batch-b2-review-loader.md
+  role: result
+  required: true
+  sha256: CDE6795FF4D58CBE49573C36F05BE553964FA06863C9343031CF3C98E6E7A0F1
+  size: 15028
+  mtime_ns: 1785771396321732300
+- path: .ai/evidence/T-0110/fixes/batch-c-enforcement.md
+  role: result
+  required: true
+  sha256: B3CB0641B68F9C86C6CD6E42272942F2FFBD4B1C41AC58F41EC249D0256B7110
+  size: 16095
+  mtime_ns: 1785773635215927600
+- path: .ai/evidence/T-0110/golden/dir-baseline-c.json
+  role: result
+  required: true
+  sha256: B5C9D5C9A6D045125ACB28D684C89AC8A7C8287C51DF8666036DAB01C199C3DF
+  size: 2520
+  mtime_ns: 1785771782646729800
+- path: .ai/evidence/T-0110/golden/generate_golden.py
+  role: result
+  required: true
+  sha256: F53B77D9E600844E33BA79CF0520FA97D5D4F97B9A152F8AAF8010B77F1FBDEC
+  size: 2075
+  mtime_ns: 1785769525006681700
+- path: .ai/evidence/T-0110/golden/generate_golden_b2.py
+  role: result
+  required: true
+  sha256: 4138A3D8A676BC5187140B78D6D03554083F821145425A2F690E15E6D02D31A5
+  size: 2483
+  mtime_ns: 1785771138393566200
+- path: .ai/evidence/T-0110/golden/generate_golden_c.py
+  role: result
+  required: true
+  sha256: 102A0C184BAEAF3F72604781B6DBCA9A12D512F67B9EBBD388B36706A760482D
+  size: 1536
+  mtime_ns: 1785772159551203700
+- path: .ai/evidence/T-0110/golden/golden-after.json
+  role: result
+  required: true
+  sha256: A55433F2504031E079CA7FB154CF83FB9E2C75421EA85CD7AE13025E3CCC3FFE
+  size: 425977
+  mtime_ns: 1785769997974058900
+- path: .ai/evidence/T-0110/golden/golden-b2-after.json
+  role: result
+  required: true
+  sha256: C372A466F9967C804B0A77312579807031FA35C14CD1D4175B40B3752B017431
+  size: 66082
+  mtime_ns: 1785771173709427500
+- path: .ai/evidence/T-0110/golden/golden-b2-before.json
+  role: result
+  required: true
+  sha256: C372A466F9967C804B0A77312579807031FA35C14CD1D4175B40B3752B017431
+  size: 66082
+  mtime_ns: 1785770986913901600
+- path: .ai/evidence/T-0110/golden/golden-before.json
+  role: result
+  required: true
+  sha256: A55433F2504031E079CA7FB154CF83FB9E2C75421EA85CD7AE13025E3CCC3FFE
+  size: 425977
+  mtime_ns: 1785769549596393700
+- path: .ai/evidence/T-0110/golden/golden-c-after.json
+  role: result
+  required: true
+  sha256: 47E105CE5D23BBF3EAA56E130F13BA64134FA68F2653E64DC4C457E87270CA61
+  size: 49858
+  mtime_ns: 1785773246041696700
+- path: .ai/evidence/T-0110/golden/golden-c-before.json
+  role: result
+  required: true
+  sha256: 47E105CE5D23BBF3EAA56E130F13BA64134FA68F2653E64DC4C457E87270CA61
+  size: 49858
+  mtime_ns: 1785772484530938300
+- path: .ai/evidence/T-0110/review/independent-review.md
+  role: result
+  required: true
+  sha256: 1DD20ADEF550105896E93C797C8B82308F632CD07AC6220DF97FA358A7FE9FFE
+  size: 13660
+  mtime_ns: 1785774310545662100
+file_count: 20
+total_bytes: 1190734
+ordered_entries_sha256: 356906248E07BC53CAA27A4EC27AF5555DA762F49563684971A57807928AF186
+created_at: '2026-08-03T20:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: 5BC8237890C7DD5505C0BAFC57E2A3B2490A1BC838E059B9B967DA5EE6743E65
