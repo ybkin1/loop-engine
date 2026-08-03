@@ -1213,6 +1213,19 @@ tasks:
       - T-0106
     gates:
       - G-T-0107-REQUIREMENTS
+  -
+    id: T-0112
+    title: Qoder 会话源恢复与可比较观察窗口
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      修复 session-source-disabled：恢复 Qoder/Better Harness 会话证据源，
+      逐项诊断 5 个 source roots，导入至少两个可比较 Task Episode，并重新评审
+      任务理解、可控执行、改动验证、可靠交付与经验沉淀；不伪造证据、不放宽评分。
+    depends_on:
+      - T-0107
+    gates:
+      - G-T-0112-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

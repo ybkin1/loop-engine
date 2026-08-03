@@ -5585,3 +5585,50 @@ gates:
   exit_criteria:
   - user explicitly approves, rejects, or requests repair of this gate
   - hook files other than the two scoped edits remain unmodified during T-0107
+
+- id: G-T-0112-REQUIREMENTS
+  task_id: T-0112
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-03T00:00:00+08:00'
+  requested_by: ai
+  recorded_at: '2026-08-03T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0112
+  approval_evidence: .ai/evidence/T-0112/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0112/execution-evidence.json
+  scope: >-
+    修复 session-source-disabled：恢复 Qoder/Better Harness 会话证据源，诊断 5 个 source roots，
+    导入至少两个可比较 Task Episode，并重新评审受影响维度；不伪造证据、不放宽评分。
+  allowed_paths:
+  - .ai/tasks/T-0112.md
+  - .ai/evidence/T-0112/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/KNOWN_ISSUES.md
+  - .qoder/better-harness/
+  forbidden_actions:
+  - 伪造或篡改 Task Episode/session/evidenceRefs/评分
+  - 修改 Loop 治理内核、gate 判定或 fail-closed 安全语义
+  - 放宽评分上限
+  - 安装或启用未经单独 gate 批准的 skill/MCP/agent/automation/protocol
+  - 处理密钥、权限、生产数据、部署、发布、数据库或迁移
+  - 在 T-0112 中实施 T-0107/T-0108 代码重构
+  evidence_required:
+  - .ai/evidence/T-0112/commands.md
+  - .ai/evidence/T-0112/source-root-health-report.json
+  - .ai/evidence/T-0112/session-fact-collection.json
+  - .ai/evidence/T-0112/episode-comparison.json
+  - .ai/evidence/T-0112/reevaluation-report.md
+  - .ai/evidence/T-0112/review/independent-review.md
+  - .ai/evidence/T-0112/acceptance/acceptance-report.md
+  exit_criteria:
+  - eligibleSessions > 0
+  - disabled-source-root 无未解释实例
+  - 至少两个可比较 Task Episode 且 evidenceRefs 非空
+  - 用户批准的范围内完成独立审查与验收

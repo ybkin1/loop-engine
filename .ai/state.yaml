@@ -1,11 +1,13 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: null
-current_gate_id: null
+current_task_id: T-0112
+current_gate_id: G-T-0112-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-03T13:45:42.579104+08:00'
+last_handoff_at: '2026-08-03T13:49:26.960750+08:00'
 notes:
+- 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
+  Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
 - 'T-0106 REGISTERED 2026-08-03: Better Harness 融合与 LE 去臃肿升级（总设计 + 全仓库漏洞排查， candidate-only）。G-T-0106-REQUIREMENTS
   pending，待用户批准。范围：批 1 设计漏洞排查（只读） + 批 2 BH 融合方案（8 特性模块级）+ 批 3 共同弱点方案 + 批 4 任务排布 T-0107~T-0111；
   仅 .ai/ 写入，hook 0 改动、内核 0 触碰、无产品代码变更。'

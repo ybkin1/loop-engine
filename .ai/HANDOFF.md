@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "9A22F0170A4FBB8A5FD2FBCCFF9778250575CE83A763D1033EB348749D996304",
+  "persisted_file_sha256": "D0498F04F3E611290AA6515F0C8791BAE727F676F872E34CC21FE1239519356E",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "647C6C15BDBCB8A2A489A6215B51D7E0E8AB819A9D0FDF7ECF5A367EA56ECA0D",
+  "source_sha256": "FF5F674A35ED99B317DE4ABA541D4469D8FE443FCB4F82E4AA8615611E1CAEA8",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,14 +93,18 @@ S6-delivery
 
 ## Current Task
 
-none
+T-0112
 
-Status: `unknown`
+Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: none
+active_gate: G-T-0112-REQUIREMENTS
+active_gate_status: approved / in_progress
+
+current_gate_id is null because no pending decision is required.
+G-T-0112-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -121,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0107/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0112/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -130,7 +134,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-USER_DECISION_REQUIRED
+CONTINUE_APPROVED_EXECUTION
 
 ## Startup Prompt
 
@@ -171,13 +175,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": null,
-  "approved_execution_status": null,
-  "current_gate_id": null,
-  "current_task_id": null,
-  "current_task_status": null,
+  "approved_execution_gate_id": "G-T-0112-REQUIREMENTS",
+  "approved_execution_status": "in_progress",
+  "current_gate_id": "G-T-0112-REQUIREMENTS",
+  "current_task_id": "T-0112",
+  "current_task_status": "in_progress",
   "lifecycle_revision": 0,
-  "next_action": "USER_DECISION_REQUIRED",
+  "next_action": "CONTINUE_APPROVED_EXECUTION",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```
