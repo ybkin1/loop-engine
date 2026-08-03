@@ -19,6 +19,13 @@
 - Role isolation is enforced: developer != reviewer, each role via isolated Agent call.
 - Bash command interception is NOT available via ZCode hooks — enforcement level is honestly MEDIUM.
 
+## Completion Flow Conventions
+
+- T-0105 B-4-3 (evidence-manifest 时序约定): 主会话收尾顺序固定为——先创建/重生成
+  evidence-manifest（create-only）→ 再更新 HANDOFF 中的 manifest 引用 → 最后才跑
+  `test_manifest_t0095`。HANDOFF 引用先于清单生成会导致 `test_manifest_t0095`
+  暂时失败（悬挂引用），属时序错误而非清单缺陷；按本约定执行可避免该时序失败复现。
+
 ## Open Contract Questions
 
 - T-0022~T-0030 completed the full S0~S6 lifecycle. Project is at S6-delivery.

@@ -1,0 +1,12 @@
+{
+  "scenario_id": "S6",
+  "scenario_name": "交付检查",
+  "task_card_text": "目标：发布前按交付清单逐项检查，输出检查报告与放行建议。\n受众：发布负责人（将据此决定是否放行）。\n边界：仅清单核对与报告；不执行发布、不修改配置。\n格式：Markdown 检查报告，每项：状态（通过/不通过/待确认）+ 证据。\n验收标准：AC-1 清单覆盖构建/测试/部署三项；AC-2 每项附证据路径；AC-3 报告给出明确放行/不放行结论。",
+  "seed_blind_spots": [
+    {"id": "S6-1", "keyword": "回滚", "consequence_expected": "回滚路径真实可用未验证——发布失败时无法回滚=事故"},
+    {"id": "S6-2", "keyword": "监控", "consequence_expected": "监控告警覆盖未验证——发布后问题无告警=延迟发现"},
+    {"id": "S6-3", "keyword": "备份", "consequence_expected": "数据备份验证未执行——数据损坏时无备份可恢复"},
+    {"id": "S6-4", "keyword": "漂移", "consequence_expected": "文档与实际配置漂移未核对——按文档排障失败"},
+    {"id": "S6-5", "keyword": "验收环境", "consequence_expected": "验收环境与生产差异未确认——环境差异导致线上行为不一致"}
+  ]
+}

@@ -41,6 +41,19 @@ class Complexity(str, Enum):
     HIGH = "HIGH"
 
 
+class TaskType(str, Enum):
+    """Task kind in a plan draft. Prototype tasks are Q4 low-cost artifacts."""
+    STANDARD = "standard"
+    PROTOTYPE = "prototype"
+
+
+class PrototypeForm(str, Enum):
+    """The three low-cost prototype shapes (D-02 Q4, P2-2)."""
+    HTML_MOCK = "html_mock"
+    CLI_DEMO = "cli_demo"
+    DATA_SAMPLE = "data_sample"
+
+
 @dataclass
 class TaskDraft:
     """A single task in a plan draft (not yet registered)."""
@@ -52,6 +65,8 @@ class TaskDraft:
     estimated_complexity: Complexity = Complexity.MEDIUM
     priority: str = "P2"
     depends_on_plan_index: list[int] = field(default_factory=list)
+    task_type: str = TaskType.STANDARD.value
+    prototype_form: str = ""
 
 
 @dataclass
@@ -96,6 +111,8 @@ class PlanDraft:
                     "estimated_complexity": t.estimated_complexity.value,
                     "priority": t.priority,
                     "depends_on_plan_index": t.depends_on_plan_index,
+                    "task_type": t.task_type,
+                    "prototype_form": t.prototype_form,
                 }
                 for t in self.tasks
             ],
@@ -188,6 +205,84 @@ class Planner:
         draft = self.get(plan_id)
         draft.status = PlanStatus.APPROVED
         draft.updated_at = datetime.now(timezone.utc).isoformat()
+        self._save(draft)
+        return draft
+
+    # -- Q4 low-cost prototype ---------------------------------------------
+
+    # Prototype tasks live in the interface phase: a mock/demo/data sample
+    # is most valuable right before implementation, when the user still
+    # has room to change direction based on something concrete.
+    PROTOTYPE_PHASE = "S3-interface"
+
+    PROTOTYPE_FORM_DESCRIPTIONS = {
+        PrototypeForm.HTML_MOCK: "HTML mock（静态可点击页面，无后端）",
+        PrototypeForm.CLI_DEMO: "CLI demo（命令行演示脚本，覆盖主流程）",
+        PrototypeForm.DATA_SAMPLE: "数据样本（示例数据 + 结构说明）",
+    }
+
+    def generate_prototype(
+        self,
+        title: str,
+        description: str,
+        requirement_id: str | None = None,
+        prototype_form: PrototypeForm | str = PrototypeForm.HTML_MOCK,
+    ) -> PlanDraft:
+        """Generate a low-cost prototype plan draft (Q4).
+
+        A prototype task is intentionally cheap, iterative and NOT a
+        complete implementation — it exists so a user who "cannot say
+        what they want but can judge it when they see it" can react to
+        something concrete before the full build is committed
+        (D-02 Q4 / P2-2, minimal landing).
+
+        Args:
+            title: Prototype display title.
+            description: What the prototype should demonstrate.
+            requirement_id: Optional linked requirement.
+            prototype_form: One of html_mock / cli_demo / data_sample.
+
+        Returns:
+            A PlanDraft containing a single ``prototype`` task. The draft
+            is READ-ONLY — it must be approved via a plan-approval Gate
+            before any task is registered in task_graph.yaml.
+        """
+        if not description.strip():
+            raise PlannerError("Description must not be empty")
+        form = (
+            prototype_form
+            if isinstance(prototype_form, PrototypeForm)
+            else PrototypeForm(prototype_form)
+        )
+        form_desc = self.PROTOTYPE_FORM_DESCRIPTIONS[form]
+        plan_id = self._next_plan_id()
+
+        task = TaskDraft(
+            title=f"[{self.PROTOTYPE_PHASE}] 原型：{title}（{form.value}）",
+            description=(
+                f"低成本原型：{form_desc}。目的：让用户看到/试用可交互形态后做取舍判断，"
+                f"不追求完整实现。需求背景：{description}"
+            ),
+            phase=self.PROTOTYPE_PHASE,
+            acceptance_criteria=[
+                f"原型以{form_desc}形态交付，用户可查看/运行",
+                "低成本可迭代：单轮原型投入不超过原任务估算的 20%，不追求完整实现",
+                "原型随 gate-request 呈现，含'选择后反馈'字段，用户选择理由被记录",
+                "原型产出记录在 .ai/evidence/{task_id}/prototype/",
+            ],
+            suggested_roles=["developer"],
+            estimated_complexity=Complexity.LOW,
+            priority="P2",
+            task_type=TaskType.PROTOTYPE.value,
+            prototype_form=form.value,
+        )
+        draft = PlanDraft(
+            plan_id=plan_id,
+            requirement_id=requirement_id or "",
+            tasks=[task],
+            edges=[],
+            estimated_phases=[self.PROTOTYPE_PHASE],
+        )
         self._save(draft)
         return draft
 
@@ -385,6 +480,8 @@ class Planner:
                 estimated_complexity=Complexity(t.get("estimated_complexity", "MEDIUM")),
                 priority=t.get("priority", "P2"),
                 depends_on_plan_index=t.get("depends_on_plan_index", []),
+                task_type=t.get("task_type", TaskType.STANDARD.value),
+                prototype_form=t.get("prototype_form", ""),
             )
             for t in data.get("tasks", [])
         ]

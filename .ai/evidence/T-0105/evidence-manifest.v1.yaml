@@ -1,0 +1,96 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0105-22C9A737
+task_id: T-0105
+gate_id: G-T-0105-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0105
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0105/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: E356C99FB81990CA92D5B5C29F0EF91EB321B107DDC6662483B03F8C012B057D
+  size: 4766
+  mtime_ns: 1785728236780433900
+- path: .ai/evidence/T-0105/approval-evidence.json
+  role: result
+  required: true
+  sha256: 16B0AD19C96A5AF90A4EF012E05AFA4E031084EDCB4BC04D62FC6A3A61E35D2C
+  size: 300
+  mtime_ns: 1785724241868665900
+- path: .ai/evidence/T-0105/commands.md
+  role: result
+  required: true
+  sha256: A656DA7F7F40F3AD96BE89AE2AD3284476C34808E6818C2B99C3F91A24C16B7D
+  size: 13189
+  mtime_ns: 1785726613516618900
+- path: .ai/evidence/T-0105/compile-evidence.json
+  role: result
+  required: true
+  sha256: 22D91174F8ECD8962534DC5E190C6FF3B007260D5C16BE702D6F8F8C96B0358E
+  size: 181
+  mtime_ns: 1785724247683296100
+- path: .ai/evidence/T-0105/design/eval-experiment-report.md
+  role: result
+  required: true
+  sha256: B7F81B7C53E3A7DE96F7B73B2E495D684BEAD909B0355F5A38DB765937B79093
+  size: 9514
+  mtime_ns: 1785726593313042000
+- path: .ai/evidence/T-0105/design/q4-prototype-design.md
+  role: result
+  required: true
+  sha256: CA8E0A198C499D9F71B591C1EFEE8645C628B822F9A0D326F09C45798EF01D5D
+  size: 6600
+  mtime_ns: 1785725608373675600
+- path: .ai/evidence/T-0105/execution-evidence.json
+  role: result
+  required: true
+  sha256: BF5B80888A9573F3C0B71FB9A1DB70ED4D1077106AEAC95A2B24FAEA8193139F
+  size: 1026
+  mtime_ns: 1785724241891663300
+- path: .ai/evidence/T-0105/fixes/batch1-doc.md
+  role: result
+  required: true
+  sha256: 615B6FDC2BB046B09B88F0BEE28008DE4E297F12C1C7AF563CFC7B1D70E3CB6C
+  size: 3758
+  mtime_ns: 1785725250961796800
+- path: .ai/evidence/T-0105/fixes/batch2-p3.md
+  role: result
+  required: true
+  sha256: 5D6B31F7C847AB67343576FFE23A9F8B40413CD1F3E5E3AEC112A3B897CF73B5
+  size: 6830
+  mtime_ns: 1785725268073215100
+- path: .ai/evidence/T-0105/fixes/batch3-q2q4.md
+  role: result
+  required: true
+  sha256: F5467091308947DD11340119C2BF2A81C8BE54B902F32DD5B8080C4028D8F555
+  size: 7210
+  mtime_ns: 1785725768393543700
+- path: .ai/evidence/T-0105/fixes/batch4-sync-eval.md
+  role: result
+  required: true
+  sha256: C01889511BFA1D985988F9985070CB778E0A5BB468D820521CC1540EEC05D954
+  size: 9698
+  mtime_ns: 1785727065653766500
+- path: .ai/evidence/T-0105/fixes/verify_ai_decision_ledger_path.py
+  role: result
+  required: true
+  sha256: A803317CC0D1A540A963906A7DA709FBE4E16323F3E47B925B3088BAB93143F7
+  size: 3468
+  mtime_ns: 1785726303216410200
+- path: .ai/evidence/T-0105/review/independent-review.md
+  role: result
+  required: true
+  sha256: 5043B2306E9CB357ACE7C62ED3CBD89FD7355E8807640FF0AA741E8B1816414D
+  size: 19089
+  mtime_ns: 1785728162721104000
+file_count: 13
+total_bytes: 85629
+ordered_entries_sha256: 22C9A7377DFCA3CE48D43FD96B37942D5BFE5D143F4CFF5F924FA8F787563B88
+created_at: '2026-08-03T12:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: 9B3AB421F2718FC4BDB3D0B79ABAE5897DE5D60836094F3D06B4460317997833

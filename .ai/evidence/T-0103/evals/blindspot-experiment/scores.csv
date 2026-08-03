@@ -1,0 +1,13 @@
+output,group,scenario,D1_hits,D1_ge3,D2_conseq,D3_missed,D4_confirm_count,D4_in_range,chars
+A-S1-1.md,A,S1,4,True,True,1,3,True,541
+A-S2-1.md,A,S2,4,True,True,1,3,True,538
+A-S4-1.md,A,S4,3,True,True,2,2,True,487
+A-S5-1.md,A,S5,4,True,True,1,3,True,513
+A-S6-1.md,A,S6,4,True,True,1,3,True,473
+B-S1-1.md,B,S1,0,False,False,5,0,False,277
+B-S2-1.md,B,S2,0,False,False,5,0,False,258
+B-S4-1.md,B,S4,0,False,False,5,0,False,290
+B-S5-1.md,B,S5,0,False,False,5,0,False,265
+B-S6-1.md,B,S6,0,False,False,5,0,False,248
+calibration/calib-high.md,calib-high,S1,5,True,True,0,3,True,612
+calibration/calib-low.md,calib-low,S1,0,False,False,5,0,False,167

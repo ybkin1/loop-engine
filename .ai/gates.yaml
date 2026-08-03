@@ -5355,3 +5355,144 @@ gates:
   exit_criteria:
   - user explicitly approves, rejects, or requests repair of this gate
   - hook files and governance kernel zero modification during T-0104
+- id: G-T-0105-REQUIREMENTS
+  task_id: T-0105
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-02T21:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-02T21:30:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准
+  approval_evidence: .ai/evidence/T-0105/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0105/execution-evidence.json
+  scope: >-
+    T-0105 Loop 工程收尾修复包：批 1 文档漂移（finding 状态/KNOWN_ISSUES/
+    HANDOFF-NEXT/T-0102 任务卡）+ 批 2 T-0104 P3 四项（召回过滤/配置校验/
+    时序约定/读盘缓存）+ 批 3 Q2 多轮提问与 Q4 原型机制（设计→落地）+
+    批 4 安装副本同步与 eval 最小实验；hook 强制层 0 改动、治理内核 0 触碰；
+    版本 bump 3.12.43。
+  allowed_paths:
+  - .ai/
+  - skills/loop-governance/
+  - .zcode/skills/loop-governance/
+  - agents/
+  - loop_core/
+  - tools/
+  - tests/
+  - docs/
+  - USER-PROMPTS.md
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify loop_core governance kernel (gate_guard/enforcement/hard_constraints/guard_health/state_machine/validate_state/context_loader defaults)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 批 1~批 4 批次证据（fixes/batchN-*.md）
+  - eval 实验报告（两组对照 + 成功/失败信号）
+  - hooks/ 与内核零改动 git diff 证据
+  - R11 语义微调兼容测试
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.43 == git HEAD)
+  - acceptance evidence
+  validation_required:
+  - validate_state.py must report the pending gate blocker after gate registration
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hook files and governance kernel zero modification during T-0105
+- id: G-T-0106-REQUIREMENTS
+  task_id: T-0106
+  gate_type: user-approval
+  status: blocked
+  execution_status: deferred
+  decision: deferred
+  requested_at: '2026-08-03T11:20:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-03T11:25:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 先收尾 T-0105 再开 T-0106（暂缓，任务卡与 gate 保持登记；T-0105 收尾完成后由用户重新批准）
+  scope: >-
+    T-0106 Better Harness 融合与 LE 去臃肿升级 — 总设计 + 全仓库漏洞排查
+    （candidate-only）：批 1 全仓库设计漏洞排查（截断/魔法值/无界操作/静默吞错，
+    只读审计不改码）+ 批 2 BH 融合详细方案（评估模型/单一数据源/gates 分层/
+    按需加载/工具 capability 化/上下文打包/契约测试，模块级）+ 批 3 共同弱点
+    优化方案（巨模块拆分/魔法数字集中化/修复器治理）+ 批 4 整合任务排布
+    T-0107~T-0111；仅 .ai/ 写入；hook 强制层 0 改动、治理内核 0 触碰；
+    无产品代码变更；实施自 T-0107 起按批准排布执行。
+  allowed_paths:
+  - .ai/tasks/T-0106.md
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/state.yaml
+  - .ai/HANDOFF.md
+  - .ai/evidence/T-0106/
+  - .ai/KNOWN_ISSUES.md
+  - .ai/DECISIONS.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify loop_core governance kernel (gate_guard/enforcement/hard_constraints/guard_health/state_machine/validate_state/context_loader defaults)
+  - modify any product code (loop_core/, tools/, scripts/, agents/, tests/) — candidate-only task
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 设计漏洞排查报告（audit-design-gaps.md，4 维度×4 代码域，含文件:行号证据）
+  - BH 融合方案（design-bh-integration.md，8 特性模块级）
+  - 共同弱点方案（design-common-weakness.md）
+  - 整合任务排布（plan-task-roadmap.md，T-0107~T-0111）
+  - 已确认修复项登记 KNOWN_ISSUES.md
+  - git diff 证据：仅 .ai/ 变更，hooks/ 与内核零改动
+  - independent review evidence
+  validation_required:
+  - validate_state.py must report the pending gate blocker after gate registration
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hook files and governance kernel zero modification during T-0106
+  - no product code change during T-0106 (candidate-only)

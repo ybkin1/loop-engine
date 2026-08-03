@@ -1,7 +1,8 @@
 # Finding: handoff 生成器 idle 占位缺陷（.ai/evidence/none/ 悬挂引用）
 
 - 记录时间：2026-08-02（T-0101 提交后 idle 稳态复验发现）
-- 状态：OPEN（待用户裁决是否立项修复）
+- 状态：CLOSED
+- 关闭记录：T-0102 已完成 handoff 生成器 idle 占位缺陷修复（.ai/evidence/none/ 悬挂引用消除，v3.12.41）
 - 优先级：P3（不阻断 release check / 不涉及约束；造成 test_manifest_t0095 持续性失败 + idle 态 HANDOFF 文档缺陷）
 
 ## 现象

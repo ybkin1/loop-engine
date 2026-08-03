@@ -1,0 +1,1014 @@
+{
+  "type": "eval_report",
+  "schema_version": "1",
+  "task_id": "T-0103",
+  "phase": "S6-delivery",
+  "gate_id": "G-T-0103-EVAL-BLINDSPOT",
+  "execution_id": null,
+  "git_commit": "da4fb18",
+  "diff_fingerprint": null,
+  "timestamp": "2026-08-03T03:32:05.051627+00:00",
+  "tool_name": "loop-eval",
+  "tool_version": "1.0.0",
+  "suite": {
+    "suite_id": "loop-blindspot-experiment",
+    "suite_version": "1"
+  },
+  "stats": {
+    "total": 96,
+    "passed": 42,
+    "failed": 54,
+    "skipped": 0
+  },
+  "by_severity": {
+    "critical": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0
+    },
+    "high": {
+      "total": 72,
+      "passed": 30,
+      "failed": 42,
+      "skipped": 0
+    },
+    "medium": {
+      "total": 24,
+      "passed": 12,
+      "failed": 12,
+      "skipped": 0
+    },
+    "low": {
+      "total": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "verdict": "FAIL",
+  "started_at": "2026-08-03T03:32:04.990624+00:00",
+  "duration_ms": 1.398,
+  "cases": [
+    {
+      "case_id": "S1-A-D1-struct",
+      "title": "[S1/A] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.058,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D3-seed-S1-1",
+      "title": "[S1/A] 种子盲点命中：S1-1 （移动端）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.022,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D3-seed-S1-2",
+      "title": "[S1/A] 种子盲点命中：S1-2 （数据量级）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.013,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D3-seed-S1-3",
+      "title": "[S1/A] 种子盲点命中：S1-3 （并发）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.021,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['并发']"
+    },
+    {
+      "case_id": "S1-A-D3-seed-S1-4",
+      "title": "[S1/A] 种子盲点命中：S1-4 （隐私）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.011,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D3-seed-S1-5",
+      "title": "[S1/A] 种子盲点命中：S1-5 （浏览器）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D2-conseq",
+      "title": "[S1/A] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-A-D4-confirm",
+      "title": "[S1/A] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.017,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D1-struct",
+      "title": "[S2/A] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.014,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D3-seed-S2-1",
+      "title": "[S2/A] 种子盲点命中：S2-1 （扩展）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D3-seed-S2-2",
+      "title": "[S2/A] 种子盲点命中：S2-2 （第三方）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D3-seed-S2-3",
+      "title": "[S2/A] 种子盲点命中：S2-3 （内网）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D3-seed-S2-4",
+      "title": "[S2/A] 种子盲点命中：S2-4 （迁移）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D3-seed-S2-5",
+      "title": "[S2/A] 种子盲点命中：S2-5 （维护）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.018,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['维护']"
+    },
+    {
+      "case_id": "S2-A-D2-conseq",
+      "title": "[S2/A] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S2-A-D4-confirm",
+      "title": "[S2/A] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.013,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D1-struct",
+      "title": "[S4/A] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D3-seed-S4-1",
+      "title": "[S4/A] 种子盲点命中：S4-1 （空串）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D3-seed-S4-2",
+      "title": "[S4/A] 种子盲点命中：S4-2 （并发）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D3-seed-S4-3",
+      "title": "[S4/A] 种子盲点命中：S4-3 （性能）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['性能']"
+    },
+    {
+      "case_id": "S4-A-D3-seed-S4-4",
+      "title": "[S4/A] 种子盲点命中：S4-4 （时区）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D3-seed-S4-5",
+      "title": "[S4/A] 种子盲点命中：S4-5 （依赖版本）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['依赖版本']"
+    },
+    {
+      "case_id": "S4-A-D2-conseq",
+      "title": "[S4/A] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S4-A-D4-confirm",
+      "title": "[S4/A] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D1-struct",
+      "title": "[S5/A] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D3-seed-S5-1",
+      "title": "[S5/A] 种子盲点命中：S5-1 （供应链）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D3-seed-S5-2",
+      "title": "[S5/A] 种子盲点命中：S5-2 （密钥）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D3-seed-S5-3",
+      "title": "[S5/A] 种子盲点命中：S5-3 （脱敏）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D3-seed-S5-4",
+      "title": "[S5/A] 种子盲点命中：S5-4 （授权）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D3-seed-S5-5",
+      "title": "[S5/A] 种子盲点命中：S5-5 （峰值）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['峰值']"
+    },
+    {
+      "case_id": "S5-A-D2-conseq",
+      "title": "[S5/A] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S5-A-D4-confirm",
+      "title": "[S5/A] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D1-struct",
+      "title": "[S6/A] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D3-seed-S6-1",
+      "title": "[S6/A] 种子盲点命中：S6-1 （回滚）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D3-seed-S6-2",
+      "title": "[S6/A] 种子盲点命中：S6-2 （监控）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['监控']"
+    },
+    {
+      "case_id": "S6-A-D3-seed-S6-3",
+      "title": "[S6/A] 种子盲点命中：S6-3 （备份）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D3-seed-S6-4",
+      "title": "[S6/A] 种子盲点命中：S6-4 （漂移）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D3-seed-S6-5",
+      "title": "[S6/A] 种子盲点命中：S6-5 （验收环境）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D2-conseq",
+      "title": "[S6/A] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S6-A-D4-confirm",
+      "title": "[S6/A] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-B-D1-struct",
+      "title": "[S1/B] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.013,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S1-B-D3-seed-S1-1",
+      "title": "[S1/B] 种子盲点命中：S1-1 （移动端）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['移动端']"
+    },
+    {
+      "case_id": "S1-B-D3-seed-S1-2",
+      "title": "[S1/B] 种子盲点命中：S1-2 （数据量级）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['数据量级']"
+    },
+    {
+      "case_id": "S1-B-D3-seed-S1-3",
+      "title": "[S1/B] 种子盲点命中：S1-3 （并发）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['并发']"
+    },
+    {
+      "case_id": "S1-B-D3-seed-S1-4",
+      "title": "[S1/B] 种子盲点命中：S1-4 （隐私）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['隐私']"
+    },
+    {
+      "case_id": "S1-B-D3-seed-S1-5",
+      "title": "[S1/B] 种子盲点命中：S1-5 （浏览器）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['浏览器']"
+    },
+    {
+      "case_id": "S1-B-D2-conseq",
+      "title": "[S1/B] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S1-B-D4-confirm",
+      "title": "[S1/B] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.014,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    },
+    {
+      "case_id": "S2-B-D1-struct",
+      "title": "[S2/B] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S2-B-D3-seed-S2-1",
+      "title": "[S2/B] 种子盲点命中：S2-1 （扩展）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['扩展']"
+    },
+    {
+      "case_id": "S2-B-D3-seed-S2-2",
+      "title": "[S2/B] 种子盲点命中：S2-2 （第三方）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['第三方']"
+    },
+    {
+      "case_id": "S2-B-D3-seed-S2-3",
+      "title": "[S2/B] 种子盲点命中：S2-3 （内网）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['内网']"
+    },
+    {
+      "case_id": "S2-B-D3-seed-S2-4",
+      "title": "[S2/B] 种子盲点命中：S2-4 （迁移）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['迁移']"
+    },
+    {
+      "case_id": "S2-B-D3-seed-S2-5",
+      "title": "[S2/B] 种子盲点命中：S2-5 （维护）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.019,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['维护']"
+    },
+    {
+      "case_id": "S2-B-D2-conseq",
+      "title": "[S2/B] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.012,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S2-B-D4-confirm",
+      "title": "[S2/B] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.013,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    },
+    {
+      "case_id": "S4-B-D1-struct",
+      "title": "[S4/B] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S4-B-D3-seed-S4-1",
+      "title": "[S4/B] 种子盲点命中：S4-1 （空串）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['空串']"
+    },
+    {
+      "case_id": "S4-B-D3-seed-S4-2",
+      "title": "[S4/B] 种子盲点命中：S4-2 （并发）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['并发']"
+    },
+    {
+      "case_id": "S4-B-D3-seed-S4-3",
+      "title": "[S4/B] 种子盲点命中：S4-3 （性能）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['性能']"
+    },
+    {
+      "case_id": "S4-B-D3-seed-S4-4",
+      "title": "[S4/B] 种子盲点命中：S4-4 （时区）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['时区']"
+    },
+    {
+      "case_id": "S4-B-D3-seed-S4-5",
+      "title": "[S4/B] 种子盲点命中：S4-5 （依赖版本）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['依赖版本']"
+    },
+    {
+      "case_id": "S4-B-D2-conseq",
+      "title": "[S4/B] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S4-B-D4-confirm",
+      "title": "[S4/B] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    },
+    {
+      "case_id": "S5-B-D1-struct",
+      "title": "[S5/B] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S5-B-D3-seed-S5-1",
+      "title": "[S5/B] 种子盲点命中：S5-1 （供应链）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['供应链']"
+    },
+    {
+      "case_id": "S5-B-D3-seed-S5-2",
+      "title": "[S5/B] 种子盲点命中：S5-2 （密钥）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.017,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['密钥']"
+    },
+    {
+      "case_id": "S5-B-D3-seed-S5-3",
+      "title": "[S5/B] 种子盲点命中：S5-3 （脱敏）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['脱敏']"
+    },
+    {
+      "case_id": "S5-B-D3-seed-S5-4",
+      "title": "[S5/B] 种子盲点命中：S5-4 （授权）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['授权']"
+    },
+    {
+      "case_id": "S5-B-D3-seed-S5-5",
+      "title": "[S5/B] 种子盲点命中：S5-5 （峰值）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['峰值']"
+    },
+    {
+      "case_id": "S5-B-D2-conseq",
+      "title": "[S5/B] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S5-B-D4-confirm",
+      "title": "[S5/B] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.013,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    },
+    {
+      "case_id": "S6-B-D1-struct",
+      "title": "[S6/B] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S6-B-D3-seed-S6-1",
+      "title": "[S6/B] 种子盲点命中：S6-1 （回滚）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['回滚']"
+    },
+    {
+      "case_id": "S6-B-D3-seed-S6-2",
+      "title": "[S6/B] 种子盲点命中：S6-2 （监控）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['监控']"
+    },
+    {
+      "case_id": "S6-B-D3-seed-S6-3",
+      "title": "[S6/B] 种子盲点命中：S6-3 （备份）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['备份']"
+    },
+    {
+      "case_id": "S6-B-D3-seed-S6-4",
+      "title": "[S6/B] 种子盲点命中：S6-4 （漂移）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['漂移']"
+    },
+    {
+      "case_id": "S6-B-D3-seed-S6-5",
+      "title": "[S6/B] 种子盲点命中：S6-5 （验收环境）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['验收环境']"
+    },
+    {
+      "case_id": "S6-B-D2-conseq",
+      "title": "[S6/B] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S6-B-D4-confirm",
+      "title": "[S6/B] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    },
+    {
+      "case_id": "S1-calib-high-D1-struct",
+      "title": "[S1/calib-high] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.012,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D3-seed-S1-1",
+      "title": "[S1/calib-high] 种子盲点命中：S1-1 （移动端）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D3-seed-S1-2",
+      "title": "[S1/calib-high] 种子盲点命中：S1-2 （数据量级）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D3-seed-S1-3",
+      "title": "[S1/calib-high] 种子盲点命中：S1-3 （并发）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D3-seed-S1-4",
+      "title": "[S1/calib-high] 种子盲点命中：S1-4 （隐私）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D3-seed-S1-5",
+      "title": "[S1/calib-high] 种子盲点命中：S1-5 （浏览器）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D2-conseq",
+      "title": "[S1/calib-high] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "PASS",
+      "duration_ms": 0.008,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-high-D4-confirm",
+      "title": "[S1/calib-high] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "PASS",
+      "duration_ms": 0.011,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": null
+    },
+    {
+      "case_id": "S1-calib-low-D1-struct",
+      "title": "[S1/calib-low] 盲点清单表格结构存在（B 编号行）",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| B\\\\d'"
+    },
+    {
+      "case_id": "S1-calib-low-D3-seed-S1-1",
+      "title": "[S1/calib-low] 种子盲点命中：S1-1 （移动端）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['移动端']"
+    },
+    {
+      "case_id": "S1-calib-low-D3-seed-S1-2",
+      "title": "[S1/calib-low] 种子盲点命中：S1-2 （数据量级）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['数据量级']"
+    },
+    {
+      "case_id": "S1-calib-low-D3-seed-S1-3",
+      "title": "[S1/calib-low] 种子盲点命中：S1-3 （并发）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['并发']"
+    },
+    {
+      "case_id": "S1-calib-low-D3-seed-S1-4",
+      "title": "[S1/calib-low] 种子盲点命中：S1-4 （隐私）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['隐私']"
+    },
+    {
+      "case_id": "S1-calib-low-D3-seed-S1-5",
+      "title": "[S1/calib-low] 种子盲点命中：S1-5 （浏览器）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.01,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['浏览器']"
+    },
+    {
+      "case_id": "S1-calib-low-D2-conseq",
+      "title": "[S1/calib-low] 盲点含'若不考虑'后果说明",
+      "severity": "medium",
+      "result": "FAIL",
+      "duration_ms": 0.009,
+      "rule_type": "text_contains",
+      "version": "1",
+      "reason": "output missing expected substring(s): ['若不考虑']"
+    },
+    {
+      "case_id": "S1-calib-low-D4-confirm",
+      "title": "[S1/calib-low] 存在'需要用户确认：是'的盲点（≥1）",
+      "severity": "high",
+      "result": "FAIL",
+      "duration_ms": 0.011,
+      "rule_type": "text_matches",
+      "version": "1",
+      "reason": "output does not match pattern '\\\\| 是 \\\\|'"
+    }
+  ]
+}

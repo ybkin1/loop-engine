@@ -1,0 +1,12 @@
+{
+  "scenario_id": "S2",
+  "scenario_name": "架构设计",
+  "task_card_text": "目标：为'小型订单管理系统'设计应用架构（模块划分 + 数据模型）。\n受众：开发团队（将按此架构实现）。\n边界：仅架构设计文档；不做具体实现、不做技术选型对比。\n格式：Markdown 架构文档，含模块图（文本）、数据模型表。\n验收标准：AC-1 模块划分覆盖订单/商品/客户三域；AC-2 数据模型含核心实体与关系；AC-3 文档可供实现团队直接开工。",
+  "seed_blind_spots": [
+    {"id": "S2-1", "keyword": "扩展", "consequence_expected": "未来扩展规模未明说——单体假设在业务扩大时需重构"},
+    {"id": "S2-2", "keyword": "第三方", "consequence_expected": "第三方服务依赖（支付/物流）可用性未明说——依赖故障时无降级路径"},
+    {"id": "S2-3", "keyword": "内网", "consequence_expected": "部署环境（内网/公网）未明说——安全设计与证书策略完全不同"},
+    {"id": "S2-4", "keyword": "迁移", "consequence_expected": "存量数据迁移成本未明说——上线时历史数据无法导入=返工"},
+    {"id": "S2-5", "keyword": "维护", "consequence_expected": "团队维护能力未明说——复杂方案无人能维护"}
+  ]
+}

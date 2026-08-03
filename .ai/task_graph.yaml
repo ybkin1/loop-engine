@@ -1172,6 +1172,34 @@ tasks:
       - T-0103
     gates:
       - G-T-0104-REQUIREMENTS
+  -
+    id: T-0105
+    title: Loop 工程收尾修复包 — 文档漂移 + P3 修复 + Q2/Q4 能力补全 + eval 验证
+    phase: S6-delivery
+    status: completed
+    description: >-
+      四批次完成全部未收尾项：批 1 文档漂移（finding/KNOWN_ISSUES/HANDOFF-NEXT/
+      任务卡状态）+ 批 2 T-0104 P3 四项 + 批 3 Q2 多轮提问与 Q4 原型机制（设计→落地）+
+      批 4 安装副本同步与 eval 最小实验；hook 0 改动、内核 0 触碰；bump 3.12.43。
+    depends_on:
+      - T-0104
+    gates:
+      - G-T-0105-REQUIREMENTS
+  -
+    id: T-0106
+    title: Better Harness 融合与 LE 去臃肿升级 — 总设计 + 全仓库漏洞排查（candidate-only）
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      BH 深度调研结论落地为可执行升级路径：批 1 全仓库设计漏洞排查（截断/魔法值/
+      无界操作/静默吞错四维度，只读审计）+ 批 2 BH 融合详细方案（评估模型/单一数据源/
+      gates 分层/按需加载/工具 capability 化/上下文打包/契约测试 8 特性，模块级）+
+      批 3 共同弱点优化方案（巨模块拆分/魔法数字集中化/修复器治理）+
+      批 4 整合任务排布 T-0107~T-0111；candidate-only：仅 .ai/ 写入，hook 0 改动、内核 0 触碰。
+    depends_on:
+      - T-0105
+    gates:
+      - G-T-0106-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1221,3 +1249,5 @@ edges:
       to: T-0101
     - from: T-0101
       to: T-0102
+    - from: T-0105
+      to: T-0106

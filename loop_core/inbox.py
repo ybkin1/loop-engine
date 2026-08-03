@@ -60,6 +60,7 @@ class Requirement:
     updated_at: str = ""
     linked_task_ids: list[str] = field(default_factory=list)
     clarification_questions: list[str] = field(default_factory=list)
+    clarification_rounds: int = 0
     linked_plan_id: str = ""
 
     def __post_init__(self) -> None:
@@ -81,6 +82,7 @@ class Requirement:
             "updated_at": self.updated_at,
             "linked_task_ids": self.linked_task_ids,
             "clarification_questions": self.clarification_questions,
+            "clarification_rounds": self.clarification_rounds,
             "linked_plan_id": self.linked_plan_id,
         }
 
@@ -99,6 +101,7 @@ class Requirement:
             updated_at=d.get("updated_at", ""),
             linked_task_ids=d.get("linked_task_ids", []),
             clarification_questions=d.get("clarification_questions", []),
+            clarification_rounds=d.get("clarification_rounds", 0),
             linked_plan_id=d.get("linked_plan_id", ""),
         )
 
@@ -157,8 +160,41 @@ class Inbox:
         return req
 
     def add_clarification_questions(self, requirement_id: str, questions: list[str]) -> Requirement:
+        """(legacy) Replace the full clarification question list in one shot."""
         req = self.get(requirement_id)
         req.clarification_questions = questions
+        req.clarification_rounds = max(req.clarification_rounds, 1)
+        if req.status == InboxStatus.NEW:
+            req.status = InboxStatus.CLARIFYING
+        req.updated_at = datetime.now(timezone.utc).isoformat()
+        self._save(req)
+        return req
+
+    def ask_clarification(self, requirement_id: str, questions: list[str]) -> Requirement:
+        """Append one round of clarification questions (Q2 teaching-style multi-round).
+
+        Unlike ``add_clarification_questions`` (which replaces the whole
+        list), this method APPENDS a new round to an existing CLARIFYING
+        requirement, so a user's answer can be followed by another round
+        of questions ("回答→再问" closed loop).  The flat
+        ``clarification_questions`` list accumulates questions across
+        rounds for backward compatibility; ``clarification_rounds``
+        tracks how many rounds have been asked.
+
+        Args:
+            requirement_id: The requirement to append questions to.
+            questions: One round of questions (governance R11: <= 3 per round).
+
+        Returns:
+            The updated Requirement, now in CLARIFYING status.
+        """
+        if not questions:
+            raise InboxError("questions must not be empty")
+        req = self.get(requirement_id)
+        req.clarification_questions = list(req.clarification_questions) + [
+            str(q) for q in questions
+        ]
+        req.clarification_rounds += 1
         if req.status == InboxStatus.NEW:
             req.status = InboxStatus.CLARIFYING
         req.updated_at = datetime.now(timezone.utc).isoformat()

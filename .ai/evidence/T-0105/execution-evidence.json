@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0105",
+  "gate_id": "G-T-0105-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-02T21:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "批 1 文档漂移：finding 状态 CLOSED + KNOWN_ISSUES 过时项收口 + HANDOFF-NEXT 处置 + 历史任务卡状态收口（T-0102/03/04）",
+    "批 2 T-0104 P3 四项：召回过滤 / memory_injection 配置校验 / manifest 时序约定 / 读盘缓存",
+    "批 3 Q2 多轮提问（inbox 循环 + 缺口识别提示词 + R11 微调）+ Q4 原型机制（设计→落地）",
+    "批 4 安装副本同步 + eval 最小实验（盲点自检对照 + AiDecisionLedger 真实路径）",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.43",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0105-REQUIREMENTS 已由用户批准（批准文本：批准）。接管全部未收尾项。硬约束：hooks/ 0 改动、治理内核 0 触碰、context_loader 默认值不动、fail-closed 不变。"
+}

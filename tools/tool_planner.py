@@ -35,7 +35,25 @@ def handle_get(args):
     except Exception as e:
         return _err(str(e))
 
-HANDLERS = {"planner_generate": handle_generate, "planner_list": handle_list, "planner_get": handle_get}
+def handle_generate_prototype(args):
+    """生成 Q4 低成本原型计划（html_mock / cli_demo / data_sample 三种形态）。"""
+    title = args.get("title", "").strip()
+    desc = args.get("description", "").strip()
+    rid = args.get("requirement_id", "")
+    form = args.get("prototype_form", "html_mock")
+    if not title: return _err("title is required")
+    if not desc: return _err("description is required")
+    try:
+        from loop_core.planner import Planner
+        draft = Planner(_get_root()).generate_prototype(title, desc, rid, form)
+        return _ok(draft.to_dict())
+    except Exception as e:
+        return _err(str(e))
+
+HANDLERS = {
+    "planner_generate": handle_generate, "planner_list": handle_list,
+    "planner_get": handle_get, "planner_generate_prototype": handle_generate_prototype,
+}
 
 def main():
     try:

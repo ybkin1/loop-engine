@@ -1,0 +1,12 @@
+{
+  "scenario_id": "S4",
+  "scenario_name": "实现任务",
+  "task_card_text": "目标：按下方契约实现函数模块 normalize_contact(record) 并附单元测试。\n契约：输入 dict（name/phone/email 三键）；输出统一格式的 dict；非法 phone 返回错误标记而非抛异常。\n受众：调用方服务（直接消费该模块输出）。\n边界：只实现该函数与测试；不修改既有模块、不引入新依赖。\n格式：Python 代码 + pytest 测试文件。\n验收标准：AC-1 契约内全部合法输入输出正确；AC-2 非法 phone 返回错误标记；AC-3 测试全绿。",
+  "seed_blind_spots": [
+    {"id": "S4-1", "keyword": "空串", "consequence_expected": "输入数据非法值边界（超长/空串/非字符串）未明说——边界未处理则线上崩溃"},
+    {"id": "S4-2", "keyword": "并发", "consequence_expected": "并发调用未明说——模块若含共享状态则多线程下数据错乱"},
+    {"id": "S4-3", "keyword": "性能", "consequence_expected": "性能上限（大数据量批量调用）未明说——O(n²) 实现在批量场景不可用"},
+    {"id": "S4-4", "keyword": "时区", "consequence_expected": "环境差异（编码/时区）未明说——中文字符串/时间字段在不同环境表现不同"},
+    {"id": "S4-5", "keyword": "依赖版本", "consequence_expected": "依赖版本锁定未明说——上游升级破坏行为时无法复现"}
+  ]
+}

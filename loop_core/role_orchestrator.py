@@ -28,7 +28,35 @@ PHASE_ROLES = {
 # ── Memory injection switch (T-0104 设计-5 §5.3.2) ─────────────────────────
 # 非 hook 配置：skills/loop-governance/config.yaml 的 memory_injection 节。
 # enabled=false 或配置缺失/损坏 → 完全回退到现状（不注入）。
+# T-0105 B-4-4: 进程内读盘缓存（按配置路径 + mtime），mtime 变化才重读。
 _MEMORY_INJECTION_DEFAULT = {"enabled": False, "phases": [], "memory_limit": 5}
+
+# T-0105 B-4-4: 配置缓存 — path -> (mtime_ns, cfg)。读取失败清缓存回退 fail-closed。
+_CONFIG_CACHE: dict[str, tuple[int, dict]] = {}
+
+
+def _validated_phases(value) -> list[str]:
+    """T-0105 B-4-2: phases 必须是 list；误写为字符串视为非法。
+
+    非法时返回 None，由调用方按 fail-closed 回退 disabled 默认
+    （避免 "S4" 被逐字符展开为 ["S", "4"] 的静默错误）。
+    """
+    if not isinstance(value, list):
+        return None
+    return [str(p) for p in value]
+
+
+def _validated_memory_limit(value) -> int:
+    """T-0105 B-4-2: memory_limit 非正数/非数字 → 默认 5（其余沿用现状）。"""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return int(_MEMORY_INJECTION_DEFAULT["memory_limit"])
+    try:
+        limit = int(value)
+    except (ValueError, TypeError, OverflowError):
+        return int(_MEMORY_INJECTION_DEFAULT["memory_limit"])
+    if limit <= 0:
+        return int(_MEMORY_INJECTION_DEFAULT["memory_limit"])
+    return limit
 
 
 def _load_memory_injection_config(project_root: str | Path) -> dict:
@@ -38,6 +66,10 @@ def _load_memory_injection_config(project_root: str | Path) -> dict:
       <root>/skills/loop-governance/config.yaml
       <root>/.zcode/skills/loop-governance/config.yaml
     Missing or corrupt config → disabled (fail-closed: same as status quo).
+
+    T-0105 B-4-4: 结果按 (配置路径, mtime) 进程内缓存；mtime 变化才重读；
+    读取/解析失败清缓存并回退 fail-closed。
+    T-0105 B-4-2: phases 非 list / memory_limit 非法值 → 校验失败回退默认。
     """
     import yaml
 
@@ -49,16 +81,32 @@ def _load_memory_injection_config(project_root: str | Path) -> dict:
         try:
             if not path.exists():
                 continue
+            key = str(path)
+            mtime = path.stat().st_mtime_ns
+            cached = _CONFIG_CACHE.get(key)
+            if cached is not None and cached[0] == mtime:
+                return dict(cached[1])
             doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             cfg = doc.get("memory_injection")
             if not isinstance(cfg, dict):
-                return dict(_MEMORY_INJECTION_DEFAULT)
-            return {
+                result = dict(_MEMORY_INJECTION_DEFAULT)
+                _CONFIG_CACHE[key] = (mtime, result)
+                return result
+            phases = _validated_phases(cfg.get("phases") or [])
+            if phases is None:
+                # T-0105 B-4-2: phases 误写为字符串等非法形态 → 整体回退 disabled
+                result = dict(_MEMORY_INJECTION_DEFAULT)
+                _CONFIG_CACHE[key] = (mtime, result)
+                return result
+            result = {
                 "enabled": bool(cfg.get("enabled", False)),
-                "phases": [str(p) for p in (cfg.get("phases") or [])],
-                "memory_limit": int(cfg.get("memory_limit", 5)),
+                "phases": phases,
+                "memory_limit": _validated_memory_limit(cfg.get("memory_limit", 5)),
             }
+            _CONFIG_CACHE[key] = (mtime, result)
+            return result
         except (OSError, yaml.YAMLError, ValueError, TypeError):
+            _CONFIG_CACHE.pop(str(path), None)
             return dict(_MEMORY_INJECTION_DEFAULT)
     return dict(_MEMORY_INJECTION_DEFAULT)
 
@@ -100,6 +148,8 @@ def build_dispatch_manifest(project_root: str, phase: str, task_id: str = "",
         if role_id == "main-thread":
             continue  # main-thread is the orchestrator, not a sub-agent
         try:
+            # T-0105 B-4-1: task_id 一并透传到 context_packager.build_context，
+            # 记忆召回按当前任务过滤（消除跨任务不相关记忆注入）。
             prompt = load_role_prompt_with_context(
                 role_id, project_root=project_root, task_id=task_id,
                 extra_files=extra_files,

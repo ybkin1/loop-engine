@@ -2,13 +2,13 @@
 
 ## Open
 
-- Bash command interception is not available via ZCode hooks. `gate_guard` blocks Write/Edit but shell commands (`echo > file`, `cp`, `mv`) can bypass. ENFORCEMENT_LEVEL: MEDIUM (honest).
-- ProjectContinuity auto-generation has a timing issue: first-run always shows ACCEPTANCE.md drift because the continuity file includes itself in its source manifest.
 - Seeded defects test project exists but is not automatically invoked by the mutation tester (manual verification only).
 - E2E integration test (test_E2E_CURRENT_001) is skipped due to lab fixture dependency.
 
 ## Recently Closed
 
+- 2026-08-03: Bash command interception via ZCode hooks — T-0060 已实现 `bash_content_guard`（Bash 写文件内容守卫，不再依赖通用命令拦截）。
+- 2026-08-03: ProjectContinuity auto-generation first-run self-reference timing issue — T-0049 已拆 continuity 自引用/炸弹防护（源清单不再含自身，hash 自引用守卫 T-0058）。
 - 2026-07-22: Stale project memory files (CONTRACTS.md, PROGRESS.md, KNOWN_ISSUES.md, DECISIONS.md) updated to reflect current project state (T-0033).
 - 2026-07-22: Phase inconsistency fixed — constants.py synced to 12 phases matching loop_core/state_machine.py.
 - 2026-07-22: zcode_adapter.py docstring fixed from STRONG to MEDIUM.

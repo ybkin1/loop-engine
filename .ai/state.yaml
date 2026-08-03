@@ -4,8 +4,14 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-02T20:33:12.326738+08:00'
+last_handoff_at: '2026-08-03T11:39:57.892402+08:00'
 notes:
+- 'T-0106 REGISTERED 2026-08-03: Better Harness 融合与 LE 去臃肿升级（总设计 + 全仓库漏洞排查， candidate-only）。G-T-0106-REQUIREMENTS
+  pending，待用户批准。范围：批 1 设计漏洞排查（只读） + 批 2 BH 融合方案（8 特性模块级）+ 批 3 共同弱点方案 + 批 4 任务排布 T-0107~T-0111；
+  仅 .ai/ 写入，hook 0 改动、内核 0 触碰、无产品代码变更。'
+- 'T-0105 ACTIVE 2026-08-02: G-T-0105-REQUIREMENTS 已由用户批准。四批次执行： 批 1 文档漂移（finding/KNOWN_ISSUES/HANDOFF-NEXT/任务卡状态）→  批
+  2 T-0104 P3 四项 → 批 3 Q2 多轮提问 + Q4 原型机制（设计→落地）→ 批 4 安装副本同步 + eval 实验； 全量回归 0 failed
+  + release check 6/6 + bump 3.12.43；独立审查 → 验收 → 推送。'
 - 'T-0078 COMPLETED: P0/P1 机制级修复进行中：证据真实性校验、生产模式验证、语义规则检查、证据溯源链、S0质量门禁激活。用户已批准继续。'
 - 'T-0079 COMPLETED: Host Agent Bridge and Dispatch Runtime'
 - 'T-0080 COMPLETED: Runtime Takeover Acceptance'
@@ -107,3 +113,8 @@ notes:
   + deviations 数组 + AiDecisionRecord/ ai-decisions.jsonl 链 + 理解确认节 + memory_injection
   开关（S4+ 显式注入）， 8/8 AC，独立审查 GO（P1=0/P2=0，35/35 抽查，全量 3636 passed 独立复验）， hook 强制层 0
   改动、内核 0 触碰、R10/R11 原文未动，bump 3.12.42 提交。推送同步完成。'
+- 'T-0105 COMPLETED 2026-08-03: Loop 工程收尾修复包（四批）— 批 1 文档漂移清零 （finding CLOSED/KNOWN_ISSUES
+  收口/HANDOFF-NEXT 归档/任务卡状态一致）+ 批 2 P3 四项 （召回过滤/配置校验/时序约定/读盘缓存）+ 批 3 Q2 多轮澄清与 R11 微调、Q4
+  原型机制 （最小落地，chain 零改动）+ 批 4 副本同步与 eval 实验（4/4 维度信号，盲点自检有效） + AiDecisionLedger 真实路径，10/10
+  AC，独立审查 CONDITIONAL_GO→GO（P1 均收尾流程项）， 全量 3867 passed（1 提交前瞬态自愈），hook 0 改动、内核 0 触碰，bump
+  3.12.43 提交推送。 全部未收尾项闭环。T-0106 已登记待用户重新批准。'

@@ -18,12 +18,18 @@ ROLE_CONTEXT = {
 }
 
 def build_context(project_root, role_id, task_id="", extra_files=None,
-                  *, include_memories: bool = False, memory_limit: int = 5):
+                  *, include_memories: bool = False, memory_limit: int = 5,
+                  memory_gate_id: str | None = None, memory_tag: str | None = None):
     """Build code context for a role sub-agent.
 
     T-0104 设计-5: ``include_memories=True`` 时追加"相关经验（Related
     Memories）"节（memory_service recall，top-N = memory_limit，渲染格式
     与 context_loader 一致）。默认 False 保持现状（零行为变化）。
+
+    T-0105 B-4-1: 记忆召回透传过滤参数——``task_id``（复用位置参数）、
+    ``memory_gate_id``、``memory_tag`` 按 AND 组合传给 recall，消除跨任务
+    不相关记忆注入；任一过滤参数为 None/空 即不过滤，与 T-0104 现状一致
+    （fail-closed：空召回 no-op、损坏抛异常不变）。
     """
     root = Path(project_root)
     spec = ROLE_CONTEXT.get(role_id, {"files": [], "git_diff_name_only": True, "max_content": 2000})
@@ -75,7 +81,15 @@ def build_context(project_root, role_id, task_id="", extra_files=None,
         # store 损坏时 fail-closed（与 context_loader 语义一致，不静默猜记忆）。
         from loop_core.memory_service import memories_to_context, recall
         if isinstance(memory_limit, int) and memory_limit > 0:
-            entries = recall(root, limit=memory_limit)
+            # T-0105 B-4-1: 透传 task_id/gate_id/tag 过滤（None = 不过滤，
+            # 与 context_loader._apply_memory_injection 的 recall 用法一致）。
+            entries = recall(
+                root,
+                limit=memory_limit,
+                task_id=task_id or None,
+                gate_id=memory_gate_id,
+                tag=memory_tag,
+            )
             section = memories_to_context(entries)
             if section and total < MAX:
                 parts.append(section)

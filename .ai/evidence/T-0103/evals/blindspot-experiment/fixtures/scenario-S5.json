@@ -1,0 +1,12 @@
+{
+  "scenario_id": "S5",
+  "scenario_name": "安全审查",
+  "task_card_text": "目标：对给定 Web 应用代码做安全审查，输出问题清单与修复建议。\n受众：开发团队（将按清单修复）。\n边界：仅静态审查与建议；不做渗透测试、不修改代码。\n格式：Markdown 审查报告，按严重级别（高/中/低）列表。\n验收标准：AC-1 覆盖注入/XSS/越权三类常见漏洞；AC-2 每条问题有复现路径与修复建议；AC-3 报告可交开发直接执行。",
+  "seed_blind_spots": [
+    {"id": "S5-1", "keyword": "供应链", "consequence_expected": "依赖供应链风险未审查——含已知漏洞的库被利用"},
+    {"id": "S5-2", "keyword": "密钥", "consequence_expected": "密钥管理路径未审查——硬编码密钥泄露即全库沦陷"},
+    {"id": "S5-3", "keyword": "脱敏", "consequence_expected": "日志脱敏范围未审查——日志含个人信息违反合规"},
+    {"id": "S5-4", "keyword": "授权", "consequence_expected": "第三方库授权合规未审查——商用授权问题导致法律风险"},
+    {"id": "S5-5", "keyword": "峰值", "consequence_expected": "生产流量峰值未审查——峰值下限流/超时策略缺失导致宕机"}
+  ]
+}

@@ -38,7 +38,7 @@ CARRIER_FILES = (
 
 @pytest.fixture
 def mini_project(tmp_path: Path) -> Path:
-    """迷你项目根：复制真实项目的全部版本载体（3.12.41 对齐后状态）。"""
+    """迷你项目根：复制真实项目的全部版本载体（当前版本对齐后状态）。"""
     root = tmp_path / "project"
     for rel_path in CARRIER_FILES:
         src = PROJECT_ROOT / rel_path
@@ -46,6 +46,21 @@ def mini_project(tmp_path: Path) -> Path:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(src, dst)
     return root
+
+
+@pytest.fixture(scope="session")
+def src_version() -> str:
+    """源仓库当前版本（动态读取 pyproject.toml，避免 bump 后硬编码断言漂移）。
+
+    T-0105 修复：原测试硬编码 "3.12.41"，每次版本 bump 后基线即失败。
+    """
+    m = re.search(
+        r'^version\s*=\s*"([^"]+)"',
+        (PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    assert m, "pyproject.toml 缺少 version 字段"
+    return m.group(1)
 
 
 def _version_of(root: Path, rel_path: str) -> str:
@@ -78,14 +93,14 @@ class TestBumpUpdatesCarriers:
         # 版本一致性测试对同一套载体可直接通过（逐项等于 pyproject）
         assert rel.load_version(mini_project) == "9.8.7"
 
-    def test_bump_changelog_inserts_at_head_keeps_old(self, mini_project: Path):
+    def test_bump_changelog_inserts_at_head_keeps_old(self, mini_project: Path, src_version: str):
         old_content = (mini_project / "CHANGELOG.md").read_text(encoding="utf-8")
         assert rel.cmd_bump(mini_project, "9.8.7") == 0
         content = (mini_project / "CHANGELOG.md").read_text(encoding="utf-8")
         # 新条目在头部，旧条目保留且降序（新版本在旧版本之前）
-        assert content.index("## v9.8.7") < content.index("## v3.12.41")
+        assert content.index("## v9.8.7") < content.index(f"## v{src_version}")
         assert "先 bump 再提交" in content
-        assert "## v3.12.41" in content  # 原条目未丢失
+        assert f"## v{src_version}" in content  # 原条目未丢失
 
     def test_bump_readme_and_docs(self, mini_project: Path):
         assert rel.cmd_bump(mini_project, "9.8.7") == 0
@@ -120,11 +135,11 @@ class TestBumpUpdatesCarriers:
         for rel_path, blob in before.items():
             assert (mini_project / rel_path).read_bytes() == blob, rel_path
 
-    def test_bump_invalid_version_is_usage_error(self, mini_project: Path):
+    def test_bump_invalid_version_is_usage_error(self, mini_project: Path, src_version: str):
         assert rel.cmd_bump(mini_project, "abc") == 2
         assert rel.cmd_bump(mini_project, "3.12") == 2
         assert rel.cmd_bump(mini_project, "3.12.39-beta") == 2
-        assert rel.load_version(mini_project) == "3.12.41"  # 未改动
+        assert rel.load_version(mini_project) == src_version  # 未改动
 
     def test_bump_missing_optional_carrier_skips(self, tmp_path: Path):
         root = tmp_path / "project"
@@ -140,7 +155,7 @@ class TestBumpAtomicity:
         leftovers = list(mini_project.rglob("*.tmp"))
         assert leftovers == [], f"原子写残留临时文件: {leftovers}"
 
-    def test_atomic_write_failure_keeps_original(self, mini_project: Path, monkeypatch):
+    def test_atomic_write_failure_keeps_original(self, mini_project: Path, src_version: str, monkeypatch):
         """os.replace 失败 → 目标文件保持原内容，临时文件被清理。"""
         target = mini_project / "pyproject.toml"
         original = target.read_bytes()
@@ -151,7 +166,7 @@ class TestBumpAtomicity:
         monkeypatch.setattr(rel.os, "replace", boom)
         with pytest.raises(OSError):
             rel._atomic_write(target, target.read_text(encoding="utf-8").replace(
-                "3.12.41", "9.8.7"))
+                src_version, "9.8.7"))
         assert target.read_bytes() == original, "写失败必须保持原内容"
         assert not list(mini_project.glob("*.tmp")), "写失败必须清理临时文件"
 
@@ -167,7 +182,7 @@ class TestBumpAtomicity:
         # pyproject（首个载体）已更新 —— 报错信息明确提示人工核对
         assert rel.load_version(mini_project) == "9.8.7"
 
-    def test_bump_title_passthrough_to_changelog(self, mini_project: Path):
+    def test_bump_title_passthrough_to_changelog(self, mini_project: Path, src_version: str):
         """bump --title 透传：CHANGELOG 新条目标题使用 --title（T-0102 F-03）。
 
         修复前（T-0100 F-03 引入时 lambda 丢 title）：条目使用缺省标题
@@ -176,8 +191,8 @@ class TestBumpAtomicity:
         assert rel.cmd_bump(mini_project, "9.8.7", title="自定义标题") == 0
         content = (mini_project / "CHANGELOG.md").read_text(encoding="utf-8")
         assert "## v9.8.7" in content
-        entry_head = content.split("## v9.8.7", 1)[1].split("## v3.12.41", 1)[0]
+        entry_head = content.split("## v9.8.7", 1)[1].split(f"## v{src_version}", 1)[0]
         assert "自定义标题" in entry_head
         assert "版本同步（release.py bump 子命令）" not in entry_head
         # 旧条目不受影响
-        assert "## v3.12.41" in content
+        assert f"## v{src_version}" in content

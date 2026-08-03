@@ -7,7 +7,8 @@ Covers:
   相关经验 → 范围与边界 → 盲点清单 → 验收标准）
 - loop-governance SKILL.md：启动检查清单第 7 步"盲点简报"
 - human-review-packet.md："六、理解确认"新增 + 原"六、下一步"顺延为"七"
-- main-thread CONTRACT.yaml：R10/R11 原文零改动 + fixed_stance 增"象限判定先行"
+- main-thread CONTRACT.yaml：R10 原文零改动 + R11 语义微调（同一轮≤3 个、可多轮，
+  T-0105 P2-1 授权；保留 R11 编号与"非关键决策自行处理"主体语义）
 - governance-lifecycle.md：USER_ACCEPTED 前须 user_comprehension_confirmed
 - USER-PROMPTS.md：信息完整度说明
 """
@@ -85,14 +86,17 @@ class TestMainThreadContract:
         '只在真正无法确定时才问用户。"'
     )
     R11 = (
-        '- "R11_reduce_questions：同一阶段内向用户提问不超过 3 次；'
-        '非关键决策自行处理并标注。"'
+        '- "R11_reduce_questions：同一轮提问不超过 3 个、可多轮（轮次不限，'
+        '但每轮必须围绕已识别缺口、问题附\'为什么问\'）；非关键决策自行处理并标注。"'
     )
 
-    def test_r10_r11_original_text_untouched(self):
+    def test_r10_untouched_r11_semantics_adjusted(self):
+        """R10 原文零改动；R11 保留编号与主体语义，仅放开轮次限制（T-0105 P2-1）。"""
         text = MAIN_THREAD_CONTRACT.read_text(encoding="utf-8")
         assert self.R10 in text
         assert self.R11 in text
+        # 新语义：不再有"同一阶段内…不超过 3 次"的硬上限措辞
+        assert "同一阶段内向用户提问不超过 3 次" not in text
 
     def test_quadrant_first_added_to_fixed_stance(self):
         text = MAIN_THREAD_CONTRACT.read_text(encoding="utf-8")

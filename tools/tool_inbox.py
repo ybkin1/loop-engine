@@ -34,6 +34,20 @@ def handle_get(args):
     except Exception as e:
         return _err(str(e))
 
+def handle_ask_clarification(args):
+    """追加一轮澄清问题（Q2 多轮澄清：CLARIFYING 下可继续追加，问题按轮次累积）。"""
+    rid = args.get("requirement_id", "").strip()
+    questions = args.get("questions", [])
+    if not rid: return _err("requirement_id is required")
+    if not isinstance(questions, list) or not questions:
+        return _err("questions must be a non-empty list")
+    try:
+        from loop_core.inbox import Inbox
+        req = Inbox(_get_root()).ask_clarification(rid, questions)
+        return _ok(req.to_dict())
+    except Exception as e:
+        return _err(str(e))
+
 def handle_summary(args):
     try:
         from loop_core.inbox import inbox_summary
@@ -43,7 +57,8 @@ def handle_summary(args):
 
 HANDLERS = {
     "inbox_submit": handle_submit, "inbox_list": handle_list,
-    "inbox_get": handle_get, "inbox_summary": handle_summary,
+    "inbox_get": handle_get, "inbox_ask_clarification": handle_ask_clarification,
+    "inbox_summary": handle_summary,
 }
 
 def main():

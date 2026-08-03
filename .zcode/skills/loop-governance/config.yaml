@@ -35,6 +35,16 @@ session_brief:
   # 注入的 pending gate 列表最多条数，超出折叠计数
   max_pending_listed: 10
 
+# ── 记忆注入配置（T-0104 设计-5） ──
+# 非 hook 配置。由 role_orchestrator / context_packager 读取：
+# phases 列表内（S4 及之后）的阶段派发角色上下文时，显式传 include_memories=True、
+# memory_limit=N（context_loader 默认值保持 False 不动，仅调用点开启）。
+# enabled: false 时完全回退到现状（不注入）。记忆注入为纯附加节，空召回即 no-op。
+memory_injection:
+  enabled: true
+  phases: ["S4", "S5", "S6", "S8", "S9", "S10"]
+  memory_limit: 5
+
 # ── 质量门禁配置（质量工程师 agent 使用） ──
 # 被 agents/quality-engineer/scripts/run_quality_gates.py 读取。
 # 每个项目的实际命令和门槛在此定义。
