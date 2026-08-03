@@ -106,17 +106,34 @@ def find_contract_files(root: Path, task_id: str) -> list[Path]:
 # ── Parser ───────────────────────────────────────────────────────────────
 
 def _parse_yaml_content(text: str) -> dict[str, Any]:
-    """Parse YAML text into a dict. Falls back to basic patterns if PyYAML unavailable."""
+    """Parse YAML text into a dict.
+
+    T-0107 D5-5: fallback 触发条件收窄——仅当 PyYAML 不可导入
+    （ImportError）时才用位置推断重建结构；PyYAML 解析失败（语法错误等）
+    不再静默降级到 pattern 解析，而是告警并返回空结构（fail-closed：
+    不基于可能不完整的重建结果做覆盖判定）。fallback 产出去向标注
+    （``_parsed_by`` 字段），字段完整性由契约测试覆盖。
+    """
     try:
         import yaml  # type: ignore
-        return yaml.safe_load(text) or {}
+        try:
+            data = yaml.safe_load(text) or {}
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            logger.warning(
+                "PyYAML parse failed for contract content (%s); "
+                "contract treated as empty (no pattern fallback)", exc,
+            )
+            return {"contracts": []}
     except ImportError:
-        pass
-    except Exception:
-        logger.warning("PyYAML parse failed, falling back to pattern-based parsing")
+        logger.warning(
+            "PyYAML unavailable; using pattern-based fallback for contract "
+            "content (fallback output may be incomplete)"
+        )
 
-    # Fallback: basic pattern-based parsing for the expected contract format
-    result: dict[str, Any] = {"contracts": []}
+    # Fallback: basic pattern-based parsing for the expected contract format.
+    # Reached ONLY on ImportError (T-0107 D5-5). Output provenance annotated.
+    result: dict[str, Any] = {"contracts": [], "_parsed_by": "pattern-fallback"}
     current_contract: dict[str, Any] | None = None
 
     for line in text.splitlines():

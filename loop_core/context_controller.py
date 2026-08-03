@@ -19,9 +19,14 @@ hooks layer (path_guard.py), not hardcoded in loop_core.
 """
 from __future__ import annotations
 
+import json
+import logging
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 # ── Core Types ──────────────────────────────────────────────────────────
@@ -353,67 +358,167 @@ class ContextController:
 
     # ── File I/O ──────────────────────────────────────────────────────
 
+    _SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
+
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def _load_schema(name: str) -> dict | None:
+        """读取 loop_core/schemas/ 下的 JSON schema（D5-1 校验用）。"""
+        path = ContextController._SCHEMA_DIR / name
+        if not path.exists():
+            return None
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+
+    @staticmethod
+    def _validate_naive_parse_result(file_name: str, data) -> list[str]:
+        """T-0107 D5-1: 对 naive 降级解析结果做 schema 校验（gates/state）。
+
+        校验失败或校验器不可用时显式返回问题（调用方负责告警）——
+        不允许无感知使用降级解析结果做授权决策。仅校验 state.yaml 与
+        gates.yaml（复用 loop_core/schemas/ 的 state/gate schema）。
+        """
+        problems: list[str] = []
+        if data is None or not isinstance(data, dict):
+            return ["naive 解析产出非 dict 结果，解析可能不完整"]
+        schema_file = None
+        if file_name == "state.yaml":
+            schema_file = "state.schema.json"
+        elif file_name == "gates.yaml":
+            schema_file = "gate.schema.json"
+        if schema_file is None:
+            return problems
+        try:
+            import jsonschema  # type: ignore
+        except ImportError:
+            problems.append(f"jsonschema 不可用，无法校验 {schema_file}（naive 解析结果未经验证）")
+            return problems
+        schema = ContextController._load_schema(schema_file)
+        if schema is None:
+            problems.append(f"schema 文件 {schema_file} 不可用，无法校验 naive 解析结果")
+            return problems
+        try:
+            if schema_file == "gate.schema.json":
+                gates = data.get("gates")
+                if not isinstance(gates, list):
+                    problems.append("gates 键缺失或非列表（naive 解析可能漏掉列表节）")
+                else:
+                    for i, gate in enumerate(gates):
+                        if not isinstance(gate, dict):
+                            problems.append(f"gate[{i}] 非 dict（naive 解析类型丢失）")
+                            continue
+                        try:
+                            jsonschema.validate(gate, schema)
+                        except jsonschema.ValidationError as exc:
+                            problems.append(f"gate[{i}] 违反 gate schema: {exc.message}")
+            else:
+                try:
+                    jsonschema.validate(data, schema)
+                except jsonschema.ValidationError as exc:
+                    problems.append(f"state 违反 state schema: {exc.message}")
+        except Exception as exc:  # 校验器本身异常不阻断，但必须显式上报
+            problems.append(f"schema 校验异常: {type(exc).__name__}: {exc}")
+        return problems
+
+    @staticmethod
+    def _yaml_load_checked(file_path: Path) -> tuple[dict | list | None, list[str]]:
+        """T-0107 D5-1: 解析 YAML，返回 (数据, 问题列表)。
+
+        PyYAML 不可用或解析失败时显式告警并降级到 naive 解析（不再静默），
+        且对 naive 结果做 schema 校验（问题进 problems 由调用方上报）。
+        调用方据此区分"解析失败"与"无数据"。
+        """
+        problems: list[str] = []
+        text = file_path.read_text(encoding="utf-8")
+        try:
+            import yaml  # type: ignore
+            try:
+                return yaml.safe_load(text), problems
+            except yaml.YAMLError as exc:
+                problems.append(f"PyYAML 解析失败: {exc}")
+        except ImportError:
+            problems.append("PyYAML 不可用")
+        data = ContextController._naive_yaml_parse(text)
+        if problems:
+            logger.warning(
+                "[context_controller] %s: %s；降级到 naive 解析（结果不完整风险）",
+                file_path.name, "; ".join(problems),
+            )
+        problems.extend(ContextController._validate_naive_parse_result(file_path.name, data))
+        return data, problems
+
+    @staticmethod
+    def _yaml_load(file_path: Path) -> dict | list | None:
+        """Load a YAML file, preferring PyYAML with a text-scan fallback.
+
+        T-0107 D5-1: 兼容入口——fallback 不再静默（告警 + schema 校验见
+        ``_yaml_load_checked``），返回解析结果（失败时可能为部分结果）。
+        """
+        data, problems = ContextController._yaml_load_checked(file_path)
+        for problem in problems:
+            logger.warning("[context_controller] %s: %s", file_path.name, problem)
+        return data
+
     def _load_state(self) -> dict:
-        """Load .ai/state.yaml; return empty dict on any failure."""
+        """Load .ai/state.yaml; return empty dict on any failure.
+
+        T-0107 D5-1: 解析失败显式告警（was 静默返回空 dict）。
+        """
         state_path = self._project_root / ".ai" / "state.yaml"
         if not state_path.exists():
             return {}
         try:
-            data = self._yaml_load(state_path)
+            data, problems = ContextController._yaml_load_checked(state_path)
+            for problem in problems:
+                logger.warning("[context_controller] state.yaml: %s", problem)
             return data if isinstance(data, dict) else {}
-        except Exception:
+        except Exception as exc:
+            logger.warning("[context_controller] state.yaml 读取失败: %s", exc)
             return {}
 
     def _load_gates(self) -> list[dict]:
         """Load the gates list from .ai/gates.yaml.
 
-        Returns an empty list if the file does not exist or cannot be parsed.
+        T-0107 D5-1: 解析失败与"无 gate"分开上报——文件缺失/无 gates 键
+        是正常状态（返回 []，不告警）；解析异常/校验告警显式记录。
         """
         gates_path = self._project_root / ".ai" / "gates.yaml"
         if not gates_path.exists():
             return []
         try:
-            data = self._yaml_load(gates_path) or {}
-            gates = data.get("gates", [])
-            return gates if isinstance(gates, list) else []
-        except Exception:
+            data, problems = ContextController._yaml_load_checked(gates_path)
+        except Exception as exc:
+            logger.warning("[context_controller] gates.yaml 读取失败: %s", exc)
             return []
+        for problem in problems:
+            logger.warning("[context_controller] gates.yaml: %s", problem)
+        if not isinstance(data, dict):
+            return []
+        gates = data.get("gates", [])
+        if not isinstance(gates, list):
+            logger.warning(
+                "[context_controller] gates.yaml 的 gates 字段不是列表——"
+                "解析失败，按无 gate 处理（fail-closed 语义由调用方保持）"
+            )
+            return []
+        return gates
 
     def _load_task_contract(self, task_id: str) -> dict | None:
         """Load a task contract from .ai/tasks/{task_id}.md.
 
-        Parses YAML-like front-matter fields:
-        - allowed_paths: list of path strings
-        - developer_agent_id / reviewer_agent_id: agent IDs
+        T-0107 D5-2: 统一调用共享契约解析模块 loop_core.front_matter
+        （与 hooks/scripts/loop_enforcement.py 同源，消除双解析器分歧；
+        支持 mcp_allowed_tools 的 markdown 表格 / 内联 / 列表三种形态）。
         """
         task_path = self._project_root / ".ai" / "tasks" / f"{task_id}.md"
         if not task_path.exists():
             return None
 
         text = task_path.read_text(encoding="utf-8")
-        contract: dict = {
-            "allowed_paths": [],
-            "developer_agent_id": None,
-            "reviewer_agent_id": None,
-        }
-
-        in_allowed_section = False
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("allowed_paths:") or stripped.startswith("allowed_actions:"):
-                in_allowed_section = True
-                continue
-            if in_allowed_section and stripped.startswith("- "):
-                path = stripped[2:].strip().strip('"')
-                contract["allowed_paths"].append(path)
-            elif in_allowed_section and not stripped.startswith("- "):
-                in_allowed_section = False
-            if stripped.startswith("developer_agent_id:"):
-                contract["developer_agent_id"] = stripped.split(":", 1)[1].strip().strip('"')
-            elif stripped.startswith("reviewer_agent_id:"):
-                contract["reviewer_agent_id"] = stripped.split(":", 1)[1].strip().strip('"')
-
-        return contract
+        from loop_core.front_matter import parse_task_front_matter
+        return parse_task_front_matter(text)
 
     def _get_current_task_id(self) -> str | None:
         """Read current_task_id from .ai/state.yaml."""
@@ -425,21 +530,6 @@ class ContextController:
         """Return gates with status == 'pending'."""
         gates = self._load_gates()
         return [g for g in gates if isinstance(g, dict) and g.get("status") == "pending"]
-
-    @staticmethod
-    def _yaml_load(file_path: Path) -> dict | list | None:
-        """Load a YAML file, preferring PyYAML with a text-scan fallback.
-
-        The fallback handles the common case of flat key-value pairs and
-        simple list-of-dicts structures used in Loop governance files.
-        """
-        text = file_path.read_text(encoding="utf-8")
-        try:
-            import yaml  # type: ignore
-            return yaml.safe_load(text)
-        except ImportError:
-            pass
-        return ContextController._naive_yaml_parse(text)
 
     @staticmethod
     def _naive_yaml_parse(text: str) -> dict:

@@ -81,19 +81,33 @@ _REEXEC_MAX = 1
 
 
 def _snapshot_hook_file_shas() -> dict[str, str]:
-    """快照本进程判定所依赖的 hook 文件 sha256（脚本目录内）。"""
+    """快照本进程判定所依赖的 hook 文件 sha256（脚本目录内）。
+
+    T-0107 D4-7: 读取失败的文件不再静默跳过——首次跳过时记 warning
+    （防篡改扫描集不完整的可见性）；同一文件仅告警一次，避免每次
+    hook 调用刷屏。
+    """
     shas: dict[str, str] = {}
     base = Path(__file__).resolve().parent
     for name in (
         "loop_enforcement.py", "hook_common.py", "_hook_bash.py",
         "_hook_state.py", "_hook_path.py", "_hook_config.py", "_hook_sync.py",
     ):
+        p = base / name
         try:
-            p = base / name
             shas[str(p)] = hashlib.sha256(p.read_bytes()).hexdigest()
-        except OSError:
-            continue
+        except OSError as exc:
+            if str(p) not in _HOOK_SHA_WARNED:
+                _HOOK_SHA_WARNED.add(str(p))
+                logger.warning(
+                    "HASH_SCAN_SKIPPED: cannot read %s (%s); tamper-scan set incomplete",
+                    p, exc,
+                )
     return shas
+
+
+# T-0107 D4-7: 已告警过的跳过文件（进程内去重，避免每次调用刷屏）
+_HOOK_SHA_WARNED: set[str] = set()
 
 
 _LOADED_HOOK_SHAS: dict[str, str] = _snapshot_hook_file_shas()
@@ -211,11 +225,21 @@ MAIN_THREAD_ALLOWED = [
 
 
 def is_loop_mode_enforced(root: Path) -> bool:
-    """Check if Loop mode enforcement is active for this project."""
+    """Check if Loop mode enforcement is active for this project.
+
+    T-0107 D4-2: state 读取异常时 fail-closed（was fail-open）——无法确认
+    loop 模式时按强制执行处理（返回 True），loop 强制不得因 state 读取
+    失败而静默关闭；与同文件 runtime 投影路径（RuntimeController 不可用
+    即 BLOCK）的 fail-closed 语义一致。异常显式告警。
+    """
     try:
         state = load_state(root)
-    except Exception:
-        return False
+    except Exception as exc:
+        logger.warning(
+            "STATE_UNREADABLE: cannot read .ai/state.yaml (%s); "
+            "treating loop mode as enforced (fail-closed)", exc,
+        )
+        return True
 
     loop_mode = state.get("loop_mode", "")
     return loop_mode in ("FULL", "STANDARD")
@@ -236,22 +260,40 @@ def is_legacy_synthetic_hook_fixture() -> bool:
     )
 
 
-def load_task_contract(root: Path, task_id: str) -> dict | None:
-    """Load the task contract to check allowed paths and MCP tool allow-list."""
-    task_path = root / ".ai" / "tasks" / f"{task_id}.md"
-    if not task_path.exists():
-        return None
+# T-0107 D5-2: 共享契约解析模块（与 loop_core/context_controller 同源）。
+# 主路径统一调用 loop_core.front_matter.parse_task_front_matter，消除
+# 双解析器行为分歧；插件缓存等退化环境（loop_core 缺失/陈旧副本无该
+# 模块）下回退到本文件内的同逻辑副本 _parse_task_front_matter_legacy
+# （代码与 front_matter.py 保持一致，仅作韧性兜底）。
+try:
+    from loop_core.front_matter import parse_task_front_matter as _SHARED_FRONT_MATTER_PARSER  # noqa: E402
+except Exception:
+    _SHARED_FRONT_MATTER_PARSER = None  # type: ignore[assignment]
 
-    text = task_path.read_text(encoding="utf-8")
+
+def _front_matter_parser():
+    """返回共享 front-matter 契约解析函数；不可用时回退到本地同逻辑副本。"""
+    if _SHARED_FRONT_MATTER_PARSER is not None:
+        return _SHARED_FRONT_MATTER_PARSER
+    logger.warning(
+        "loop_core.front_matter 不可用（退化环境）；使用本地同逻辑副本解析任务卡契约"
+    )
+    return _parse_task_front_matter_legacy
+
+
+def _parse_task_front_matter_legacy(text: str) -> dict:
+    """D5-2 韧性兜底：与 loop_core/front_matter.py 保持一致的契约解析。
+
+    仅在共享模块不可导入（陈旧插件缓存等）时使用；语义与共享模块
+    逐行一致（allowed_paths / developer_agent_id / reviewer_agent_id /
+    mcp_allowed_tools，含 markdown 表格形态）。
+    """
     contract = {
         "allowed_paths": [],
         "developer_agent_id": None,
         "reviewer_agent_id": None,
-        # B3 (T-0083): MCP capability model — explicit task contract permission.
-        # Empty list = no MCP tools allowed (fail-closed default).
         "mcp_allowed_tools": [],
     }
-
     in_allowed_section = False
     in_mcp_section = False
     for line in text.splitlines():
@@ -260,9 +302,6 @@ def load_task_contract(root: Path, task_id: str) -> dict | None:
             in_allowed_section = True
             in_mcp_section = False
             continue
-        # B3 (T-0083): mcp_allowed_tools — plain key form
-        # ("mcp_allowed_tools: [mcp__a]" / "mcp_allowed_tools:\n- mcp__a")
-        # or 基本信息 markdown-table row ("| mcp_allowed_tools | mcp__a |").
         if line.startswith("mcp_allowed_tools:") or line.startswith("| mcp_allowed_tools"):
             in_allowed_section = False
             rest = line.split(":", 1)[1].strip() if ":" in line else ""
@@ -270,7 +309,6 @@ def load_task_contract(root: Path, task_id: str) -> dict | None:
                 parts = line.split("|")
                 rest = parts[2].strip() if len(parts) > 2 else ""
             if rest:
-                # Inline flow style: [mcp__a, mcp__b] or a single tool name.
                 in_mcp_section = False
                 inner = rest[1:-1] if rest.startswith("[") and rest.endswith("]") else rest
                 for item in inner.split(","):
@@ -293,8 +331,22 @@ def load_task_contract(root: Path, task_id: str) -> dict | None:
             contract["developer_agent_id"] = line.split(":", 1)[1].strip().strip('"')
         elif line.startswith("reviewer_agent_id:"):
             contract["reviewer_agent_id"] = line.split(":", 1)[1].strip().strip('"')
-
     return contract
+
+
+def load_task_contract(root: Path, task_id: str) -> dict | None:
+    """Load the task contract to check allowed paths and MCP tool allow-list.
+
+    T-0107 D5-2: 统一调用共享契约解析模块 loop_core.front_matter（与
+    context_controller._load_task_contract 同源），支持 mcp_allowed_tools
+    的 markdown 表格 / 内联 / 列表形态；退化环境回退本地同逻辑副本。
+    """
+    task_path = root / ".ai" / "tasks" / f"{task_id}.md"
+    if not task_path.exists():
+        return None
+
+    text = task_path.read_text(encoding="utf-8")
+    return _front_matter_parser()(text)
 
 
 def _task_mcp_allowed_tools(root: Path, task_id: str) -> list[str]:

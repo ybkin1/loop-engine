@@ -54,6 +54,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import threading
 import time
 from collections.abc import Callable
@@ -69,6 +70,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_MAX_WORKERS = 4       # worker thread count when not configured
 DEFAULT_MAX_HISTORY = 500     # in-memory record cap (oldest terminal trimmed)
 DEFAULT_JOB_LOG_PATH = ".ai/evidence/observability/jobs.jsonl"
+
+# T-0107 D3-5: 落盘侧 JSONL 轮转（内存侧有 DEFAULT_MAX_HISTORY=500，
+# 落盘侧此前无上限）。达字节阈值归档，保留 N 份。
+PERSIST_MAX_BYTES = 5 * 1024 * 1024   # 5 MB
+PERSIST_MAX_ARCHIVES = 3
 
 
 # ============================================================================
@@ -176,6 +182,8 @@ class AsyncJobQueue:
         max_history: int = DEFAULT_MAX_HISTORY,
         persist_path: str | Path | None = None,
         thread_name_prefix: str = "async-job",
+        persist_max_bytes: int = PERSIST_MAX_BYTES,
+        persist_max_archives: int = PERSIST_MAX_ARCHIVES,
     ) -> None:
         self.max_workers = max(1, int(max_workers))
         self.max_history = None if max_history is None else max(0, int(max_history))
@@ -190,6 +198,9 @@ class AsyncJobQueue:
         self._persist_path: Path | None = None
         if persist_path is not None:
             self._persist_path = Path(persist_path)
+        # T-0107 D3-5: 落盘侧轮转参数（可配置，默认见模块常量）
+        self._persist_max_bytes = int(persist_max_bytes)
+        self._persist_max_archives = max(1, int(persist_max_archives))
         # Persistence failure counters — observation must never break business.
         self.persist_failures = 0
         self.persist_last_error: str | None = None
@@ -507,6 +518,8 @@ class AsyncJobQueue:
                 ensure_ascii=False,
             ) + "\n"
             self._persist_path.parent.mkdir(parents=True, exist_ok=True)
+            # T-0107 D3-5: 追加前检查落盘轮转（best-effort，不打断写入）
+            self._rotate_persist_if_needed()
             with open(self._persist_path, "a", encoding="utf-8") as f:
                 f.write(line)
         except Exception as e:  # noqa: BLE001 — persistence never breaks the queue
@@ -516,6 +529,34 @@ class AsyncJobQueue:
                 "async job persistence write failed (queue continues): %s",
                 self.persist_last_error,
             )
+
+    def _rotate_persist_if_needed(self) -> None:
+        """T-0107 D3-5: 持久化 JSONL 达字节阈值时归档轮转（保留 N 份）。
+
+        Best-effort：轮转失败不影响追加写入（观测纪律：失败计数不打断
+        队列）。与 observability/audit_ledger 同一归档命名约定
+        （``<path>.N``，N 越大越旧）。
+        """
+        if not self._persist_path.exists():
+            return
+        try:
+            size = self._persist_path.stat().st_size
+            if size < self._persist_max_bytes:
+                return
+        except OSError:
+            return
+        for index in range(self._persist_max_archives - 1, 0, -1):
+            src = Path(f"{self._persist_path}.{index}")
+            dst = Path(f"{self._persist_path}.{index + 1}")
+            if src.exists():
+                try:
+                    os.replace(src, dst)
+                except OSError:
+                    pass
+        try:
+            os.replace(self._persist_path, Path(f"{self._persist_path}.1"))
+        except OSError:
+            pass
 
     @staticmethod
     def _sanitize_record(record: JobRecord) -> dict[str, Any]:

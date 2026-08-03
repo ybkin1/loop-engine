@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.44 (2026-08-03) — T-0107 — 设计漏洞修复（P1 context_packager 截断专项 + P2 全量 + P3 首批 + hook 门禁强化）
+
+### Changed (T-0107 — 设计漏洞修复（P1 context_packager 截断专项 + P2 全量 + P3 首批 + hook 门禁强化）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.43 (2026-08-03) — T-0105 — Loop 工程收尾修复包（文档漂移/P3 修复/Q2 多轮提问/Q4 原型机制/eval 验证）
 
 ### Changed (T-0105 — Loop 工程收尾修复包（文档漂移/P3 修复/Q2 多轮提问/Q4 原型机制/eval 验证）)

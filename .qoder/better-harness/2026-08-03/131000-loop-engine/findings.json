@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "projectName": "loop-engine",
+    "locale": "zh-CN",
+    "modelId": "agent-work-loop-v4",
+    "reportContractVersion": 25,
+    "overview": "项目拥有完善的治理基础设施，但会话证据源未启用导致任务行为全部无法观察，Skill 路由缺失且学习捕获无法验证。",
+    "aiAgentPractice": {
+      "inspectedSurfaces": [
+        "Rules"
+      ],
+      "coverageRows": [
+        {
+          "surface": "Rules",
+          "scopes": [
+            "Project"
+          ],
+          "count": 1,
+          "paths": [
+            "AGENTS.md"
+          ]
+        },
+        {
+          "surface": "Skills",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        },
+        {
+          "surface": "Custom Agents",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        },
+        {
+          "surface": "Hooks",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        },
+        {
+          "surface": "Commands",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        },
+        {
+          "surface": "MCP",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        },
+        {
+          "surface": "Plugins",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        }
+      ]
+    },
+    "assignmentSummaries": [],
+    "dimensions": [
+      {
+        "id": "task-understanding",
+        "label": "任务理解",
+        "score": 59,
+        "summary": "AGENTS.md 提供项目指导，但会话证据源未启用，无任务会话可观察其实际路由效果。",
+        "findingRefs": []
+      },
+      {
+        "id": "controlled-execution",
+        "label": "可控执行",
+        "score": 59,
+        "summary": "工作区清单存在，但无已观察的启动或操作行为；另有 Skill 候选不可路由。",
+        "findingRefs": [
+          "skill-candidate-not-routable"
+        ]
+      },
+      {
+        "id": "change-validation",
+        "label": "改动验证",
+        "score": 59,
+        "summary": "149 个测试文件存在，但会话证据源未启用，无已观察的验证行为将其与实际变更关联。",
+        "findingRefs": []
+      },
+      {
+        "id": "reliable-delivery",
+        "label": "可靠交付",
+        "score": 59,
+        "summary": "部署和回滚脚本存在，但会话证据源未启用，无已观察的交付验收或恢复证据。",
+        "findingRefs": []
+      },
+      {
+        "id": "learning-capture",
+        "label": "经验沉淀",
+        "score": 35,
+        "summary": "无可比较的观察窗口，学习捕获机制无法验证。",
+        "findingRefs": [
+          "learning-capture-evidence-gap",
+          "session-source-disabled"
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "skill-candidate-not-routable",
+      "title": "Skill 候选存在但不可路由",
+      "severity": "Medium",
+      "reason": "分析器检查到 skills/loop-governance/SKILL.md 包含过程内容，但缺少触发条件、输出定义、验证机制和路由配置。当代理需要治理流程时，无法通过已配置的路径发现或调用该 Skill，导致治理基础设施成为不可达的静态文档。",
+      "expectedOutput": [
+        "Skill 具有可匹配的触发描述，包含输出验证条件，并可通过代理 Skill 发现机制路由到。"
+      ],
+      "expectedArtifact": "skills/loop-governance/SKILL.md",
+      "aiFixPrompt": "/better-harness fix this issue\n\n为 skills/loop-governance/SKILL.md 补全触发描述、输出验证和路由配置，使其可被代理发现和调用。\n\n## 验证\n\n- 确认 Skill 描述包含明确的触发词和场景\n- 确认 SKILL.md 包含可验证的输出契约\n- 运行 Skill 发现检查确认路由可达",
+      "dimensionRefs": [
+        "controlled-execution"
+      ]
+    },
+    {
+      "id": "learning-capture-evidence-gap",
+      "title": "学习捕获缺乏可比较的观察证据",
+      "severity": "Low",
+      "reason": "分析窗口内零个 Task Episode 被观察，学习捕获无法区分重复工作模式、确认维护漂移或将已检查的需求路由到可复用的学习路径。项目拥有大量治理基础设施（AGENTS.md、hooks、scripts），但没有会话证据验证这些机制是否在实际任务中被触发和应用。",
+      "expectedOutput": [
+        "后续可比较窗口中存在已观察的 Task Episode，使学习捕获能区分重复模式并验证治理机制的实际效果。"
+      ],
+      "expectedArtifact": "Task Episode 证据",
+      "aiFixPrompt": "/better-harness fix this issue\n\n在后续会话中使用项目治理流程并保留可比较的结果窗口，以便学习捕获机制验证治理基础设施的实际效果。\n\n## 验证\n\n- 完成至少两个可比较的 Task Episode 并保留结构化结果\n- 确认生命周期信号被正常化并可用于重复检测",
+      "dimensionRefs": [
+        "learning-capture"
+      ]
+    },
+    {
+      "id": "session-source-disabled",
+      "title": "会话证据源未启用导致任务行为全部不可观察",
+      "severity": "Medium",
+      "reason": "会话分析报告 0 个合格会话，并伴随警告 disabled-source-root 和 missing-optional-root，仅 1/5 个已启用源根存在。Qoder 工作区的会话证据源未启用，即使存在会话也无法读取，导致任务理解、可控执行、改动验证、可靠交付全部停留在 Unobserved，评分被证据上限锁死；学习捕获也因缺少 Task Episode 证据而无法验证。",
+      "expectedOutput": [
+        "重新运行会话事实收集后 eligibleSessions 大于 0，五个维度获得可观察证据，评分不再被证据上限封锁。"
+      ],
+      "expectedArtifact": "Qoder 工作区会话源配置",
+      "aiFixPrompt": "/better-harness fix this issue\n\n启用或重新配置 Qoder 工作区的会话证据源，使会话分析能够读取到合格会话。\n\n## 验证\n\n- 重新运行会话事实收集命令确认 eligibleSessions 大于 0\n- 确认无 disabled-source-root 警告且 sourceGaps 为空",
+      "dimensionRefs": [
+        "learning-capture"
+      ]
+    }
+  ]
+}

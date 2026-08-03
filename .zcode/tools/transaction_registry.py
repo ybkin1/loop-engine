@@ -155,11 +155,10 @@ def acknowledge_checkpoint(root, checkpoint_id, controller_generation, recovered
     existing = [a for a in data["checkpoint_acknowledgments"] if a.get("checkpoint_id") == checkpoint_id]
     if not existing:
         data["checkpoint_acknowledgments"].append(ack)
-        reg_path = root / ".ai/transaction_registry.yaml" if hasattr(root, '__fspath__') else type(root)(".ai/transaction_registry.yaml")
-        try:
-            reg_path = root / ".ai/transaction_registry.yaml"
-        except:
-            reg_path = type(root)(".ai/transaction_registry.yaml")
+        # T-0107 D4-8: 删除冗余 try/except 双重计算（原裸 except 分支会吞
+        # KeyboardInterrupt/SystemExit 且无日志；try 块内为同表达式重算的
+        # 死代码）。统一为 Path(root) 归一化，str 与 Path 形态的 root 均正确。
+        reg_path = Path(root) / ".ai/transaction_registry.yaml"
         payload = {"schema": registry["schema"], "contract_id": registry["contract_id"], "data": data}
         with open(str(reg_path), "w", encoding="utf-8") as f:
             yaml.safe_dump(payload, f, allow_unicode=True, sort_keys=False)

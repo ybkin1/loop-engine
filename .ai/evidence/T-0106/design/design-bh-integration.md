@@ -7,6 +7,17 @@
 
 ---
 
+## F0 会话证据源恢复（新增前置机制项）：启用 Qoder source roots + 可观测性解锁
+
+- **问题编号**：`session-source-disabled`（Medium）
+- **问题证据**：Better Harness 报告出现 `disabled-source-root`、`missing-optional-root`，仅 `1/5` 个 enabled source roots 存在，`eligibleSessions=0`；这不是单纯的“证据边界”，而是会话源被禁用/不可读的机制缺陷。
+- **影响维度**：任务理解、可控执行、改动验证、可靠交付、经验沉淀。前四项会被锁在 Unobserved/证据上限，经验沉淀因没有 Task Episode 也无法验证。
+- **目标**：恢复或重新配置 Qoder 工作区会话源，使分析器能够读取合格会话；逐 root 报告配置路径、解析路径、存在性、可读性、session 数、eligible 数和失败原因。
+- **改动边界**：优先修复 Qoder/Better Harness 工作区 source-root 配置与导入链，不直接修改 Loop 治理内核；不得用补写伪造 Episode 的方式提高评分。
+- **实施建议**：独立建立 T-0112（候选）会话源恢复任务；先完成 source-root health check，再导入至少两个可比较 Task Episode，最后重新运行会话事实收集和维度评审。
+- **验证**：`eligibleSessions > 0`；`disabled-source-root` 消失；`sourceGaps` 为空或每项有明确可接受原因；至少两个 Episode 带非空 evidenceRefs；重新评审后才允许比较 59 分以上的潜在提升。
+- **必须保持**：证据真实性、隐私脱敏、fail-closed 安全裁决、用户 gate 审批边界；源不可用时洞察必须标记 `NO_EVIDENCE/INSUFFICIENT_SAMPLE`，不得生成行为性确定结论。
+
 ## F1 评估模型升级：证据七态 + gate evidence + 评分上限表 + Repair/Loop 分离
 
 - **目标文件/新增模块**：`loop_core/schemas/evidence_state.py`（新增，EvidenceState 枚举七态 Present/Wired/Exercised/Outcome-supported/Missing/Unobserved/N-A）；`loop_core/subagent_evidence_verifier.py`（修改，验证结果映射七态）；`loop_core/gate_feedback.py`（修改，GateLesson 增加 evidence 状态字段）；`loop_core/governance_metrics.py`（修改，MetricsReport 增加评分档位与 Repair/Loop 两族指标）；`.ai/slo.yaml`（修改，评分上限表 59/74/84/94/100 显式化，对齐 slo.yaml 既有配置外置模式）

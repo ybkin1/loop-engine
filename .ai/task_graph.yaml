@@ -1200,6 +1200,19 @@ tasks:
       - T-0105
     gates:
       - G-T-0106-REQUIREMENTS
+  -
+    id: T-0107
+    title: 设计漏洞修复 — P1 context_packager 截断 + P2 全量 + P3 首批
+    phase: S6-delivery
+    status: completed
+    description: >-
+      T-0106 排布首项实施：P1-1 context_packager 专项 9 处 + P2 全量 11 项
+      （含 D5-1/2 解析器统一）+ P3 首批 6 项；D4-2/D4-7 hook 单独门禁
+      （fail-closed 强化）；KNOWN_ISSUES 12 条清零；bump 3.12.44。
+    depends_on:
+      - T-0106
+    gates:
+      - G-T-0107-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

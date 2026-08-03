@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "5A8B838F31CB1495931A1BA5E4051FC09AAD383DB23B20396AF42DE96B3D367F",
+  "persisted_file_sha256": "9A22F0170A4FBB8A5FD2FBCCFF9778250575CE83A763D1033EB348749D996304",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "48819B103180EF3B9973D33B8E6EF0254E9288AA423760708C9FB61BDAF5EA4E",
+  "source_sha256": "647C6C15BDBCB8A2A489A6215B51D7E0E8AB819A9D0FDF7ECF5A367EA56ECA0D",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -121,7 +121,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0106/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0107/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 

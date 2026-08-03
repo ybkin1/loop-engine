@@ -5512,3 +5512,76 @@ gates:
   - user explicitly approves, rejects, or requests repair of this gate
   - hook files and governance kernel zero modification during T-0106
   - no product code change during T-0106 (candidate-only)
+- id: G-T-0107-REQUIREMENTS
+  task_id: T-0107
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-03T13:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-03T13:30:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0107
+  approval_evidence: .ai/evidence/T-0107/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0107/execution-evidence.json
+  scope: >-
+    T-0107 设计漏洞修复（T-0106 排布首项）：P1-1 context_packager 截断专项 9 处
+    + P2 全量 11 项 + P3 首批 6 项；D4-2/D4-7 为 hook 单独门禁项（loop_enforcement.py
+    仅两处 fail-closed 强化）；KNOWN_ISSUES 12 条清零；版本 bump 3.12.44；
+    治理内核零触碰，hooks/ 其余文件零改动。
+  allowed_paths:
+  - .ai/
+  - loop_core/context_packager.py
+  - loop_core/context_controller.py
+  - loop_core/audit_ledger.py
+  - loop_core/execution_ledger.py
+  - loop_core/contract_verifier.py
+  - loop_core/intent_router.py
+  - loop_core/async_jobs.py
+  - loop_core/observability.py
+  - hooks/scripts/loop_enforcement.py
+  - tools/tool_constraint_check.py
+  - .zcode/tools/transaction_registry.py
+  - tests/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ files other than hooks/scripts/loop_enforcement.py (D4-2/D4-7 only)
+  - modify loop_core governance kernel (gate_guard/enforcement core/hard_constraints/guard_health/state_machine/validate_state/context_loader defaults)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (D4-2 is fail-open → fail-closed hardening only)
+  - implement T-0108+ roadmap scope
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - context_packager 专项 9 处修复证据（含截断标记/AC 节测试）
+  - P2 11 项修复证据 + 契约测试（双解析器统一）
+  - P3 首批 6 项修复证据
+  - KNOWN_ISSUES 清零记录
+  - hooks/ 仅 D4-2/D4-7 两处 diff 实证 + hook 测试全绿
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.44 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hook files other than the two scoped edits remain unmodified during T-0107

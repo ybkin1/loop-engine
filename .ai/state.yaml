@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T12:26:27.966762+08:00'
+last_handoff_at: '2026-08-03T13:45:42.579104+08:00'
 notes:
 - 'T-0106 REGISTERED 2026-08-03: Better Harness 融合与 LE 去臃肿升级（总设计 + 全仓库漏洞排查， candidate-only）。G-T-0106-REQUIREMENTS
   pending，待用户批准。范围：批 1 设计漏洞排查（只读） + 批 2 BH 融合方案（8 特性模块级）+ 批 3 共同弱点方案 + 批 4 任务排布 T-0107~T-0111；
@@ -126,3 +126,8 @@ notes:
   M-1~17/修复器治理） + T-0107~T-0111 排布（P3 归属全覆盖），7/7 AC，独立审查 CONDITIONAL_GO→GO （抽查 22/22
   准确，约束零弱化确认），12 条 KNOWN_ISSUES 登记，全量 3867 passed （1 预存问题 worktree 复现非本任务引入），hook
   0 改动、内核 0 触碰，版本保持 3.12.43 提交推送。T-0107 待用户批准。'
+- 'T-0107 COMPLETED 2026-08-03: 设计漏洞修复（T-0106 排布首项）— P1 context_packager 专项 9/9（token
+  预算/AC 节永不切/截断标记/缓存/timeout）+ P2 全量 11/11（audit_ledger 轮转/双解析器统一 front_matter.py/fail-closed
+  强化等）+ P3 首批 6/6 + hook 门禁 2+1 处（loop_enforcement 单文件，其余 hook 零改动），7/7 AC，独立审查 CONDITIONAL_GO→GO（P0/P1=0），KNOWN_ISSUES
+  12 条清零（1 环境依赖项另登记）， 全量 3909 passed（2 closeout 瞬态 + 1 预存环境项），bump 3.12.44 提交推送。 T-0108（BH
+  融合·收敛期）待用户批准。'

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "summary": {},
+  "dimensions": [
+    {
+      "id": "task-understanding"
+    },
+    {
+      "id": "controlled-execution"
+    },
+    {
+      "id": "change-validation"
+    },
+    {
+      "id": "reliable-delivery"
+    },
+    {
+      "id": "learning-capture"
+    }
+  ],
+  "findings": [
+    {
+      "id": "skill-candidate-not-routable"
+    },
+    {
+      "id": "learning-capture-evidence-gap"
+    },
+    {
+      "id": "session-source-disabled"
+    }
+  ]
+}

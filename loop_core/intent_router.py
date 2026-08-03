@@ -335,6 +335,10 @@ class IntentRouter:
     # Confidence thresholds
     LOW_CONFIDENCE_THRESHOLD: float = 0.50
 
+    # T-0107 D2-2: 中风险因素累计升级阈值（was 魔法数 3）。
+    # >= MEDIUM_RISK_ESCALATION_MIN 个中风险因素 → 升级到 loop 模式。
+    MEDIUM_RISK_ESCALATION_MIN: int = 3
+
     # Complexity factors (weights)
     DOMAIN_WEIGHT: float = 0.30          # contribution from detected domains
     KEYWORD_WEIGHT: float = 0.40         # contribution from risk keywords
@@ -555,7 +559,8 @@ class IntentRouter:
             "has_high_uncertainty",
         ]
         triggered_medium = [f for f in medium_risk_flags if risk_factors.get(f)]
-        if len(triggered_medium) >= 3:
+        # 静态方法：经类名引用常量（T-0107 D2-2）
+        if len(triggered_medium) >= IntentRouter.MEDIUM_RISK_ESCALATION_MIN:
             return True, (
                 f"Multiple medium-risk factors ({len(triggered_medium)}): "
                 f"{', '.join(triggered_medium)}. Escalating."

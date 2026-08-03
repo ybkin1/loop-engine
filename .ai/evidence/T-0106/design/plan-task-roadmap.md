@@ -137,6 +137,38 @@ T-0107 漏洞修复（LOW）─┬─> T-0108 BH 融合·收敛期（LOW-MED）�
 
 ---
 
+## 新增前置机制项：session-source-disabled（T-0112 候选，独立于 T-0107）
+
+### 问题定性
+
+Better Harness 会话分析报告同时出现 `disabled-source-root` 与 `missing-optional-root`，仅 `1/5` 个 enabled source roots 存在，`eligibleSessions=0`。这不是普通的“当前证据边界”，而是 Qoder 工作区会话源被禁用、缺失或不可读的机制缺陷：即使工作区存在会话，分析器也读不到，导致任务理解、可控执行、改动验证、可靠交付持续处于 Unobserved，评分被证据上限锁死；经验沉淀因没有 Task Episode 证据同样无法验证。
+
+### 修复目标
+
+1. 恢复/启用 Qoder 工作区会话证据源，修复 source-root 配置、路径解析和导入权限。
+2. 对 5 个 enabled root 逐一输出 configured/resolved/exists/readable/sessionCount/eligibleCount/reason，禁止只报告 `1/5`。
+3. 重新运行会话事实收集，确认 `eligibleSessions > 0`，且无未解释的 `disabled-source-root`。
+4. 导入至少两个可比较的 Task Episode，事件至少覆盖 session start、task identification、edit、validation、close/recovery，并保留非空 evidenceRefs。
+5. 在源恢复前，所有洞察保持 `NO_EVIDENCE` 或 `INSUFFICIENT_SAMPLE`，不得把“不可观察”解释为“未执行”。
+
+### 任务边界与排布
+
+- **候选任务**：T-0112（Qoder 会话源恢复与可比较观察窗口）。
+- **依赖**：需要 Better Harness/Qoder 工作区配置与事实收集入口可用；不依赖 T-0107 的代码修复。
+- **与现有任务关系**：T-0107 继续只处理设计漏洞正确性修复；T-0108 的 BH 融合验收必须把 T-0112 作为可观测性前置条件或明确记录未满足，不得用静态文件存在替代会话证据。
+- **禁止合并**：不得在 T-0107 中直接修改 Qoder 外部配置、伪造 Episode、放宽评分上限或绕过用户 gate。
+
+### 可测验收标准
+
+- [ ] 五个 source root 均有逐项诊断状态；不可用 root 有明确错误码和修复建议。
+- [ ] `eligibleSessions > 0`，且 `disabled-source-root` 不再出现；`sourceGaps` 为空或逐项有可接受解释。
+- [ ] 至少两个可比较 Task Episode 成功导入，至少覆盖一次 edit→validation 和一次 rework/recovery。
+- [ ] Episode 与 task/session/gate 可关联，evidenceRefs 非空、可追溯、已脱敏。
+- [ ] 重新评审后，任务理解、可控执行、改动验证、可靠交付四维不再因会话源缺失被锁定；经验沉淀具备可比较窗口。
+- [ ] 未满足上述条件时，报告明确为“无可用观察证据”，不输出确定性行为结论。
+
+---
+
 ## P3 项归属总表（T-0106 P2-1 排布补齐）
 
 > 全部 30 项 P3（audit-design-gaps.md 编号）显式任务归属；编号引用以 audit-design-gaps.md 为准。T-0109（BH 分层期）不承接 P3。

@@ -83,6 +83,11 @@ GOVERNANCE_FILES = {
     ".ai/project_continuity.yaml",
 }
 
+# T-0107 D3-4: runtime-events.jsonl 轮转（对齐 observability 策略）。
+# 事件每状态变更写一行，长期无界 → 达字节阈值归档，保留 N 份。
+JOURNAL_MAX_BYTES = 5 * 1024 * 1024   # 5 MB
+JOURNAL_MAX_ARCHIVES = 3
+
 
 def _canonical(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -487,8 +492,37 @@ class RuntimeController:
 
     def _event(self, event: str, details: dict[str, Any]) -> None:
         self.meta_dir.mkdir(parents=True, exist_ok=True)
+        # T-0107 D3-4: 追加前检查轮转（runtime-events.jsonl 无界增长修复）
+        self._rotate_journal_if_needed()
         with self.journal_path.open("a", encoding="utf-8") as stream:
             stream.write(_canonical({"event": event, "details": details}) + "\n")
+
+    def _rotate_journal_if_needed(self) -> None:
+        """T-0107 D3-4: journal 达到字节阈值时归档轮转（保留 N 份）。
+
+        Best-effort：轮转失败不影响事件写入（事件是观测数据，不因轮转
+        失败中断）。归档命名 ``runtime-events.jsonl.N``（N 越大越旧）。
+        """
+        if not self.journal_path.exists():
+            return
+        try:
+            size = self.journal_path.stat().st_size
+            if size < JOURNAL_MAX_BYTES:
+                return
+        except OSError:
+            return
+        for index in range(JOURNAL_MAX_ARCHIVES - 1, 0, -1):
+            src = Path(f"{self.journal_path}.{index}")
+            dst = Path(f"{self.journal_path}.{index + 1}")
+            if src.exists():
+                try:
+                    os.replace(src, dst)
+                except OSError:
+                    pass
+        try:
+            os.replace(self.journal_path, Path(f"{self.journal_path}.1"))
+        except OSError:
+            pass
 
     @staticmethod
     def _read_yaml_like(path: Path) -> dict[str, Any]:
