@@ -1,0 +1,78 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0106-97C171B8
+task_id: T-0106
+gate_id: G-T-0106-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0106
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0106/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 66A999060A11729CCB5C0149E3CE1B782FC30F7CA584F3534B2AA455EBDBE8DE
+  size: 4455
+  mtime_ns: 1785731112574922200
+- path: .ai/evidence/T-0106/approval-evidence.json
+  role: result
+  required: true
+  sha256: 86B5266D80CDCFE9070F208CB5135C623BD0FA6A35914B860940AFFF096CEA4A
+  size: 307
+  mtime_ns: 1785728574598798200
+- path: .ai/evidence/T-0106/commands.md
+  role: result
+  required: true
+  sha256: 3520B6AC4890890DC3FDBF5BEF43EFE47954F879285D01133C8C2F2C42FA6A4B
+  size: 5386
+  mtime_ns: 1785731072868429400
+- path: .ai/evidence/T-0106/compile-evidence.json
+  role: result
+  required: true
+  sha256: E89F5EB23FEC86FF03A90065D668B715D0123564C9549894423E7918AB5AE872
+  size: 181
+  mtime_ns: 1785728595010904400
+- path: .ai/evidence/T-0106/design/audit-design-gaps.md
+  role: result
+  required: true
+  sha256: D155F03FD7606480C0542F89C1CFB1AD0859AB2E3A1695E599447CD1EEA6EACA
+  size: 21241
+  mtime_ns: 1785730986154448000
+- path: .ai/evidence/T-0106/design/design-bh-integration.md
+  role: result
+  required: true
+  sha256: 7133B5F9CEBC88937622BDD4D109F604497895B262D92AC735651CB3A0E722BB
+  size: 14039
+  mtime_ns: 1785731063260564200
+- path: .ai/evidence/T-0106/design/design-common-weakness.md
+  role: result
+  required: true
+  sha256: 743C4068BBFA162F1808955607DA08FB86692F1FD227303D935E24E8595D428B
+  size: 15400
+  mtime_ns: 1785729298763214100
+- path: .ai/evidence/T-0106/design/plan-task-roadmap.md
+  role: result
+  required: true
+  sha256: 1F7C5750E7E2E66E0BB72E8BFAA311A40D9DB975CD262D08F42C4B4033558451
+  size: 20531
+  mtime_ns: 1785731047427551300
+- path: .ai/evidence/T-0106/execution-evidence.json
+  role: result
+  required: true
+  sha256: 0CEA44D049A2F44AB777FD1CCE9175A6140D170BBB0E9884F907DDA2AA7C0896
+  size: 1045
+  mtime_ns: 1785728584728584200
+- path: .ai/evidence/T-0106/review/independent-review.md
+  role: result
+  required: true
+  sha256: 79277E297537172717FDD6ABF45EB2566A6214CFB0682E215BC7737F01CBCDC6
+  size: 21479
+  mtime_ns: 1785730535087601100
+file_count: 10
+total_bytes: 104064
+ordered_entries_sha256: 97C171B83EC8218393623A621CC8E2BBCC463FC518D9536A57D97C9D9CE9C947
+created_at: '2026-08-03T13:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: FF6879A10FB8BB6A082CFFC66B0555456B6001F05EF68D9E5A938617F9B730C0

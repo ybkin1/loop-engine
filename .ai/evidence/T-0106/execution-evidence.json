@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0106",
+  "gate_id": "G-T-0106-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-03T12:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "批 1 全仓库设计漏洞排查：截断/魔法值/无界操作/静默吞错 4 维度 × 4 代码域（loop_core/tools/scripts/agents+hooks），只读审计，含文件:行号证据",
+    "批 2 BH 融合详细方案：评估模型/单一数据源/gates 分层/按需加载/工具 capability 化/上下文打包/契约测试（模块级）",
+    "批 3 共同弱点优化方案：巨模块拆分/魔法数字集中化/修复器治理",
+    "批 4 整合任务排布 T-0107~T-0111（范围/AC 草案/依赖/风险/验收门）",
+    "已确认修复项登记 KNOWN_ISSUES.md",
+    "独立审查 + 验收（candidate-only，版本保持 3.12.43）"
+  ],
+  "notes": "G-T-0106-REQUIREMENTS 已由用户批准（批准文本：批准 T-0106）。candidate-only 任务：仅 .ai/ 写入，hook 0 改动、治理内核 0 触碰、无产品代码变更。"
+}

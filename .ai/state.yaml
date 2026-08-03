@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T11:39:57.892402+08:00'
+last_handoff_at: '2026-08-03T12:26:27.966762+08:00'
 notes:
 - 'T-0106 REGISTERED 2026-08-03: Better Harness 融合与 LE 去臃肿升级（总设计 + 全仓库漏洞排查， candidate-only）。G-T-0106-REQUIREMENTS
   pending，待用户批准。范围：批 1 设计漏洞排查（只读） + 批 2 BH 融合方案（8 特性模块级）+ 批 3 共同弱点方案 + 批 4 任务排布 T-0107~T-0111；
@@ -118,3 +118,11 @@ notes:
   原型机制 （最小落地，chain 零改动）+ 批 4 副本同步与 eval 实验（4/4 维度信号，盲点自检有效） + AiDecisionLedger 真实路径，10/10
   AC，独立审查 CONDITIONAL_GO→GO（P1 均收尾流程项）， 全量 3867 passed（1 提交前瞬态自愈），hook 0 改动、内核 0 触碰，bump
   3.12.43 提交推送。 全部未收尾项闭环。T-0106 已登记待用户重新批准。'
+- 'T-0106 ACTIVE 2026-08-03: G-T-0106-REQUIREMENTS 已由用户批准（"批准 T-0106"）。 执行中（candidate-only）：批
+  1 全仓库设计漏洞排查（截断/魔法值/无界操作/静默吞错， 只读审计）→ 批 2 BH 融合详细方案（8 特性模块级）→ 批 3 共同弱点优化方案 → 批 4
+  整合任务排布 T-0107~T-0111；仅 .ai/ 写入，hook 0 改动、内核 0 触碰、 无产品代码变更，版本保持 3.12.43；独立审查 → 验收。'
+- 'T-0106 COMPLETED 2026-08-03: BH 融合总设计 + 全仓库漏洞排查（candidate-only） — 42 项设计漏洞（P1×1
+  context_packager 截断/P2×11/P3×30，D1-D5 五维度）+ 8 特性 BH 融合方案（含必须保持清单）+ 共同弱点 3 项（5 巨文件拆分/魔法数
+  M-1~17/修复器治理） + T-0107~T-0111 排布（P3 归属全覆盖），7/7 AC，独立审查 CONDITIONAL_GO→GO （抽查 22/22
+  准确，约束零弱化确认），12 条 KNOWN_ISSUES 登记，全量 3867 passed （1 预存问题 worktree 复现非本任务引入），hook
+  0 改动、内核 0 触碰，版本保持 3.12.43 提交推送。T-0107 待用户批准。'

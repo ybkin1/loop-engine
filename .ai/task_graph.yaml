@@ -1189,7 +1189,7 @@ tasks:
     id: T-0106
     title: Better Harness 融合与 LE 去臃肿升级 — 总设计 + 全仓库漏洞排查（candidate-only）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       BH 深度调研结论落地为可执行升级路径：批 1 全仓库设计漏洞排查（截断/魔法值/
       无界操作/静默吞错四维度，只读审计）+ 批 2 BH 融合详细方案（评估模型/单一数据源/
