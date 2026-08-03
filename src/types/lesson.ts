@@ -120,6 +120,25 @@ export interface LessonRecord {
   /** Phase in which the resolution was applied */
   resolved_in_phase?: string;
 
+  // ── Longitudinal Validation (aligned with Better Harness) ──
+
+  /**
+   * Validation status of the fix over time.
+   * - `pending_no_later_window`: fix applied, awaiting comparable later tasks
+   * - `verified`: a comparable later task/outcome confirmed the fix works
+   * - `regressed`: a later comparable task showed the issue recurred
+   */
+  validation_status?: "pending_no_later_window" | "verified" | "regressed";
+
+  /** ISO-8601 timestamp when longitudinal validation was last updated. */
+  validated_at?: string;
+
+  /**
+   * Reference to the comparable later task/execution that confirmed
+   * (or disproved) the fix effectiveness.
+   */
+  validation_evidence_ref?: string;
+
   // ── Searchability ──
 
   /** Search tags (e.g. ["typescript", "null-check", "async-await"]) */

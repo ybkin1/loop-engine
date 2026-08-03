@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { initProject, checkGate, advanceGate, approveGate, loadState } from "../core/state-machine.js";
+import { initProject, checkGate, advanceGate, approveGate, loadState, loadGates } from "../core/state-machine.js";
 import { activateRole, getRoleStatus } from "../core/role-engine.js";
 import { submitEvidence, verifyEvidence } from "../core/evidence.js";
 import { getHandoffHistory } from "../core/handoff.js";
 import { generatePrompt } from "../core/prompt_engine.js";
+import { HarnessAnalyzer } from "../core/harness_analyzer.js";
+import { ConstraintEngine } from "../core/constraint_engine.js";
 import type { PromptContext } from "../core/prompt_engine.js";
 
 const program = new Command();
@@ -125,6 +127,130 @@ program.command("state")
   .action(async (opts: { root: string }) => {
     const state = await loadState(opts.root);
     console.log(JSON.stringify(state, null, 2));
+  });
+
+// ── status ─────────────────────────────────────────────
+program.command("status")
+  .description("Show governance status")
+  .option("-r, --root <path>", "Project root", process.cwd())
+  .option("--full", "Show full status with Harness analysis and constraint check")
+  .option("--json", "Machine-readable JSON output (parser-safe, no spinners/colors)")
+  .option("--no-color", "Disable ANSI colors in human output")
+  .action(async (opts: { root: string; full?: boolean; json?: boolean; color?: boolean }) => {
+    const state = await loadState(opts.root);
+    const gates = await loadGates(opts.root);
+
+    const pendingGates = gates.gates.filter(g => g.status === "pending").map(g => g.gate_id);
+    const blockedGates = gates.gates.filter(g => g.status === "blocked").map(g => g.gate_id);
+
+    // Machine mode: emit a single parser-safe JSON document on stdout
+    if (opts.json) {
+      const payload: Record<string, unknown> = {
+        project_name: state.project_name,
+        current_phase: state.current_phase,
+        current_gate: state.current_gate_id,
+        active_role: state.active_role ?? null,
+        pending_gates: pendingGates,
+        blocked_gates: blockedGates,
+      };
+
+      if (opts.full) {
+        const engine = new ConstraintEngine(opts.root);
+        const govStatus = await engine.getGovernanceStatus();
+        const analyzer = new HarnessAnalyzer(opts.root);
+        const report = await analyzer.analyze();
+        const freshness = await engine.checkEvidenceFreshness();
+        const integrity = await engine.checkGovernanceFileIntegrity();
+
+        payload.governance = {
+          overall_status: govStatus.overall_status,
+          constraint_violations: govStatus.constraint_violations,
+          pending_gates: govStatus.pending_gates,
+          blocked_gates: govStatus.blocked_gates,
+        };
+        payload.harness = {
+          overall_score: report.overall_score,
+          dimensions: report.dimensions.map(d => ({
+            id: d.name,
+            label: d.label,
+            score: d.score,
+            ceiling: d.ceiling,
+            ceiling_state: d.ceiling_state,
+            finding_count: d.findings.length,
+          })),
+          findings: report.findings.slice(0, 10).map(f => ({
+            dimension: f.dimension,
+            severity: f.severity,
+            title: f.title,
+            description: f.description,
+          })),
+          report_hash: report.report_hash,
+        };
+        payload.evidence = {
+          freshness_ok: freshness.allowed,
+          freshness_reason: freshness.reason,
+        };
+        payload.integrity = {
+          verified: integrity.allowed,
+          reason: integrity.reason,
+        };
+      }
+
+      process.stdout.write(JSON.stringify(payload, null, 2) + "\n");
+      return;
+    }
+
+    // Human mode (colors may be disabled via --no-color)
+    const red = (s: string) => (opts.color === false ? s : `\x1b[31m${s}\x1b[0m`);
+    const green = (s: string) => (opts.color === false ? s : `\x1b[32m${s}\x1b[0m`);
+    const yellow = (s: string) => (opts.color === false ? s : `\x1b[33m${s}\x1b[0m`);
+    const bold = (s: string) => (opts.color === false ? s : `\x1b[1m${s}\x1b[0m`);
+
+    console.log(bold("=== Loop Status ==="));
+    console.log(`Project:     ${state.project_name}`);
+    console.log(`Phase:       ${state.current_phase}`);
+    console.log(`Gate:        ${state.current_gate_id}`);
+    console.log(`Active Role: ${state.active_role ?? "(none)"}`);
+
+    console.log(`\nPending Gates: ${pendingGates.length > 0 ? yellow(pendingGates.join(", ")) : "(none)"}`);
+    console.log(`Blocked Gates: ${blockedGates.length > 0 ? red(blockedGates.join(", ")) : green("(none)")}`);
+
+    if (opts.full) {
+      console.log(bold("\n=== Full Status ==="));
+
+      // Constraint check
+      const engine = new ConstraintEngine(opts.root);
+      const govStatus = await engine.getGovernanceStatus();
+      console.log(`\nGovernance Status: ${govStatus.overall_status === "HEALTHY" ? green(govStatus.overall_status) : govStatus.overall_status === "DEGRADED" ? yellow(govStatus.overall_status) : red(govStatus.overall_status)}`);
+      console.log(`Constraint Violations: ${govStatus.constraint_violations}`);
+
+      // Harness analysis
+      const analyzer = new HarnessAnalyzer(opts.root);
+      const report = await analyzer.analyze();
+      console.log(`\nHarness Score: ${bold(String(report.overall_score))}/100`);
+      console.log(`\nDimension Scores (ceiling: ${yellow("evidence state")}):`);
+      for (const dim of report.dimensions) {
+        const ceilingTag = `[上限${dim.ceiling} · ${dim.ceiling_state}]`;
+        console.log(`  ${dim.label}: ${dim.score}/100 ${ceilingTag}`);
+        for (const finding of dim.findings.slice(0, 3)) {
+          console.log(`    - ${finding.title}: ${finding.description}`);
+        }
+      }
+
+      // Evidence freshness
+      const freshness = await engine.checkEvidenceFreshness();
+      console.log(`\nEvidence Freshness: ${freshness.allowed ? green("OK") : red("Issues")}`);
+      if (!freshness.allowed) {
+        console.log(`  ${freshness.reason}`);
+      }
+
+      // Governance integrity
+      const integrity = await engine.checkGovernanceFileIntegrity();
+      console.log(`\nGovernance Integrity: ${integrity.allowed ? green("Verified") : red("Failed")}`);
+      if (!integrity.allowed) {
+        console.log(`  ${integrity.reason}`);
+      }
+    }
   });
 
 // ── handoff ────────────────────────────────────────────

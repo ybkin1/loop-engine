@@ -8,16 +8,20 @@
  * Ported from ZCode loop_core/execution_ledger.py.
  */
 
-import { createHash } from "node:crypto";
 import {
-  readFileSync,
-  writeFileSync,
   appendFileSync,
-  existsSync,
-  renameSync,
-  mkdirSync,
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
+import {
+  sha256,
+  chainHashFields,
+  ensureDir,
+  readJsonlEntries,
+  readAllArchivedEntries,
+  maybeArchive,
+  GENESIS_HASH_LONG,
+  DEFAULT_ARCHIVE_THRESHOLD,
+} from "./chain_ledger_utils.js";
 
 // ── ExecutionStatus ──────────────────────────────────────────────────────────
 
@@ -74,22 +78,7 @@ export interface CrossValidation {
   reviewer_sessions: string[];
 }
 
-// ── Constants ────────────────────────────────────────────────────────────────
-
-/** The "genesis" previous-hash used for the very first entry. */
-const GENESIS_PREV_HASH = "0".repeat(64);
-
-/** Threshold for auto-archiving the ledger file. */
-const ARCHIVE_THRESHOLD = 200;
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Compute the SHA-256 hex digest of the given string.
- */
-function sha256(input: string): string {
-  return createHash("sha256").update(input, "utf-8").digest("hex");
-}
 
 /**
  * Compute the chain_hash for an execution record.
@@ -104,82 +93,11 @@ function computeChainHash(
   status: ExecutionStatus,
   startedAt: string,
 ): string {
-  const payload = `${prevChainHash}${seq}${executionId}${roleId}${status}${startedAt}`;
-  return sha256(payload);
+  return chainHashFields(prevChainHash, seq, executionId, roleId, status, startedAt);
 }
 
-/**
- * Ensure the directory for the given file path exists.
- */
-function ensureDir(filePath: string): void {
-  const dir = dirname(filePath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-}
-
-/**
- * Read all entries from a JSONL ledger file.
- * Blank lines are silently skipped.
- */
-function readEntries(ledgerPath: string): ExecutionRecord[] {
-  if (!existsSync(ledgerPath)) return [];
-  const raw = readFileSync(ledgerPath, "utf-8");
-  const entries: ExecutionRecord[] = [];
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0) continue;
-    try {
-      entries.push(JSON.parse(trimmed) as ExecutionRecord);
-    } catch {
-      // Skip malformed lines — they will be caught by verifyChain.
-    }
-  }
-  return entries;
-}
-
-/**
- * Read all entries across the main ledger and any archived files.
- * Archives are named .jsonl.1, .jsonl.2, etc.
- */
-function readAllEntries(ledgerPath: string): ExecutionRecord[] {
-  const entries: ExecutionRecord[] = [];
-
-  // Read archived files in order (.jsonl.1, .jsonl.2, ...)
-  let archiveIdx = 1;
-  while (existsSync(`${ledgerPath}.${archiveIdx}`)) {
-    const archived = readEntries(`${ledgerPath}.${archiveIdx}`);
-    entries.push(...archived);
-    archiveIdx++;
-  }
-
-  // Read main ledger
-  entries.push(...readEntries(ledgerPath));
-  return entries;
-}
-
-/**
- * Archive the current ledger file if it exceeds the threshold.
- * Rotates existing archives upward (.jsonl.1 → .jsonl.2, etc.)
- */
-function maybeArchive(ledgerPath: string): void {
-  const entries = readEntries(ledgerPath);
-  if (entries.length <= ARCHIVE_THRESHOLD) return;
-
-  // Find the next archive index
-  let nextIdx = 1;
-  while (existsSync(`${ledgerPath}.${nextIdx}`)) {
-    nextIdx++;
-  }
-
-  // Rotate existing archives upward
-  for (let i = nextIdx - 1; i >= 1; i--) {
-    renameSync(`${ledgerPath}.${i}`, `${ledgerPath}.${i + 1}`);
-  }
-
-  // Move current ledger to .jsonl.1
-  renameSync(ledgerPath, `${ledgerPath}.1`);
-}
+const readEntries = readJsonlEntries<ExecutionRecord>;
+const readAllEntries = readAllArchivedEntries<ExecutionRecord>;
 
 // ── ExecutionLedger ──────────────────────────────────────────────────────────
 
@@ -235,7 +153,7 @@ export class ExecutionLedger {
     const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null;
 
     const seq = lastEntry && lastEntry.seq ? lastEntry.seq + 1 : 1;
-    const prevChainHash = lastEntry?.chain_hash ?? GENESIS_PREV_HASH;
+    const prevChainHash = lastEntry?.chain_hash ?? GENESIS_HASH_LONG;
 
     const chainHash = computeChainHash(
       prevChainHash,
@@ -257,7 +175,7 @@ export class ExecutionLedger {
 
     // Auto-archive if threshold exceeded (non-critical — skip on error)
     try {
-      maybeArchive(this.ledgerPath);
+      maybeArchive(this.ledgerPath, readEntries(this.ledgerPath).length, DEFAULT_ARCHIVE_THRESHOLD);
     } catch {
       // Archival failure is non-fatal; the entry is still persisted
     }
@@ -364,7 +282,7 @@ export class ExecutionLedger {
       return { valid: true, firstInvalidSeq: null, totalEntries: 0 };
     }
 
-    let prevHash = GENESIS_PREV_HASH;
+    let prevHash = GENESIS_HASH_LONG;
 
     for (const entry of entries) {
       const seq = entry.seq ?? 0;
@@ -385,7 +303,7 @@ export class ExecutionLedger {
         };
       }
 
-      prevHash = entry.chain_hash ?? GENESIS_PREV_HASH;
+      prevHash = entry.chain_hash ?? GENESIS_HASH_LONG;
     }
 
     return { valid: true, firstInvalidSeq: null, totalEntries: entries.length };

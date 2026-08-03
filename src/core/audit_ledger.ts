@@ -8,15 +8,17 @@
  * Uses only Node.js built-in modules (`crypto`, `fs`, `path`).
  */
 
-import { createHash } from "node:crypto";
 import {
-  readFileSync,
   writeFileSync,
-  existsSync,
-  mkdirSync,
   appendFileSync,
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
+import {
+  sha256,
+  ensureDir,
+  readJsonlEntries,
+  GENESIS_HASH_SHORT,
+} from "./chain_ledger_utils.js";
 
 // ── Ledger Entry ──────────────────────────────────────────────────────────────
 
@@ -51,64 +53,21 @@ export interface IntegrityResult {
   firstInvalidSeq?: number;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-/** The "genesis" previous-hash used for the very first entry. */
-const GENESIS_PREV_HASH = "0";
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * Compute the SHA-256 hex digest of the given string.
- */
-function sha256(input: string): string {
-  return createHash("sha256").update(input, "utf-8").digest("hex");
-}
+const GENESIS_PREV_HASH = GENESIS_HASH_SHORT;
 
 /**
  * Compute the chain_hash for a new entry.
  *
  * The hash is computed over: `prevHash + JSON.stringify(entryWithoutHash)`.
- *
- * @param prevHash - The `chain_hash` of the preceding entry (or `"0"`)
- * @param entryWithoutHash - The entry object with `chain_hash` omitted
  */
 function computeChainHash(prevHash: string, entryWithoutHash: Omit<LedgerEntry, "chain_hash">): string {
   const payload = prevHash + JSON.stringify(entryWithoutHash);
   return sha256(payload);
 }
 
-/**
- * Ensure the directory for the given file path exists.
- */
-function ensureDir(filePath: string): void {
-  const dir = dirname(filePath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-}
-
-/**
- * Read all entries from a JSONL ledger file.
- *
- * Each line is expected to be a valid JSON object representing a
- * {@link LedgerEntry}. Blank lines are silently skipped.
- */
-function readEntries(ledgerPath: string): LedgerEntry[] {
-  if (!existsSync(ledgerPath)) return [];
-  const raw = readFileSync(ledgerPath, "utf-8");
-  const entries: LedgerEntry[] = [];
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0) continue;
-    try {
-      entries.push(JSON.parse(trimmed) as LedgerEntry);
-    } catch {
-      // Skip malformed lines — they will be caught by verifyIntegrity.
-    }
-  }
-  return entries;
-}
+const readEntries = readJsonlEntries<LedgerEntry>;
 
 // ── AuditLedger ───────────────────────────────────────────────────────────────
 

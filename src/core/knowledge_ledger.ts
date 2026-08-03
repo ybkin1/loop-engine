@@ -29,15 +29,21 @@
  * ```
  */
 
-import { createHash } from "node:crypto";
 import {
-  readFileSync,
   appendFileSync,
-  existsSync,
-  mkdirSync,
-  renameSync,
+  writeFileSync,
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
+import {
+  sha256,
+  chainHashFields,
+  ensureDir,
+  readJsonlEntries,
+  readAllArchivedEntries,
+  maybeArchive,
+  GENESIS_HASH_LONG,
+  DEFAULT_ARCHIVE_THRESHOLD,
+} from "./chain_ledger_utils.js";
 
 import {
   LessonCategory,
@@ -53,19 +59,7 @@ import type {
   LessonIntegrity,
 } from "../types/lesson.js";
 
-// ── Constants ────────────────────────────────────────────────────────────────
-
-/** The "genesis" previous-hash used for the very first entry. */
-const GENESIS_PREV_HASH = "0".repeat(64);
-
-/** Threshold for auto-archiving the ledger file. */
-const ARCHIVE_THRESHOLD = 200;
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function sha256(input: string): string {
-  return createHash("sha256").update(input, "utf-8").digest("hex");
-}
 
 function computeChainHash(
   prevChainHash: string,
@@ -75,57 +69,11 @@ function computeChainHash(
   roleId: string,
   timestamp: string,
 ): string {
-  const payload = `${prevChainHash}${seq}${lessonId}${phaseId}${roleId}${timestamp}`;
-  return sha256(payload);
+  return chainHashFields(prevChainHash, seq, lessonId, phaseId, roleId, timestamp);
 }
 
-function ensureDir(filePath: string): void {
-  const dir = dirname(filePath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-}
-
-function readEntries(ledgerPath: string): LessonRecord[] {
-  if (!existsSync(ledgerPath)) return [];
-  const raw = readFileSync(ledgerPath, "utf-8");
-  const entries: LessonRecord[] = [];
-  for (const line of raw.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.length === 0) continue;
-    try {
-      entries.push(JSON.parse(trimmed) as LessonRecord);
-    } catch {
-      // Skip malformed lines
-    }
-  }
-  return entries;
-}
-
-function readAllEntries(ledgerPath: string): LessonRecord[] {
-  const entries: LessonRecord[] = [];
-  let archiveIdx = 1;
-  while (existsSync(`${ledgerPath}.${archiveIdx}`)) {
-    entries.push(...readEntries(`${ledgerPath}.${archiveIdx}`));
-    archiveIdx++;
-  }
-  entries.push(...readEntries(ledgerPath));
-  return entries;
-}
-
-function maybeArchive(ledgerPath: string): void {
-  const entries = readEntries(ledgerPath);
-  if (entries.length <= ARCHIVE_THRESHOLD) return;
-
-  let nextIdx = 1;
-  while (existsSync(`${ledgerPath}.${nextIdx}`)) {
-    nextIdx++;
-  }
-  for (let i = nextIdx - 1; i >= 1; i--) {
-    renameSync(`${ledgerPath}.${i}`, `${ledgerPath}.${i + 1}`);
-  }
-  renameSync(ledgerPath, `${ledgerPath}.1`);
-}
+const readEntries = readJsonlEntries<LessonRecord>;
+const readAllEntries = readAllArchivedEntries<LessonRecord>;
 
 // ── Input type for lesson capture (before chain fields are populated) ────────
 
@@ -181,7 +129,7 @@ export class KnowledgeLedger {
     const mainEntries = readEntries(this.ledgerPath);
     const allEntries = readAllEntries(this.ledgerPath);
     const lastEntry = allEntries.length > 0 ? allEntries[allEntries.length - 1] : null;
-    const prevChainHash = lastEntry?.chain_hash ?? GENESIS_PREV_HASH;
+    const prevChainHash = lastEntry?.chain_hash ?? GENESIS_HASH_LONG;
 
     const chainHash = computeChainHash(
       prevChainHash,
@@ -214,7 +162,7 @@ export class KnowledgeLedger {
     appendFileSync(this.ledgerPath, JSON.stringify(record) + "\n", "utf-8");
 
     try {
-      maybeArchive(this.ledgerPath);
+      maybeArchive(this.ledgerPath, readEntries(this.ledgerPath).length, DEFAULT_ARCHIVE_THRESHOLD);
     } catch {
       // Non-fatal
     }
@@ -312,9 +260,18 @@ export class KnowledgeLedger {
     // (We append a new entry but carry the resolution metadata)
     const resolvedRecord: LessonRecord = {
       ...record,
+      // Preserve the ORIGINAL lesson_id so multi-version records of the
+      // same lesson stay queryable by id (seq distinguishes versions).
+      lesson_id: original.lesson_id,
       resolution,
       resolved_at: resolvedAt,
       resolved_in_phase: resolvedInPhase,
+      // Longitudinal validation: a fix proves repair state, not later
+      // effectiveness. Mark it pending until a comparable later task
+      // confirms the outcome (Better Harness: same-window validation
+      // proves repair state, not later effectiveness).
+      validation_status: "pending_no_later_window",
+      validated_at: resolvedAt,
     };
 
     // Re-write the last line of the ledger with resolution info
@@ -463,6 +420,95 @@ export class KnowledgeLedger {
       status: newStatus,
       tags: original.tags,
     });
+  }
+
+  /**
+   * Confirm (or refute) a lesson's fix effectiveness with longitudinal evidence.
+   *
+   * Better Harness principle: same-window validation proves repair state,
+   * not later effectiveness. Call this only when a comparable later task or
+   * outcome window shows the repaired mechanism was routed, applied, and
+   * improved the result without regression.
+   *
+   * @param lessonId - The lesson to validate
+   * @param verdict - "verified" (comparable later outcome confirms the fix)
+   *                  or "regressed" (the issue recurred in a later task)
+   * @param evidenceRef - Reference to the comparable later task/execution
+   * @returns The updated LessonRecord, or null if not found
+   */
+  confirmValidation(
+    lessonId: string,
+    verdict: "verified" | "regressed",
+    evidenceRef: string,
+  ): LessonRecord | null {
+    const allEntries = readAllEntries(this.ledgerPath);
+    const original = allEntries.find(e => e.lesson_id === lessonId);
+    if (!original) return null;
+
+    // Create a new entry preserving the chain (append-only)
+    const input: LessonInput = {
+      phase_id: original.phase_id,
+      role_id: original.role_id,
+      task_id: original.task_id,
+      execution_id: original.execution_id,
+      category: original.category,
+      severity: original.severity,
+      symptom: original.symptom,
+      error_message: original.error_message,
+      constraint_violations: original.constraint_violations,
+      status: original.status,
+      tags: original.tags,
+    };
+
+    const record = this.capture(input);
+    const validatedRecord: LessonRecord = {
+      ...record,
+      // Preserve the ORIGINAL lesson_id (multi-version records of the same
+      // lesson stay queryable by id; seq distinguishes versions).
+      lesson_id: original.lesson_id,
+      resolution: original.resolution,
+      resolved_at: original.resolved_at,
+      resolved_in_phase: original.resolved_in_phase,
+      validation_status: verdict,
+      validated_at: new Date().toISOString(),
+      validation_evidence_ref: evidenceRef,
+    };
+
+    // Re-write the last line of the ledger with validation info
+    const entries = readEntries(this.ledgerPath);
+    if (entries.length > 0) {
+      entries[entries.length - 1] = validatedRecord;
+      writeFileSync(
+        this.ledgerPath,
+        entries.map(e => JSON.stringify(e)).join("\n") + "\n",
+        "utf-8",
+      );
+    }
+
+    return validatedRecord;
+  }
+
+  /**
+   * Find lessons whose fix is applied but not yet longitudinally validated
+   * (`pending_no_later_window`). These are candidates for a comparable
+   * later-task check.
+   *
+   * Only the LATEST version of each lesson is considered — a lesson that was
+   * later `verified` or `regressed` must not appear as pending.
+   */
+  findPendingValidations(): LessonRecord[] {
+    const all = readAllEntries(this.ledgerPath);
+    // Group by lesson_id, keep the highest-seq version of each lesson
+    const latestByLesson = new Map<string, LessonRecord>();
+    for (const entry of all) {
+      const current = latestByLesson.get(entry.lesson_id);
+      if (!current || entry.seq > current.seq) {
+        latestByLesson.set(entry.lesson_id, entry);
+      }
+    }
+    return [...latestByLesson.values()]
+      .filter(e => e.status === LessonStatus.RESOLVED)
+      .filter(e => e.validation_status === "pending_no_later_window");
   }
 
   // ── Query ──────────────────────────────────────────────────────────────
@@ -623,7 +669,7 @@ export class KnowledgeLedger {
       return { valid: true, firstInvalidSeq: null, totalEntries: 0 };
     }
 
-    let prevHash = GENESIS_PREV_HASH;
+    let prevHash = GENESIS_HASH_LONG;
 
     for (const entry of entries) {
       const expectedHash = computeChainHash(
@@ -670,21 +716,31 @@ export class KnowledgeLedger {
     return this.ledgerPath;
   }
 
-  /** Get a single lesson by ID. */
+  /** Get the most recent lesson record by ID. */
   get(lessonId: string): LessonRecord | undefined {
-    return readAllEntries(this.ledgerPath).find(e => e.lesson_id === lessonId);
+    // The latest entry for a lesson is the one with the highest seq
+    // (each update appends a new entry to preserve the chain).
+    const matches = readAllEntries(this.ledgerPath)
+      .filter(e => e.lesson_id === lessonId)
+      .sort((a, b) => b.seq - a.seq);
+    return matches[0];
   }
 
   /**
    * Auto-categorize an error based on simple heuristics.
    * Useful for suggesting a category when capturing a lesson.
+   *
+   * Negative controls (aligned with Better Harness):
+   * - Substring matches like "c1" inside ordinary words (process1, ac1d)
+   *   must NOT trigger CONSTRAINT_VIOLATION; requires word-boundary match.
+   * - "test" without fail/missing must NOT trigger TEST_GAP.
+   * - "role" inside business terms (role-based) must NOT trigger PROCESS_GAP.
    */
   static suggestCategory(errorMessage: string): LessonCategory {
     const lower = errorMessage.toLowerCase();
 
-    if (lower.includes("constraint") || lower.includes("c1") || lower.includes("c2") ||
-        lower.includes("c3") || lower.includes("c4") || lower.includes("c5") ||
-        lower.includes("c6") || lower.includes("c7") || lower.includes("c8")) {
+    // Word-boundary matches for constraint IDs (C1-C8) to avoid false positives
+    if (lower.includes("constraint") || /\bc[1-8]\b/.test(lower)) {
       return LessonCategory.CONSTRAINT_VIOLATION;
     }
     if (lower.includes("typeerror") || lower.includes("null") || lower.includes("undefined") ||
@@ -706,8 +762,10 @@ export class KnowledgeLedger {
         lower.includes("performance")) {
       return LessonCategory.PERFORMANCE_ISSUE;
     }
-    if (lower.includes("phase") || lower.includes("gate") || lower.includes("handoff") ||
-        lower.includes("role") || lower.includes("state")) {
+    // Process/role/gate terms: require standalone words. Use lookarounds to
+    // reject hyphenated forms like "role-based" or "gate-guard" (a hyphen is
+    // not a standalone-word boundary in business terms).
+    if (/(?<![\w-])(?:phase|gate|handoff|role|state)(?![\w-])/.test(lower)) {
       return LessonCategory.PROCESS_GAP;
     }
 

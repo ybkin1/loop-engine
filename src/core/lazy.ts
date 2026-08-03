@@ -170,6 +170,11 @@ export function humanReviewPacket() {
   return import("./human_review_packet.js");
 }
 
+/** Harness Analyzer: self-diagnosis engine (five-dimension assessment). */
+export function harnessAnalyzer() {
+  return import("./harness_analyzer.js");
+}
+
 // ── Convenience: Grouped Namespace Loaders ──────────────────────────────────
 
 /** Load all evidence-related modules at once. */
@@ -205,7 +210,7 @@ export async function loadKnowledgeGroup() {
 }
 
 /** Load all context-related modules at once. */
-export async function loadContextGroup() {
+export async function loadContextGroup(): Promise<Record<string, unknown>> {
   const [cl, cc, rc, pe] = await Promise.all([
     contextLoader(),
     contextController(),

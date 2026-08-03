@@ -264,3 +264,28 @@ export type { SessionRestoreContext, UnresolvedLessonSummary } from "./session_r
 // ── Prompt Engine (four-quadrant cognitive protocol) ────────────────────────
 export { generatePrompt, loadQuadrantTemplate, getRoleQuadrantConfig } from "./prompt_engine.js";
 export type { PromptContext, PromptResult } from "./prompt_engine.js";
+
+// ── Harness Analyzer (self-diagnosis engine, inspired by Better Harness) ────
+export { HarnessAnalyzer, DIMENSION_LABELS } from "./harness_analyzer.js";
+export type {
+  HarnessReport, DimensionResult, Finding, EvidenceItem,
+  DimensionName, DimensionScore, FindingSeverity, LoopAssets,
+} from "./harness_analyzer.js";
+
+// ── Constraint Engine (unified facade for enforcement modules) ──────────────
+export { ConstraintEngine } from "./constraint_engine.js";
+
+// ── Loop Discovery (10-gate decision, aligned with Better Harness) ──────────
+export {
+  LoopDiscovery,
+  DISCOVERY_GATE_LABELS,
+} from "./loop_discovery.js";
+export type {
+  DiscoveryGateId,
+  GateEvaluation,
+  RuntimeFit,
+  DiscoveryDecision,
+  DurableOwner,
+  LoopDiscoveryResult,
+  LoopCandidateInput,
+} from "./loop_discovery.js";
