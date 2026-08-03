@@ -1217,11 +1217,11 @@ tasks:
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery
-    status: in_progress
+    status: rejected
     description: >-
-      修复 session-source-disabled：恢复 Qoder/Better Harness 会话证据源，
-      逐项诊断 5 个 source roots，导入至少两个可比较 Task Episode，并重新评审
-      任务理解、可控执行、改动验证、可靠交付与经验沉淀；不伪造证据、不放宽评分。
+      撤销记录（2026-08-03 用户决策 + HANDOFF Scope Correction）：Qoder 为外部会话宿主，
+      其会话数据不能作为 ZCode 验收证据；原"恢复 Qoder 源"为错误 scope 表述。
+      证据保留为外部诊断记录；session-source-disabled 保留 KNOWN_ISSUES 记录。
     depends_on:
       - T-0107
     gates:

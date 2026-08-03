@@ -1,0 +1,4973 @@
+{
+  "scope": {
+    "platform": "qoder",
+    "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+    "workspaceSlug": "C--Users-Administrator-ZCodeProject-loop-engine",
+    "home": "C:\\Users\\Administrator\\.qoder-cn",
+    "since": null,
+    "until": null,
+    "sessionId": null,
+    "includeCache": true,
+    "includeGlobalCapabilities": true
+  },
+  "sources": [
+    {
+      "id": "qoder-audit",
+      "kind": "audit-jsonl",
+      "role": "tool-permission-audit",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\audit\\audit.jsonl",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-run-manifests",
+      "kind": "run-manifest",
+      "role": "run-metadata",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\logs\\runs",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-log-sessions",
+      "kind": "logs-session",
+      "role": "execution-events",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\logs\\sessions\\C--Users-Administrator-ZCodeProject-loop-engine",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": true
+    },
+    {
+      "id": "qoder-projects",
+      "kind": "project-jsonl",
+      "role": "project-session-store",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\C-Users-Administrator-ZCodeProject-loop-engine",
+      "exists": true,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": true
+    },
+    {
+      "id": "qoder-home-sessions",
+      "kind": "home-session",
+      "role": "session-compat",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\sessions",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-cache-projects",
+      "kind": "cache-project-session",
+      "role": "cache-conversation",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects",
+      "exists": true,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-global-projects",
+      "kind": "global-project-jsonl",
+      "role": "user-global-project-session-store",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\projects",
+      "exists": true,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": "task-eb25fc09c10140aa8361.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "execution-transcript",
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T05:10:23.204Z",
+      "lastSeen": "2026-08-03T05:10:23.204Z",
+      "indexedEventCounts": {
+        "execution-transcript": 2
+      },
+      "sourceRefs": [
+        {
+          "kind": "execution-transcript",
+          "role": "execution-transcript",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\C-Users-Administrator-ZCodeProject-loop-engine\\transcript\\task-eb25fc09c10140aa8361.session.execution.jsonl",
+          "sessionId": "task-eb25fc09c10140aa8361.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T05:10:23.204Z",
+          "lastSeen": "2026-08-03T05:10:23.204Z"
+        },
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-ZCodeProject-loop-engine\\transcript\\task-eb25fc09c10140aa8361.session.execution.jsonl",
+          "sessionId": "task-eb25fc09c10140aa8361.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T05:10:23.204Z",
+          "lastSeen": "2026-08-03T05:10:23.204Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "648658eb-cd18-4b1a-80bb-aaa0cfeb5a84",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T04:06:42.456Z",
+      "lastSeen": "2026-08-03T04:06:42.456Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\648658eb-cd18-4b1a-80bb-aaa0cfeb5a84.jsonl",
+          "sessionId": "648658eb-cd18-4b1a-80bb-aaa0cfeb5a84",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T04:06:42.456Z",
+          "lastSeen": "2026-08-03T04:06:42.456Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "38127035-2422-4930-88f0-32c3cea7c2aa",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T04:06:42.200Z",
+      "lastSeen": "2026-08-03T04:06:42.200Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\38127035-2422-4930-88f0-32c3cea7c2aa.jsonl",
+          "sessionId": "38127035-2422-4930-88f0-32c3cea7c2aa",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T04:06:42.200Z",
+          "lastSeen": "2026-08-03T04:06:42.200Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "2e255514-c350-4e4b-8a00-6ba01dcb3b5d",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T04:06:40.947Z",
+      "lastSeen": "2026-08-03T04:06:40.947Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\2e255514-c350-4e4b-8a00-6ba01dcb3b5d.jsonl",
+          "sessionId": "2e255514-c350-4e4b-8a00-6ba01dcb3b5d",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T04:06:40.947Z",
+          "lastSeen": "2026-08-03T04:06:40.947Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-8b942fa2a50a4ebdae3f.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T04:04:13.699Z",
+      "lastSeen": "2026-08-03T04:04:13.699Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-8b942fa2a50a4ebdae3f.session.execution.jsonl",
+          "sessionId": "task-8b942fa2a50a4ebdae3f.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T04:04:13.699Z",
+          "lastSeen": "2026-08-03T04:04:13.699Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-1d22933df0c9488b80bd.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T02:46:07.189Z",
+      "lastSeen": "2026-08-03T02:46:07.189Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-1d22933df0c9488b80bd.session.execution.jsonl",
+          "sessionId": "task-1d22933df0c9488b80bd.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T02:46:07.189Z",
+          "lastSeen": "2026-08-03T02:46:07.189Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-43fd1f728b274720b4ad.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-02T08:48:48.651Z",
+      "lastSeen": "2026-08-02T08:48:48.651Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-43fd1f728b274720b4ad.session.execution.jsonl",
+          "sessionId": "task-43fd1f728b274720b4ad.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-02T08:48:48.651Z",
+          "lastSeen": "2026-08-02T08:48:48.651Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "89ebeda9-dff3-413e-9453-4a3f449a01a8",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-02T03:15:39.081Z",
+      "lastSeen": "2026-08-02T03:15:39.081Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\89ebeda9-dff3-413e-9453-4a3f449a01a8.jsonl",
+          "sessionId": "89ebeda9-dff3-413e-9453-4a3f449a01a8",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-02T03:15:39.081Z",
+          "lastSeen": "2026-08-02T03:15:39.081Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "1baaa64a-6774-4b90-8ecf-2b20a97e8a4d",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-01T00:27:43.301Z",
+      "lastSeen": "2026-08-01T00:27:43.301Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\1baaa64a-6774-4b90-8ecf-2b20a97e8a4d.jsonl",
+          "sessionId": "1baaa64a-6774-4b90-8ecf-2b20a97e8a4d",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-01T00:27:43.301Z",
+          "lastSeen": "2026-08-01T00:27:43.301Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "7151497a-fbd5-4e23-a8b5-80142c0f3c87",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T23:17:02.269Z",
+      "lastSeen": "2026-07-31T23:17:02.269Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\7151497a-fbd5-4e23-a8b5-80142c0f3c87.jsonl",
+          "sessionId": "7151497a-fbd5-4e23-a8b5-80142c0f3c87",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T23:17:02.269Z",
+          "lastSeen": "2026-07-31T23:17:02.269Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "a273cf6b-9e84-4d7c-a1fb-031538e1987d",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T16:13:59.827Z",
+      "lastSeen": "2026-07-31T16:13:59.827Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\a273cf6b-9e84-4d7c-a1fb-031538e1987d.jsonl",
+          "sessionId": "a273cf6b-9e84-4d7c-a1fb-031538e1987d",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T16:13:59.827Z",
+          "lastSeen": "2026-07-31T16:13:59.827Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "fdc0fb94-39b3-4dec-93d1-4bd040dae8de",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T15:54:57.065Z",
+      "lastSeen": "2026-07-31T15:54:57.065Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\fdc0fb94-39b3-4dec-93d1-4bd040dae8de.jsonl",
+          "sessionId": "fdc0fb94-39b3-4dec-93d1-4bd040dae8de",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T15:54:57.065Z",
+          "lastSeen": "2026-07-31T15:54:57.065Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "1186780b-b913-4ba8-879a-d02fdec72b7b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T13:03:04.222Z",
+      "lastSeen": "2026-07-31T13:03:04.222Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\1186780b-b913-4ba8-879a-d02fdec72b7b.jsonl",
+          "sessionId": "1186780b-b913-4ba8-879a-d02fdec72b7b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T13:03:04.222Z",
+          "lastSeen": "2026-07-31T13:03:04.222Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "340d2a55-c12a-4f49-a030-216fd35aeecc",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T11:51:23.275Z",
+      "lastSeen": "2026-07-31T11:51:23.275Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\340d2a55-c12a-4f49-a030-216fd35aeecc.jsonl",
+          "sessionId": "340d2a55-c12a-4f49-a030-216fd35aeecc",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T11:51:23.275Z",
+          "lastSeen": "2026-07-31T11:51:23.275Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-88a24748996543f7a6d1.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T10:02:33.167Z",
+      "lastSeen": "2026-07-31T10:02:33.167Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-88a24748996543f7a6d1.session.execution.jsonl",
+          "sessionId": "task-88a24748996543f7a6d1.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T10:02:33.167Z",
+          "lastSeen": "2026-07-31T10:02:33.167Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "7eab1084-d96b-4d82-97f6-4096b0c367f0",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T09:24:11.351Z",
+      "lastSeen": "2026-07-31T09:24:11.351Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\7eab1084-d96b-4d82-97f6-4096b0c367f0.jsonl",
+          "sessionId": "7eab1084-d96b-4d82-97f6-4096b0c367f0",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T09:24:11.351Z",
+          "lastSeen": "2026-07-31T09:24:11.351Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-590105f558dd4acdae81.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T09:09:48.690Z",
+      "lastSeen": "2026-07-31T09:09:48.690Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\task-590105f558dd4acdae81.session.execution.jsonl",
+          "sessionId": "task-590105f558dd4acdae81.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T09:09:48.690Z",
+          "lastSeen": "2026-07-31T09:09:48.690Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-cdac695a7d414268b04e.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-31T09:01:47.223Z",
+      "lastSeen": "2026-07-31T09:01:47.223Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\task-cdac695a7d414268b04e.session.execution.jsonl",
+          "sessionId": "task-cdac695a7d414268b04e.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-31T09:01:47.223Z",
+          "lastSeen": "2026-07-31T09:01:47.223Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-698cb03ad8ee4d2bb7fb.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-29T09:42:32.624Z",
+      "lastSeen": "2026-07-29T09:42:32.624Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-698cb03ad8ee4d2bb7fb.session.execution.jsonl",
+          "sessionId": "task-698cb03ad8ee4d2bb7fb.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-29T09:42:32.624Z",
+          "lastSeen": "2026-07-29T09:42:32.624Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-31bb780c20994d35bc53.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-29T03:08:16.404Z",
+      "lastSeen": "2026-07-29T03:08:16.404Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-31bb780c20994d35bc53.session.execution.jsonl",
+          "sessionId": "task-31bb780c20994d35bc53.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-29T03:08:16.404Z",
+          "lastSeen": "2026-07-29T03:08:16.404Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "5ec659ee-99e2-4054-94f5-4ebf946fa7ec",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T06:16:24.591Z",
+      "lastSeen": "2026-07-28T06:16:24.591Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\5ec659ee-99e2-4054-94f5-4ebf946fa7ec.jsonl",
+          "sessionId": "5ec659ee-99e2-4054-94f5-4ebf946fa7ec",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T06:16:24.591Z",
+          "lastSeen": "2026-07-28T06:16:24.591Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-167c2a38fb084ece8d7f.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T06:01:50.320Z",
+      "lastSeen": "2026-07-28T06:01:50.320Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-167c2a38fb084ece8d7f.session.execution.jsonl",
+          "sessionId": "task-167c2a38fb084ece8d7f.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T06:01:50.320Z",
+          "lastSeen": "2026-07-28T06:01:50.320Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "c88e3794-4f26-4c00-a3ac-3890760eaf28",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T05:37:45.963Z",
+      "lastSeen": "2026-07-28T05:37:45.963Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\c88e3794-4f26-4c00-a3ac-3890760eaf28.jsonl",
+          "sessionId": "c88e3794-4f26-4c00-a3ac-3890760eaf28",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T05:37:45.963Z",
+          "lastSeen": "2026-07-28T05:37:45.963Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "476f771d-97b0-4238-89ee-51e1d2a0d82b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T03:29:46.381Z",
+      "lastSeen": "2026-07-28T03:29:46.381Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\476f771d-97b0-4238-89ee-51e1d2a0d82b.jsonl",
+          "sessionId": "476f771d-97b0-4238-89ee-51e1d2a0d82b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T03:29:46.381Z",
+          "lastSeen": "2026-07-28T03:29:46.381Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b25cfe04-2f34-44d7-8ebe-bc619bf1fd31",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T03:29:45.536Z",
+      "lastSeen": "2026-07-28T03:29:45.536Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b25cfe04-2f34-44d7-8ebe-bc619bf1fd31.jsonl",
+          "sessionId": "b25cfe04-2f34-44d7-8ebe-bc619bf1fd31",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T03:29:45.536Z",
+          "lastSeen": "2026-07-28T03:29:45.536Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "ad7c6e16-6cd3-4f5a-a4b1-4d8c17302c46",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T03:07:02.311Z",
+      "lastSeen": "2026-07-28T03:07:02.311Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\ad7c6e16-6cd3-4f5a-a4b1-4d8c17302c46.jsonl",
+          "sessionId": "ad7c6e16-6cd3-4f5a-a4b1-4d8c17302c46",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T03:07:02.311Z",
+          "lastSeen": "2026-07-28T03:07:02.311Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "47410e84-7d1c-4b56-9c4e-d16187d7852b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T03:07:01.408Z",
+      "lastSeen": "2026-07-28T03:07:01.408Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\47410e84-7d1c-4b56-9c4e-d16187d7852b.jsonl",
+          "sessionId": "47410e84-7d1c-4b56-9c4e-d16187d7852b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T03:07:01.408Z",
+          "lastSeen": "2026-07-28T03:07:01.408Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "0d20e843-ebce-42b4-865c-dc827a0cef0b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T03:06:57.293Z",
+      "lastSeen": "2026-07-28T03:06:57.293Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\0d20e843-ebce-42b4-865c-dc827a0cef0b.jsonl",
+          "sessionId": "0d20e843-ebce-42b4-865c-dc827a0cef0b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T03:06:57.293Z",
+          "lastSeen": "2026-07-28T03:06:57.293Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "7f422793-d91e-4fa9-9081-a2326a3aa836",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-28T02:35:07.569Z",
+      "lastSeen": "2026-07-28T02:35:07.569Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\7f422793-d91e-4fa9-9081-a2326a3aa836.jsonl",
+          "sessionId": "7f422793-d91e-4fa9-9081-a2326a3aa836",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-28T02:35:07.569Z",
+          "lastSeen": "2026-07-28T02:35:07.569Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "501af9d2-08e5-4b07-b306-8beccca9d9de",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T15:58:50.695Z",
+      "lastSeen": "2026-07-27T15:58:50.695Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\501af9d2-08e5-4b07-b306-8beccca9d9de.jsonl",
+          "sessionId": "501af9d2-08e5-4b07-b306-8beccca9d9de",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T15:58:50.695Z",
+          "lastSeen": "2026-07-27T15:58:50.695Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "e41bca44-00d9-4506-bc83-a7df4beabb2c",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T15:58:48.649Z",
+      "lastSeen": "2026-07-27T15:58:48.649Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\e41bca44-00d9-4506-bc83-a7df4beabb2c.jsonl",
+          "sessionId": "e41bca44-00d9-4506-bc83-a7df4beabb2c",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T15:58:48.649Z",
+          "lastSeen": "2026-07-27T15:58:48.649Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "63f8c861-b790-4fa6-a7f3-a4960da40149",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T06:56:02.934Z",
+      "lastSeen": "2026-07-27T06:56:02.934Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\63f8c861-b790-4fa6-a7f3-a4960da40149.jsonl",
+          "sessionId": "63f8c861-b790-4fa6-a7f3-a4960da40149",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T06:56:02.934Z",
+          "lastSeen": "2026-07-27T06:56:02.934Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "37cf9482-c819-43c0-b193-44b0c1a3d557",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T05:51:53.313Z",
+      "lastSeen": "2026-07-27T05:51:53.313Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\37cf9482-c819-43c0-b193-44b0c1a3d557.jsonl",
+          "sessionId": "37cf9482-c819-43c0-b193-44b0c1a3d557",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T05:51:53.313Z",
+          "lastSeen": "2026-07-27T05:51:53.313Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "09d7ae21-db3a-40c2-bacb-0e6c3c22ffc2",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T05:51:51.130Z",
+      "lastSeen": "2026-07-27T05:51:51.130Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\09d7ae21-db3a-40c2-bacb-0e6c3c22ffc2.jsonl",
+          "sessionId": "09d7ae21-db3a-40c2-bacb-0e6c3c22ffc2",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T05:51:51.130Z",
+          "lastSeen": "2026-07-27T05:51:51.130Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b9f32e33-dde1-49ab-825d-4486b0c96993",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T05:51:50.136Z",
+      "lastSeen": "2026-07-27T05:51:50.136Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b9f32e33-dde1-49ab-825d-4486b0c96993.jsonl",
+          "sessionId": "b9f32e33-dde1-49ab-825d-4486b0c96993",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T05:51:50.136Z",
+          "lastSeen": "2026-07-27T05:51:50.136Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b939d185-4ae9-444a-a689-b54d63ab0e2b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T05:51:49.504Z",
+      "lastSeen": "2026-07-27T05:51:49.504Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b939d185-4ae9-444a-a689-b54d63ab0e2b.jsonl",
+          "sessionId": "b939d185-4ae9-444a-a689-b54d63ab0e2b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T05:51:49.504Z",
+          "lastSeen": "2026-07-27T05:51:49.504Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-b6d8ec73b498415cba16.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T05:11:24.725Z",
+      "lastSeen": "2026-07-27T05:11:24.725Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-QoderCN-2026-07-27-chat-1\\transcript\\task-b6d8ec73b498415cba16.session.execution.jsonl",
+          "sessionId": "task-b6d8ec73b498415cba16.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T05:11:24.725Z",
+          "lastSeen": "2026-07-27T05:11:24.725Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f20c5cd2-929f-4f0a-8ba4-51d0b4d2c7e3",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:23:15.074Z",
+      "lastSeen": "2026-07-27T03:23:15.074Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\f20c5cd2-929f-4f0a-8ba4-51d0b4d2c7e3.jsonl",
+          "sessionId": "f20c5cd2-929f-4f0a-8ba4-51d0b4d2c7e3",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:23:15.074Z",
+          "lastSeen": "2026-07-27T03:23:15.074Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "304fc23c-619a-470c-8374-3b505338257a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:23:12.030Z",
+      "lastSeen": "2026-07-27T03:23:12.030Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\304fc23c-619a-470c-8374-3b505338257a.jsonl",
+          "sessionId": "304fc23c-619a-470c-8374-3b505338257a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:23:12.030Z",
+          "lastSeen": "2026-07-27T03:23:12.030Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "231849ea-8318-4534-9413-0379a0b91b8f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:23:11.400Z",
+      "lastSeen": "2026-07-27T03:23:11.400Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\231849ea-8318-4534-9413-0379a0b91b8f.jsonl",
+          "sessionId": "231849ea-8318-4534-9413-0379a0b91b8f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:23:11.400Z",
+          "lastSeen": "2026-07-27T03:23:11.400Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "8d59adf7-3cfe-4f5a-a4ad-403c4e70ce88",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:09:58.499Z",
+      "lastSeen": "2026-07-27T03:09:58.499Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\8d59adf7-3cfe-4f5a-a4ad-403c4e70ce88.jsonl",
+          "sessionId": "8d59adf7-3cfe-4f5a-a4ad-403c4e70ce88",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:09:58.499Z",
+          "lastSeen": "2026-07-27T03:09:58.499Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "23d8f5ae-36fc-493e-b752-5456e8cdae7a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:09:57.598Z",
+      "lastSeen": "2026-07-27T03:09:57.598Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\23d8f5ae-36fc-493e-b752-5456e8cdae7a.jsonl",
+          "sessionId": "23d8f5ae-36fc-493e-b752-5456e8cdae7a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:09:57.598Z",
+          "lastSeen": "2026-07-27T03:09:57.598Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "55faa14c-4222-432f-80e9-73f8d5037983",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:09:57.325Z",
+      "lastSeen": "2026-07-27T03:09:57.325Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\55faa14c-4222-432f-80e9-73f8d5037983.jsonl",
+          "sessionId": "55faa14c-4222-432f-80e9-73f8d5037983",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:09:57.325Z",
+          "lastSeen": "2026-07-27T03:09:57.325Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "db50045e-23bb-45c8-b1c0-3cd18c2ae81a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:09:56.962Z",
+      "lastSeen": "2026-07-27T03:09:56.962Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\db50045e-23bb-45c8-b1c0-3cd18c2ae81a.jsonl",
+          "sessionId": "db50045e-23bb-45c8-b1c0-3cd18c2ae81a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:09:56.962Z",
+          "lastSeen": "2026-07-27T03:09:56.962Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "595de0a7-f2bb-44a0-b2b5-5a9eb911a7db",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T03:00:18.711Z",
+      "lastSeen": "2026-07-27T03:00:18.711Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\595de0a7-f2bb-44a0-b2b5-5a9eb911a7db.jsonl",
+          "sessionId": "595de0a7-f2bb-44a0-b2b5-5a9eb911a7db",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T03:00:18.711Z",
+          "lastSeen": "2026-07-27T03:00:18.711Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f24bf4d2-e563-41ad-bce2-19f76a3cb0b4",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:52:06.323Z",
+      "lastSeen": "2026-07-27T02:52:06.323Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\f24bf4d2-e563-41ad-bce2-19f76a3cb0b4.jsonl",
+          "sessionId": "f24bf4d2-e563-41ad-bce2-19f76a3cb0b4",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:52:06.323Z",
+          "lastSeen": "2026-07-27T02:52:06.323Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "bb46eaf0-1aba-426a-ab0f-39e9bf9f9e50",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:52:05.994Z",
+      "lastSeen": "2026-07-27T02:52:05.994Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\bb46eaf0-1aba-426a-ab0f-39e9bf9f9e50.jsonl",
+          "sessionId": "bb46eaf0-1aba-426a-ab0f-39e9bf9f9e50",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:52:05.994Z",
+          "lastSeen": "2026-07-27T02:52:05.994Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "365ebecc-6540-4a0c-af67-e3721fa0860e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:52:01.212Z",
+      "lastSeen": "2026-07-27T02:52:01.212Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\365ebecc-6540-4a0c-af67-e3721fa0860e.jsonl",
+          "sessionId": "365ebecc-6540-4a0c-af67-e3721fa0860e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:52:01.212Z",
+          "lastSeen": "2026-07-27T02:52:01.212Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "19611499-0b5c-4584-be10-da52eb58e1a6",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:52:00.525Z",
+      "lastSeen": "2026-07-27T02:52:00.525Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\19611499-0b5c-4584-be10-da52eb58e1a6.jsonl",
+          "sessionId": "19611499-0b5c-4584-be10-da52eb58e1a6",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:52:00.525Z",
+          "lastSeen": "2026-07-27T02:52:00.525Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-054c3ee266614744aa3e.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:47:03.663Z",
+      "lastSeen": "2026-07-27T02:47:03.663Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\task-054c3ee266614744aa3e.session.execution.jsonl",
+          "sessionId": "task-054c3ee266614744aa3e.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:47:03.663Z",
+          "lastSeen": "2026-07-27T02:47:03.663Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3adf8efb-4e6e-4850-8c19-360ec40d41da",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:36:15.404Z",
+      "lastSeen": "2026-07-27T02:36:15.404Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\3adf8efb-4e6e-4850-8c19-360ec40d41da.jsonl",
+          "sessionId": "3adf8efb-4e6e-4850-8c19-360ec40d41da",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:36:15.404Z",
+          "lastSeen": "2026-07-27T02:36:15.404Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "273f2c54-d3c5-4d5f-a8f5-6c6bce632ca3",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:34:47.249Z",
+      "lastSeen": "2026-07-27T02:34:47.249Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\273f2c54-d3c5-4d5f-a8f5-6c6bce632ca3.jsonl",
+          "sessionId": "273f2c54-d3c5-4d5f-a8f5-6c6bce632ca3",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:34:47.249Z",
+          "lastSeen": "2026-07-27T02:34:47.249Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "00bf73b1-18f5-4232-af68-79691208920a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:34:42.945Z",
+      "lastSeen": "2026-07-27T02:34:42.945Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\00bf73b1-18f5-4232-af68-79691208920a.jsonl",
+          "sessionId": "00bf73b1-18f5-4232-af68-79691208920a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:34:42.945Z",
+          "lastSeen": "2026-07-27T02:34:42.945Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "e97ad7e1-fd0b-4d74-aafe-ba4836c9a7ef",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:23.576Z",
+      "lastSeen": "2026-07-27T02:16:23.576Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\e97ad7e1-fd0b-4d74-aafe-ba4836c9a7ef.jsonl",
+          "sessionId": "e97ad7e1-fd0b-4d74-aafe-ba4836c9a7ef",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:23.576Z",
+          "lastSeen": "2026-07-27T02:16:23.576Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "0a49945e-ba3e-4a05-b22b-6544a2a32d95",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:23.229Z",
+      "lastSeen": "2026-07-27T02:16:23.229Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\0a49945e-ba3e-4a05-b22b-6544a2a32d95.jsonl",
+          "sessionId": "0a49945e-ba3e-4a05-b22b-6544a2a32d95",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:23.229Z",
+          "lastSeen": "2026-07-27T02:16:23.229Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b7b7727d-d70f-48fb-9b2c-19e581c64811",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:23.051Z",
+      "lastSeen": "2026-07-27T02:16:23.051Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b7b7727d-d70f-48fb-9b2c-19e581c64811.jsonl",
+          "sessionId": "b7b7727d-d70f-48fb-9b2c-19e581c64811",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:23.051Z",
+          "lastSeen": "2026-07-27T02:16:23.051Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "4076a7b9-61ec-4959-af92-d9d988b1433f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:22.855Z",
+      "lastSeen": "2026-07-27T02:16:22.855Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\4076a7b9-61ec-4959-af92-d9d988b1433f.jsonl",
+          "sessionId": "4076a7b9-61ec-4959-af92-d9d988b1433f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:22.855Z",
+          "lastSeen": "2026-07-27T02:16:22.855Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b99c9237-98e3-41d6-bc62-9825cfa69270",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:22.817Z",
+      "lastSeen": "2026-07-27T02:16:22.817Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\b99c9237-98e3-41d6-bc62-9825cfa69270.jsonl",
+          "sessionId": "b99c9237-98e3-41d6-bc62-9825cfa69270",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:22.817Z",
+          "lastSeen": "2026-07-27T02:16:22.817Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "e88d0adc-78da-4d79-97fe-6cf6f32e8298",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:20.477Z",
+      "lastSeen": "2026-07-27T02:16:20.477Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\e88d0adc-78da-4d79-97fe-6cf6f32e8298.jsonl",
+          "sessionId": "e88d0adc-78da-4d79-97fe-6cf6f32e8298",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:20.477Z",
+          "lastSeen": "2026-07-27T02:16:20.477Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "645a6af6-3406-457d-b2a1-771108555f78",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:19.620Z",
+      "lastSeen": "2026-07-27T02:16:19.620Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\645a6af6-3406-457d-b2a1-771108555f78.jsonl",
+          "sessionId": "645a6af6-3406-457d-b2a1-771108555f78",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:19.620Z",
+          "lastSeen": "2026-07-27T02:16:19.620Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "974ba181-790b-4df7-9345-57d363ae3f6f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:19.045Z",
+      "lastSeen": "2026-07-27T02:16:19.045Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\974ba181-790b-4df7-9345-57d363ae3f6f.jsonl",
+          "sessionId": "974ba181-790b-4df7-9345-57d363ae3f6f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:19.045Z",
+          "lastSeen": "2026-07-27T02:16:19.045Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "c8cc81d3-12e4-41e1-8fa5-baafe834b4ad",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:18.087Z",
+      "lastSeen": "2026-07-27T02:16:18.087Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\c8cc81d3-12e4-41e1-8fa5-baafe834b4ad.jsonl",
+          "sessionId": "c8cc81d3-12e4-41e1-8fa5-baafe834b4ad",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:18.087Z",
+          "lastSeen": "2026-07-27T02:16:18.087Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "c74bade3-a5dd-4eb1-a9d4-4e9783f850e3",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:18.027Z",
+      "lastSeen": "2026-07-27T02:16:18.027Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\c74bade3-a5dd-4eb1-a9d4-4e9783f850e3.jsonl",
+          "sessionId": "c74bade3-a5dd-4eb1-a9d4-4e9783f850e3",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:18.027Z",
+          "lastSeen": "2026-07-27T02:16:18.027Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3ec2c382-60d8-4bab-b1cb-b819b8a18a37",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:17.526Z",
+      "lastSeen": "2026-07-27T02:16:17.526Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\3ec2c382-60d8-4bab-b1cb-b819b8a18a37.jsonl",
+          "sessionId": "3ec2c382-60d8-4bab-b1cb-b819b8a18a37",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:17.526Z",
+          "lastSeen": "2026-07-27T02:16:17.526Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "94160c3f-f373-4171-8a5a-d118963bf285",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:16:17.491Z",
+      "lastSeen": "2026-07-27T02:16:17.491Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\94160c3f-f373-4171-8a5a-d118963bf285.jsonl",
+          "sessionId": "94160c3f-f373-4171-8a5a-d118963bf285",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:16:17.491Z",
+          "lastSeen": "2026-07-27T02:16:17.491Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-65bd68eca0344f8dba85.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T02:15:07.741Z",
+      "lastSeen": "2026-07-27T02:15:07.741Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-Documents-trae_projects-yb-harness-agentic\\transcript\\task-65bd68eca0344f8dba85.session.execution.jsonl",
+          "sessionId": "task-65bd68eca0344f8dba85.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T02:15:07.741Z",
+          "lastSeen": "2026-07-27T02:15:07.741Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "31863be8-db61-4f79-a39f-ca161002e276",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T01:51:36.462Z",
+      "lastSeen": "2026-07-27T01:51:36.462Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\31863be8-db61-4f79-a39f-ca161002e276.jsonl",
+          "sessionId": "31863be8-db61-4f79-a39f-ca161002e276",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T01:51:36.462Z",
+          "lastSeen": "2026-07-27T01:51:36.462Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "c9f7b7c5-cf03-4e1e-86d1-021a42cc33ee",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T01:51:35.655Z",
+      "lastSeen": "2026-07-27T01:51:35.655Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\c9f7b7c5-cf03-4e1e-86d1-021a42cc33ee.jsonl",
+          "sessionId": "c9f7b7c5-cf03-4e1e-86d1-021a42cc33ee",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T01:51:35.655Z",
+          "lastSeen": "2026-07-27T01:51:35.655Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "5103081a-8656-4421-b03a-bf9de52d9a93",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T01:51:34.912Z",
+      "lastSeen": "2026-07-27T01:51:34.912Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\5103081a-8656-4421-b03a-bf9de52d9a93.jsonl",
+          "sessionId": "5103081a-8656-4421-b03a-bf9de52d9a93",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T01:51:34.912Z",
+          "lastSeen": "2026-07-27T01:51:34.912Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "ea7d9ad7-cab9-4494-ac69-4319a83d7eef",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T01:51:33.173Z",
+      "lastSeen": "2026-07-27T01:51:33.173Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\ea7d9ad7-cab9-4494-ac69-4319a83d7eef.jsonl",
+          "sessionId": "ea7d9ad7-cab9-4494-ac69-4319a83d7eef",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T01:51:33.173Z",
+          "lastSeen": "2026-07-27T01:51:33.173Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "fed31f17-6304-48d6-a49f-b585eb2345ca",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-27T01:51:32.122Z",
+      "lastSeen": "2026-07-27T01:51:32.122Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\fed31f17-6304-48d6-a49f-b585eb2345ca.jsonl",
+          "sessionId": "fed31f17-6304-48d6-a49f-b585eb2345ca",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-27T01:51:32.122Z",
+          "lastSeen": "2026-07-27T01:51:32.122Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "7a42594c-a194-4c26-ac7a-27ddf57504a5",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T09:44:57.469Z",
+      "lastSeen": "2026-07-24T09:44:57.469Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\7a42594c-a194-4c26-ac7a-27ddf57504a5.jsonl",
+          "sessionId": "7a42594c-a194-4c26-ac7a-27ddf57504a5",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T09:44:57.469Z",
+          "lastSeen": "2026-07-24T09:44:57.469Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "31ece216-d366-4452-8881-3d485f553683",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T09:44:52.797Z",
+      "lastSeen": "2026-07-24T09:44:52.797Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\31ece216-d366-4452-8881-3d485f553683.jsonl",
+          "sessionId": "31ece216-d366-4452-8881-3d485f553683",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T09:44:52.797Z",
+          "lastSeen": "2026-07-24T09:44:52.797Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "04fe54f7-48cf-4f1c-9c46-8ff8f150bf8e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T09:44:52.212Z",
+      "lastSeen": "2026-07-24T09:44:52.212Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\04fe54f7-48cf-4f1c-9c46-8ff8f150bf8e.jsonl",
+          "sessionId": "04fe54f7-48cf-4f1c-9c46-8ff8f150bf8e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T09:44:52.212Z",
+          "lastSeen": "2026-07-24T09:44:52.212Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "a6fc73ea-bb30-412b-8ae4-9fa55102c71a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T09:44:51.560Z",
+      "lastSeen": "2026-07-24T09:44:51.560Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\a6fc73ea-bb30-412b-8ae4-9fa55102c71a.jsonl",
+          "sessionId": "a6fc73ea-bb30-412b-8ae4-9fa55102c71a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T09:44:51.560Z",
+          "lastSeen": "2026-07-24T09:44:51.560Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f8420973-d834-4e5f-be07-d42b46a0a80e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T09:44:51.316Z",
+      "lastSeen": "2026-07-24T09:44:51.316Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\f8420973-d834-4e5f-be07-d42b46a0a80e.jsonl",
+          "sessionId": "f8420973-d834-4e5f-be07-d42b46a0a80e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T09:44:51.316Z",
+          "lastSeen": "2026-07-24T09:44:51.316Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3029ef55-0ae2-4520-a147-2611b5597623",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T08:58:05.584Z",
+      "lastSeen": "2026-07-24T08:58:05.584Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\3029ef55-0ae2-4520-a147-2611b5597623.jsonl",
+          "sessionId": "3029ef55-0ae2-4520-a147-2611b5597623",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T08:58:05.584Z",
+          "lastSeen": "2026-07-24T08:58:05.584Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "e699069c-131b-4492-b21e-74c881e3ccf9",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T08:58:01.152Z",
+      "lastSeen": "2026-07-24T08:58:01.152Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\e699069c-131b-4492-b21e-74c881e3ccf9.jsonl",
+          "sessionId": "e699069c-131b-4492-b21e-74c881e3ccf9",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T08:58:01.152Z",
+          "lastSeen": "2026-07-24T08:58:01.152Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "402a69d0-4a76-4809-bab3-f541b5283a16",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T08:57:59.605Z",
+      "lastSeen": "2026-07-24T08:57:59.605Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\402a69d0-4a76-4809-bab3-f541b5283a16.jsonl",
+          "sessionId": "402a69d0-4a76-4809-bab3-f541b5283a16",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T08:57:59.605Z",
+          "lastSeen": "2026-07-24T08:57:59.605Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "a2118150-c696-45dc-af9c-9e787c4a91f1",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T08:57:59.441Z",
+      "lastSeen": "2026-07-24T08:57:59.441Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\a2118150-c696-45dc-af9c-9e787c4a91f1.jsonl",
+          "sessionId": "a2118150-c696-45dc-af9c-9e787c4a91f1",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T08:57:59.441Z",
+          "lastSeen": "2026-07-24T08:57:59.441Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "83666873-1d2e-4f9a-ba47-00981ac857c9",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T08:57:56.928Z",
+      "lastSeen": "2026-07-24T08:57:56.928Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\83666873-1d2e-4f9a-ba47-00981ac857c9.jsonl",
+          "sessionId": "83666873-1d2e-4f9a-ba47-00981ac857c9",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T08:57:56.928Z",
+          "lastSeen": "2026-07-24T08:57:56.928Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3f918c50-41bb-404e-b1d5-a8d87c5a4dd4",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T06:09:45.636Z",
+      "lastSeen": "2026-07-24T06:09:45.636Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\3f918c50-41bb-404e-b1d5-a8d87c5a4dd4.jsonl",
+          "sessionId": "3f918c50-41bb-404e-b1d5-a8d87c5a4dd4",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T06:09:45.636Z",
+          "lastSeen": "2026-07-24T06:09:45.636Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "d8ddccca-996b-4086-8c46-bcb2f15e2f8b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T06:09:41.429Z",
+      "lastSeen": "2026-07-24T06:09:41.429Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\d8ddccca-996b-4086-8c46-bcb2f15e2f8b.jsonl",
+          "sessionId": "d8ddccca-996b-4086-8c46-bcb2f15e2f8b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T06:09:41.429Z",
+          "lastSeen": "2026-07-24T06:09:41.429Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "5286453d-7c8c-4aa3-9aef-63097b049dc5",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T06:09:41.396Z",
+      "lastSeen": "2026-07-24T06:09:41.396Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\5286453d-7c8c-4aa3-9aef-63097b049dc5.jsonl",
+          "sessionId": "5286453d-7c8c-4aa3-9aef-63097b049dc5",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T06:09:41.396Z",
+          "lastSeen": "2026-07-24T06:09:41.396Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "9130a92f-8ddc-4021-9008-a5b997aed7a0",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T06:09:40.442Z",
+      "lastSeen": "2026-07-24T06:09:40.442Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\9130a92f-8ddc-4021-9008-a5b997aed7a0.jsonl",
+          "sessionId": "9130a92f-8ddc-4021-9008-a5b997aed7a0",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T06:09:40.442Z",
+          "lastSeen": "2026-07-24T06:09:40.442Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "d16b661f-95dd-406a-8d27-1a0c49e04e00",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T06:09:39.928Z",
+      "lastSeen": "2026-07-24T06:09:39.928Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\d16b661f-95dd-406a-8d27-1a0c49e04e00.jsonl",
+          "sessionId": "d16b661f-95dd-406a-8d27-1a0c49e04e00",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T06:09:39.928Z",
+          "lastSeen": "2026-07-24T06:09:39.928Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-17ecd45c53b94965a3b8.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T05:23:53.379Z",
+      "lastSeen": "2026-07-24T05:23:53.379Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\task-17ecd45c53b94965a3b8.session.execution.jsonl",
+          "sessionId": "task-17ecd45c53b94965a3b8.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T05:23:53.379Z",
+          "lastSeen": "2026-07-24T05:23:53.379Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3105a4b2-efec-4f43-a46e-ed0f5a24ba7e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T03:29:11.916Z",
+      "lastSeen": "2026-07-24T03:29:11.916Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\3105a4b2-efec-4f43-a46e-ed0f5a24ba7e.jsonl",
+          "sessionId": "3105a4b2-efec-4f43-a46e-ed0f5a24ba7e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T03:29:11.916Z",
+          "lastSeen": "2026-07-24T03:29:11.916Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "3b1220fd-35f9-4ce2-9666-90aea65d54f7",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:59:05.996Z",
+      "lastSeen": "2026-07-24T02:59:05.996Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\3b1220fd-35f9-4ce2-9666-90aea65d54f7.jsonl",
+          "sessionId": "3b1220fd-35f9-4ce2-9666-90aea65d54f7",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:59:05.996Z",
+          "lastSeen": "2026-07-24T02:59:05.996Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "d6145669-19cf-4443-849d-cd3603dd8e9c",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:59:04.815Z",
+      "lastSeen": "2026-07-24T02:59:04.815Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\d6145669-19cf-4443-849d-cd3603dd8e9c.jsonl",
+          "sessionId": "d6145669-19cf-4443-849d-cd3603dd8e9c",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:59:04.815Z",
+          "lastSeen": "2026-07-24T02:59:04.815Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b26f2cef-b7fd-4dd8-81d1-ec88f39ff1de",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:59:04.096Z",
+      "lastSeen": "2026-07-24T02:59:04.096Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b26f2cef-b7fd-4dd8-81d1-ec88f39ff1de.jsonl",
+          "sessionId": "b26f2cef-b7fd-4dd8-81d1-ec88f39ff1de",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:59:04.096Z",
+          "lastSeen": "2026-07-24T02:59:04.096Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "b9b09fd5-6064-4063-b19d-48e37affed44",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:50:37.695Z",
+      "lastSeen": "2026-07-24T02:50:37.695Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\b9b09fd5-6064-4063-b19d-48e37affed44.jsonl",
+          "sessionId": "b9b09fd5-6064-4063-b19d-48e37affed44",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:50:37.695Z",
+          "lastSeen": "2026-07-24T02:50:37.695Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f1421163-60e7-4a47-b795-f748b1d9c6d4",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:50:35.900Z",
+      "lastSeen": "2026-07-24T02:50:35.900Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\f1421163-60e7-4a47-b795-f748b1d9c6d4.jsonl",
+          "sessionId": "f1421163-60e7-4a47-b795-f748b1d9c6d4",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:50:35.900Z",
+          "lastSeen": "2026-07-24T02:50:35.900Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "ca6f422e-5a76-4981-95f2-5073904785ce",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:50:35.603Z",
+      "lastSeen": "2026-07-24T02:50:35.603Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\ca6f422e-5a76-4981-95f2-5073904785ce.jsonl",
+          "sessionId": "ca6f422e-5a76-4981-95f2-5073904785ce",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:50:35.603Z",
+          "lastSeen": "2026-07-24T02:50:35.603Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "97b08f52-2bea-4553-997d-725a4c3c5b67",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:36:23.022Z",
+      "lastSeen": "2026-07-24T02:36:23.022Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\97b08f52-2bea-4553-997d-725a4c3c5b67.jsonl",
+          "sessionId": "97b08f52-2bea-4553-997d-725a4c3c5b67",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:36:23.022Z",
+          "lastSeen": "2026-07-24T02:36:23.022Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "5a5553eb-3112-4791-968e-e157e0e0a4db",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:24:04.406Z",
+      "lastSeen": "2026-07-24T02:24:04.406Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\5a5553eb-3112-4791-968e-e157e0e0a4db.jsonl",
+          "sessionId": "5a5553eb-3112-4791-968e-e157e0e0a4db",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:24:04.406Z",
+          "lastSeen": "2026-07-24T02:24:04.406Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f55eb060-c9f1-4cc9-b6fb-902715c5457d",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:24:03.696Z",
+      "lastSeen": "2026-07-24T02:24:03.696Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\f55eb060-c9f1-4cc9-b6fb-902715c5457d.jsonl",
+          "sessionId": "f55eb060-c9f1-4cc9-b6fb-902715c5457d",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:24:03.696Z",
+          "lastSeen": "2026-07-24T02:24:03.696Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "afee03a8-91fc-4eda-b412-8de939193ebe",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:24:03.062Z",
+      "lastSeen": "2026-07-24T02:24:03.062Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\afee03a8-91fc-4eda-b412-8de939193ebe.jsonl",
+          "sessionId": "afee03a8-91fc-4eda-b412-8de939193ebe",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:24:03.062Z",
+          "lastSeen": "2026-07-24T02:24:03.062Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "42ad7a5b-9f1e-4898-994d-3242a755bad0",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:16:31.532Z",
+      "lastSeen": "2026-07-24T02:16:31.532Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\42ad7a5b-9f1e-4898-994d-3242a755bad0.jsonl",
+          "sessionId": "42ad7a5b-9f1e-4898-994d-3242a755bad0",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:16:31.532Z",
+          "lastSeen": "2026-07-24T02:16:31.532Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "9941978e-f3f7-4359-ae9d-62d82b4a1382",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:16:30.401Z",
+      "lastSeen": "2026-07-24T02:16:30.401Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\9941978e-f3f7-4359-ae9d-62d82b4a1382.jsonl",
+          "sessionId": "9941978e-f3f7-4359-ae9d-62d82b4a1382",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:16:30.401Z",
+          "lastSeen": "2026-07-24T02:16:30.401Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "7c8c0977-6c17-4fd5-87a2-72c5c8bc0bf4",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:11:01.449Z",
+      "lastSeen": "2026-07-24T02:11:01.449Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\7c8c0977-6c17-4fd5-87a2-72c5c8bc0bf4.jsonl",
+          "sessionId": "7c8c0977-6c17-4fd5-87a2-72c5c8bc0bf4",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:11:01.449Z",
+          "lastSeen": "2026-07-24T02:11:01.449Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "dc02a7e3-8d79-41d4-9a70-89eb0b4509c9",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:11:01.374Z",
+      "lastSeen": "2026-07-24T02:11:01.374Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\dc02a7e3-8d79-41d4-9a70-89eb0b4509c9.jsonl",
+          "sessionId": "dc02a7e3-8d79-41d4-9a70-89eb0b4509c9",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:11:01.374Z",
+          "lastSeen": "2026-07-24T02:11:01.374Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f5cf280a-07e0-448c-9d54-b43dfa4cbb1f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:11:00.836Z",
+      "lastSeen": "2026-07-24T02:11:00.836Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\f5cf280a-07e0-448c-9d54-b43dfa4cbb1f.jsonl",
+          "sessionId": "f5cf280a-07e0-448c-9d54-b43dfa4cbb1f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:11:00.836Z",
+          "lastSeen": "2026-07-24T02:11:00.836Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "54f734a6-6745-449a-9209-7ad12a38631e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:05:54.367Z",
+      "lastSeen": "2026-07-24T02:05:54.367Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\54f734a6-6745-449a-9209-7ad12a38631e.jsonl",
+          "sessionId": "54f734a6-6745-449a-9209-7ad12a38631e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:05:54.367Z",
+          "lastSeen": "2026-07-24T02:05:54.367Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "4953eb7a-376e-428e-ba07-99ae2716167c",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:05:54.281Z",
+      "lastSeen": "2026-07-24T02:05:54.281Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\4953eb7a-376e-428e-ba07-99ae2716167c.jsonl",
+          "sessionId": "4953eb7a-376e-428e-ba07-99ae2716167c",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:05:54.281Z",
+          "lastSeen": "2026-07-24T02:05:54.281Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "f44dea25-5ca2-4541-a58c-cc1d988a68c8",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:05:54.233Z",
+      "lastSeen": "2026-07-24T02:05:54.233Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\f44dea25-5ca2-4541-a58c-cc1d988a68c8.jsonl",
+          "sessionId": "f44dea25-5ca2-4541-a58c-cc1d988a68c8",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:05:54.233Z",
+          "lastSeen": "2026-07-24T02:05:54.233Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "9082e9d1-7799-45d9-a5a5-8ccb103804ae",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T02:00:59.917Z",
+      "lastSeen": "2026-07-24T02:00:59.917Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\9082e9d1-7799-45d9-a5a5-8ccb103804ae.jsonl",
+          "sessionId": "9082e9d1-7799-45d9-a5a5-8ccb103804ae",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T02:00:59.917Z",
+          "lastSeen": "2026-07-24T02:00:59.917Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "cb370ad4-7cef-408c-bb2f-7a00c7adff65",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:48:40.638Z",
+      "lastSeen": "2026-07-24T01:48:40.638Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\cb370ad4-7cef-408c-bb2f-7a00c7adff65.jsonl",
+          "sessionId": "cb370ad4-7cef-408c-bb2f-7a00c7adff65",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:48:40.638Z",
+          "lastSeen": "2026-07-24T01:48:40.638Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "fe86ca58-2c9d-4921-8122-65d860b84b3e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:48:40.583Z",
+      "lastSeen": "2026-07-24T01:48:40.583Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\fe86ca58-2c9d-4921-8122-65d860b84b3e.jsonl",
+          "sessionId": "fe86ca58-2c9d-4921-8122-65d860b84b3e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:48:40.583Z",
+          "lastSeen": "2026-07-24T01:48:40.583Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "54c76653-2b42-4c96-9ed7-96dda93dd481",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:43:56.072Z",
+      "lastSeen": "2026-07-24T01:43:56.072Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\54c76653-2b42-4c96-9ed7-96dda93dd481.jsonl",
+          "sessionId": "54c76653-2b42-4c96-9ed7-96dda93dd481",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:43:56.072Z",
+          "lastSeen": "2026-07-24T01:43:56.072Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "de846519-d110-4f7c-94f7-71f3ee13bfd2",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:43:55.724Z",
+      "lastSeen": "2026-07-24T01:43:55.724Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\de846519-d110-4f7c-94f7-71f3ee13bfd2.jsonl",
+          "sessionId": "de846519-d110-4f7c-94f7-71f3ee13bfd2",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:43:55.724Z",
+          "lastSeen": "2026-07-24T01:43:55.724Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "65305df1-3106-4d9b-be91-d1d607b35db1",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:43:54.666Z",
+      "lastSeen": "2026-07-24T01:43:54.666Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\65305df1-3106-4d9b-be91-d1d607b35db1.jsonl",
+          "sessionId": "65305df1-3106-4d9b-be91-d1d607b35db1",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:43:54.666Z",
+          "lastSeen": "2026-07-24T01:43:54.666Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "1301de40-a158-49f7-b08a-610f4749e609",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:43:53.542Z",
+      "lastSeen": "2026-07-24T01:43:53.542Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\1301de40-a158-49f7-b08a-610f4749e609.jsonl",
+          "sessionId": "1301de40-a158-49f7-b08a-610f4749e609",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:43:53.542Z",
+          "lastSeen": "2026-07-24T01:43:53.542Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "21845364-ab93-4d19-9b11-9ac89b027466",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:27:01.913Z",
+      "lastSeen": "2026-07-24T01:27:01.913Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\21845364-ab93-4d19-9b11-9ac89b027466.jsonl",
+          "sessionId": "21845364-ab93-4d19-9b11-9ac89b027466",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:27:01.913Z",
+          "lastSeen": "2026-07-24T01:27:01.913Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "e061d3fc-3428-4c2a-910e-d926819dc39c",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:27:01.787Z",
+      "lastSeen": "2026-07-24T01:27:01.787Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\e061d3fc-3428-4c2a-910e-d926819dc39c.jsonl",
+          "sessionId": "e061d3fc-3428-4c2a-910e-d926819dc39c",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:27:01.787Z",
+          "lastSeen": "2026-07-24T01:27:01.787Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "20a22c17-2ac8-44e5-a9e4-85b8eab5239d",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:27:01.712Z",
+      "lastSeen": "2026-07-24T01:27:01.712Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\20a22c17-2ac8-44e5-a9e4-85b8eab5239d.jsonl",
+          "sessionId": "20a22c17-2ac8-44e5-a9e4-85b8eab5239d",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:27:01.712Z",
+          "lastSeen": "2026-07-24T01:27:01.712Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "bb843d88-067a-41d2-96dc-3d3eb380c6c4",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:27:01.420Z",
+      "lastSeen": "2026-07-24T01:27:01.420Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\bb843d88-067a-41d2-96dc-3d3eb380c6c4.jsonl",
+          "sessionId": "bb843d88-067a-41d2-96dc-3d3eb380c6c4",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:27:01.420Z",
+          "lastSeen": "2026-07-24T01:27:01.420Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "afb82a23-c2ed-4b87-8ed8-d6f120b84095",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:27:00.975Z",
+      "lastSeen": "2026-07-24T01:27:00.975Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\afb82a23-c2ed-4b87-8ed8-d6f120b84095.jsonl",
+          "sessionId": "afb82a23-c2ed-4b87-8ed8-d6f120b84095",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:27:00.975Z",
+          "lastSeen": "2026-07-24T01:27:00.975Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "1126fdaf-d40c-4d9c-9d52-c9a2d2e12f9f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:14:59.571Z",
+      "lastSeen": "2026-07-24T01:14:59.571Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\1126fdaf-d40c-4d9c-9d52-c9a2d2e12f9f.jsonl",
+          "sessionId": "1126fdaf-d40c-4d9c-9d52-c9a2d2e12f9f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:14:59.571Z",
+          "lastSeen": "2026-07-24T01:14:59.571Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "d4900ad8-e209-4104-bc9f-1eb34af45bce",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:14:58.493Z",
+      "lastSeen": "2026-07-24T01:14:58.493Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\d4900ad8-e209-4104-bc9f-1eb34af45bce.jsonl",
+          "sessionId": "d4900ad8-e209-4104-bc9f-1eb34af45bce",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:14:58.493Z",
+          "lastSeen": "2026-07-24T01:14:58.493Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "289f9845-4dfb-45ec-805c-34174488151e",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:14:57.566Z",
+      "lastSeen": "2026-07-24T01:14:57.566Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\289f9845-4dfb-45ec-805c-34174488151e.jsonl",
+          "sessionId": "289f9845-4dfb-45ec-805c-34174488151e",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:14:57.566Z",
+          "lastSeen": "2026-07-24T01:14:57.566Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "c2ed1d4a-e3c5-4480-a293-3895021d5ec8",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:14:57.302Z",
+      "lastSeen": "2026-07-24T01:14:57.302Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\c2ed1d4a-e3c5-4480-a293-3895021d5ec8.jsonl",
+          "sessionId": "c2ed1d4a-e3c5-4480-a293-3895021d5ec8",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:14:57.302Z",
+          "lastSeen": "2026-07-24T01:14:57.302Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-a08238df19fc434590ed.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "global-project-jsonl"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-07-24T01:14:29.411Z",
+      "lastSeen": "2026-07-24T01:14:29.411Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "global-project-jsonl",
+          "role": "user-global-project-session-store",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn\\transcript\\task-a08238df19fc434590ed.session.execution.jsonl",
+          "sessionId": "task-a08238df19fc434590ed.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "user-global",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-07-24T01:14:29.411Z",
+          "lastSeen": "2026-07-24T01:14:29.411Z"
+        }
+      ]
+    },
+    {
+      "sessionId": "task-167",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-167\\task-167.jsonl",
+          "sessionId": "task-167",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-1d2",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-1d2\\task-1d2.jsonl",
+          "sessionId": "task-1d2",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-31b",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-31b\\task-31b.jsonl",
+          "sessionId": "task-31b",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-43f",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-43f\\task-43f.jsonl",
+          "sessionId": "task-43f",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-698",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-698\\task-698.jsonl",
+          "sessionId": "task-698",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-88a",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-88a\\task-88a.jsonl",
+          "sessionId": "task-88a",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-8b9",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-lab-338b63ce\\conversation-history\\task-8b9\\task-8b9.jsonl",
+          "sessionId": "task-8b9",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    },
+    {
+      "sessionId": "task-eb2",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "cache-project-session"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": true
+      },
+      "firstSeen": null,
+      "lastSeen": null,
+      "indexedEventCounts": {
+        "cache-conversation": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "cache-project-session",
+          "role": "cache-conversation",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects\\loop-engine-533190af\\conversation-history\\task-eb2\\task-eb2.jsonl",
+          "sessionId": "task-eb2",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "cache-conversation"
+          ],
+          "firstSeen": null,
+          "lastSeen": null
+        }
+      ]
+    }
+  ],
+  "facets": null,
+  "warnings": [
+    {
+      "code": "missing-optional-root",
+      "message": "audit-jsonl root does not exist: C:\\Users\\Administrator\\.qoder-cn\\audit\\audit.jsonl",
+      "source": "qoder-audit"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "run-manifest root does not exist: C:\\Users\\Administrator\\.qoder-cn\\logs\\runs",
+      "source": "qoder-run-manifests"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "logs-session root does not exist: C:\\Users\\Administrator\\.qoder-cn\\logs\\sessions\\C--Users-Administrator-ZCodeProject-loop-engine",
+      "source": "qoder-log-sessions"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "home-session root does not exist: C:\\Users\\Administrator\\.qoder-cn\\sessions",
+      "source": "qoder-home-sessions"
+    }
+  ]
+}

@@ -7,16 +7,18 @@
 
 ---
 
-## F0 会话证据源恢复（新增前置机制项）：启用 Qoder source roots + 可观测性解锁
+## F0 会话证据边界说明（外部项，不属 LE 融合范围）——2026-08-03 修正
 
-- **问题编号**：`session-source-disabled`（Medium）
-- **问题证据**：Better Harness 报告出现 `disabled-source-root`、`missing-optional-root`，仅 `1/5` 个 enabled source roots 存在，`eligibleSessions=0`；这不是单纯的“证据边界”，而是会话源被禁用/不可读的机制缺陷。
-- **影响维度**：任务理解、可控执行、改动验证、可靠交付、经验沉淀。前四项会被锁在 Unobserved/证据上限，经验沉淀因没有 Task Episode 也无法验证。
-- **目标**：恢复或重新配置 Qoder 工作区会话源，使分析器能够读取合格会话；逐 root 报告配置路径、解析路径、存在性、可读性、session 数、eligible 数和失败原因。
-- **改动边界**：优先修复 Qoder/Better Harness 工作区 source-root 配置与导入链，不直接修改 Loop 治理内核；不得用补写伪造 Episode 的方式提高评分。
-- **实施建议**：独立建立 T-0112（候选）会话源恢复任务；先完成 source-root health check，再导入至少两个可比较 Task Episode，最后重新运行会话事实收集和维度评审。
-- **验证**：`eligibleSessions > 0`；`disabled-source-root` 消失；`sourceGaps` 为空或每项有明确可接受原因；至少两个 Episode 带非空 evidenceRefs；重新评审后才允许比较 59 分以上的潜在提升。
-- **必须保持**：证据真实性、隐私脱敏、fail-closed 安全裁决、用户 gate 审批边界；源不可用时洞察必须标记 `NO_EVIDENCE/INSUFFICIENT_SAMPLE`，不得生成行为性确定结论。
+> **修正记录**（用户决策 + HANDOFF Scope Correction）：原 F0"启用 Qoder source roots + 可观测性解锁"
+> 为**错误 scope 表述**——Qoder 是外部会话宿主/适配器，其 transcripts 不能作为当前 ZCode 会话证据；
+> 不得恢复/修改外部 Qoder 项目配置。Qoder 相关探针与 Episode 仅保留为**外部诊断证据**，
+> 不得用于声称当前 ZCode 会话执行了编辑/验证/恢复/可靠交付。原 T-0112 候选已撤销（2026-08-03）。
+
+- **问题编号**：`session-source-disabled`（Medium，KNOWN_ISSUES 保留为记录，不立项修复）
+- **影响维度**：BH/Qoder 评估侧的会话证据可读性（任务理解/可控执行/改动验证/可靠交付在评估侧呈 Unobserved）
+- **修正后目标**：定义 **ZCode 原生会话证据路径**（当前 ZCode 会话内产生 edit→validation Episode 的可验证路径），作为后续候选设计（排布外独立立项，需用户单独 gate）
+- **改动边界**：不修改任何外部 Qoder/BH 项目；LE 治理内核零触碰
+- **必须保持**：证据真实性（仅接受当前会话内可溯源证据）、隐私脱敏、fail-closed 安全裁决、用户 gate 审批边界；源不可用时洞察必须标记 `NO_EVIDENCE/INSUFFICIENT_SAMPLE`，不得生成行为性确定结论。
 
 ## F1 评估模型升级：证据七态 + gate evidence + 评分上限表 + Repair/Loop 分离
 

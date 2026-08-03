@@ -5600,6 +5600,11 @@ gates:
   approval_text: 批准 T-0112
   approval_evidence: .ai/evidence/T-0112/approval-evidence.json
   execution_evidence: .ai/evidence/T-0112/execution-evidence.json
+  notes:
+  - '2026-08-03 撤销（用户决策 + HANDOFF Scope Correction）：Qoder 为外部会话宿主，
+    其会话数据不能作为 ZCode 验收证据，原 scope 为错误框定。task_graph 标记 rejected，
+    state 回 idle；.ai/evidence/T-0112/ 保留为外部诊断证据；KNOWN_ISSUES
+    session-source-disabled 保留为记录。gate 记录保持 approved 为历史事实。'
   scope: >-
     修复 session-source-disabled：恢复 Qoder/Better Harness 会话证据源，诊断 5 个 source roots，
     导入至少两个可比较 Task Episode，并重新评审受影响维度；不伪造证据、不放宽评分。

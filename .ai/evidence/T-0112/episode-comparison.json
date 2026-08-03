@@ -1,0 +1,51 @@
+{
+  "task_id": "T-0112",
+  "schema": "T0112EpisodeComparison/v1",
+  "source": "qoder session-analysis show --platform qoder --workspace C:/Users/Administrator/ZCodeProject/loop-engine --qoder-home C:/Users/Administrator/.qoder-cn --include-cache --include-global-capabilities",
+  "privacy": "session ids retained only in local evidence; no raw prompts or tool output copied",
+  "episodes": [
+    {
+      "id": "E1",
+      "session_id": "task-31bb780c20994d35bc53.session.execution",
+      "observed_workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "source_kind": "global-project-jsonl + execution-transcript",
+      "time_range": ["2026-07-29T03:08:16.404Z","2026-07-29T08:33:20.943Z"],
+      "event_counts": {"session_meta":16,"progress":686,"user":327,"assistant":736},
+      "evidence_refs": [
+        {"kind":"global-project-jsonl","path":"C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-31bb780c20994d35bc53.session.execution.jsonl"}
+      ],
+      "edit_observed": false,
+      "validation_observed": false,
+      "rework_observed": false,
+      "episode_comparability": "PARTIAL_ONLY"
+    },
+    {
+      "id": "E2",
+      "session_id": "task-167c2a38fb084ece8d7f.session.execution",
+      "observed_workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "source_kind": "global-project-jsonl",
+      "time_range": ["2026-07-28T06:01:50.320Z","2026-07-28T06:59:16.037Z"],
+      "event_counts": {"session_meta":8,"progress":221,"user":144,"assistant":316},
+      "evidence_refs": [
+        {"kind":"global-project-jsonl","path":"C:\\Users\\Administrator\\.qoder-cn\\projects\\c-Users-Administrator-.qoder-cn-loop-engine-lab\\transcript\\task-167c2a38fb084ece8d7f.session.execution.jsonl"}
+      ],
+      "edit_observed": false,
+      "validation_observed": false,
+      "rework_observed": false,
+      "episode_comparability": "PARTIAL_ONLY"
+    }
+  ],
+  "comparison_result": {
+    "episode_count": 2,
+    "eligible_sessions_in_enabled_probe": 131,
+    "task_episode_count_in_enabled_probe": 158,
+    "comparable_for_edit_validation_claims": false,
+    "reason": "The source admission defect is reduced: project/global roots are readable and facts contain 131 eligible sessions. However, the normalized facts explicitly report no-change-evidence and no-reviewed-relevant-check-evidence; the two bounded sessions do not expose edit or validation events in the structured source."
+  },
+  "next_required_evidence": [
+    "A fresh governed session with a real approved edit event",
+    "A validation command event after the edit",
+    "A second comparable session with the same lifecycle or an explicit rework/recovery signal",
+    "Re-run facts/insights after those sessions"
+  ]
+}

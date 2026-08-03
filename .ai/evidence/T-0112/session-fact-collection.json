@@ -1,0 +1,19 @@
+{
+  "task_id": "T-0112",
+  "source": ".ai/evidence/T-0112/session-facts-enabled.json",
+  "probe": ".ai/evidence/T-0112/source-probe-enabled.json",
+  "eligibleSessions": 131,
+  "taskEpisodes": 158,
+  "candidateEpisodes": 3,
+  "populationCoverage": {
+    "withChanges": 0,
+    "withChecks": 0,
+    "withReviewedRelevantCheck": 0,
+    "withResultSignal": 0,
+    "withStructuredCompletion": 0,
+    "withUserCorrection": 0
+  },
+  "warnings": ["missing-optional-root"],
+  "diagnosticFlags": ["candidate-admission-sparse","no-change-evidence","no-reviewed-relevant-check-evidence","no-result-evidence"],
+  "status": "SOURCE_RECOVERED_PARTIALLY__LIFECYCLE_EVIDENCE_BLOCKED"
+}

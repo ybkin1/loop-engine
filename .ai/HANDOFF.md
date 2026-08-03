@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "D0498F04F3E611290AA6515F0C8791BAE727F676F872E34CC21FE1239519356E",
+  "persisted_file_sha256": "C22211251C55D85F743B115D146980A4B1F40F665AB42684BA9D6D50B9500CD5",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "FF5F674A35ED99B317DE4ABA541D4469D8FE443FCB4F82E4AA8615611E1CAEA8",
+  "source_sha256": "20B326A93E2DA24B25ABF25AF82BA9C5B9C1A150A5E5964C1200BBD28C3623A2",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,14 @@ S6-delivery
 
 ## Current Task
 
-T-0112
+none
 
-Status: `in_progress`
+Status: `unknown`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0112-REQUIREMENTS
-active_gate_status: approved / in_progress
-
-current_gate_id is null because no pending decision is required.
-G-T-0112-REQUIREMENTS is approved and execution is in progress.
+active_gate: none
 
 ## Allowed Scope
 
@@ -125,7 +121,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0112/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0107/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -134,7 +130,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-CONTINUE_APPROVED_EXECUTION
+USER_DECISION_REQUIRED
 
 ## Startup Prompt
 
@@ -175,13 +171,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0112-REQUIREMENTS",
-  "approved_execution_status": "in_progress",
-  "current_gate_id": "G-T-0112-REQUIREMENTS",
-  "current_task_id": "T-0112",
-  "current_task_status": "in_progress",
+  "approved_execution_gate_id": null,
+  "approved_execution_status": null,
+  "current_gate_id": null,
+  "current_task_id": null,
+  "current_task_status": null,
   "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "next_action": "USER_DECISION_REQUIRED",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```

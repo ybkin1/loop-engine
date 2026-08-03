@@ -1,10 +1,10 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0112
-current_gate_id: G-T-0112-REQUIREMENTS
+current_task_id: null
+current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T13:49:26.960750+08:00'
+last_handoff_at: '2026-08-03T16:16:36.644821+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -133,3 +133,6 @@ notes:
   强化等）+ P3 首批 6/6 + hook 门禁 2+1 处（loop_enforcement 单文件，其余 hook 零改动），7/7 AC，独立审查 CONDITIONAL_GO→GO（P0/P1=0），KNOWN_ISSUES
   12 条清零（1 环境依赖项另登记）， 全量 3909 passed（2 closeout 瞬态 + 1 预存环境项），bump 3.12.44 提交推送。 T-0108（BH
   融合·收敛期）待用户批准。'
+- 'T-0112 REJECTED 2026-08-03: 用户决策撤销（+ HANDOFF Scope Correction）— Qoder 为 外部会话宿主，其会话数据不能作为
+  ZCode 验收证据，原"会话源恢复"为错误框定。 state 回 idle，task_graph 标记 rejected；T-0112 证据保留为外部诊断记录；
+  KNOWN_ISSUES session-source-disabled 保留。T-0106 F0 已同步改述为外部边界说明。'

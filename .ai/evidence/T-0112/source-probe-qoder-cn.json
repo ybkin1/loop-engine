@@ -1,0 +1,157 @@
+{
+  "scope": {
+    "platform": "qoder",
+    "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+    "workspaceSlug": "C--Users-Administrator-ZCodeProject-loop-engine",
+    "home": "C:\\Users\\Administrator\\.qoder-cn",
+    "since": null,
+    "until": null,
+    "sessionId": null,
+    "includeCache": false,
+    "includeGlobalCapabilities": false
+  },
+  "sources": [
+    {
+      "id": "qoder-audit",
+      "kind": "audit-jsonl",
+      "role": "tool-permission-audit",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\audit\\audit.jsonl",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-run-manifests",
+      "kind": "run-manifest",
+      "role": "run-metadata",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\logs\\runs",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-log-sessions",
+      "kind": "logs-session",
+      "role": "execution-events",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\logs\\sessions\\C--Users-Administrator-ZCodeProject-loop-engine",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": true
+    },
+    {
+      "id": "qoder-projects",
+      "kind": "project-jsonl",
+      "role": "project-session-store",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\C-Users-Administrator-ZCodeProject-loop-engine",
+      "exists": true,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": true
+    },
+    {
+      "id": "qoder-home-sessions",
+      "kind": "home-session",
+      "role": "session-compat",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\sessions",
+      "exists": false,
+      "enabled": true,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-cache-projects",
+      "kind": "cache-project-session",
+      "role": "cache-conversation",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\cache\\projects",
+      "exists": true,
+      "enabled": false,
+      "optional": true,
+      "workspaceScoped": false
+    },
+    {
+      "id": "qoder-global-projects",
+      "kind": "global-project-jsonl",
+      "role": "user-global-project-session-store",
+      "path": "C:\\Users\\Administrator\\.qoder-cn\\projects",
+      "exists": true,
+      "enabled": false,
+      "optional": true,
+      "workspaceScoped": false
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": "task-eb25fc09c10140aa8361.session.execution",
+      "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+      "sourceKinds": [
+        "execution-transcript"
+      ],
+      "coverage": {
+        "audit": false,
+        "runMetadata": false,
+        "executionEvents": false,
+        "conversation": true,
+        "state": false,
+        "cache": false
+      },
+      "firstSeen": "2026-08-03T05:10:23.204Z",
+      "lastSeen": "2026-08-03T05:10:23.204Z",
+      "indexedEventCounts": {
+        "execution-transcript": 1
+      },
+      "sourceRefs": [
+        {
+          "kind": "execution-transcript",
+          "role": "execution-transcript",
+          "path": "C:\\Users\\Administrator\\.qoder-cn\\projects\\C-Users-Administrator-ZCodeProject-loop-engine\\transcript\\task-eb25fc09c10140aa8361.session.execution.jsonl",
+          "sessionId": "task-eb25fc09c10140aa8361.session.execution",
+          "count": 1,
+          "lines": [],
+          "seqs": [],
+          "planningScope": "workspace",
+          "eventTypes": [
+            "execution-transcript"
+          ],
+          "firstSeen": "2026-08-03T05:10:23.204Z",
+          "lastSeen": "2026-08-03T05:10:23.204Z"
+        }
+      ]
+    }
+  ],
+  "facets": null,
+  "warnings": [
+    {
+      "code": "missing-optional-root",
+      "message": "audit-jsonl root does not exist: C:\\Users\\Administrator\\.qoder-cn\\audit\\audit.jsonl",
+      "source": "qoder-audit"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "run-manifest root does not exist: C:\\Users\\Administrator\\.qoder-cn\\logs\\runs",
+      "source": "qoder-run-manifests"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "logs-session root does not exist: C:\\Users\\Administrator\\.qoder-cn\\logs\\sessions\\C--Users-Administrator-ZCodeProject-loop-engine",
+      "source": "qoder-log-sessions"
+    },
+    {
+      "code": "missing-optional-root",
+      "message": "home-session root does not exist: C:\\Users\\Administrator\\.qoder-cn\\sessions",
+      "source": "qoder-home-sessions"
+    },
+    {
+      "code": "disabled-source-root",
+      "message": "cache-project-session root is disabled; pass --include-cache to enable it",
+      "source": "qoder-cache-projects"
+    },
+    {
+      "code": "disabled-source-root",
+      "message": "global-project-jsonl root is disabled; pass --include-global-capabilities to enable it",
+      "source": "qoder-global-projects"
+    }
+  ]
+}

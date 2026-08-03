@@ -1,0 +1,22 @@
+{
+  "task_id": "T-0112",
+  "probe": "qoder-source-analysis",
+  "workspace": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
+  "qoder_home": "C:\\Users\\Administrator\\.qoder-cn",
+  "default_flags": {
+    "include_cache": false,
+    "include_global_capabilities": false
+  },
+  "roots": [
+    {"id":"qoder-audit","kind":"audit-jsonl","enabled":true,"exists":false,"reason":"ROOT_NOT_FOUND","path":"C:\\Users\\Administrator\\.qoder-cn\\audit\\audit.jsonl"},
+    {"id":"qoder-run-manifests","kind":"run-manifest","enabled":true,"exists":false,"reason":"ROOT_NOT_FOUND","path":"C:\\Users\\Administrator\\.qoder-cn\\logs\\runs"},
+    {"id":"qoder-log-sessions","kind":"logs-session","enabled":true,"exists":false,"reason":"ROOT_NOT_FOUND","path":"C:\\Users\\Administrator\\.qoder-cn\\logs\\sessions\\C--Users-Administrator-ZCodeProject-loop-engine"},
+    {"id":"qoder-projects","kind":"project-jsonl","enabled":true,"exists":true,"reason":"ROOT_OK","path":"C:\\Users\\Administrator\\.qoder-cn\\projects\\C-Users-Administrator-ZCodeProject-loop-engine"},
+    {"id":"qoder-home-sessions","kind":"home-session","enabled":true,"exists":false,"reason":"ROOT_NOT_FOUND","path":"C:\\Users\\Administrator\\.qoder-cn\\sessions"},
+    {"id":"qoder-cache-projects","kind":"cache-project-session","enabled":false,"exists":true,"reason":"DISABLED_BY_DEFAULT_USE_INCLUDE_CACHE","path":"C:\\Users\\Administrator\\.qoder-cn\\cache\\projects"},
+    {"id":"qoder-global-projects","kind":"global-project-jsonl","enabled":false,"exists":true,"reason":"DISABLED_BY_DEFAULT_USE_INCLUDE_GLOBAL_CAPABILITIES","path":"C:\\Users\\Administrator\\.qoder-cn\\projects"}
+  ],
+  "default_summary": {"enabled_roots":5,"existing_enabled_roots":1,"warnings":["missing-optional-root","disabled-source-root"]},
+  "enabled_probe_summary": {"include_cache":true,"include_global_capabilities":true,"enabled_roots":7,"existing_enabled_roots":3,"warnings":["missing-optional-root"]},
+  "interpretation": "The source is not globally absent: the project-jsonl root exists and yields session records. However, four default-enabled roots are missing and two useful existing roots are disabled by default. This is a configuration/admission defect, not merely a zero-evidence boundary. No persistent Qoder configuration was changed in this task."
+}
