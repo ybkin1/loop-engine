@@ -1,0 +1,4 @@
+# Better-Harness finding "no-self-enforcement-pipeline":
+# 治理框架自身的提交必须通过最小化质量门禁（lint + typecheck + test）。
+# 若需临时跳过（仅限紧急情况），使用 git commit --no-verify，但应尽快补回检查。
+npm run check

@@ -145,6 +145,7 @@ function runTests(projectRoot: string, thresholds: QualityThresholds): QualityCh
   const duration = result.duration;
 
   // Parse test output（剥离 ANSI 颜色码——vitest 非 TTY 输出含 \x1b[..m 序列）
+  // eslint-disable-next-line no-control-regex -- \x1b 是 ANSI 转义序列的控制字符，此处为有意匹配并剥离
   const cleanOut = result.stdout.replace(/\x1b\[[0-9;]*m/g, "");
   const testsMatch = cleanOut.match(/Tests\s+(\d+)\s+(?:passed|failed)/);
   const totalMatch = cleanOut.match(/Test Files\s+\d+\s+(?:passed|failed)\s+\((\d+)\)/);

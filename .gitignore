@@ -1,6 +1,9 @@
 node_modules/
 dist/
+coverage/
 .pytest_cache/
 *.js.map
 .DS_Store
 Thumbs.db
+# Better-Harness 本地分析产物（每次运行生成，不入库）
+.qoder/better-harness/

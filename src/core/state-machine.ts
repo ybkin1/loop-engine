@@ -58,9 +58,53 @@ function readYaml<T>(filePath: string): T {
   return parseDocument(raw).toJSON() as T;
 }
 
+// ── Schema migration ───────────────────────────────────
+/**
+ * Current on-disk schema version for ProjectState.
+ * v1 = legacy 6-phase (initProject); v2 = extended 12-phase (initProjectExtended).
+ */
+export const CURRENT_SCHEMA_VERSION = 2;
+
+/**
+ * Normalize a loaded ProjectState to the current schema shape.
+ *
+ * Fixes the Better-Harness finding "state-schema-no-migration": loadState used
+ * to return v1 states with the v2-only optional fields left as `undefined`,
+ * which risks runtime errors for any consumer reading loop_mode / project_status /
+ * iteration / user_approvals.
+ *
+ * This is a defensive, idempotent, in-memory migration:
+ * - It fills the optional governance fields introduced in v2 with safe defaults.
+ * - It intentionally does NOT remap legacy 6-phase IDs to the extended 12-phase
+ *   system, because that would invalidate existing gate_id references and
+ *   completed-role history. Legacy states remain fully usable with their own
+ *   PHASE_GATES; only the new optional fields are normalized.
+ * - It does not write back to disk, keeping loadState side-effect-free. Callers
+ *   persist the normalized shape via saveState on their next write.
+ */
+export function migrateState(state: ProjectState): ProjectState {
+  const version = typeof state.schema_version === "number" ? state.schema_version : 1;
+  if (version >= CURRENT_SCHEMA_VERSION) {
+    return {
+      ...state,
+      user_approvals: state.user_approvals ?? {},
+    };
+  }
+  // v1 → current: fill optional governance fields with safe defaults.
+  return {
+    ...state,
+    schema_version: CURRENT_SCHEMA_VERSION,
+    loop_mode: state.loop_mode ?? "STANDARD",
+    project_status: state.project_status ?? "draft",
+    iteration: state.iteration ?? 1,
+    user_approvals: state.user_approvals ?? {},
+  };
+}
+
 // ── State ──────────────────────────────────────────────
 export async function loadState(root: string): Promise<ProjectState> {
-  return readYaml<ProjectState>(statePath(root));
+  const state = readYaml<ProjectState>(statePath(root));
+  return migrateState(state);
 }
 
 export async function saveState(root: string, state: ProjectState): Promise<void> {

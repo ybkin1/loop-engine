@@ -1,0 +1,17 @@
+{
+  "_comment": "Better-Harness finding 'skill-constraints-unenforced' 的项目级机械执行层。规则说明见 .qoder/rules/governance-constraints.md。",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "label": "stable-guard (promotion gate)",
+            "type": "command",
+            "command": "node scripts/guards/stable-guard.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}

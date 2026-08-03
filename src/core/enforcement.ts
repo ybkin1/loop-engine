@@ -196,9 +196,9 @@ function evaluateConstraint(constraintId: string, ctx: Record<string, unknown>):
     case "NO_PASS_WITHOUT_REVIEW":
       return ctx.phase !== "implementation" || Boolean(ctx.has_independent_review);
     case "NO_NEXT_PHASE_WITH_BLOCKERS":
-      return !Boolean(ctx.has_unresolved_blockers);
+      return !ctx.has_unresolved_blockers;
     case "EVIDENCE_STALE_ON_CHANGE":
-      return !Boolean(ctx.evidence_is_stale);
+      return !ctx.evidence_is_stale;
     case "NO_AUTO_GATE_PASS":
       return ctx.gate_status !== "approved" || Boolean(ctx.explicit_user_approval);
     default:

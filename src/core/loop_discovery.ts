@@ -403,7 +403,7 @@ export class LoopDiscovery {
   private handoffForOwner(owner: DurableOwner, candidate: string): string {
     const slug = candidate.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
     switch (owner) {
-      case "skill": return `skills/${slug}/SKILL.md`;
+      case "skill": return `.qoder/skills/${slug}/SKILL.md`;
       case "hook": return `.ai/hooks/${slug}.js`;
       case "rule": return `.ai/rules/${slug}.md`;
       case "script": return `scripts/${slug}.mjs`;

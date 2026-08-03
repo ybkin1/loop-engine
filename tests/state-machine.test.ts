@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { mkdirSync, rmSync, existsSync } from "node:fs";
+import { mkdirSync, rmSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { initProject, loadState, checkGate, advanceGate, computeHash, validateProjectRoot, LoopError } from "../src/core/state-machine.js";
+import { initProject, loadState, checkGate, advanceGate, computeHash, validateProjectRoot, LoopError, migrateState, CURRENT_SCHEMA_VERSION } from "../src/core/state-machine.js";
 import { submitEvidence, verifyEvidence } from "../src/core/evidence.js";
 import { activateRole, completeRole, getRoleStatus } from "../src/core/role-engine.js";
 import { createHandoff, getHandoffHistory } from "../src/core/handoff.js";
@@ -34,6 +34,92 @@ describe("loadState", () => {
     await initProject(TEST_ROOT, "load-test");
     const state = await loadState(TEST_ROOT);
     expect(state.project_name).toBe("load-test");
+  });
+});
+
+// Finding "state-schema-no-migration": v1 states must load without leaving
+// the v2-only optional fields as undefined.
+describe("schema migration", () => {
+  it("loadState normalizes a legacy v1 state and fills optional fields", async () => {
+    const aiDir = join(TEST_ROOT, ".ai");
+    mkdirSync(aiDir, { recursive: true });
+    // Legacy v1 state.yaml WITHOUT loop_mode / project_status / iteration / user_approvals.
+    const v1State = [
+      "schema_version: 1",
+      "project_name: legacy-project",
+      "current_phase: requirements",
+      "current_task_id: null",
+      "current_gate_id: gate-requirements",
+      "active_role: null",
+      "role_activated_at: null",
+      "completed_roles: []",
+      "last_handoff_at: \"2026-01-01T00:00:00.000Z\"",
+      "phases:",
+      "  - phase_id: requirements",
+      "    entered_at: \"2026-01-01T00:00:00.000Z\"",
+      "    exited_at: null",
+      "    status: active",
+      "",
+    ].join("\n");
+    writeFileSync(join(aiDir, "state.yaml"), v1State, "utf-8");
+
+    const state = await loadState(TEST_ROOT);
+    // New optional fields must be defined (no undefined access).
+    expect(state.loop_mode).toBe("STANDARD");
+    expect(state.project_status).toBe("draft");
+    expect(state.iteration).toBe(1);
+    expect(state.user_approvals).toEqual({});
+    // Legacy phase data is preserved, not destructively remapped.
+    expect(state.current_phase).toBe("requirements");
+    expect(state.phases.length).toBe(1);
+    expect(state.phases[0].phase_id).toBe("requirements");
+  });
+
+  it("migrateState is idempotent and preserves existing v2 fields", () => {
+    const now = new Date().toISOString();
+    const v2 = {
+      schema_version: 2,
+      project_name: "ext",
+      current_phase: "S1-requirements",
+      current_task_id: null,
+      current_gate_id: "gate-S1-requirements",
+      active_role: null,
+      role_activated_at: null,
+      completed_roles: [],
+      last_handoff_at: now,
+      phases: [],
+      loop_mode: "FULL" as const,
+      project_status: "released" as const,
+      iteration: 3,
+    };
+    const migrated = migrateState(v2);
+    expect(migrated.schema_version).toBe(CURRENT_SCHEMA_VERSION);
+    // Existing values are not overwritten.
+    expect(migrated.loop_mode).toBe("FULL");
+    expect(migrated.project_status).toBe("released");
+    expect(migrated.iteration).toBe(3);
+    expect(migrated.user_approvals).toEqual({});
+    // Idempotent: migrating again yields the same shape.
+    const again = migrateState(migrated);
+    expect(again).toEqual(migrated);
+  });
+
+  it("migrateState handles a missing schema_version as v1", () => {
+    const partial = {
+      project_name: "no-version",
+      current_phase: "requirements",
+      current_task_id: null,
+      current_gate_id: null,
+      active_role: null,
+      role_activated_at: null,
+      completed_roles: [],
+      last_handoff_at: "2026-01-01T00:00:00.000Z",
+      phases: [],
+    } as unknown as Parameters<typeof migrateState>[0];
+    const migrated = migrateState(partial);
+    expect(migrated.schema_version).toBe(CURRENT_SCHEMA_VERSION);
+    expect(migrated.loop_mode).toBe("STANDARD");
+    expect(migrated.iteration).toBe(1);
   });
 });
 

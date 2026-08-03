@@ -782,17 +782,24 @@ export class HarnessAnalyzer {
     }
 
     // Check 2: Skills directory has loop-related skills
-    const skillsDir = resolve(this.projectRoot, "skills");
-    if (this.dirExists(skillsDir)) {
+    // 平台项目级 Skill 存储为 .qoder/skills/（或 .agents/skills/），兼容旧版顶层 skills/
+    const skillsCandidates: Array<[string, string]> = [
+      [resolve(this.projectRoot, ".qoder", "skills"), ".qoder/skills/"],
+      [resolve(this.projectRoot, ".agents", "skills"), ".agents/skills/"],
+      [resolve(this.projectRoot, "skills"), "skills/"],
+    ];
+    for (const [skillsDir, skillsSource] of skillsCandidates) {
+      if (!this.dirExists(skillsDir)) continue;
       const skillDirs = this.listDirs(skillsDir);
       if (skillDirs.length > 0) {
         score += 25;
         evidenceItems.push({
           type: "skills",
-          source: "skills/",
+          source: skillsSource,
           proof_level: "present",
           description: `${skillDirs.length} 个 Skill 已定义`,
         });
+        break;
       }
     }
 
