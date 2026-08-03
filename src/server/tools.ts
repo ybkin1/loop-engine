@@ -1,6 +1,6 @@
 import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import { initProject, initProjectExtended, checkGate, advanceGate, loadState, computeHash, validateProjectRoot } from "../core/state-machine.js";
+import { initProject, initProjectExtended, checkGate, advanceGate, approveGate, loadState, computeHash, validateProjectRoot } from "../core/state-machine.js";
 import { PHASE_ROLE_MAP } from "../core/phase_registry.js";
 import { activateRole, getRoleStatus } from "../core/role-engine.js";
 import { submitEvidence, verifyEvidence } from "../core/evidence.js";
@@ -12,6 +12,7 @@ import { VetoEscalation } from "../core/veto_escalation.js";
 import type { VetoRecord } from "../core/veto_escalation.js";
 import { AuditLedger } from "../core/audit_ledger.js";
 import { join } from "node:path";
+import { execSync } from "node:child_process";
 import { routeIntent, defaultProfile, LoopMode, RiskLevel } from "../core/router.js";
 import { runChallengeForRole, runAllCertifications, buildCertStateAfterRun, ALL_ROLES } from "../core/certification.js";
 import type { ProjectProfile } from "../core/router.js";
@@ -25,6 +26,11 @@ import { ContextLoader } from "../core/context_loader.js";
 import { EnforcementHub } from "../core/enforcement_hub.js";
 import { PacketBuilder, toMarkdown } from "../core/human_review_packet.js";
 import type { HumanReviewPacket } from "../core/human_review_packet.js";
+import { KnowledgeLedger } from "../core/knowledge_ledger.js";
+import { generatePreReviewAdvisory } from "../core/review_advisor.js";
+import { generatePrompt } from "../core/prompt_engine.js";
+import type { PromptContext } from "../core/prompt_engine.js";
+import { LessonCategory, LessonStatus } from "../types/index.js";
 
 /** Default task complexity when not specified (medium). */
 const DEFAULT_COMPLEXITY = 0.5;
@@ -47,6 +53,7 @@ export function registerTools(server: Server): void {
       { name: "loop_init", description: "Initialize Loop governance for a project", inputSchema: { type: "object", properties: { project_root: { type: "string" }, project_name: { type: "string" } }, required: ["project_name"] } },
       { name: "loop_gate_check", description: "Check if a gate can advance", inputSchema: { type: "object", properties: { project_root: { type: "string" }, gate_id: { type: "string" } }, required: ["gate_id"] } },
       { name: "loop_gate_advance", description: "Advance a gate (blocks if conditions unmet)", inputSchema: { type: "object", properties: { project_root: { type: "string" }, gate_id: { type: "string" } }, required: ["gate_id"] } },
+      { name: "loop_gate_approve", description: "Record EXPLICIT USER approval for a gate's manual_approval condition. Only the user may call this — it does NOT advance the gate.", inputSchema: { type: "object", properties: { project_root: { type: "string" }, gate_id: { type: "string" }, note: { type: "string", description: "Optional approval note" } }, required: ["gate_id"] } },
       { name: "loop_role_activate", description: "Activate a role", inputSchema: { type: "object", properties: { project_root: { type: "string" }, role_id: { type: "string" } }, required: ["role_id"] } },
       { name: "loop_role_status", description: "Query role status", inputSchema: { type: "object", properties: { project_root: { type: "string" }, role_id: { type: "string" } }, required: ["role_id"] } },
       { name: "loop_evidence_submit", description: "Submit evidence with hash binding", inputSchema: { type: "object", properties: { project_root: { type: "string" }, evidence_id: { type: "string" }, type: { type: "string" }, content: { type: "string" }, role_id: { type: "string" }, gate_id: { type: "string" }, ttl_seconds: { type: "number" } }, required: ["evidence_id", "type", "content"] } },
@@ -75,6 +82,12 @@ export function registerTools(server: Server): void {
       { name: "loop_phase_roles", description: "Get role mapping for extended 12-phase system", inputSchema: { type: "object", properties: { phase_id: { type: "string", description: "Phase ID (e.g. S4-implementation)" } } } },
       { name: "loop_dependency_analysis", description: "Analyze project dependency graph and detect circular dependencies", inputSchema: { type: "object", properties: { project_root: { type: "string" }, entry_dir: { type: "string", description: "Directory to analyze (default: src)" } } } },
       { name: "loop_contract_validate", description: "Validate role contract schema and consistency", inputSchema: { type: "object", properties: { project_root: { type: "string" }, role_id: { type: "string", description: "Role ID to validate (or 'all')" } }, required: ["role_id"] } },
+      // ── T-0010 Knowledge Sedimentation Tools ──
+      { name: "loop_knowledge_query", description: "Query the knowledge ledger for lessons by phase/role/category/tags", inputSchema: { type: "object", properties: { project_root: { type: "string" }, phase_id: { type: "string" }, role_id: { type: "string" }, category: { type: "string", description: "LessonCategory: LOGIC_ERROR|DESIGN_FLAW|UNDETECTED_BUG|CONSTRAINT_VIOLATION|TEST_GAP|SECURITY_GAP|PROCESS_GAP|PERFORMANCE_ISSUE|OTHER" }, tags: { type: "array", items: { type: "string" } }, status: { type: "string", description: "OPEN|ACKNOWLEDGED|RESOLVED" }, limit: { type: "number", description: "Max results (default 20)" } } } },
+      { name: "loop_knowledge_advisory", description: "Generate pre-review advisory from knowledge ledger for a phase/role", inputSchema: { type: "object", properties: { project_root: { type: "string" }, phase_id: { type: "string" }, role_id: { type: "string" }, task_id: { type: "string" }, max_lessons: { type: "number", description: "Max lessons (default 5)" } }, required: ["phase_id", "role_id"] } },
+      { name: "loop_safe_bash", description: "Execute a read-only or governance-scoped bash command", inputSchema: { type: "object", properties: { project_root: { type: "string" }, command: { type: "string", description: "Bash command to execute" }, cwd: { type: "string", description: "Working directory (default: project_root)" }, timeout_ms: { type: "number", description: "Timeout in ms (default 30000)" } }, required: ["command"] } },
+      // ── T-0014 Four-Quadrant Prompt Engine ──
+      { name: "loop_prompt", description: "Generate a four-quadrant collaboration prompt automatically. Mode: 'user' (full copy-paste), 'compact' (quick), 'subagent' (role context). User never needs to remember prompt structure.", inputSchema: { type: "object", properties: { task_description: { type: "string", description: "What you want to do" }, role_id: { type: "string", description: "Role ID (R01-R11) for role-specific guidance" }, phase_id: { type: "string", description: "Current phase" }, known_info: { type: "string", description: "What you already know" }, known_gaps: { type: "string", description: "What you know you don't know" }, constraints: { type: "string", description: "Time/resource/tech constraints" }, experience_level: { type: "string", description: "Your experience level on this task" }, mode: { type: "string", description: "user | compact | subagent. Default: user" } } } },
     ],
   }));
 
@@ -105,6 +118,14 @@ export function registerTools(server: Server): void {
             return textReply(`Gate advanced: ${result.previous_phase} → ${result.new_phase} at ${result.advanced_at}`);
           }
           return textReply(`Gate BLOCKED: ${result.error}`);
+        }
+
+        case "loop_gate_approve": {
+          const result = await approveGate(root, args!.gate_id as string, args!.note as string | undefined);
+          if (result.success) {
+            return textReply(`User approval recorded for gate ${result.gate_id} at ${result.approved_at}. Run loop_gate_advance once all conditions are met.`);
+          }
+          return textReply(`Approval failed: ${result.error}`);
         }
 
         case "loop_role_activate": {
@@ -494,14 +515,14 @@ export function registerTools(server: Server): void {
         }
 
         case "loop_contract_validate": {
-          const { readFileSync, readdirSync, existsSync } = await import("node:fs");
-          const { parseDocument } = await import("yaml");
+          const { readFileSync: _rfs, readdirSync: _rds, existsSync: _exs } = await import("node:fs");
+          const { parseDocument: _pd } = await import("yaml");
           const registryDir = join(root, ".ai", "registry");
-          if (!existsSync(registryDir)) return textReply("Registry directory not found: .ai/registry/");
+          if (!_exs(registryDir)) return textReply("Registry directory not found: .ai/registry/");
 
           const roleId = args!.role_id as string;
           const files = roleId === "all"
-            ? (readdirSync(registryDir) as string[]).filter(f => f.endsWith(".yaml"))
+            ? (_rds(registryDir) as string[]).filter(f => f.endsWith(".yaml"))
             : [`${roleId}.yaml`];
 
           const results: Array<{ role_id: string; valid: boolean; errors: string[] }> = [];
@@ -509,12 +530,12 @@ export function registerTools(server: Server): void {
 
           for (const file of files) {
             const filePath = join(registryDir, file);
-            if (!existsSync(filePath)) {
+            if (!_exs(filePath)) {
               results.push({ role_id: file.replace(".yaml", ""), valid: false, errors: ["File not found"] });
               continue;
             }
-            const raw = readFileSync(filePath, "utf-8");
-            const contract = parseDocument(raw).toJSON() as Record<string, unknown>;
+            const raw = _rfs(filePath, "utf-8");
+            const contract = _pd(raw).toJSON() as Record<string, unknown>;
             const errors: string[] = [];
             for (const field of requiredFields) {
               if (!contract[field]) errors.push(`Missing required field: ${field}`);
@@ -527,6 +548,84 @@ export function registerTools(server: Server): void {
             `Contract validation: ${allValid ? "ALL VALID" : "ISSUES FOUND"}\n` +
             results.map(r => `  ${r.valid ? "✓" : "✗"} ${r.role_id}${r.errors.length ? ": " + r.errors.join("; ") : ""}`).join("\n")
           );
+        }
+
+        // ── T-0010 Knowledge Sedimentation Tools ──
+
+        case "loop_knowledge_query": {
+          const ledger = new KnowledgeLedger(join(root, ".ai", "lessons", "lessons.jsonl"));
+          const results = ledger.query({
+            phase_id: args?.phase_id as string | undefined,
+            role_id: args?.role_id as string | undefined,
+            category: args?.category as LessonCategory | undefined,
+            tags: args?.tags as string[] | undefined,
+            status: args?.status ? (args.status as string) as LessonStatus : undefined,
+            limit: (args?.limit as number) ?? 20,
+          });
+          if (results.length === 0) return textReply("No matching lessons found.");
+          const summary = results.map(r =>
+            `[${r.lesson_id}] ${r.severity} ${r.category} (${r.phase_id}/${r.role_id}) — ${r.symptom.substring(0, 120)}`
+          ).join("\n");
+          return textReply(`Found ${results.length} lesson(s):\n${summary}`);
+        }
+
+        case "loop_knowledge_advisory": {
+          const ledger = new KnowledgeLedger(join(root, ".ai", "lessons", "lessons.jsonl"));
+          const advisory = generatePreReviewAdvisory(ledger, {
+            phase_id: args!.phase_id as string,
+            role_id: args!.role_id as string,
+            task_id: args?.task_id as string | undefined,
+            max_lessons: (args?.max_lessons as number) ?? 5,
+          });
+          return textReply(advisory.summary);
+        }
+
+        case "loop_safe_bash": {
+          const command = args!.command as string;
+          const cwd = (args?.cwd as string) || root;
+          const timeoutMs = (args?.timeout_ms as number) ?? 30_000;
+
+          // Safety: block dangerous write operations
+          const dangerousPatterns = [
+            /\brm\s+-rf\b/, /\bdel\s+\/[a-z]/i, /\bformat\b/i,
+            /\bchmod\s+777\b/, /\bcurl\s+.*\|\s*(ba)?sh\b/,
+            />\s*\/dev\//, /\bnpm\s+publish\b/, /\bgit\s+push\s+.*--force\b/,
+          ];
+          for (const pattern of dangerousPatterns) {
+            if (pattern.test(command)) {
+              return textReply(`BLOCKED: Dangerous command pattern detected: ${pattern}`);
+            }
+          }
+
+          try {
+            const output = execSync(command, {
+              cwd,
+              timeout: timeoutMs,
+              maxBuffer: 100 * 1024,
+              encoding: "utf-8",
+            });
+            return textReply(output || "(command completed with no output)");
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            return textReply(`Command failed: ${msg}`);
+          }
+        }
+
+        // ── T-0014 Four-Quadrant Prompt Engine ──
+
+        case "loop_prompt": {
+          const promptCtx: PromptContext = {
+            task_description: args?.task_description as string | undefined,
+            role_id: args?.role_id as string | undefined,
+            phase_id: args?.phase_id as string | undefined,
+            known_info: args?.known_info as string | undefined,
+            known_gaps: args?.known_gaps as string | undefined,
+            constraints: args?.constraints as string | undefined,
+            experience_level: args?.experience_level as string | undefined,
+            mode: ((args?.mode as string) || "user") as PromptContext["mode"],
+          };
+          const result = generatePrompt(promptCtx);
+          return textReply(result.prompt);
         }
 
         default:

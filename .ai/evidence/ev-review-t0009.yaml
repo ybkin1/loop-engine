@@ -1,0 +1,15 @@
+evidence_id: ev-review-t0009
+type: review_report
+content: R09 复审 PASS：P1（Bash 绕过）FIXED + P2 全部处理，525 tests passed（详见
+  .ai/reviews/R09-T0009.md）
+content_hash: fbe53d92bac40ba64505ecbb3cc426400ee2be69a9f53bab17bdce8be1597492
+submitted_at: 2026-07-31T16:36:55.259Z
+submitted_by: R09
+gate_id: gate-S7-integration
+role_id: R09
+ttl_seconds: null
+depends_on: []
+metadata:
+  verdict: PASS
+  p0_count: 0
+  p1_count: 0

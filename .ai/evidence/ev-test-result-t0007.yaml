@@ -1,0 +1,11 @@
+evidence_id: ev-test-result-t0007
+type: test_result
+content: "vitest: 20 test files / 508 tests passed (2026-07-31 全量回归)"
+content_hash: 7abe1a5cb020b17329f26ec8620777920f784349e1b7c0947769afdc5428e15c
+submitted_at: 2026-07-31T10:36:34.543Z
+submitted_by: R06
+gate_id: gate-S4-implementation
+role_id: R06
+ttl_seconds: null
+depends_on: []
+metadata: {}

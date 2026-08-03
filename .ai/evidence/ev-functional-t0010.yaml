@@ -1,0 +1,22 @@
+evidence_id: ev-functional-t0010
+type: functional_test
+content: |-
+  功能测试（S8）：21 test files / 528 tests 全部通过
+  覆盖功能面：
+  - Gate 生命周期：6-phase 全流程 init→delivery（integration.test.ts 37 用例）
+  - 用户批准路径：approveGate/manual_approval/防伪造（user_approval.test.ts 13 用例）
+  - 证据链：hash 绑定 + 篡改检测（state-machine.test.ts）
+  - 角色引擎：激活/完成/前置条件（integration + role 相关用例）
+  - 命令白名单：只读放行/写入拦截/bypass 检测（hook_scripts.test.ts 85 用例）
+  - 硬约束：C1-C8 路径/门禁/证据约束（hard_constraints.test.ts）
+content_hash: 4a0335c16a2b199ae481e4a951683e091798a883a1eebfebfb45cfc29399ac4a
+submitted_at: 2026-07-31T23:13:32.833Z
+submitted_by: R07
+gate_id: gate-S8-functional-test
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  tests_passed: 528
+  test_files: 21
+  verdict: PASS

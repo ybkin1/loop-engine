@@ -1,0 +1,20 @@
+evidence_id: ev-delivery-checklist-t0008
+type: delivery_checklist
+content: |-
+  交付清单（T-0008）:
+  - [x] 自动编排链路修复并验证（auto-orchestrate 输出真实指令）
+  - [x] 健康检查真实化（BLOCKER 如实报告）
+  - [x] 用户批准路径（approveGate + CLI + MCP + hook 拦截）
+  - [x] 治理状态合法重建（3 gate 真实推进）
+  - [x] 独立评审 PASS（R09 复审：3P0+7P1 清零）
+  - [x] 521 tests 通过 / tsc 0 错误
+  - [x] 文档同步（HANDOFF/PROGRESS 由 state 生成）
+  - [ ] 用户验收（manual_approval）
+content_hash: a02469c471c28349a39f41340880eb1df0df68e530c3c9457a6a28786214de92
+submitted_at: 2026-07-31T13:14:00.312Z
+submitted_by: R03
+gate_id: gate-S6-delivery
+role_id: R03
+ttl_seconds: null
+depends_on: []
+metadata: {}

@@ -9,7 +9,7 @@
  *   npx tsx scripts/quality-gates.ts [project_root]
  */
 
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseDocument } from "yaml";
@@ -85,7 +85,19 @@ function loadThresholds(projectRoot: string): QualityThresholds {
 
 // ── Individual Checks ──────────────────────────────────
 function runLint(projectRoot: string, thresholds: QualityThresholds): QualityCheck {
-  const result = runCommand("npx eslint . --format json 2>/dev/null || npx tsc --noEmit 2>&1 || echo 'lint skipped'", projectRoot);
+  // T-0014-A: eslint 未安装时明确 skipped——不再用 tsc 输出冒充 lint errors
+  const eslintBin = join(projectRoot, "node_modules", ".bin", "eslint");
+  if (!existsSync(eslintBin)) {
+    return {
+      name: "lint",
+      status: "pass",
+      value: "skipped",
+      threshold: "eslint not installed",
+      detail: "eslint not installed — lint check skipped (typecheck covers type errors)",
+      duration_ms: 0,
+    };
+  }
+  const result = runCommand("node " + join(projectRoot, "node_modules", "eslint", "bin", "eslint.js") + " . --format json 2>&1 || echo '[]'", projectRoot);
   const duration = result.duration;
 
   // Count errors from output
@@ -111,7 +123,8 @@ function runLint(projectRoot: string, thresholds: QualityThresholds): QualityChe
 }
 
 function runTypecheck(projectRoot: string): QualityCheck {
-  const result = runCommand("npx tsc --noEmit 2>&1", projectRoot);
+  // T-0014-A: 本地 tsc 二进制（npx 缓存解析在 Windows 上不稳定）
+  const result = runCommand("node " + join(projectRoot, "node_modules", "typescript", "bin", "tsc") + " --noEmit 2>&1", projectRoot);
   const duration = result.duration;
   const passed = result.exitCode === 0;
   const errorLines = (result.stdout.match(/error TS/g) || []).length;
@@ -127,13 +140,15 @@ function runTypecheck(projectRoot: string): QualityCheck {
 }
 
 function runTests(projectRoot: string, thresholds: QualityThresholds): QualityCheck {
-  const result = runCommand("npx vitest run 2>&1", projectRoot);
+  // T-0014-A: 本地 vitest 入口（npx 缓存解析在 Windows 上不稳定）
+  const result = runCommand("node " + join(projectRoot, "node_modules", "vitest", "vitest.mjs") + " run 2>&1", projectRoot);
   const duration = result.duration;
 
-  // Parse test output
-  const testsMatch = result.stdout.match(/Tests\s+(\d+)\s+(?:passed|failed)/);
-  const totalMatch = result.stdout.match(/Test Files\s+\d+\s+(?:passed|failed)\s+\((\d+)\)/);
-  const passedMatch = result.stdout.match(/Tests\s+(\d+)\s+passed/);
+  // Parse test output（剥离 ANSI 颜色码——vitest 非 TTY 输出含 \x1b[..m 序列）
+  const cleanOut = result.stdout.replace(/\x1b\[[0-9;]*m/g, "");
+  const testsMatch = cleanOut.match(/Tests\s+(\d+)\s+(?:passed|failed)/);
+  const totalMatch = cleanOut.match(/Test Files\s+\d+\s+(?:passed|failed)\s+\((\d+)\)/);
+  const passedMatch = cleanOut.match(/Tests\s+(\d+)\s+passed/);
 
   const total = testsMatch ? parseInt(testsMatch[1]) : 0;
   const passed = passedMatch ? parseInt(passedMatch[1]) : 0;
@@ -175,19 +190,29 @@ function runAudit(projectRoot: string, thresholds: QualityThresholds): QualityCh
     return { name: "audit", status: "pass", value: "no package.json", threshold: "N/A", detail: "No Node.js project detected", duration_ms: 0 };
   }
 
-  const result = runCommand("npm audit --json 2>&1", projectRoot);
-  const duration = result.duration;
+  // T-0014-A: spawnSync 解析（npm audit 有漏洞时退出码非零，execSync 抛异常吞掉 stdout）
+  const auditStart = Date.now();
+  // T-0014-A: shell:true（Windows 下 .cmd 批处理需经 shell 执行）
+  const auditResult = spawnSync("npm audit --json", {
+    cwd: projectRoot,
+    encoding: "utf-8",
+    timeout: 60_000,
+    maxBuffer: 10 * 1024 * 1024,
+    shell: true,
+  });
+  const duration = Date.now() - auditStart;
+  const auditStdout = auditResult.stdout ?? "";
 
   let high = 0, critical = 0;
   try {
-    const audit = JSON.parse(result.stdout);
+    const audit = JSON.parse(auditStdout);
     const vulns = audit.metadata?.vulnerabilities ?? {};
     high = vulns.high ?? 0;
     critical = vulns.critical ?? 0;
   } catch {
     // If audit output is not parseable, count from text
-    high = (result.stdout.match(/high/gi) || []).length;
-    critical = (result.stdout.match(/critical/gi) || []).length;
+    high = (auditStdout.match(/high/gi) || []).length;
+    critical = (auditStdout.match(/critical/gi) || []).length;
   }
 
   const passed = high <= thresholds.max_audit_high && critical <= thresholds.max_audit_critical;

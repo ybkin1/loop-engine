@@ -14,7 +14,7 @@
 - Every task states user-visible outcome, verification, and evidence path.
 - Every task records scope, non-goals, and forbidden actions before execution.
 - The current task in `state.yaml` matches the active work.
-- Required evidence is stored under `.ai/evidence/<task-id>/`.
-- `validate_state.py` returns `[ok] state is usable` before and after material governance changes.
+- Required evidence is stored under `.ai/evidence/` as `ev-<type>-<task-id>.yaml` (flat layout with hash binding).
+- `governance-health-check.cjs` returns no blockers (equivalent of `validate_state.py` `[ok] state is usable`) before and after material governance changes.
 - `PROGRESS.md` and `HANDOFF.md` are updated when task state or handoff-relevant facts change.
 - Any high-risk action is blocked until the user explicitly approves the relevant gate.

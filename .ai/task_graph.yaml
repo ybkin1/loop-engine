@@ -1,32 +1,213 @@
-﻿schema_version: 1
+schema_version: 1
 tasks:
-  - id: T-0007
-    title: "闭环修复: PhaseExecutor管线+SubagentManifest集成+12阶段端到端"
-    status: active
+  - id: T-0005
+    title: ZCode Loop工程引入Qoder（角色契约+12阶段+SubagentManifest）
+    status: completed
     priority: P0
-    created_at: "2026-07-29"
+    completed_at: 2026-07-29
     acceptance_criteria:
-      - "AC1: PhaseExecutor.executePhase 调用 HardConstraints.checkAll 后再推进门禁"
-      - "AC2: PhaseExecutor 支持 SubagentManifest 并行子代理调度"
-      - "AC3: 12阶段端到端集成测试全部通过"
-      - "AC4: executePhase 接受所有阶段名变体(legacy/S-prefix/P-prefix)"
+      - 11角色契约
+      - 12阶段状态机
+      - SubagentManifest协议
+      - MCP工具扩展
+  - id: T-0006
+    title: 结构性加固（阶段映射统一+合同测试+攻击面+管线测试）
+    status: completed
+    priority: P0
+    completed_at: 2026-07-29
+    acceptance_criteria:
+      - 435测试通过
+  - id: T-0007
+    title: 闭环修复（PhaseExecutor→HardConstraints+SubagentManifest+12阶段端到端）
+    status: completed
+    priority: P0
+    completed_at: 2026-07-29
+    acceptance_criteria:
+      - AC1-AC4 全部满足
+      - 442测试通过
+  - id: T-0008
+    title: 治理修复：hook_common字段修复+健康检查真实化+用户批准路径+状态重建
+    status: completed
+    completed_at: 2026-07-31
+    priority: P0
+    created_at: 2026-07-31
+    acceptance_criteria:
+      - "AC1: 自动编排输出真实激活指令（不再静默退出）"
+      - "AC2: 健康检查如实报告 BLOCKER（不再假 HEALTHY）"
+      - "AC3: manual_approval 可通过用户批准满足并推进 gate"
+      - "AC4: 治理状态经合法 gate 链重建"
     subtasks:
-      - id: T-0007-A
-        title: "PhaseExecutor管线接入HardConstraints约束检查"
-        status: pending
-      - id: T-0007-B
-        title: "SubagentManifest集成到PhaseExecutor.executeRole"
-        status: pending
-      - id: T-0007-C
-        title: "12阶段端到端集成测试"
-        status: pending
-      - id: T-0007-D
-        title: "executePhase接受所有阶段名变体"
-        status: pending
+      - id: T-0008-A
+        title: hook_common.js loadState 字段修复
+        status: completed
+      - id: T-0008-B
+        title: auto-orchestrate 回退加载全局 hook_common
+        status: completed
+      - id: T-0008-C
+        title: governance-health-check 假健康修复
+        status: completed
+      - id: T-0008-D
+        title: approveGate + loop_gate_approve 用户批准路径
+        status: completed
+      - id: T-0008-E
+        title: 治理状态重建（备份+init+证据+gate链）
+        status: completed
+  - id: T-0009
+    title: R09 复审遗留 P2 修复：gate-guard 回归测试 + 健康检查死代码 + 幽灵 gate + MCP 同步
+    status: completed
+    priority: P2
+    created_at: 2026-07-31
+    acceptance_criteria:
+      - "AC1: gate-guard user_approvals 拦截有回归测试覆盖"
+      - "AC2: 健康检查治理中断分支真实可达"
+      - "AC3: gate-S0-init 幽灵 gate 清理（EXTENDED_PHASES 与 gates 注册一致）"
+      - "AC4: MCP server 指向项目最新构建（含 loop_gate_approve）"
+    subtasks:
+      - id: T-0009-A
+        title: gate-guard 伪造拦截回归测试
+        status: completed
+      - id: T-0009-B
+        title: 健康检查死代码分支修复
+        status: completed
+      - id: T-0009-C
+        title: gate-S0-init 幽灵 gate 清理
+        status: completed
+      - id: T-0009-D
+        title: 全局 MCP server 版本同步
+        status: completed
+    completed_at: 2026-07-31
+  - id: T-0010
+    title: P3 加固（Bash 写 state.yaml 阻断 + unifiedAuthCheck + require 显式化）+ S8 功能测试
+    status: completed
+    priority: P3
+    created_at: 2026-07-31
+    acceptance_criteria:
+      - "AC1: Bash 直接写 state.yaml 被阻断，但 node 治理脚本不受影响（防自我锁死）"
+      - "AC2: unifiedAuthCheck 具备与 gate-guard 一致的 Bash 注入拦截"
+      - "AC3: hook_scripts.test.ts require 路径显式指向实际 hooks 目录"
+      - "AC4: 全量测试通过，gate-S8 以 functional_test 证据推进"
+    subtasks:
+      - id: T-0010-A
+        title: gate-guard Bash 写 state.yaml 阻断（node 白名单）
+        status: completed
+      - id: T-0010-B
+        title: unifiedAuthCheck 补 Bash 注入检查
+        status: completed
+      - id: T-0010-C
+        title: hook_scripts.test.ts require 路径显式化
+        status: completed
+      - id: T-0010-D
+        title: S8 功能测试证据 + gate-S8 推进
+        status: completed
+    completed_at: 2026-08-01
+  - id: T-0011
+    title: S9 缺陷闭环：rework_tracker + regression_test 证据 → gate-S9 推进
+    status: completed
+    priority: P0
+    created_at: 2026-08-01
+    acceptance_criteria:
+      - "AC1: rework_tracker 证据记录 T-0008~T-0010 全部真实修复缺陷"
+      - "AC2: regression_test 证据引用真实全量测试结果"
+      - "AC3: gate-S9-fix-optimize 条件满足并推进至 S10"
+    subtasks:
+      - id: T-0011-A
+        title: 缺陷修复记录（rework_tracker）
+        status: completed
+      - id: T-0011-B
+        title: 回归测试证据（regression_test）
+        status: completed
+      - id: T-0011-C
+        title: gate-S9 推进
+        status: completed
+    completed_at: 2026-08-01
+  - id: T-0012
+    title: S10 性能基线 + S11 运维闭环 → 12 阶段全通里程碑
+    status: completed
+    priority: P0
+    created_at: 2026-08-01
+    acceptance_criteria:
+      - "AC1: stress_test 证据基于真实性能基线（测试套件计时）"
+      - "AC2: gate-S10 推进至 S11"
+      - "AC3: R10 产出真实运维产物（ops_runbook + monitoring_config）并 completed"
+      - "AC4: gate-S11 推进，12 阶段全部通过，project_status=released"
+    subtasks:
+      - id: T-0012-A
+        title: S10 性能基线 + stress_test 证据
+        status: completed
+      - id: T-0012-B
+        title: gate-S10 推进
+        status: completed
+      - id: T-0012-C
+        title: R10 运维产物（ops_runbook/monitoring）
+        status: completed
+      - id: T-0012-D
+        title: gate-S11 推进 + released
+        status: completed
+    completed_at: 2026-08-02
+  - id: T-0013
+    title: loop 工程自身质量验收（安全扫描 + 质量门禁 + 最终验收评审 + 交付批准）
+    status: completed
+    priority: P0
+    created_at: 2026-08-02
+    acceptance_criteria:
+      - "AC1: 安全扫描真实运行（secrets/注入/CVE），无 CRITICAL/HIGH"
+      - "AC2: 质量门禁真实运行（lint/typecheck/test/build/audit）全 PASS"
+      - "AC3: R09 最终验收评审（交付完整性 + ACCEPTANCE 逐项）PASS"
+      - "AC4: R03 交付验收报告 + 用户最终批准"
+    subtasks:
+      - id: T-0013-A
+        title: R08 安全验收扫描
+        status: completed
+      - id: T-0013-B
+        title: R07 质量门禁验收
+        status: completed
+      - id: T-0013-C
+        title: R09 最终验收评审
+        status: completed
+      - id: T-0013-D
+        title: R03 交付验收 + 用户批准
+        status: completed
+    completed_at: 2026-08-02
+  - id: T-0014
+    title: 迭代 2（维护）：验收备注修复（CVE 漏报 + flaky + 文档对齐 + moderate CVE 评估）
+    status: completed
+    priority: P3
+    created_at: 2026-08-02
+    acceptance_criteria:
+      - "AC1: runCveScan 真实解析 npm audit 输出（spawnSync），不再吞非零退出"
+      - "AC2: user_approval flaky 根因调查并修复"
+      - "AC3: ACCEPTANCE 文档与实现对齐（validate_state.py 引用 + 证据命名）"
+      - "AC4: moderate CVE 评估结论（修复或记录）"
+    subtasks:
+      - id: T-0014-A
+        title: runCveScan spawnSync 修复
+        status: completed
+      - id: T-0014-B
+        title: user_approval flaky 调查
+        status: completed
+      - id: T-0014-C
+        title: ACCEPTANCE 文档对齐
+        status: completed
+      - id: T-0014-D
+        title: moderate CVE 评估
+        status: completed
+    completed_at: 2026-08-02
 edges:
-  - from: T-0007-A
-    to: T-0007-B
-  - from: T-0007-A
-    to: T-0007-C
-  - from: T-0007-D
-    to: T-0007-C
+  - from: T-0005
+    to: T-0006
+  - from: T-0006
+    to: T-0007
+  - from: T-0007
+    to: T-0008
+  - from: T-0008
+    to: T-0009
+  - from: T-0009
+    to: T-0010
+  - from: T-0010
+    to: T-0011
+  - from: T-0011
+    to: T-0012
+  - from: T-0012
+    to: T-0013
+  - from: T-0013
+    to: T-0014

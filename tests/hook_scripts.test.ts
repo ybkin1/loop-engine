@@ -4,7 +4,10 @@ import { writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createRequire } from "node:module";
 
-const HOOKS_DIR = join(__dirname, "..", "..", "hooks", "scripts");
+// 项目内 hooks/ 不存在时回退到 Qoder 全局 hooks 目录（T-0009：路径显式化，避免隐式解析脆弱性）
+const PROJECT_HOOKS_DIR = join(__dirname, "..", "..", "hooks", "scripts");
+const GLOBAL_HOOKS_DIR = join(process.env.USERPROFILE ?? "", ".qoder-cn", "hooks", "scripts");
+const HOOKS_DIR = existsSync(PROJECT_HOOKS_DIR) ? PROJECT_HOOKS_DIR : GLOBAL_HOOKS_DIR;
 const TEMP_DIR = join(__dirname, "..", ".test-temp-hooks");
 
 // ── Helper: run a hook script via child_process ──────────────────────
@@ -41,7 +44,7 @@ function setupTempProject(files: Record<string, string>) {
 
 // ── Load hook_common.js via createRequire (CJS in ESM context) ──────
 const require_ = createRequire(import.meta.url);
-const common = require_("../../hooks/scripts/hook_common.js") as {
+const common = require_(join(HOOKS_DIR, "hook_common.js")) as {
   isReadonlyCommand: (cmd: string) => boolean;
   isGovernanceFile: (filePath: string, root: string) => boolean;
   extractYamlValue: (content: string, key: string) => string | null;
@@ -660,5 +663,240 @@ describe("SEC-006 regression: path prefix boundary", () => {
 
   test("lib 应该匹配 lib/utils.js", () => {
     expect(common.isPathInPhase("lib/utils.js", "P4")).toBe(true);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  SEC-007 回归：user_approvals 注入拦截（T-0009-A）
+//  gate-guard.js 必须阻断对 .ai/state.yaml 写入中携带 user_approvals 的行为
+// ════════════════════════════════════════════════════════════════════
+describe("SEC-007 regression: user_approvals injection guard", () => {
+  test("写入 state.yaml 携带 user_approvals → exit 2（伪造批准被拦截）", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Write",
+      tool_input: {
+        file_path: join(TEMP_DIR, ".ai", "state.yaml"),
+        content: "user_approvals:\n  gate-S6-delivery:\n    approved_by: user\n    approved_at: fake\n",
+      },
+    });
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("user_approvals");
+  });
+
+  test("编辑 state.yaml 新增 user_approvals（new_str 路径）→ exit 2", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Edit",
+      tool_input: {
+        file_path: join(TEMP_DIR, ".ai", "state.yaml"),
+        old_str: "active_role: null",
+        new_str: "active_role: null\nuser_approvals:\n  gate-delivery:\n    approved_by: user\n",
+      },
+    });
+    expect(result.exitCode).toBe(2);
+  });
+
+  test("正常写入 state.yaml（无 user_approvals）→ exit 0", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Write",
+      tool_input: {
+        file_path: join(TEMP_DIR, ".ai", "state.yaml"),
+        content: "project_name: updated-name\n",
+      },
+    });
+    expect(result.exitCode).toBe(0);
+  });
+
+  test("Bash 重定向注入 user_approvals 到 state.yaml → exit 2（P1 绕过修复）", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Bash",
+      tool_input: {
+        command: "printf 'user_approvals:\n  gate-S6-delivery:\n    approved_by: user\n    approved_at: fake\n' >> .ai/state.yaml",
+      },
+    });
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("user_approvals");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  SEC-008 回归：Bash 写 state.yaml 阻断 + node 白名单（T-0010-A 防自我锁死）
+// ════════════════════════════════════════════════════════════════════
+describe("SEC-008 regression: state.yaml write guard (T-0010-A)", () => {
+  test("Bash 重定向写 state.yaml（无 user_approvals）→ exit 2", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Bash",
+      tool_input: {
+        command: "printf 'project_name: hacked\n' > .ai/state.yaml",
+      },
+    });
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("state.yaml");
+  });
+
+  test("PowerShell Set-Content 写 state.yaml → exit 2", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S4-implementation\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Bash",
+      tool_input: {
+        command: "Set-Content -Path .ai/state.yaml -Value 'project_name: hacked'",
+      },
+    });
+    expect(result.exitCode).toBe(2);
+  });
+
+  test("node 治理脚本（写 state.yaml 的受控路径）→ 不被新规则误伤（防自我锁死）", () => {
+    setupTempProject({
+      ".ai/state.yaml":
+        "project_name: test\ncurrent_phase: S8-functional-test\ncurrent_gate_id: gate-S8-functional-test\n",
+      ".ai/gates.yaml":
+        "gates:\n  - gate_id: gate-S8-functional-test\n    status: PENDING\n",
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Bash",
+      tool_input: {
+        command: "node scripts/sync-state-docs.cjs",
+      },
+    });
+    // 防自我锁死验证：node 治理脚本不得因 T-0010-A 的 state.yaml 写保护规则被阻断
+    // （若因其他 gate 规则 exit 2，stderr 不含本规则消息即证明未误伤）
+    expect(result.stderr).not.toContain("禁止通过 Bash 命令直接写 .ai/state.yaml");
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  SEC-009 回归：真实 gates.yaml 格式解析（T-0010 P1-1 fail-open 修复）
+//  gate 无 phase 字段时 pending 不阻断路径（防锁死）；blocked 强阻断保留
+// ════════════════════════════════════════════════════════════════════
+describe("SEC-009 regression: real gates.yaml format (T-0010 P1-1)", () => {
+  // 真实格式：gate 含 conditions 嵌套列表 + status 在嵌套之后
+  const REAL_GATES = [
+    "gates:",
+    "  - gate_id: gate-S1-requirements",
+    "    name: 需求基线 Gate",
+    "    description: 需求基线 Gate — 阶段推进条件",
+    "    conditions:",
+    "      - condition_id: req-baselined",
+    "        type: role_required",
+    "        description: R01 需求已基线化",
+    "        params:",
+    "          role_id: R01",
+    "          status: completed",
+    "      - condition_id: acceptance-defined",
+    "        type: evidence_required",
+    "        description: 验收标准已定义",
+    "        params:",
+    "          evidence_type: acceptance_criteria",
+    "    status: pending",
+    "  - gate_id: gate-S2-architecture",
+    "    name: 架构设计 Gate",
+    "    description: 架构设计 Gate — 阶段推进条件",
+    "    conditions:",
+    "      - condition_id: arch-complete",
+    "        type: role_required",
+    "        description: R04 架构设计完成",
+    "        params:",
+    "          role_id: R04",
+    "    status: pending",
+  ].join("\n");
+
+  test("真实格式 gates.yaml 解析：嵌套 conditions 不截断 gate（P1-1）", () => {
+    setupTempProject({
+      ".ai/state.yaml": "project_name: test\ncurrent_phase: S1-requirements\ncurrent_gate_id: gate-S1-requirements\n",
+      ".ai/gates.yaml": REAL_GATES,
+    });
+    const gates = common.loadGates(TEMP_DIR);
+    expect(gates && gates.gates ? gates.gates.length : 0).toBe(2);
+    const first = gates.gates[0];
+    expect(first.gate_id).toBe("gate-S1-requirements");
+    expect(first.status).toBe("pending"); // status 在嵌套 conditions 之后，必须保留
+  });
+
+  test("pendingGates 返回真实 pending gate（P1-1 fail-open 修复）", () => {
+    setupTempProject({
+      ".ai/state.yaml": "project_name: test\ncurrent_phase: S1-requirements\ncurrent_gate_id: gate-S1-requirements\n",
+      ".ai/gates.yaml": REAL_GATES,
+    });
+    const pending = common.pendingGates(TEMP_DIR);
+    expect(pending).toContain("gate-S1-requirements");
+    expect(pending).toContain("gate-S2-architecture");
+  });
+
+  test("无 phase 字段的 pending gate：写阶段路径 → exit 0（防自我锁死）", () => {
+    setupTempProject({
+      ".ai/state.yaml": "project_name: test\ncurrent_phase: S1-requirements\ncurrent_gate_id: gate-S1-requirements\n",
+      ".ai/gates.yaml": REAL_GATES,
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Write",
+      tool_input: { file_path: join(TEMP_DIR, "src", "main.ts"), content: "// x" },
+    });
+    // 12-phase 真实格式无 phase → pending 不阻断路径（blocked 强阻断才是核心防护）
+    expect(result.exitCode).toBe(0);
+  });
+
+  test("blocked gate 强阻断依然生效（写非治理文件 → exit 2）", () => {
+    setupTempProject({
+      ".ai/state.yaml": "project_name: test\ncurrent_phase: S4-implementation\ncurrent_gate_id: gate-S4-implementation\n",
+      ".ai/gates.yaml": [
+        "gates:",
+        "  - gate_id: gate-S4-implementation",
+        "    name: 实现完成 Gate",
+        "    conditions:",
+        "      - condition_id: code-complete",
+        "        type: role_required",
+        "        description: R06 实现完成",
+        "    status: blocked",
+      ].join("\n"),
+    });
+    const result = runHook("gate-guard.js", {
+      cwd: TEMP_DIR,
+      tool_name: "Write",
+      tool_input: { file_path: join(TEMP_DIR, "src", "main.ts"), content: "// x" },
+    });
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain("BLOCKED");
   });
 });

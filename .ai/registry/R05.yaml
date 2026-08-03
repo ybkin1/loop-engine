@@ -52,7 +52,7 @@ veto_escalation:
 
 prerequisites:
   required_roles: [R04]
-  required_gates: [gate-architecture]
+  required_gates: [gate-S2-architecture]
   required_evidence: []
 
 permissions:

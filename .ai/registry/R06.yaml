@@ -74,7 +74,7 @@ prerequisites:
     - R04
     - R05
   required_gates:
-    - gate-architecture
+    - gate-S2-architecture
   required_evidence: []
 
 permissions:

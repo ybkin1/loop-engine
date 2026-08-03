@@ -8,7 +8,7 @@
  *   npx tsx scripts/security-scan.ts [project_root] [--scan-dir src]
  */
 
-import { execSync } from "node:child_process";
+import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, extname, relative } from "node:path";
 
@@ -179,24 +179,35 @@ function runCveScan(projectRoot: string): SecurityScanResult {
 
   const pkgJson = join(projectRoot, "package.json");
   if (existsSync(pkgJson)) {
-    try {
-      const result = execSync("npm audit --json 2>&1", { cwd: projectRoot, encoding: "utf-8", timeout: 60_000 });
-      const audit = JSON.parse(result);
-      const vulns = audit.vulnerabilities ?? {};
-      for (const [name, info] of Object.entries(vulns)) {
-        const v = info as { severity?: string; via?: { url?: string; cves?: string[] }[] };
-        const severity = (v.severity?.toUpperCase() ?? "MEDIUM") as SecurityFinding["severity"];
-        findings.push({
-          id: `CVE-${name}`,
-          severity,
-          category: "cve",
-          file: "package.json",
-          line: 0,
-          code_evidence: `${name}@${(v as { range?: string }).range ?? "unknown"}`,
-          description: v.via?.[0]?.cves?.[0] ?? `Vulnerability in ${name}`,
-        });
-      }
-    } catch { /* audit may fail if vulnerabilities found */ }
+    // T-0014-A: 改用 spawnSync——npm audit 发现漏洞时退出码非零，
+    // execSync 会抛异常被 catch 吞掉导致 findings 漏报（CVE 检测形同虚设）
+    // T-0014-A: shell:true（Windows 下 .cmd 批处理需经 shell 执行）
+    const result = spawnSync("npm audit --json", {
+      cwd: projectRoot,
+      encoding: "utf-8",
+      timeout: 60_000,
+      maxBuffer: 10 * 1024 * 1024,
+      shell: true,
+    });
+    if (result.stdout) {
+      try {
+        const audit = JSON.parse(result.stdout);
+        const vulns = audit.vulnerabilities ?? {};
+        for (const [name, info] of Object.entries(vulns)) {
+          const v = info as { severity?: string; via?: { url?: string; cves?: string[] }[] };
+          const severity = (v.severity?.toUpperCase() ?? "MEDIUM") as SecurityFinding["severity"];
+          findings.push({
+            id: `CVE-${name}`,
+            severity,
+            category: "cve",
+            file: "package.json",
+            line: 0,
+            code_evidence: `${name}@${(v as { range?: string }).range ?? "unknown"}`,
+            description: v.via?.[0]?.cves?.[0] ?? `Vulnerability in ${name}`,
+          });
+        }
+      } catch { /* audit JSON 解析失败不阻断扫描 */ }
+    }
   }
 
   const bySeverity: Record<string, number> = {};

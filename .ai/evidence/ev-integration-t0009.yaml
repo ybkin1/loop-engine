@@ -1,0 +1,15 @@
+evidence_id: ev-integration-t0009
+type: integration_test
+content: 集成测试：tests/integration.test.ts 37 用例全部通过（含 6-phase 全生命周期
+  init→delivery）；全量 21 files / 525 tests 通过。
+content_hash: 97b1c874d1e6a88301cbfa9b4bb70e019f7af4466971990a43ee4d3c875efa3a
+submitted_at: 2026-07-31T16:36:55.336Z
+submitted_by: R07
+gate_id: gate-S7-integration
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  tests_passed: 525
+  test_files: 21
+  integration_cases: 37

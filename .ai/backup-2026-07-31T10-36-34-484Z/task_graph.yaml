@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "id": "T-0005",
+      "title": "ZCode Loop工程引入Qoder（角色契约+12阶段+SubagentManifest）",
+      "status": "completed",
+      "priority": "P0",
+      "completed_at": "2026-07-29",
+      "acceptance_criteria": [
+        "11角色契约",
+        "12阶段状态机",
+        "SubagentManifest协议",
+        "MCP工具扩展"
+      ]
+    },
+    {
+      "id": "T-0006",
+      "title": "结构性加固（阶段映射统一+合同测试+攻击面+管线测试）",
+      "status": "completed",
+      "priority": "P0",
+      "completed_at": "2026-07-29",
+      "acceptance_criteria": [
+        "435测试通过"
+      ]
+    },
+    {
+      "id": "T-0007",
+      "title": "闭环修复（PhaseExecutor→HardConstraints+SubagentManifest+12阶段端到端）",
+      "status": "completed",
+      "priority": "P0",
+      "completed_at": "2026-07-29",
+      "acceptance_criteria": [
+        "AC1-AC4 全部满足",
+        "442测试通过"
+      ]
+    },
+    {
+      "id": "T-0008",
+      "title": "治理修复：hook_common字段修复+健康检查真实化+用户批准路径+状态重建",
+      "status": "active",
+      "priority": "P0",
+      "created_at": "2026-07-31",
+      "acceptance_criteria": [
+        "AC1: 自动编排输出真实激活指令（不再静默退出）",
+        "AC2: 健康检查如实报告 BLOCKER（不再假 HEALTHY）",
+        "AC3: manual_approval 可通过用户批准满足并推进 gate",
+        "AC4: 治理状态经合法 gate 链重建"
+      ],
+      "subtasks": [
+        {
+          "id": "T-0008-A",
+          "title": "hook_common.js loadState 字段修复",
+          "status": "completed"
+        },
+        {
+          "id": "T-0008-B",
+          "title": "auto-orchestrate 回退加载全局 hook_common",
+          "status": "completed"
+        },
+        {
+          "id": "T-0008-C",
+          "title": "governance-health-check 假健康修复",
+          "status": "completed"
+        },
+        {
+          "id": "T-0008-D",
+          "title": "approveGate + loop_gate_approve 用户批准路径",
+          "status": "completed"
+        },
+        {
+          "id": "T-0008-E",
+          "title": "治理状态重建（备份+init+证据+gate链）",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "T-0005",
+      "to": "T-0006"
+    },
+    {
+      "from": "T-0006",
+      "to": "T-0007"
+    },
+    {
+      "from": "T-0007",
+      "to": "T-0008"
+    }
+  ]
+}

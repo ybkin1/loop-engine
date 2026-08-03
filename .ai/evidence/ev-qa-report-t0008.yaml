@@ -1,0 +1,16 @@
+evidence_id: ev-qa-report-t0008
+type: qa_report
+content: 质量报告：21 test files / 521 tests 全部通过；tsc --noEmit 0 错误；P0=0。覆盖
+  lint/test/build/typecheck 四道关卡。
+content_hash: 3aa90ca3e31b3f4b895deb6339ee49bb0726ee22611210e469563e3f31c0fe69
+submitted_at: 2026-07-31T13:14:00.150Z
+submitted_by: R07
+gate_id: gate-S5-quality
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  p0_count: 0
+  tests_passed: 521
+  test_files: 21
+  typecheck_errors: 0

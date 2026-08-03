@@ -1,0 +1,17 @@
+schema_version: 1
+project_name: "Qoder 一人研发团队式 Loop 软件交付系统"
+current_phase: P6-delivery
+current_task_id: T-0007
+current_gate_id: gate-delivery
+active_role: null
+last_handoff_at: "2026-07-29T00:00:00"
+integrated_skills:
+  - archlet
+  - loopany
+  - tools-registry
+  - loopbase
+skill_status: active
+notes:
+  - T-0005 — ZCode Loop工程引入。验收通过。
+  - T-0006 — 结构性加固(阶段映射统一+合同测试+攻击面+管线测试)。435测试通过。
+  - T-0007 — 闭环修复(PhaseExecutor→HardConstraints+SubagentManifest+12阶段端到端)。442测试通过。

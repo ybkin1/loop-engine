@@ -1,0 +1,27 @@
+evidence_id: ev-security-boundary
+type: security_boundary
+content: |-
+  ## Loop Engineering 安全边界（R08 产出，2026-07-31）
+
+  基于现有实现事实（enforcement.ts / hard_constraints.ts / scripts/security-scan.ts）定义：
+
+  1. 强制层（EnforcementLevel）：STRONG=全拦截 / STANDARD=告警 / PASSIVE=记录。
+     宿主能力协商（validateHostCapabilities）决定实际等级，能力不足自动降级并记录。
+  2. 路径安全：validateProjectRoot 拒绝 `..` 遍历；所有 YAML 写入原子化（tmp+rename）；
+     写路径受 allowed_paths 前缀约束（C4 硬约束）。
+  3. 命令白名单：PreToolUse hook 拦截写型命令（rm/git push/npm publish/icacls/reg add 等）；
+     只读命令（npm test/git diff/cat 等）放行。
+  4. 凭据安全：无硬编码密钥；security-scan.ts 扫描 secrets/注入/CVE；
+     tools-registry 服务端注入凭据，调用方不持有密钥。
+  5. 证据完整性：evidence 提交 SHA256 hash 绑定 + TTL 新鲜度；审计账本链式哈希。
+  6. 角色隔离：can_isolate_agents=true；评审（R09）session 必须异于开发 session；
+     BLOCKED verdict 不可被覆写。
+  7. 数据边界：.ai/ 治理文件豁免写保护；其他路径在 gate 未过时受 PENDING/BLOCKED 阻断。
+content_hash: 52a4cbf53a26fd2b5fbe36f1af205393fcba9127b82e12ae8dcfd132f3b534bd
+submitted_at: 2026-07-31T10:36:34.539Z
+submitted_by: R08
+gate_id: gate-S2-architecture
+role_id: R08
+ttl_seconds: null
+depends_on: []
+metadata: {}

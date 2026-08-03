@@ -1,0 +1,79 @@
+{
+  "schema": "quality_report/v1",
+  "project_root": "C:\\Users\\Administrator\\.qoder-cn\\loop-engine-lab",
+  "thresholds": {
+    "lint_errors": 0,
+    "test_pass_rate": 100,
+    "coverage_min": 0,
+    "build_required": true,
+    "max_audit_high": 0,
+    "max_audit_critical": 0
+  },
+  "checks": [
+    {
+      "name": "lint",
+      "status": "pass",
+      "value": "skipped",
+      "threshold": "eslint not installed",
+      "detail": "eslint not installed — lint check skipped (typecheck covers type errors)",
+      "duration_ms": 0
+    },
+    {
+      "name": "typecheck",
+      "status": "pass",
+      "value": {
+        "exit_code": 0,
+        "errors": 0
+      },
+      "threshold": {
+        "exit_code": 0,
+        "errors": 0
+      },
+      "detail": "TypeScript compilation clean",
+      "duration_ms": 5348
+    },
+    {
+      "name": "test",
+      "status": "pass",
+      "value": {
+        "total": 532,
+        "passed": 532,
+        "pass_rate": 100
+      },
+      "threshold": {
+        "min_pass_rate": 100
+      },
+      "detail": "532/532 tests passed (100%)",
+      "duration_ms": 16735
+    },
+    {
+      "name": "build",
+      "status": "pass",
+      "value": {
+        "exit_code": 0
+      },
+      "threshold": {
+        "exit_code": 0
+      },
+      "detail": "Build succeeded",
+      "duration_ms": 6969
+    },
+    {
+      "name": "audit",
+      "status": "pass",
+      "value": {
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "threshold": {
+        "HIGH": 0,
+        "CRITICAL": 0
+      },
+      "detail": "Audit clean (HIGH=0, CRITICAL=0)",
+      "duration_ms": 6648
+    }
+  ],
+  "overall": "PASS",
+  "blocked_by": [],
+  "timestamp": "2026-08-02T10:33:06.635Z"
+}

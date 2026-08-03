@@ -14,6 +14,28 @@ function sanitizeRoleId(roleId: string): string {
   return roleId;
 }
 
+/**
+ * Gate ID 别名：legacy（gate-architecture）↔ canonical（gate-S2-architecture）双命名兼容。
+ * 6-phase 与 12-phase 项目可共用同一份角色契约。
+ */
+const GATE_ALIASES: Record<string, string> = {
+  "gate-requirements": "gate-S1-requirements",
+  "gate-architecture": "gate-S2-architecture",
+  "gate-planning": "gate-S3-interface",
+  "gate-implementation": "gate-S4-implementation",
+  "gate-review": "gate-S5-quality",
+  "gate-delivery": "gate-S6-delivery",
+};
+const GATE_ALIASES_REV: Record<string, string> = Object.fromEntries(
+  Object.entries(GATE_ALIASES).map(([k, v]) => [v, k]),
+);
+
+/** 任一命名下 gate 已 passed 即视为满足（双命名兼容）。 */
+function gatePassedAnyName(gates: { gates: Array<{ gate_id: string; status?: string }> }, gateId: string): boolean {
+  const candidates = [gateId, GATE_ALIASES[gateId], GATE_ALIASES_REV[gateId]].filter(Boolean);
+  return gates.gates.some(g => candidates.includes(g.gate_id) && g.status === "passed");
+}
+
 function loadRoleSpec(root: string, roleId: string): RoleSpec | null {
   const dir = specsPath(root);
   const file = join(dir, `${roleId}.yaml`);
@@ -41,8 +63,7 @@ export async function activateRole(root: string, roleId: string, activatedBy = "
     if (requiredGates.length > 0) {
       const gates = await loadGates(root);
       for (const gateId of requiredGates) {
-        const gate = gates.gates.find(g => g.gate_id === gateId);
-        if (!gate || gate.status !== "passed") {
+        if (!gatePassedAnyName(gates, gateId)) {
           missing.push(`Gate ${gateId} not passed`);
         }
       }

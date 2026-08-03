@@ -1,0 +1,15 @@
+evidence_id: ev-review-t0010
+type: review_report
+content: R09 复审 PASS：P1-1（gate 解析 fail-open）+ P2-1（防锁死）+ P1-2（白名单收窄）全部处理，532
+  tests passed（详见 .ai/reviews/R09-T0010.md）
+content_hash: b79adb2055cdca0042e8f0e69feaca9ae7ba9ee0773f977a85b70f1719c19b72
+submitted_at: 2026-08-01T01:13:51.040Z
+submitted_by: R09
+gate_id: gate-S9-fix-optimize
+role_id: R09
+ttl_seconds: null
+depends_on: []
+metadata:
+  verdict: PASS
+  p0_count: 0
+  p1_count: 0

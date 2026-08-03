@@ -1,0 +1,20 @@
+evidence_id: ev-stress-t0012
+type: stress_test
+content: |-
+  性能基线（R07 实测，2026-08-01）:
+  - 全量测试套件: 21 files / 532 tests 全部通过
+  - 总耗时: ~20s（vitest Duration 16.67s + 启动开销）
+  - 并发: vitest 默认 workers（多核并行）
+  - 结论: 无性能回归（与 T-0010/T-0011 基线一致），测试套件规模下运行时长可接受
+  - 建议: 若测试规模增长至 1000+，可启用 vitest --pool=threads 或分片（--shard）
+content_hash: f82aa66400eb1df69cccf7ca4448f4450fac6aa49b62d5f43d2fc0574f0ede2a
+submitted_at: 2026-08-02T02:17:09.314Z
+submitted_by: R07
+gate_id: gate-S10-performance
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  tests_passed: 532
+  duration_ms: 19969
+  verdict: PASS

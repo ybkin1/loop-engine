@@ -1,0 +1,28 @@
+evidence_id: ev-security-t0013
+type: security_scan
+content: >-
+  安全扫描（R08 真实运行，security-scan.ts）:
+
+  overall: PASS | findings: 2
+
+  - secret_scan: 0 findings
+
+  - injection_scan: 2 MEDIUM（execSync 受控用途：executor.ts 编译门禁 + tools.ts
+  loop_safe_bash，均有 timeout 与 stdio 控制，属设计内调用）
+
+  - cve_scan: 0 findings（依赖审计 HIGH=0 CRITICAL=0）
+
+  结论: 无 CRITICAL/HIGH，可交付
+content_hash: 5b1dedca98b26f49299192ec4fdf2ae4e986e0997428ec7afb0280ea8146c74a
+submitted_at: 2026-08-02T03:15:23.174Z
+submitted_by: R08
+gate_id: null
+role_id: R08
+ttl_seconds: null
+depends_on: []
+metadata:
+  overall: PASS
+  total_findings: 2
+  critical: 0
+  high: 0
+  medium: 2

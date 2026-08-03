@@ -1,0 +1,188 @@
+schema_version: 2
+gates:
+  - gate_id: gate-S1-requirements
+    name: 需求基线 Gate
+    description: 需求基线 Gate — 阶段推进条件
+    conditions:
+      - condition_id: req-baselined
+        type: role_required
+        description: R01 需求已基线化
+        params:
+          role_id: R01
+          status: completed
+      - condition_id: acceptance-defined
+        type: evidence_required
+        description: 验收标准已定义
+        params:
+          evidence_type: acceptance_criteria
+    status: passed
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: 2026-07-31T10:32:27.206Z
+    blocked_reasons: []
+  - gate_id: gate-S2-architecture
+    name: 架构设计 Gate
+    description: 架构设计 Gate — 阶段推进条件
+    conditions:
+      - condition_id: arch-complete
+        type: role_required
+        description: R04 架构设计完成
+        params:
+          role_id: R04
+          status: completed
+      - condition_id: security-boundary
+        type: evidence_required
+        description: 安全边界已定义
+        params:
+          evidence_type: security_boundary
+    status: passed
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: 2026-07-31T10:32:27.310Z
+    blocked_reasons: []
+  - gate_id: gate-S3-interface
+    name: 接口设计 Gate
+    description: 接口设计 Gate — 阶段推进条件
+    conditions:
+      - condition_id: interface-complete
+        type: role_required
+        description: R05 接口设计完成
+        params:
+          role_id: R05
+          status: completed
+    status: passed
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: 2026-07-31T10:32:27.408Z
+    blocked_reasons: []
+  - gate_id: gate-S4-implementation
+    name: 实现完成 Gate
+    description: 实现完成 Gate — 阶段推进条件
+    conditions:
+      - condition_id: code-complete
+        type: role_required
+        description: R06 实现完成
+        params:
+          role_id: R06
+          status: completed
+      - condition_id: tests-pass
+        type: evidence_required
+        description: 测试全部通过
+        params:
+          evidence_type: test_result
+      - condition_id: review-pass
+        type: role_required
+        description: R09 独立评审通过
+        params:
+          role_id: R09
+          status: completed
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S5-quality
+    name: 质量 Gate
+    description: 质量 Gate — 阶段推进条件
+    conditions:
+      - condition_id: qa-pass
+        type: role_required
+        description: R07 质量通过
+        params:
+          role_id: R07
+          status: completed
+      - condition_id: security-pass
+        type: role_required
+        description: R08 安全通过
+        params:
+          role_id: R08
+          status: completed
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S6-delivery
+    name: 交付 Gate
+    description: 交付 Gate — 阶段推进条件
+    conditions:
+      - condition_id: delivery-ready
+        type: role_required
+        description: R03 交付就绪
+        params:
+          role_id: R03
+          status: completed
+      - condition_id: human-approval
+        type: manual_approval
+        description: 用户验收通过
+        params: {}
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S7-integration
+    name: 集成 Gate
+    description: 集成 Gate — 阶段推进条件
+    conditions:
+      - condition_id: integration-pass
+        type: evidence_required
+        description: 集成测试通过
+        params:
+          evidence_type: integration_test
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S8-functional-test
+    name: 功能测试 Gate
+    description: 功能测试 Gate — 阶段推进条件
+    conditions:
+      - condition_id: functional-pass
+        type: evidence_required
+        description: 功能测试通过
+        params:
+          evidence_type: functional_test
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S9-fix-optimize
+    name: 修复优化 Gate
+    description: 修复优化 Gate — 阶段推进条件
+    conditions:
+      - condition_id: defects-fixed
+        type: evidence_required
+        description: 缺陷已修复
+        params:
+          evidence_type: rework_tracker
+      - condition_id: regression-pass
+        type: evidence_required
+        description: 回归测试通过
+        params:
+          evidence_type: regression_test
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S10-performance
+    name: 压力测试 Gate
+    description: 压力测试 Gate — 阶段推进条件
+    conditions:
+      - condition_id: perf-pass
+        type: evidence_required
+        description: 性能指标达标
+        params:
+          evidence_type: stress_test
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []
+  - gate_id: gate-S11-maintenance
+    name: 维护 Gate
+    description: 维护 Gate — 阶段推进条件
+    conditions:
+      - condition_id: ops-ready
+        type: role_required
+        description: R10 运维就绪
+        params:
+          role_id: R10
+          status: completed
+    status: pending
+    created_at: 2026-07-31T10:32:27.030Z
+    passed_at: null
+    blocked_reasons: []

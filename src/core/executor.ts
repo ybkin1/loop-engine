@@ -23,6 +23,8 @@ import { HardConstraints } from "./hard_constraints.js";
 import type { ConstraintContext } from "./hard_constraints.js";
 import { createManifest, planExecution, validateResult, buildExecutionResult, computeManifestHash } from "./subagent_manifest.js";
 import type { SubagentManifest, SubagentSpec, SubagentResult } from "../types/index.js";
+import { KnowledgeLedger } from "./knowledge_ledger.js";
+import { LessonCategory } from "../types/index.js";
 
 import type {
   ProjectState,
@@ -86,6 +88,12 @@ export class HookRegistry {
 export interface ExecutorOptions {
   /** Default timeout for hook execution in milliseconds. Default: 30000. */
   default_timeout_ms?: number;
+  /**
+   * Optional KnowledgeLedger for automatic lesson capture.
+   * When provided, failures (step errors, constraint violations) are
+   * automatically recorded as lessons in the knowledge sedimentation loop.
+   */
+  knowledge_ledger?: KnowledgeLedger;
 }
 
 const DEFAULT_TIMEOUT_MS = 30_000;
@@ -176,12 +184,15 @@ const ROLE_REQUIRED_FIELDS: Record<string, string[]> = {
 export class PhaseExecutor {
   private projectRoot: string;
   private hooks: HookRegistry;
-  private options: Required<ExecutorOptions>;
+  private options: ExecutorOptions;
 
   constructor(projectRoot: string, hooks?: HookRegistry, options?: ExecutorOptions) {
     this.projectRoot = projectRoot;
     this.hooks = hooks ?? new HookRegistry();
-    this.options = { default_timeout_ms: options?.default_timeout_ms ?? DEFAULT_TIMEOUT_MS };
+    this.options = {
+      default_timeout_ms: options?.default_timeout_ms ?? DEFAULT_TIMEOUT_MS,
+      knowledge_ledger: options?.knowledge_ledger,
+    };
   }
 
   /**
@@ -277,8 +288,23 @@ export class PhaseExecutor {
       const constraintResult = await this._checkConstraints(state, phaseId, canonicalPhase, errors);
       if (!constraintResult.passed) {
         // Constraints blocked — mark as failed, don't advance gate
-        errors.push(`Hard constraints BLOCKED phase advance: ${constraintResult.violations.filter(v => v.severity === "BLOCKER").map(v => v.constraint_id).join(", ")}`);
+        const blockerMsg = `Hard constraints BLOCKED phase advance: ${constraintResult.violations.filter(v => v.severity === "BLOCKER").map(v => v.constraint_id).join(", ")}`;
+        errors.push(blockerMsg);
         allSucceeded = false;
+        // Capture constraint violations as lessons
+        const violationMsgs = constraintResult.violations.map(v => `[${v.constraint_id}] ${v.severity}: ${v.message}`);
+        const firstRole = plan.steps.length > 0 ? plan.steps[0].role_id : "R11";
+        this._captureLesson(phaseId, firstRole, violationMsgs.join("; "),
+          constraintResult.violations.map(v => v.constraint_id), undefined, undefined);
+      }
+
+      // Compile gate: S5-quality entry requires tsc --noEmit pass
+      if (allSucceeded && canonicalPhase === "S5") {
+        const compileOk = await this._runCompileGate();
+        if (!compileOk) {
+          errors.push("COMPILE_GATE_FAILED: TypeScript compilation failed. Fix errors before advancing to S5-quality.");
+          allSucceeded = false;
+        }
       }
     }
 
@@ -340,7 +366,7 @@ export class PhaseExecutor {
     startedAt: number,
     inputHashes?: Record<string, string>,
   ): Promise<RoleStepResult> {
-    const timeoutMs = this.options.default_timeout_ms;
+    const timeoutMs = this.options.default_timeout_ms ?? DEFAULT_TIMEOUT_MS;
     const context: RoleExecutionContext = {
       role_id: step.role_id,
       phase_id: phaseId,
@@ -376,6 +402,11 @@ export class PhaseExecutor {
 
   /**
    * Validate step output against required_fields.
+   *
+   * Enhanced with anti-forgery checks (ZCode T-0056):
+   * - Detects simulated/fake output markers
+   * - Detects self-review (reviewer session == developer session)
+   *
    * Returns a ValidationResult indicating which fields are missing.
    */
   validateStep(step: RoleStep, output: Record<string, unknown>): ValidationResult {
@@ -385,6 +416,25 @@ export class PhaseExecutor {
         missing.push(field);
       }
     }
+
+    // Anti-forgery: detect simulated output
+    const summary = String(output["summary"] ?? "");
+    if (summary.includes("Simulated output") || summary.toLowerCase().includes("simulated")) {
+      missing.push("__FAKE_EVIDENCE__");
+      step.verdict = "FAKE_EVIDENCE";
+    }
+
+    // Anti-forgery: independent reviewer must be different session
+    const reviewerRoles = new Set(["independent-reviewer", "quality-engineer", "security-engineer"]);
+    if (reviewerRoles.has(step.role_id)) {
+      const reviewerSession = String(output["reviewer_session_id"] ?? "");
+      const developerSession = String(output["developer_session_id"] ?? "");
+      if (reviewerSession && developerSession && reviewerSession === developerSession) {
+        missing.push("__SELF_REVIEW__");
+        step.verdict = "SELF_REVIEW";
+      }
+    }
+
     return {
       valid: missing.length === 0,
       missing_fields: missing,
@@ -508,6 +558,7 @@ export class PhaseExecutor {
         step.error = msg;
         stepsFailed++;
         errors.push(`[${step.role_id}] ${msg}`);
+        this._captureLesson(plan.phase_id, step.role_id, msg, undefined, undefined, undefined);
         break;
       }
 
@@ -537,6 +588,7 @@ export class PhaseExecutor {
           step.status = StepStatus.FAILED;
           step.error = `Missing required fields: ${validation.missing_fields.join(", ")}`;
           errors.push(`[${step.role_id}] ${step.error}`);
+          this._captureLesson(plan.phase_id, step.role_id, step.error, undefined, undefined, undefined);
           return false;
         }
       }
@@ -549,6 +601,7 @@ export class PhaseExecutor {
     step.status = StepStatus.FAILED;
     step.error = result.error ?? "Unknown error during role execution";
     errors.push(`[${step.role_id}] ${step.error}`);
+    this._captureLesson(plan.phase_id, step.role_id, step.error, undefined, undefined, undefined);
 
     return this._retryStepIfNeeded(step, errors, plan.phase_id);
   }
@@ -659,6 +712,80 @@ export class PhaseExecutor {
   }
 
   /**
+   * Capture a lesson in the knowledge ledger when a failure occurs.
+   *
+   * No-op when no knowledge_ledger is configured. Uses heuristics to
+   * auto-categorize the error and extract meaningful tags.
+   */
+  private _captureLesson(
+    phaseId: string,
+    roleId: string,
+    errorMessage: string,
+    constraintViolations?: string[],
+    taskId?: string,
+    executionId?: string,
+  ): void {
+    const ledger = this.options.knowledge_ledger;
+    if (!ledger) return;
+
+    const category = KnowledgeLedger.suggestCategory(errorMessage);
+    const tags = this._extractTags(errorMessage, phaseId, roleId);
+
+    try {
+      ledger.capture({
+        phase_id: normPhase(phaseId),
+        role_id: roleId,
+        task_id: taskId,
+        execution_id: executionId,
+        category,
+        severity: "BLOCKER",
+        symptom: this._summarizeError(errorMessage, roleId, phaseId),
+        error_message: errorMessage,
+        constraint_violations: constraintViolations,
+        tags,
+      });
+    } catch {
+      // Knowledge capture is best-effort — never block execution
+    }
+  }
+
+  /**
+   * Extract searchable tags from an error message and context.
+   */
+  private _extractTags(errorMessage: string, phaseId: string, roleId: string): string[] {
+    const tags: string[] = [phaseId, roleId];
+    const lower = errorMessage.toLowerCase();
+
+    if (lower.includes("null") || lower.includes("undefined")) tags.push("null-safety");
+    if (lower.includes("typeerror")) tags.push("type-error");
+    if (lower.includes("timeout")) tags.push("timeout");
+    if (lower.includes("import") || lower.includes("module")) tags.push("module-import");
+    if (lower.includes("constraint") || lower.includes("c1") || lower.includes("c2") ||
+        lower.includes("c3") || lower.includes("c4") || lower.includes("c5") ||
+        lower.includes("c6") || lower.includes("c7") || lower.includes("c8")) {
+      tags.push("constraint-violation");
+    }
+    if (lower.includes("phase") || lower.includes("gate")) tags.push("phase-gate");
+    if (lower.includes("hash") || lower.includes("evidence")) tags.push("evidence-integrity");
+    if (lower.includes("state") || lower.includes("yaml")) tags.push("state-management");
+    if (lower.includes("hook") || lower.includes("register")) tags.push("hook-system");
+
+    return tags;
+  }
+
+  /**
+   * Create a concise human-readable symptom from an error message.
+   */
+  private _summarizeError(errorMessage: string, roleId: string, phaseId: string): string {
+    // Truncate long error messages for the symptom field
+    const maxLen = 200;
+    const short = errorMessage.length > maxLen
+      ? errorMessage.substring(0, maxLen) + "..."
+      : errorMessage;
+    return `[${phaseId}][${roleId}] ${short}`;
+  }
+
+  /**
    * Update project state after phase execution — marks completed roles
    * and updates handoff metadata.
    */
@@ -688,5 +815,29 @@ export class PhaseExecutor {
     }
 
     await saveState(this.projectRoot, state);
+  }
+
+  /**
+   * Run TypeScript compile gate check.
+   *
+   * Executes `npx tsc --noEmit` to verify all .ts files compile.
+   * The compile gate is a QUALITY gate — it blocks phase advance only,
+   * never file writes.
+   *
+   * @returns true if compilation succeeds, false otherwise
+   */
+  private async _runCompileGate(): Promise<boolean> {
+    try {
+      const { execSync } = await import("node:child_process");
+      execSync("npx tsc --noEmit", {
+        cwd: this.projectRoot,
+        timeout: 120_000,
+        stdio: "pipe",
+      });
+      return true;
+    } catch {
+      // Compilation failed — gate blocks
+      return false;
+    }
   }
 }

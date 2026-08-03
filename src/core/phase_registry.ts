@@ -66,6 +66,7 @@ export function rolesForPhase(phaseId: string): string[] {
 /** Gate ID per phase. */
 export const PHASE_GATE: Record<string, string> = {};
 for (const p of NORM_PHASES) {
+  if (p === "S0-init") continue; // S0-init 无 gate 门禁（T-0009-C：消除幽灵 gate）
   PHASE_GATE[p] = `gate-${p}`;
 }
 // Legacy aliases (backward compat)

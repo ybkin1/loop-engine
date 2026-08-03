@@ -1,0 +1,15 @@
+evidence_id: ev-regression-t0011
+type: regression_test
+content: 回归测试：21 test files / 532 tests 全部通过；tsc --noEmit 0 错误。覆盖 gate
+  生命周期、批准防伪造、证据链、hook 白名单（SEC-007/008/009）、真实 gates.yaml 格式解析。
+content_hash: b996621b0a84f24996ac2a4bcaa099c87c9736e6c48ce1b70d9f7b5172054f4c
+submitted_at: 2026-08-01T16:45:33.387Z
+submitted_by: R07
+gate_id: gate-S9-fix-optimize
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  tests_passed: 532
+  test_files: 21
+  typecheck_errors: 0

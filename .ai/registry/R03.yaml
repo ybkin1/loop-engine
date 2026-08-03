@@ -52,7 +52,7 @@ veto_escalation:
 
 prerequisites:
   required_roles: [R06, R07, R08, R09]
-  required_gates: [gate-review]
+  required_gates: [gate-S5-quality]
   required_evidence: []
 
 permissions:

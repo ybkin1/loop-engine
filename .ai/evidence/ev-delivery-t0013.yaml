@@ -1,0 +1,14 @@
+evidence_id: ev-delivery-t0013
+type: delivery_checklist
+content: R03 交付验收：GO（上游全签字：R07 PASS / R08 PASS / R09 PASS / R10
+  READY）——等待用户最终批准（详见 .ai/reviews/delivery-acceptance.md）
+content_hash: b641a8e05af4a951f454b2c8d6cddc963c1713c9e23629ffded63e7da24ce5b0
+submitted_at: 2026-08-02T04:28:47.222Z
+submitted_by: R03
+gate_id: null
+role_id: R03
+ttl_seconds: null
+depends_on: []
+metadata:
+  verdict: GO
+  upstream_signoff: R07,R08,R09,R10

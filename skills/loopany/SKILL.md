@@ -76,7 +76,23 @@ tags: [<relevant-tags>]
 2. 读取当前 `state.yaml` 和 `HANDOFF.md`
 3. 读取最近 3-5 个任务的 outcomes
 4. 读取相关的 learnings
-5. 向用户报告："上次我们做到了 X，还有 Y 未完成"
+5. **🆕 读取知识沉淀账本** — 调用 `restoreSessionContext()` 读取 `.ai/lessons/lessons.jsonl`，获取未解决的经验教训
+6. 向用户报告："上次我们做到了 X，还有 Y 未完成"
+7. 如存在未解决教训，提醒用户优先处理
+
+#### 知识账本集成
+
+```typescript
+import { restoreSessionContext, getKnowledgeStatusLine } from "../src/core/session_restore.js";
+
+// 获取完整上下文
+const ctx = restoreSessionContext(projectRoot);
+console.log(ctx.summary_markdown);
+
+// 或只获取一行状态（适合注入 hook 输出）
+const statusLine = getKnowledgeStatusLine(projectRoot);
+// 例: "⚠️ 知识账本: 3 条未解决教训 (当前阶段 2 条)"
+```
 
 ### 3. Reflect 循环（Self-Improvement）
 

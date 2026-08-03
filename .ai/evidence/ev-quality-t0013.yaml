@@ -1,0 +1,23 @@
+evidence_id: ev-quality-t0013
+type: qa_report
+content: |-
+  质量门禁验收（R07 真实运行，quality-gates.ts）:
+  - lint: PASS (0 errors)
+  - typecheck: PASS (0 errors)
+  - test: PASS (532/532, 100%)
+  - build: PASS
+  - audit: PASS (HIGH=0, CRITICAL=0)
+  修复项: quality-gates.ts test 解析与 vitest ANSI 输出不兼容（首次验收 BLOCKED）→ 已修复（剥离 ANSI 码）
+content_hash: b3da3585a24954fb49bad8a3e8f665a7f9deeda2cfbabcc73519371e733e4339
+submitted_at: 2026-08-02T03:15:23.198Z
+submitted_by: R07
+gate_id: null
+role_id: R07
+ttl_seconds: null
+depends_on: []
+metadata:
+  overall: PASS
+  tests_passed: 532
+  pass_rate: 100
+  lint_errors: 0
+  typecheck_errors: 0

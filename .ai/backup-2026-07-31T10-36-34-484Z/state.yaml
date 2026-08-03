@@ -1,0 +1,123 @@
+schema_version: 2
+project_name: Qoder 一人研发团队式 Loop 软件交付系统
+current_phase: S4-implementation
+current_task_id: T-0008
+current_gate_id: gate-S4-implementation
+active_role: null
+role_activated_at: null
+completed_roles:
+  - R01
+  - R02
+  - R04
+  - R05
+  - R06
+  - R07
+  - R08
+  - R11
+last_handoff_at: 2026-07-31T10:32:27.005Z
+phases:
+  - phase_id: S0-init
+    entered_at: ""
+    exited_at: null
+    status: active
+    roles_active:
+      - R11
+    gate_id: gate-S0-init
+  - phase_id: S1-requirements
+    entered_at: 2026-07-31T10:32:27.030Z
+    exited_at: 2026-07-31T10:32:27.206Z
+    status: completed
+    roles_active:
+      - R01
+      - R02
+    gate_id: gate-S1-requirements
+  - phase_id: S2-architecture
+    entered_at: 2026-07-31T10:32:27.206Z
+    exited_at: 2026-07-31T10:32:27.310Z
+    status: completed
+    roles_active:
+      - R04
+      - R01
+      - R08
+    gate_id: gate-S2-architecture
+  - phase_id: S3-interface
+    entered_at: 2026-07-31T10:32:27.310Z
+    exited_at: 2026-07-31T10:32:27.408Z
+    status: completed
+    roles_active:
+      - R05
+      - R04
+    gate_id: gate-S3-interface
+  - phase_id: S4-implementation
+    entered_at: 2026-07-31T10:32:27.408Z
+    exited_at: null
+    status: active
+    roles_active:
+      - R06
+      - R05
+    gate_id: gate-S4-implementation
+  - phase_id: S5-quality
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R07
+      - R06
+      - R08
+    gate_id: gate-S5-quality
+  - phase_id: S6-delivery
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R03
+      - R10
+      - R08
+    gate_id: gate-S6-delivery
+  - phase_id: S7-integration
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R06
+      - R05
+      - R07
+    gate_id: gate-S7-integration
+  - phase_id: S8-functional-test
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R07
+      - R01
+    gate_id: gate-S8-functional-test
+  - phase_id: S9-fix-optimize
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R06
+      - R09
+      - R07
+    gate_id: gate-S9-fix-optimize
+  - phase_id: S10-performance
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R07
+      - R10
+      - R04
+    gate_id: gate-S10-performance
+  - phase_id: S11-maintenance
+    entered_at: ""
+    exited_at: null
+    status: pending
+    roles_active:
+      - R10
+      - R08
+      - R06
+    gate_id: gate-S11-maintenance
+loop_mode: FULL
+project_status: draft
+iteration: 1

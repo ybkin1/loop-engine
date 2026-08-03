@@ -1,0 +1,15 @@
+evidence_id: ev-acceptance-t0013
+type: review_report
+content: R09 最终验收 PASS：产品验收 6/6 + 交付完整性 6/6 + 治理一致 + 审计链验证通过（详见
+  .ai/reviews/R09-ACCEPTANCE.md）
+content_hash: 2d38dbef456a8e99dc2abe0fa489e8ebf268eb496bf852dbb4562c0dba9468ae
+submitted_at: 2026-08-02T04:28:47.207Z
+submitted_by: R09
+gate_id: null
+role_id: R09
+ttl_seconds: null
+depends_on: []
+metadata:
+  verdict: PASS
+  product_acceptance: 6/6
+  delivery_complete: 6/6

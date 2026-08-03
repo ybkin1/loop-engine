@@ -15,7 +15,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const common = require('./hook_common.js');
+
+// hook_common.js 优先加载本地副本，找不到时回退到 Qoder 全局 hooks 目录
+// （部署事实：运行时 hook 实际安装在 ~/.qoder-cn/hooks/scripts/）
+let common;
+try {
+  common = require('./hook_common.js');
+} catch (err) {
+  const globalHook = path.join(
+    process.env.USERPROFILE || process.env.HOME || '',
+    '.qoder-cn', 'hooks', 'scripts', 'hook_common.js'
+  );
+  try {
+    common = require(globalHook);
+  } catch (err2) {
+    console.error('[auto-orchestrate] hook_common.js not found locally or globally:', err2.message);
+    process.exit(2);
+  }
+}
 
 const PHASE_ROLE_MAP = {
   'S0-init':            { lead: 'R11', participants: [], name: 'Init' },

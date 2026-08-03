@@ -1,0 +1,58 @@
+evidence_id: ev-acceptance-criteria
+type: acceptance_criteria
+content: "# Acceptance\r
+
+  \r
+
+  ## Product Acceptance\r
+
+  \r
+
+  - The project helps a user without coding or project-management background
+  move from rough goals to usable, verifiable software delivery.\r
+
+  - Every material change is governed by an explicit task, gate, evidence
+  record, and validation result.\r
+
+  - Qoder handles technical architecture, implementation, verification, review,
+  and handoff details inside approved boundaries.\r
+
+  - The user is asked only for goals, key tradeoffs, and gate decisions.\r
+
+  - Governance states remain auditable and do not confuse `approved`, `active`,
+  and `installed`.\r
+
+  - No runtime, startup, tool, protocol, or real-project behavior changes
+  without a separate explicit user gate.\r
+
+  \r
+
+  ## Task Acceptance\r
+
+  \r
+
+  - Every task states user-visible outcome, verification, and evidence path.\r
+
+  - Every task records scope, non-goals, and forbidden actions before
+  execution.\r
+
+  - The current task in `state.yaml` matches the active work.\r
+
+  - Required evidence is stored under `.ai/evidence/<task-id>/`.\r
+
+  - `validate_state.py` returns `[ok] state is usable` before and after material
+  governance changes.\r
+
+  - `PROGRESS.md` and `HANDOFF.md` are updated when task state or
+  handoff-relevant facts change.\r
+
+  - Any high-risk action is blocked until the user explicitly approves the
+  relevant gate.\r\n"
+content_hash: 8bf92ba130b5c9ce9e67743aeb07d78f3fb2b8413711b5d45324e85a2ef6ab8f
+submitted_at: 2026-07-31T10:36:34.536Z
+submitted_by: R01
+gate_id: gate-S1-requirements
+role_id: R01
+ttl_seconds: null
+depends_on: []
+metadata: {}

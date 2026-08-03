@@ -1,0 +1,42 @@
+evidence_id: ev-monitoring-t0012
+type: monitoring_config
+content: |
+  # 监控与告警配置（R10 产出）
+
+  > 生成时间: 2026-08-02T02:17:09.535Z | 角色: R10 发布运维
+
+  ## 监控项
+  | 指标 | 命令/检查 | 阈值 |
+  |------|-----------|------|
+  | 治理健康 | governance-health-check.cjs | 0 BLOCKER；BLOCKED 即告警 |
+  | 测试状态 | npm test | 0 失败 |
+  | 类型检查 | npx tsc --noEmit | 0 错误 |
+  | 审计链完整性 | loop_audit_verify | valid=true |
+  | 证据新鲜度 | loop_evidence_verify（TTL 项） | fresh |
+  | 门禁状态 | loop_gate_check 当前 gate | pass 或明确 blocked 原因 |
+  | 角色在岗 | loop_role_status | 无角色 = 交接间隙（可容忍）或中断（告警） |
+
+  ## 告警规则
+  1. 健康检查退出码 2（BLOCKED）→ 立即介入：解决 gate 阻塞/证据缺口
+  2. 连续 2 次健康检查 DEGRADED 且含 GATE_BLOCKED → 通知用户
+  3. 审计链损坏（loop_audit_verify invalid）→ 安全事件级响应
+  4. 测试套件失败 → 阻止 gate 推进（gate 条件会自动阻断）
+
+  ## 定期任务（方案 B 自动调度）
+  - 会话开始: session-brief.js + auto-orchestrate.js（UserPromptSubmit hook）
+  - 定期: governance-health-check.cjs（Task Scheduler / cron）
+  - 交接: sync-state-docs.cjs 每次状态变更后
+
+  ## 发布后验证（冒烟）
+  - [ ] loop_gate_check 当前 gate 状态正确
+  - [ ] 健康检查运行正常
+  - [ ] 编排器输出正常
+  - [ ] 证据/审计可查询
+content_hash: ecaaeb4c888829cd79ae105b1c8cc008564eda68050f25410bd1633ea075552a
+submitted_at: 2026-08-02T02:17:09.539Z
+submitted_by: R10
+gate_id: gate-S11-maintenance
+role_id: R10
+ttl_seconds: null
+depends_on: []
+metadata: {}

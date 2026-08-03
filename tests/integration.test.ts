@@ -116,6 +116,7 @@ describe("full lifecycle: init → delivery", () => {
     await submitEvidence(TEST_ROOT, {
       evidence_id: "defect-report", type: "defect_report",
       content: "P0=0, P1=0", role_id: "R07",
+      metadata: { p0_count: 0, p1_count: 0 },
     });
 
     const reviewCheck = await checkGate(TEST_ROOT, "gate-review");

@@ -9,10 +9,12 @@
  */
 
 import { normPhase } from "./phase_registry.js";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, extname } from "node:path";
 
 // ── Constraint IDs ────────────────────────────────────────────────────────────
 
-/** Identifiers for the 8 hard constraints. */
+/** Identifiers for the 11 hard constraints. */
 export enum ConstraintID {
   /** Requirements baseline approved before entering S2/S3/S4 */
   C1 = "C1",
@@ -30,6 +32,12 @@ export enum ConstraintID {
   C7 = "C7",
   /** All bound evidence must be fresh and hash-stable */
   C8 = "C8",
+  /** Imports must be declared in package.json dependencies */
+  C9 = "C9",
+  /** Interface contract must have required test coverage */
+  C10 = "C10",
+  /** Task file count must not exceed limit */
+  C11 = "C11",
 }
 
 // ── Severity ──────────────────────────────────────────────────────────────────
@@ -168,6 +176,23 @@ export interface ConstraintContext {
    * tampering.
    */
   current_hashes?: Record<string, string>;
+  /**
+   * Project root directory (for C9 import checking, C10 contract verification).
+   */
+  project_root?: string;
+  /**
+   * Declared third-party dependency names (from package.json dependencies).
+   * Used by C9 to validate imports against declared dependencies.
+   */
+  declared_dependencies?: string[];
+  /**
+   * Task ID for scoped checks (C10 contract verification, C11 file limit).
+   */
+  task_id?: string;
+  /**
+   * Maximum allowed files for a single task (C11). Default: 10.
+   */
+  max_files_per_task?: number;
 }
 
 // ── Helper ────────────────────────────────────────────────────────────────────
@@ -206,6 +231,9 @@ export class HardConstraints {
       ...this.checkC6(context),
       ...this.checkC7(context),
       ...this.checkC8(context),
+      ...this.checkC9(context),
+      ...this.checkC10(context),
+      ...this.checkC11(context),
     ];
     const passed = !violations.some(v => v.severity === Severity.BLOCKER);
     return { passed, violations };
@@ -500,6 +528,307 @@ export class HardConstraints {
         }
       }
     }
+    return violations;
+  }
+
+  // ── C9: Import Declaration Audit (SOFT — WARNING by default) ────────────
+
+  /**
+   * C9 — Import Declaration Audit.
+   *
+   * Scans .ts/.js source files in the project for import statements and
+   * verifies that every imported third-party package is declared in
+   * package.json dependencies or devDependencies.
+   *
+   * Standard library imports (node:*) and relative imports are excluded.
+   * This is a SOFT constraint — violations are WARNING level.
+   */
+  checkC9(context: ConstraintContext): ConstraintViolation[] {
+    const violations: ConstraintViolation[] = [];
+    const { project_root } = context;
+    if (!project_root) return [];
+
+    // Get declared dependencies from context or read from package.json
+    let declaredDeps = context.declared_dependencies;
+    if (!declaredDeps) {
+      try {
+        const pkgPath = join(project_root, "package.json");
+        if (existsSync(pkgPath)) {
+          const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+          const deps = { ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) };
+          declaredDeps = Object.keys(deps);
+        }
+      } catch {
+        return []; // Can't read package.json — skip
+      }
+    }
+
+    if (!declaredDeps || declaredDeps.length === 0) {
+      return [];
+    }
+
+    // Scan source directories for import statements
+    const srcDirs = ["src", "lib"];
+    const undeclaredImports = new Map<string, string[]>();
+
+    for (const dir of srcDirs) {
+      const dirPath = join(project_root, dir);
+      if (!existsSync(dirPath)) continue;
+      this._scanImports(dirPath, declaredDeps, undeclaredImports);
+    }
+
+    for (const [pkg, files] of undeclaredImports) {
+      violations.push({
+        constraint_id: ConstraintID.C9,
+        severity: Severity.WARNING,
+        message: `Undeclared import: "${pkg}" used in ${files.length} file(s): ${files.slice(0, 3).join(", ")}${files.length > 3 ? ` and ${files.length - 3} more` : ""}.`,
+        remediation: `Add "${pkg}" to dependencies or devDependencies in package.json, or declare it as an allowed external dependency.`,
+      });
+    }
+
+    return violations;
+  }
+
+  /**
+   * Recursively scan a directory for .ts/.js files and extract import statements.
+   * Compares each import against declared dependencies.
+   */
+  private _scanImports(
+    dirPath: string,
+    declaredDeps: string[],
+    undeclared: Map<string, string[]>,
+  ): void {
+    let entries: import("node:fs").Dirent[];
+    try {
+      entries = readdirSync(dirPath, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    // Known stdlib prefixes that don't need declaration
+    const stdlibPrefixes = ["node:", "fs", "path", "os", "crypto", "http", "https",
+      "url", "querystring", "stream", "buffer", "events", "util", "assert",
+      "child_process", "net", "tls", "dns", "readline", "cluster", "v8", "vm",
+      "zlib", "perf_hooks", "worker_threads", "timers"];
+
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry.name);
+
+      if (entry.isDirectory()) {
+        // Skip node_modules and hidden dirs
+        if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
+        this._scanImports(fullPath, declaredDeps, undeclared);
+      } else if (entry.isFile()) {
+        const ext = extname(entry.name);
+        if (ext !== ".ts" && ext !== ".js" && ext !== ".tsx" && ext !== ".jsx") continue;
+
+        try {
+          const content = readFileSync(fullPath, "utf-8");
+          // Match import statements: import ... from 'package' or require('package')
+          const importRegex = /(?:import\s+.*?\s+from\s+["']([^"']+)["']|require\s*\(\s*["']([^"']+)["']\s*\))/g;
+          let match: RegExpExecArray | null;
+          while ((match = importRegex.exec(content)) !== null) {
+            const importName = (match[1] ?? match[2]).trim();
+            // Skip relative imports and stdlib
+            if (importName.startsWith(".") || importName.startsWith("/")) continue;
+            if (importName.startsWith("node:")) continue;
+            const topLevel = importName.split("/")[0];
+            if (topLevel.startsWith("@")) {
+              // Scoped package: @scope/name
+              const parts = importName.split("/");
+              const scopedPkg = parts.slice(0, 2).join("/");
+              if (declaredDeps.includes(scopedPkg)) continue;
+              if (!undeclared.has(scopedPkg)) undeclared.set(scopedPkg, []);
+              undeclared.get(scopedPkg)!.push(fullPath);
+            } else {
+              if (declaredDeps.includes(topLevel)) continue;
+              if (stdlibPrefixes.includes(topLevel)) continue;
+              if (!undeclared.has(topLevel)) undeclared.set(topLevel, []);
+              undeclared.get(topLevel)!.push(fullPath);
+            }
+          }
+        } catch {
+          // Skip unreadable files
+        }
+      }
+    }
+  }
+
+  // ── C10: Contract Test Coverage (SOFT — WARNING by default) ─────────────
+
+  /**
+   * C10 — Contract Test Coverage.
+   *
+   * Verifies that interface contract files in .ai/evidence/{task_id}/
+   * have corresponding test functions defined in the project's test files.
+   *
+   * This is a SOFT constraint — violations are WARNING level.
+   */
+  checkC10(context: ConstraintContext): ConstraintViolation[] {
+    const violations: ConstraintViolation[] = [];
+    const { project_root, task_id } = context;
+    if (!project_root || !task_id) return [];
+
+    // Find contract files
+    const evidenceDir = join(project_root, ".ai", "evidence", task_id);
+    if (!existsSync(evidenceDir)) return [];
+
+    const contractPatterns = [
+      "interface-contract.yaml",
+      "interface-contract.yml",
+      "interface-contract.json",
+    ];
+
+    for (const pattern of contractPatterns) {
+      const contractPath = join(evidenceDir, pattern);
+      if (!existsSync(contractPath)) continue;
+
+      try {
+        const content = readFileSync(contractPath, "utf-8");
+        // Extract tests_required entries
+        const testRequiredRegex = /tests_required:\s*\n(\s*-\s*(.+)\n?)+/g;
+        let match: RegExpExecArray | null;
+        const requiredTests: string[] = [];
+        while ((match = testRequiredRegex.exec(content)) !== null) {
+          const block = match[0];
+          const testNames = block.match(/-\s*(.+)/g);
+          if (testNames) {
+            for (const t of testNames) {
+              requiredTests.push(t.replace(/^\s*-\s*/, "").trim());
+            }
+          }
+        }
+
+        if (requiredTests.length === 0) continue;
+
+        // Check if each required test exists in test files
+        const testDir = join(project_root, "tests");
+        const missingTests: string[] = [];
+        if (existsSync(testDir)) {
+          const testContents = this._readAllTestFiles(testDir);
+          for (const testName of requiredTests) {
+            if (!testContents.some(c => c.includes(testName))) {
+              missingTests.push(testName);
+            }
+          }
+        } else {
+          missingTests.push(...requiredTests);
+        }
+
+        if (missingTests.length > 0) {
+          violations.push({
+            constraint_id: ConstraintID.C10,
+            severity: Severity.WARNING,
+            message: `Contract in ${contractPath} requires ${missingTests.length} test(s) that are missing: ${missingTests.join(", ")}.`,
+            remediation: `Implement the missing test functions: ${missingTests.join(", ")}. Add corresponding test files in the tests/ directory.`,
+          });
+        }
+      } catch {
+        // Skip unreadable files
+      }
+    }
+
+    return violations;
+  }
+
+  /**
+   * Recursively read all test file contents from the test directory.
+   */
+  private _readAllTestFiles(testDir: string): string[] {
+    const contents: string[] = [];
+    try {
+      const entries = readdirSync(testDir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = join(testDir, entry.name);
+        if (entry.isDirectory()) {
+          if (!entry.name.startsWith(".")) {
+            contents.push(...this._readAllTestFiles(fullPath));
+          }
+        } else if (entry.isFile()) {
+          const ext = extname(entry.name);
+          if (ext === ".ts" || ext === ".js") {
+            try {
+              contents.push(readFileSync(fullPath, "utf-8"));
+            } catch {
+              // skip
+            }
+          }
+        }
+      }
+    } catch {
+      // skip
+    }
+    return contents;
+  }
+
+  // ── C11: Task File Limit (SOFT — WARNING by default) ────────────────────
+
+  /**
+   * C11 — Task File Limit.
+   *
+   * Counts the files listed in a task's allowed_paths and warns if
+   * exceeding the limit. Governance files (.ai/*) are excluded.
+   *
+   * This is a SOFT constraint — violations are WARNING level.
+   */
+  checkC11(context: ConstraintContext): ConstraintViolation[] {
+    const violations: ConstraintViolation[] = [];
+    const { project_root, task_id, max_files_per_task } = context;
+    if (!project_root || !task_id) return [];
+
+    const maxFiles = max_files_per_task ?? 10;
+
+    // Read task file to get allowed_paths
+    const taskPath = join(project_root, ".ai", "tasks", `${task_id}.md`);
+    if (!existsSync(taskPath)) return [];
+
+    try {
+      const content = readFileSync(taskPath, "utf-8");
+
+      // Parse allowed_paths from task markdown
+      const pathRegex = /^\s*-\s*`?([^`\n]+)`?\s*$/gm;
+      let match: RegExpExecArray | null;
+      const filePaths: string[] = [];
+      let inAllowedPaths = false;
+
+      for (const line of content.split("\n")) {
+        if (line.includes("allowed_paths") || line.includes("allowed_write")) {
+          inAllowedPaths = true;
+          continue;
+        }
+        if (inAllowedPaths && line.startsWith("##")) {
+          inAllowedPaths = false;
+          continue;
+        }
+        if (inAllowedPaths) {
+          const m = /^\s*-\s*(?:`?)([^`\n]+)(?:`?)\s*$/.exec(line);
+          if (m) {
+            const p = m[1].trim();
+            if (p && !p.startsWith(".ai/")) {
+              filePaths.push(p);
+            }
+          }
+        }
+      }
+
+      // Count relevant paths
+      const governancePrefixes = [".ai/"];
+      const relevantPaths = filePaths.filter(
+        p => !governancePrefixes.some(gp => p.startsWith(gp)),
+      );
+
+      if (relevantPaths.length > maxFiles) {
+        violations.push({
+          constraint_id: ConstraintID.C11,
+          severity: Severity.WARNING,
+          message: `Task '${task_id}' has ${relevantPaths.length} allowed paths, exceeding the limit of ${maxFiles}.`,
+          remediation: `Reduce task scope to at most ${maxFiles} file paths. Split large tasks into multiple focused tasks, each with a narrow scope.`,
+        });
+      }
+    } catch {
+      // Skip
+    }
+
     return violations;
   }
 }

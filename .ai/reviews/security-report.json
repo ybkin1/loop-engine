@@ -1,0 +1,76 @@
+{
+  "schema": "security_report/v1",
+  "project_root": "C:\\Users\\Administrator\\.qoder-cn\\loop-engine-lab",
+  "scans": [
+    {
+      "name": "secret_scan",
+      "status": "pass",
+      "findings": [],
+      "findings_count": 0,
+      "by_severity": {},
+      "duration_ms": 36
+    },
+    {
+      "name": "injection_scan",
+      "status": "pass",
+      "findings": [
+        {
+          "id": "SEC-EXEC-SYNC-832",
+          "severity": "MEDIUM",
+          "category": "injection",
+          "file": "src\\core\\executor.ts",
+          "line": 832,
+          "code_evidence": "execSync(\"npx tsc --noEmit\", {",
+          "description": "execSync() — blocking shell command"
+        },
+        {
+          "id": "SEC-EXEC-SYNC-597",
+          "severity": "MEDIUM",
+          "category": "injection",
+          "file": "src\\server\\tools.ts",
+          "line": 597,
+          "code_evidence": "const output = execSync(command, {",
+          "description": "execSync() — blocking shell command"
+        }
+      ],
+      "findings_count": 2,
+      "by_severity": {
+        "MEDIUM": 2
+      },
+      "duration_ms": 214
+    },
+    {
+      "name": "cve_scan",
+      "status": "pass",
+      "findings": [
+        {
+          "id": "CVE-@hono/node-server",
+          "severity": "MODERATE",
+          "category": "cve",
+          "file": "package.json",
+          "line": 0,
+          "code_evidence": "@hono/node-server@<2.0.5",
+          "description": "Vulnerability in @hono/node-server"
+        },
+        {
+          "id": "CVE-@modelcontextprotocol/sdk",
+          "severity": "MODERATE",
+          "category": "cve",
+          "file": "package.json",
+          "line": 0,
+          "code_evidence": "@modelcontextprotocol/sdk@1.25.0 - 1.29.0",
+          "description": "Vulnerability in @modelcontextprotocol/sdk"
+        }
+      ],
+      "findings_count": 2,
+      "by_severity": {
+        "MODERATE": 2
+      },
+      "duration_ms": 11724
+    }
+  ],
+  "overall": "PASS",
+  "blocked_by": [],
+  "total_findings": 4,
+  "timestamp": "2026-08-02T10:32:30.931Z"
+}

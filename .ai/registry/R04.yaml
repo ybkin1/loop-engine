@@ -69,7 +69,7 @@ prerequisites:
   required_roles:
     - R01
   required_gates:
-    - gate-requirements
+    - gate-S1-requirements
   required_evidence: []
 
 permissions:

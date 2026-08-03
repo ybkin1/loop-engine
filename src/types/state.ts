@@ -44,6 +44,18 @@ export interface PhaseRecord {
   gate_id?: string;
 }
 
+/**
+ * Explicit human approval record for a manual_approval gate condition.
+ * Only the user (or an explicitly delegated actor) may create these.
+ */
+export interface UserApproval {
+  gate_id: string;
+  approved_by: string;
+  approved_at: string;
+  /** Optional note from the approving user */
+  note?: string;
+}
+
 export interface ProjectState {
   schema_version: number;
   project_name: string;
@@ -61,6 +73,8 @@ export interface ProjectState {
   project_status?: ProjectStatus;
   /** Iteration number for maintenance cycles */
   iteration?: number;
+  /** Explicit user approvals: gate_id → approval record (manual_approval conditions) */
+  user_approvals?: Record<string, UserApproval>;
 }
 
 export interface StateStore {

@@ -21,6 +21,13 @@ export {
   advanceGate,
   computeHash,
   validateProjectRoot,
+  evaluateCondition,
+  evaluateGateCondition,
+  generateDefaultGates,
+  phaseNeedsUserGate,
+  USER_GATE_PHASES,
+  isUserApproved,
+  approveGate,
   EXTENDED_PHASES,
   EXTENDED_PHASE_GATES,
 } from "./state-machine.js";
@@ -238,3 +245,22 @@ export type { NormPhase } from "./phase_registry.js";
 // ── Role Context Protocol (platform limitation workaround) ──────────────────
 export { generateRoleContext } from "./role_context.js";
 export type { RoleContextResult } from "./role_context.js";
+
+// ── Knowledge Ledger (knowledge sedimentation loop) ────────────────────────
+export { KnowledgeLedger } from "./knowledge_ledger.js";
+export type { LessonInput } from "./knowledge_ledger.js";
+
+// ── Review Advisor (R09 pre-review historical check) ───────────────────────
+export {
+  generatePreReviewAdvisory,
+  generateQualitySection,
+} from "./review_advisor.js";
+export type { PreReviewInput, PreReviewAdvisory, AdvisoryItem, QualitySectionInput } from "./review_advisor.js";
+
+// ── Session Restore (loopany knowledge ledger integration) ─────────────────
+export { restoreSessionContext, getKnowledgeStatusLine } from "./session_restore.js";
+export type { SessionRestoreContext, UnresolvedLessonSummary } from "./session_restore.js";
+
+// ── Prompt Engine (four-quadrant cognitive protocol) ────────────────────────
+export { generatePrompt, loadQuadrantTemplate, getRoleQuadrantConfig } from "./prompt_engine.js";
+export type { PromptContext, PromptResult } from "./prompt_engine.js";

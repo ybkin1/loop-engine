@@ -43,4 +43,6 @@ export interface GateAdvanceResult {
   new_phase: string;
   advanced_at: string;
   error?: string;
+  /** True when the gate was already passed and the call was a no-op. */
+  idempotent?: boolean;
 }

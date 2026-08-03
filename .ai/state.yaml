@@ -1,17 +1,131 @@
-schema_version: 1
-project_name: "Qoder 一人研发团队式 Loop 软件交付系统"
-current_phase: P6-delivery
-current_task_id: T-0007
-current_gate_id: gate-delivery
+schema_version: 2
+project_name: Qoder 一人研发团队式 Loop 软件交付系统
+current_phase: S11-maintenance
+current_task_id: null
+current_gate_id: null
 active_role: null
-last_handoff_at: "2026-07-29T00:00:00"
-integrated_skills:
-  - archlet
-  - loopany
-  - tools-registry
-  - loopbase
-skill_status: active
-notes:
-  - T-0005 — ZCode Loop工程引入。验收通过。
-  - T-0006 — 结构性加固(阶段映射统一+合同测试+攻击面+管线测试)。435测试通过。
-  - T-0007 — 闭环修复(PhaseExecutor→HardConstraints+SubagentManifest+12阶段端到端)。442测试通过。
+role_activated_at: 2026-08-02T02:17:09.519Z
+completed_roles:
+  - R01
+  - R02
+  - R04
+  - R05
+  - R06
+  - R07
+  - R08
+  - R11
+  - R09
+  - R03
+  - R10
+last_handoff_at: 2026-07-31T10:36:34.484Z
+phases:
+  - phase_id: S0-init
+    entered_at: ""
+    exited_at: null
+    status: completed
+    roles_active:
+      - R11
+  - phase_id: S1-requirements
+    entered_at: 2026-07-31T10:36:34.504Z
+    exited_at: 2026-07-31T10:36:34.627Z
+    status: completed
+    roles_active:
+      - R01
+      - R02
+    gate_id: gate-S1-requirements
+  - phase_id: S2-architecture
+    entered_at: 2026-07-31T10:36:34.627Z
+    exited_at: 2026-07-31T10:36:34.685Z
+    status: completed
+    roles_active:
+      - R04
+      - R01
+      - R08
+    gate_id: gate-S2-architecture
+  - phase_id: S3-interface
+    entered_at: 2026-07-31T10:36:34.685Z
+    exited_at: 2026-07-31T10:36:34.749Z
+    status: completed
+    roles_active:
+      - R05
+      - R04
+    gate_id: gate-S3-interface
+  - phase_id: S4-implementation
+    entered_at: 2026-07-31T10:36:34.749Z
+    exited_at: 2026-07-31T13:14:00.088Z
+    status: completed
+    roles_active:
+      - R06
+      - R05
+    gate_id: gate-S4-implementation
+  - phase_id: S5-quality
+    entered_at: 2026-07-31T13:14:00.088Z
+    exited_at: 2026-07-31T13:14:00.250Z
+    status: completed
+    roles_active:
+      - R07
+      - R06
+      - R08
+    gate_id: gate-S5-quality
+  - phase_id: S6-delivery
+    entered_at: 2026-07-31T13:14:00.250Z
+    exited_at: 2026-07-31T15:19:37.063Z
+    status: completed
+    roles_active:
+      - R03
+      - R10
+      - R08
+    gate_id: gate-S6-delivery
+  - phase_id: S7-integration
+    entered_at: 2026-07-31T15:19:37.063Z
+    exited_at: 2026-07-31T16:36:55.432Z
+    status: completed
+    roles_active:
+      - R06
+      - R05
+      - R07
+    gate_id: gate-S7-integration
+  - phase_id: S8-functional-test
+    entered_at: 2026-07-31T16:36:55.432Z
+    exited_at: 2026-07-31T23:13:32.981Z
+    status: completed
+    roles_active:
+      - R07
+      - R01
+    gate_id: gate-S8-functional-test
+  - phase_id: S9-fix-optimize
+    entered_at: 2026-07-31T23:13:32.981Z
+    exited_at: 2026-08-01T16:45:33.540Z
+    status: completed
+    roles_active:
+      - R06
+      - R09
+      - R07
+    gate_id: gate-S9-fix-optimize
+  - phase_id: S10-performance
+    entered_at: 2026-08-01T16:45:33.540Z
+    exited_at: 2026-08-02T02:17:09.459Z
+    status: completed
+    roles_active:
+      - R07
+      - R10
+      - R04
+    gate_id: gate-S10-performance
+  - phase_id: S11-maintenance
+    entered_at: 2026-08-02T02:17:09.459Z
+    exited_at: 2026-08-02T02:17:09.633Z
+    status: completed
+    roles_active:
+      - R10
+      - R08
+      - R06
+    gate_id: gate-S11-maintenance
+loop_mode: FULL
+project_status: released
+iteration: 2
+user_approvals:
+  gate-S6-delivery:
+    gate_id: gate-S6-delivery
+    approved_by: user
+    approved_at: 2026-07-31T15:19:36.905Z
+    note: 用户验收：T-0008 治理修复通过，批准交付

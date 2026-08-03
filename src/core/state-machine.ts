@@ -4,7 +4,7 @@ import { join, resolve, isAbsolute } from "node:path";
 import { parseDocument, Document } from "yaml";
 import type {
   ProjectState, PhaseRecord, GateDefinition, GatesRegistry,
-  GateCheckResult, GateAdvanceResult
+  GateCheckResult, GateAdvanceResult, GateCondition, UserApproval
 } from "../types/index.js";
 import { rolesForPhase, PHASE_ROLE_MAP, NORM_PHASES } from "./phase_registry.js";
 
@@ -97,7 +97,8 @@ export const EXTENDED_PHASES: PhaseRecord[] = NORM_PHASES.map((id, i) => ({
   exited_at: null,
   status: i === 0 ? "active" as const : "pending" as const,
   roles_active: rolesForPhase(id),
-  gate_id: `gate-${id}`,
+  // S0-init 无 gate 门禁（T-0009-C：消除幽灵 gate，与 EXTENDED_PHASE_GATES 注册一致）
+  gate_id: id === "S0-init" ? undefined : `gate-${id}`,
 }));
 
 const PHASE_GATES: Record<string, { id: string; name: string; conditions: GateDefinition["conditions"] }> = {
@@ -305,7 +306,12 @@ export async function initProjectExtended(root: string, projectName: string, loo
     role_activated_at: null,
     completed_roles: [],
     last_handoff_at: now,
-    phases: EXTENDED_PHASES.map(p => ({ ...p, entered_at: p.phase_id === "S1-requirements" ? now : "" })),
+    phases: EXTENDED_PHASES.map((p, i) => ({
+      ...p,
+      entered_at: p.phase_id === "S1-requirements" || i === 0 ? now : "",
+      exited_at: i === 0 ? now : null,
+      status: i === 0 ? "completed" as const : i === 1 ? "active" as const : p.status,
+    })),
     loop_mode: loopMode,
     project_status: "draft",
     iteration: 1,
@@ -345,7 +351,9 @@ export async function checkGate(root: string, gateId: string): Promise<GateCheck
   const missing: GateCheckResult["missing_conditions"] = [];
 
   for (const cond of gate.conditions) {
-    const met = await evaluateCondition(root, state, cond);
+    const met = cond.type === "manual_approval"
+      ? isUserApproved(state, gateId)
+      : await evaluateCondition(root, state, cond);
     if (!met) {
       missing.push({ condition_id: cond.condition_id, type: cond.type, description: cond.description, detail: JSON.stringify(cond.params) });
     }
@@ -360,7 +368,41 @@ export async function checkGate(root: string, gateId: string): Promise<GateCheck
   };
 }
 
-async function evaluateCondition(root: string, state: ProjectState, cond: GateDefinition["conditions"][number]): Promise<boolean> {
+/**
+ * 极简证据条件求值器。fail-safe：无法解析的条件返回 false（宁可阻断，不可放行）。
+ * 支持形如 `p0_count == 0`、`coverage >= 80`、`status == "passed"` 的表达式。
+ * 取值优先级：record.metadata.<key> → record.<key>。
+ */
+export function evalEvidenceCondition(condition: string, record: Record<string, unknown>): boolean {
+  const m = condition.match(/^(\w+)\s*(==|!=|>=|<=|>|<)\s*(.+)$/);
+  if (!m) return false; // fail-safe: 无法解析 → 不满足
+  const [, key, op, rawVal] = m;
+  const metadata = (record.metadata ?? {}) as Record<string, unknown>;
+  const actual = metadata[key] ?? record[key];
+  if (actual === undefined || actual === null) return false;
+
+  const numActual = Number(actual);
+  const numExpected = Number(rawVal);
+  if (!Number.isNaN(numActual) && !Number.isNaN(numExpected)) {
+    switch (op) {
+      case "==": return numActual === numExpected;
+      case "!=": return numActual !== numExpected;
+      case ">=": return numActual >= numExpected;
+      case "<=": return numActual <= numExpected;
+      case ">": return numActual > numExpected;
+      case "<": return numActual < numExpected;
+    }
+  }
+  const strActual = String(actual);
+  const strExpected = rawVal.replace(/^["']|["']$/g, "");
+  switch (op) {
+    case "==": return strActual === strExpected;
+    case "!=": return strActual !== strExpected;
+    default: return false; // 字符串不支持大小比较
+  }
+}
+
+export async function evaluateCondition(root: string, state: ProjectState, cond: GateDefinition["conditions"][number]): Promise<boolean> {
   switch (cond.type) {
     case "role_required": {
       const roleId = cond.params.role_id as string;
@@ -372,6 +414,7 @@ async function evaluateCondition(root: string, state: ProjectState, cond: GateDe
     }
     case "evidence_required": {
       const evidenceType = cond.params.evidence_type as string;
+      const condition = cond.params.condition as string | undefined;
       const evDir = evidencePath(root);
       if (!existsSync(evDir)) return false;
       const { parseDocument } = await import("yaml");
@@ -380,7 +423,11 @@ async function evaluateCondition(root: string, state: ProjectState, cond: GateDe
         try {
           const raw = readFileSync(join(evDir, f), "utf-8");
           const record = parseDocument(raw).toJSON();
-          if (record.type === evidenceType) return true;
+          if (record.type !== evidenceType) continue;
+          if (condition) {
+            return evalEvidenceCondition(condition, record);
+          }
+          return true;
         } catch { /* skip malformed */ }
       }
       return false;
@@ -407,16 +454,43 @@ export async function advanceGate(root: string, gateId: string): Promise<GateAdv
     throw new LoopError("GATE_NOT_FOUND", `Gate not found: ${gateId}`, gateId);
   }
 
-  // Evaluate conditions on the same snapshot
+  // P0-1: 幂等保护 — 已通过的 gate 直接返回，禁止重复推进（防止绕过后续 gate）
+  if (gate.status === "passed") {
+    return {
+      gate_id: gateId,
+      success: true,
+      previous_phase: state.current_phase,
+      new_phase: state.current_phase,
+      advanced_at: gate.passed_at ?? now,
+      idempotent: true,
+    };
+  }
+
+  // P0-2: gate↔阶段绑定 — 只允许推进当前阶段的出口 gate
+  if (state.current_gate_id !== gateId) {
+    gate.status = "blocked";
+    gate.blocked_reasons = [`Gate ${gateId} does not match current gate ${state.current_gate_id ?? "(none)"} — gate-phase binding violated`];
+    await saveGates(root, gates);
+    return {
+      gate_id: gateId,
+      success: false,
+      previous_phase: state.current_phase,
+      new_phase: state.current_phase,
+      advanced_at: now,
+      error: `Gate blocked: ${gateId} is not the current gate (current: ${state.current_gate_id ?? "(none)"})`,
+    };
+  }
+
+  // Evaluate conditions on the same snapshot (幂等已在上方提前返回，无需再判 status)
   const missing: GateCheckResult["missing_conditions"] = [];
-  if (gate.status !== "passed") {
-    for (const cond of gate.conditions) {
-      const met = await evaluateCondition(root, state, cond);
+  for (const cond of gate.conditions) {
+      const met = cond.type === "manual_approval"
+        ? isUserApproved(state, gateId)
+        : await evaluateCondition(root, state, cond);
       if (!met) {
         missing.push({ condition_id: cond.condition_id, type: cond.type, description: cond.description, detail: JSON.stringify(cond.params) });
       }
     }
-  }
 
   if (missing.length > 0) {
     gate.status = "blocked";
@@ -466,7 +540,177 @@ export async function advanceGate(root: string, gateId: string): Promise<GateAdv
   };
 }
 
+// ── User Approval (manual_approval conditions) ────────
+
+/**
+ * Check whether the user has explicitly approved the given gate.
+ * Manual-approval conditions can ONLY be satisfied via approveGate —
+ * role verdicts and evidence are never treated as user approval.
+ * Anti-forgery: the record must be complete (gate_id match, approved_by=user).
+ */
+export function isUserApproved(state: ProjectState, gateId: string): boolean {
+  const rec = state.user_approvals?.[gateId];
+  return Boolean(rec && rec.approved_at && rec.approved_by === "user" && rec.gate_id === gateId);
+}
+
+/**
+ * Record an explicit user approval for a gate's manual_approval condition.
+ *
+ * This is the ONLY path that satisfies `manual_approval` gate conditions.
+ * - `approved_by` is hard-coded to "user" — callers cannot forge an identity.
+ * - The approval is automatically appended to the chain-hashed audit ledger.
+ * - It does NOT advance the gate — callers must still run advanceGate after
+ *   all conditions (including this approval) are satisfied.
+ */
+export async function approveGate(
+  root: string,
+  gateId: string,
+  note?: string,
+): Promise<{ success: boolean; gate_id: string; approved_at: string; error?: string }> {
+  const state = await loadState(root);
+  const gates = await loadGates(root);
+  const gate = gates.gates.find(g => g.gate_id === gateId);
+  if (!gate) {
+    return { success: false, gate_id: gateId, approved_at: "", error: `Gate not found: ${gateId}` };
+  }
+  if (!gate.conditions.some(c => c.type === "manual_approval")) {
+    return { success: false, gate_id: gateId, approved_at: "", error: `Gate ${gateId} has no manual_approval condition — nothing to approve` };
+  }
+
+  const approvedAt = new Date().toISOString();
+  const rec: UserApproval = { gate_id: gateId, approved_by: "user", approved_at: approvedAt, note };
+  state.user_approvals = { ...(state.user_approvals ?? {}), [gateId]: rec };
+  await saveState(root, state);
+
+  // 自动审计：批准事件写入链式账本（可追溯，P0-3 防线之一）
+  try {
+    const { AuditLedger } = await import("./audit_ledger.js");
+    const ledger = new AuditLedger(join(root, ".ai", "audit_ledger.jsonl"));
+    ledger.append("user_gate_approval", "user", { gate_id: gateId, approved_at: approvedAt, note: note ?? null });
+  } catch { /* 审计失败不阻断批准——账本完整性可单独验证 */ }
+
+  return { success: true, gate_id: gateId, approved_at: approvedAt };
+}
+
 // ── Hash utility ───────────────────────────────────────
 export function computeHash(content: string): string {
   return createHash("sha256").update(content, "utf-8").digest("hex");
+}
+
+// ── User Gate Phases (ZCode v3.3) ─────────────────────
+
+/**
+ * Only these phase boundaries represent a user decision.
+ * Role verdicts and internal evidence gates must NOT be treated as user approval.
+ */
+export const USER_GATE_PHASES: ReadonlySet<string> = new Set([
+  "S1-requirements",
+  "S6-delivery",
+]);
+
+/**
+ * Check whether entering a phase requires an explicit user gate.
+ *
+ * @param phase - The phase ID to check
+ * @returns true if the phase requires explicit user approval
+ */
+export function phaseNeedsUserGate(phase: string): boolean {
+  return USER_GATE_PHASES.has(phase);
+}
+
+// ── Public GateCondition API (ZCode v3.3) ──────────────
+
+/**
+ * Evaluate a single gate condition against current project state.
+ *
+ * Public wrapper around the internal evaluateCondition for use by tools and hooks.
+ *
+ * @param root - Project root directory
+ * @param condition - The condition to evaluate
+ * @param state - Optional pre-loaded project state
+ * @returns true if the condition is met
+ */
+export async function evaluateGateCondition(
+  root: string,
+  condition: GateCondition,
+  state?: ProjectState,
+): Promise<boolean> {
+  const s = state ?? await loadState(root);
+  return evaluateCondition(root, s, condition);
+}
+
+// ── Enhanced Gate Initialization (ZCode v3.3) ──────────
+
+/**
+ * Generate default 6-phase gate definitions with concrete conditions.
+ *
+ * Produces role_required, evidence_required, and manual_approval conditions
+ * for each standard phase gate. Used by initProjectExtended for FULL mode.
+ */
+export function generateDefaultGates(now: string): GateDefinition[] {
+  return [
+    {
+      gate_id: "gate-requirements",
+      name: "Requirements Gate",
+      description: "S1-requirements 阶段入口",
+      conditions: [
+        { condition_id: "req-baselined", type: "role_required" as const, description: "需求已基线化", params: { role_id: "product-manager", status: "completed" } },
+      ],
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    },
+    {
+      gate_id: "gate-architecture",
+      name: "Architecture Gate",
+      description: "S2-architecture 阶段入口",
+      conditions: [
+        { condition_id: "arch-complete", type: "role_required" as const, description: "架构设计完成", params: { role_id: "system-architect", status: "completed" } },
+      ],
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    },
+    {
+      gate_id: "gate-implementation",
+      name: "Implementation Gate",
+      description: "S4-implementation 阶段入口",
+      conditions: [
+        { condition_id: "code-complete", type: "role_required" as const, description: "代码实现完成", params: { role_id: "developer", status: "completed" } },
+        { condition_id: "tests-pass", type: "evidence_required" as const, description: "测试通过", params: { evidence_type: "test_result" } },
+      ],
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    },
+    {
+      gate_id: "gate-quality",
+      name: "Quality Gate",
+      description: "S5-quality 阶段入口",
+      conditions: [
+        { condition_id: "qa-pass", type: "role_required" as const, description: "质量验证通过", params: { role_id: "quality-engineer", status: "completed" } },
+        { condition_id: "security-pass", type: "role_required" as const, description: "安全审查通过", params: { role_id: "security-engineer", status: "completed" } },
+      ],
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    },
+    {
+      gate_id: "gate-delivery",
+      name: "Delivery Gate",
+      description: "S6-delivery 阶段入口",
+      conditions: [
+        { condition_id: "delivery-ready", type: "role_required" as const, description: "交付就绪", params: { role_id: "delivery-manager", status: "completed" } },
+        { condition_id: "human-approval", type: "manual_approval" as const, description: "用户验收通过", params: {} },
+      ],
+      status: "pending" as const,
+      created_at: now,
+      passed_at: null,
+      blocked_reasons: [],
+    },
+  ];
 }

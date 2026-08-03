@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { initProject, checkGate, advanceGate, loadState } from "../core/state-machine.js";
+import { initProject, checkGate, advanceGate, approveGate, loadState } from "../core/state-machine.js";
 import { activateRole, getRoleStatus } from "../core/role-engine.js";
 import { submitEvidence, verifyEvidence } from "../core/evidence.js";
 import { getHandoffHistory } from "../core/handoff.js";
+import { generatePrompt } from "../core/prompt_engine.js";
+import type { PromptContext } from "../core/prompt_engine.js";
 
 const program = new Command();
 program.name("loop").description("Loop Engineering CLI").version("0.1.0");
@@ -44,6 +46,21 @@ gate.command("advance <gate-id>")
       console.log(`✅ Gate advanced: ${result.previous_phase} → ${result.new_phase}`);
     } else {
       console.log(`❌ Gate blocked: ${result.error}`);
+    }
+  });
+
+gate.command("approve <gate-id>")
+  .description("Record explicit user approval for a gate's manual_approval condition (user-only action)")
+  .option("-r, --root <path>", "Project root", process.cwd())
+  .option("-n, --note <text>", "Approval note")
+  .action(async (gateId: string, opts: { root: string; note?: string }) => {
+    const result = await approveGate(opts.root, gateId, opts.note);
+    if (result.success) {
+      console.log(`✅ User approval recorded for gate ${gateId} at ${result.approved_at}`);
+      console.log(`   Run 'loop gate advance ${gateId}' once all conditions are met.`);
+    } else {
+      console.log(`❌ Approval failed: ${result.error}`);
+      process.exitCode = 1;
     }
   });
 
@@ -117,6 +134,36 @@ program.command("handoff")
   .action(async (opts: { root: string }) => {
     const history = getHandoffHistory(opts.root);
     console.log(history || "(no handoffs recorded)");
+  });
+
+// ── prompt (Four-Quadrant Prompt Engine) ───────────────
+program.command("prompt")
+  .description("Generate a four-quadrant collaboration prompt automatically")
+  .option("-t, --task <description>", "What you want to do")
+  .option("--role <role-id>", "Role ID (R01-R11) for role-specific guidance")
+  .option("--phase <phase-id>", "Current phase")
+  .option("--known <info>", "What you already know")
+  .option("--gaps <info>", "What you know you don't know")
+  .option("--constraints <info>", "Time/resource/tech constraints")
+  .option("--experience <level>", "Your experience level on this task")
+  .option("-m, --mode <mode>", "Output mode: user | compact | subagent", "user")
+  .action((opts: {
+    task?: string; role?: string; phase?: string;
+    known?: string; gaps?: string; constraints?: string;
+    experience?: string; mode: string;
+  }) => {
+    const ctx: PromptContext = {
+      task_description: opts.task,
+      role_id: opts.role,
+      phase_id: opts.phase,
+      known_info: opts.known,
+      known_gaps: opts.gaps,
+      constraints: opts.constraints,
+      experience_level: opts.experience,
+      mode: opts.mode as PromptContext["mode"],
+    };
+    const result = generatePrompt(ctx);
+    console.log(result.prompt);
   });
 
 program.parse();

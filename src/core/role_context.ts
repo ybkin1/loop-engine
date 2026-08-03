@@ -13,8 +13,9 @@
  *   ORCH_ROLES (R11): governance files only, ~500 tokens
  */
 
-import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { generatePrompt } from "./prompt_engine.js";
 
 // ── Role Categories ──────────────────────────────────────
 
@@ -114,17 +115,20 @@ export function generateRoleContext(
     sections.push("thinking");
   }
 
+  // ── 6. Four-Quadrant Cognitive Protocol (via prompt_engine) ──
+  const quadrantResult = generatePrompt({ role_id: roleId, phase_id: undefined, mode: "subagent" });
+  lines.push(quadrantResult.prompt);
+  sections.push("quadrant_protocol");
+
   const content = lines.join("\n");
   const estimatedTokens = Math.ceil(content.length / 4);
 
   // Write context file
   const contextDir = join(projectRoot, ".ai", "role-context");
   if (!existsSync(contextDir)) {
-    const { mkdirSync } = require("node:fs");
     mkdirSync(contextDir, { recursive: true });
   }
   const contextFile = join(contextDir, `${roleId}.md`);
-  const { writeFileSync } = require("node:fs");
   writeFileSync(contextFile, content, "utf-8");
 
   return {
