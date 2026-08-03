@@ -43,3 +43,7 @@ token.*
 
 # Backup files
 *.bak
+
+# Agent tool runtime artifacts (BH/Qoder parallel sessions)
+.claude/
+.qoder/
