@@ -1,0 +1,391 @@
+"""
+T-0109 F5 工具 capability 化 — 注册表 36 全覆盖 / 薄壳消除调用测试 /
+重复合并行为等价 / 白名单一致性（AC-04 / AC-05）。
+
+覆盖：
+- capability_registry 36 工具元数据全覆盖（与 tools/*.py 一一对应）+
+  audience/domain 分级。
+- 薄壳消除：server.py 注册表内联委托与旧薄壳模块 run() 行为等价
+  （subprocess 注入相同输出 → 逐字段一致）；evidence 工具 in-process
+  loop_core 收敛与 scripts/evidence_chain.py 行为等价。
+- dashboard 四层合并：status_dashboard.Dashboard is dashboard_views.Dashboard
+  （单一实现）+ 输出等价。
+- AC-05 白名单一致性：GOVERNANCE_TOOL_DIRS（AST 提取）覆盖全部注册工具；
+  hooks/ 仅 loop_enforcement.py 一处改动。
+"""
+from __future__ import annotations
+
+import ast
+import json
+import subprocess
+import tempfile
+from pathlib import Path
+
+import pytest
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+sys_path_ready = False
+
+
+def _ensure_paths():
+    global sys_path_ready
+    if not sys_path_ready:
+        import sys
+        if str(PROJECT_ROOT) not in sys.path:
+            sys.path.insert(0, str(PROJECT_ROOT))
+        if str(PROJECT_ROOT / "tools") not in sys.path:
+            sys.path.insert(0, str(PROJECT_ROOT / "tools"))
+        sys_path_ready = True
+
+
+_ensure_paths()
+
+from loop_core.capability_registry import (  # noqa: E402
+    AUDIENCES,
+    TOOL_CAPABILITY_MANIFEST,
+    all_tool_names,
+    build_tool_registry,
+    tool_capability,
+    tools_by_audience,
+    tools_by_domain,
+)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-04: 注册表 36 工具全覆盖
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestToolRegistryCoverage:
+    def test_manifest_covers_every_tool_module(self):
+        """tools/*.py 与注册表一一对应（36 = 36，无遗漏无多余）。"""
+        on_disk = {p.name[:-3] for p in (PROJECT_ROOT / "tools").glob("*.py")}
+        registered = set(TOOL_CAPABILITY_MANIFEST)
+        assert on_disk == registered
+        assert len(registered) == 36
+
+    def test_all_tool_names_stable(self):
+        names = all_tool_names()
+        assert names == sorted(names)
+        assert len(names) == 36
+
+    def test_registry_snapshot_sealed_36(self):
+        registry = build_tool_registry(PROJECT_ROOT)
+        assert registry.sealed is True
+        snapshot = registry.snapshot()
+        assert len(snapshot.entries) == 36
+        assert "server" in snapshot.entries
+        assert snapshot.entries["server"].provider_id == "tool"
+
+    def test_unknown_tool_fail_closed(self):
+        with pytest.raises(LookupError):
+            tool_capability("definitely_not_a_tool")
+
+
+class TestToolRegistryGrouping:
+    def test_every_tool_has_valid_audience_and_domain(self):
+        for name, cap in TOOL_CAPABILITY_MANIFEST.items():
+            assert cap.name == name
+            assert cap.audience in AUDIENCES, f"{name} audience 非法: {cap.audience}"
+            assert cap.domain, f"{name} 缺少 domain"
+
+    def test_audience_grouping_counts(self):
+        """三级 audience 均非空且互斥覆盖 36 个工具。"""
+        grouped = {a: tools_by_audience(a) for a in AUDIENCES}
+        assert sum(len(v) for v in grouped.values()) == 36
+        assert all(grouped[a] for a in AUDIENCES)
+
+    def test_domain_grouping(self):
+        assert "governance" in {cap.domain for cap in TOOL_CAPABILITY_MANIFEST.values()}
+        # 关键域抽查
+        assert "tool_state" in tools_by_domain("governance")
+        assert "tool_evidence_submit" in tools_by_domain("evidence")
+        assert "tool_security_scan" in tools_by_domain("security")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 薄壳消除：server.py 注册表内联委托 == 旧薄壳模块 run()（行为等价）
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestThinShellElimination:
+    """注入相同的 subprocess.run 假输出 → server._dispatch 与旧薄壳
+    模块 run() 输出逐字段一致（合并后行为等价，AC-04）。"""
+
+    @pytest.fixture(autouse=True)
+    def _fake_subprocess(self, monkeypatch):
+        captured: dict[str, dict] = {}
+
+        def fake_run(cmd, capture_output=True, text=True, timeout=None, **kw):
+            captured["cmd"] = cmd
+            payload = {"fake": "payload", "overall": "PASS", "n": 1}
+            return subprocess.CompletedProcess(
+                args=cmd, returncode=0,
+                stdout=json.dumps(payload), stderr="",
+            )
+
+        monkeypatch.setattr(subprocess, "run", fake_run)
+        return captured
+
+    def test_quality_gates_dispatch_equivalent(self, _fake_subprocess):
+        import server
+        import tool_quality_gates
+        args = {"project_root": str(PROJECT_ROOT), "output_dir": "tmp-q"}
+        assert server._dispatch("quality_gates_run", dict(args)) == \
+            tool_quality_gates.run(args["project_root"], "tmp-q")
+
+    def test_security_scan_dispatch_equivalent(self, _fake_subprocess):
+        import server
+        import tool_security_scan
+        args = {"project_root": str(PROJECT_ROOT), "output_dir": "tmp-s"}
+        assert server._dispatch("security_scan_run", dict(args)) == \
+            tool_security_scan.run(args["project_root"], "tmp-s")
+
+    def test_dependency_analysis_dispatch_equivalent(self, _fake_subprocess):
+        import server
+        import tool_dependency_analysis
+        args = {"project_root": str(PROJECT_ROOT), "rules_file": None}
+        assert server._dispatch("dependency_analysis", dict(args)) == \
+            tool_dependency_analysis.run(args["project_root"], None)
+
+    def test_contract_validate_dispatch_equivalent(self, _fake_subprocess):
+        import server
+        import tool_contract_validate
+        args = {"project_root": str(PROJECT_ROOT), "contract_file": "c.json"}
+        assert server._dispatch("contract_validate", dict(args)) == \
+            tool_contract_validate.run(args["project_root"], "c.json")
+
+    def test_cost_report_dispatch_equivalent(self, _fake_subprocess):
+        import server
+        import tool_cost_tracker
+        args = {"project_root": str(PROJECT_ROOT)}
+        assert server._dispatch("cost_report", dict(args)) == \
+            tool_cost_tracker.run_report(args["project_root"])
+
+    def test_server_no_longer_imports_shell_modules(self):
+        """薄壳消除实证：server.py 源码不再 import 6 个薄壳模块。"""
+        source = (PROJECT_ROOT / "tools" / "server.py").read_text(encoding="utf-8")
+        for shell in ("tool_quality_gates", "tool_security_scan",
+                      "tool_dependency_analysis", "tool_contract_validate",
+                      "tool_cost_tracker", "tool_evidence_chain"):
+            assert f"from {shell} import" not in source, f"server.py 仍 import {shell}"
+
+    def test_shell_modules_still_importable(self):
+        """薄壳文件保留（未删除），可独立导入（deep_probe 兼容）。"""
+        import tool_evidence_chain  # noqa: F401
+        import tool_security_scan  # noqa: F401
+        import tool_cost_tracker  # noqa: F401
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 证据链三处收敛：loop_core.evidence_chain == scripts/evidence_chain.py
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestEvidenceChainConvergence:
+    @pytest.fixture()
+    def chain_root(self, tmp_path: Path) -> Path:
+        """fixture 项目根：skills/loop-governance/chain.yaml + 2 个证据节点。"""
+        (tmp_path / "skills" / "loop-governance").mkdir(parents=True)
+        (tmp_path / ".ai" / "evidence").mkdir(parents=True)
+        (tmp_path / "docs").mkdir()
+        (tmp_path / "docs" / "a.md").write_text("AAA", encoding="utf-8")
+        (tmp_path / "docs" / "b.md").write_text("BBB", encoding="utf-8")
+        (tmp_path / "skills" / "loop-governance" / "chain.yaml").write_text(
+            "chain:\n"
+            "  - name: doc-a\n    file: docs/a.md\n    required: true\n"
+            "  - name: doc-b\n    file: docs/b.md\n"
+            "    upstream: [doc-a]\n",
+            encoding="utf-8",
+        )
+        return tmp_path
+
+    def test_verify_equivalent_to_script(self, chain_root):
+        from loop_core.evidence_chain import verify_chain_yaml
+        from scripts.evidence_chain import verify_chain
+        mine = verify_chain_yaml(chain_root, strict=True)
+        theirs = verify_chain(chain_root, strict=True)
+        assert mine == theirs  # overall/issues/nodes 逐字段一致
+        assert mine["overall"] == "PASS"
+
+    def test_verify_missing_node_equivalent(self, chain_root):
+        (chain_root / "docs" / "a.md").unlink()
+        from loop_core.evidence_chain import verify_chain_yaml
+        from scripts.evidence_chain import verify_chain
+        assert verify_chain_yaml(chain_root, strict=True) == \
+            verify_chain(chain_root, strict=True)
+        assert verify_chain_yaml(chain_root, strict=False) == \
+            verify_chain(chain_root, strict=False)
+
+    def test_freeze_equivalent_to_script(self, chain_root):
+        import hashlib
+        from loop_core.evidence_chain import freeze_file_yaml
+        from scripts.evidence_chain import freeze_file
+        mine = freeze_file_yaml(chain_root, "docs/a.md")
+        theirs = freeze_file(chain_root, "docs/a.md")
+        assert mine == theirs
+        record = (chain_root / ".ai" / "evidence" / "frozen" / "a.md.freeze.json")
+        assert record.exists()
+        data = json.loads(record.read_text(encoding="utf-8"))
+        assert data["path"] == "docs/a.md"
+        assert data["sha256"] == hashlib.sha256(b"AAA").hexdigest()
+
+    def test_server_dispatch_evidence_verify(self, chain_root):
+        import server
+        out = server._dispatch("evidence_verify",
+                               {"project_root": str(chain_root), "strict": True})
+        assert out["overall"] == "PASS"
+        assert "nodes" in out  # 收敛后输出为完整校验 dict（旧壳为降级解析）
+
+    def test_server_dispatch_evidence_freeze(self, chain_root):
+        import server
+        out = server._dispatch("evidence_freeze",
+                               {"project_root": str(chain_root), "file": "docs/b.md"})
+        assert out["success"] is True
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# dashboard 四层合并：单一实现 + 输出等价
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestDashboardMerge:
+    def test_single_implementation(self):
+        """status_dashboard 降级为 re-export shim，类本体唯一。"""
+        from loop_core.dashboard_views import Dashboard, ProjectStatus
+        from loop_core.status_dashboard import Dashboard as ShimDashboard
+        from loop_core.status_dashboard import ProjectStatus as ShimStatus
+        assert ShimDashboard is Dashboard
+        assert ShimStatus is ProjectStatus
+
+    def test_generate_equivalent(self, tmp_path: Path):
+        import yaml
+        (tmp_path / ".ai").mkdir()
+        (tmp_path / ".ai" / "state.yaml").write_text(
+            yaml.safe_dump({"project_name": "Fixture", "current_phase": "S6-delivery",
+                            "loop_mode": "FULL"}), encoding="utf-8")
+        (tmp_path / ".ai" / "task_graph.yaml").write_text(
+            yaml.safe_dump({"tasks": [
+                {"id": "T-1", "status": "completed", "phase": "S1-requirements"},
+            ]}), encoding="utf-8")
+        (tmp_path / ".ai" / "gates.yaml").write_text(
+            yaml.safe_dump({"gates": []}), encoding="utf-8")
+        from loop_core.dashboard_views import Dashboard
+        from loop_core.status_dashboard import Dashboard as ShimDashboard
+        d1 = Dashboard(str(tmp_path)).to_dict()
+        d2 = ShimDashboard(str(tmp_path)).to_dict()
+        for key in ("project_name", "current_phase", "task_stats", "health_indicator"):
+            assert d1[key] == d2[key]
+
+    def test_existing_status_dashboard_tests_keep_passing(self):
+        """等价实证：既有 test_status_dashboard 全绿（pytest 运行该文件
+        在 CI 中覆盖；此处再断言 import 路径健康）。"""
+        import loop_core.status_dashboard as mod  # noqa: F401
+        assert hasattr(mod, "Dashboard")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# T-0109 P1 修复（独立审查 DR-002）：宿主路径注入 —— 候选表无 .zcode
+# 字面量（宿主无关回归防护），宿主副本经参数/环境变量注入且优先于仓库源
+# ═══════════════════════════════════════════════════════════════════════════
+
+class TestEvidenceChainHostInjection:
+    """宿主无关（DR-002）回归防护 + 注入通道行为（T-0105 优先语义保持）。"""
+
+    def test_candidates_host_agnostic(self):
+        """候选表为纯仓库相对路径，无 .zcode 字面量（DR-002 回归防护）。"""
+        from loop_core.evidence_chain import CHAIN_YAML_CANDIDATES
+        assert CHAIN_YAML_CANDIDATES == ("skills/loop-governance/chain.yaml",)
+        assert not any(".zcode" in c for c in CHAIN_YAML_CANDIDATES)
+
+    def test_host_candidates_param_injected_priority(self, tmp_path):
+        """host_candidates 参数注入的宿主副本优先于仓库源（T-0105 语义保持）。"""
+        from loop_core.evidence_chain import load_chain_yaml
+        (tmp_path / "skills" / "loop-governance").mkdir(parents=True)
+        (tmp_path / "skills" / "loop-governance" / "chain.yaml").write_text(
+            "chain:\n  - name: repo-source\n    file: docs/a.md\n",
+            encoding="utf-8")
+        (tmp_path / "host").mkdir()
+        (tmp_path / "host" / "chain.yaml").write_text(
+            "chain:\n  - name: host-copy\n    file: docs/b.md\n",
+            encoding="utf-8")
+        cfg = load_chain_yaml(tmp_path, host_candidates=("host/chain.yaml",))
+        assert cfg["chain"][0]["name"] == "host-copy"
+
+    def test_env_injection_config_channel(self, tmp_path, monkeypatch):
+        """环境变量为宿主候选的配置通道（注入候选优先于仓库源）。"""
+        from loop_core.evidence_chain import (
+            ENV_CHAIN_YAML_HOST_CANDIDATE,
+            load_chain_yaml,
+        )
+        (tmp_path / "skills" / "loop-governance").mkdir(parents=True)
+        (tmp_path / "skills" / "loop-governance" / "chain.yaml").write_text(
+            "chain: []\n", encoding="utf-8")
+        (tmp_path / "env-host").mkdir()
+        (tmp_path / "env-host" / "chain.yaml").write_text(
+            "chain:\n  - name: env-copy\n    file: docs/c.md\n",
+            encoding="utf-8")
+        monkeypatch.setenv(ENV_CHAIN_YAML_HOST_CANDIDATE, "env-host/chain.yaml")
+        cfg = load_chain_yaml(tmp_path)
+        assert cfg["chain"][0]["name"] == "env-copy"
+
+    def test_injected_missing_falls_back_to_repo_source(self, tmp_path):
+        """注入候选缺失 → 仓库源回退（原 .zcode 缺失回退语义保持）。"""
+        from loop_core.evidence_chain import load_chain_yaml
+        (tmp_path / "skills" / "loop-governance").mkdir(parents=True)
+        (tmp_path / "skills" / "loop-governance" / "chain.yaml").write_text(
+            "chain:\n  - name: repo-source\n    file: docs/a.md\n",
+            encoding="utf-8")
+        cfg = load_chain_yaml(tmp_path, host_candidates=("no-such-host/chain.yaml",))
+        assert cfg["chain"][0]["name"] == "repo-source"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-05: enforcement 白名单与工具变更同步
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _extract_governance_tool_dirs() -> list[str]:
+    """AST 提取 hooks/scripts/loop_enforcement.py 的 GOVERNANCE_TOOL_DIRS
+    常量表（不执行 hook 代码，避免引入执行环境依赖）。"""
+    source = (PROJECT_ROOT / "hooks" / "scripts" / "loop_enforcement.py").read_text(
+        encoding="utf-8")
+    tree = ast.parse(source)
+    for node in tree.body:
+        # 常量声明形态：GOVERNANCE_TOOL_DIRS: tuple[str, ...] = ( ... )
+        target_nodes: list[ast.expr] = []
+        if isinstance(node, ast.Assign):
+            target_nodes = node.targets
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            target_nodes = [node.target]
+        for target in target_nodes:
+            if isinstance(target, ast.Name) and target.id == "GOVERNANCE_TOOL_DIRS":
+                value = node.value if isinstance(node, ast.Assign) else node.value
+                assert value is not None and isinstance(value, ast.Tuple), \
+                    "GOVERNANCE_TOOL_DIRS 必须仍是 tuple 字面量"
+                return [ast.literal_eval(elt) for elt in value.elts]
+    raise AssertionError("GOVERNANCE_TOOL_DIRS 未找到")
+
+
+class TestWhitelistConsistency:
+    def test_every_registered_tool_covered_by_whitelist(self):
+        """注册表 36 工具模块路径全部落在白名单目录内（目录级覆盖，
+        工具变更无需逐文件同步）。"""
+        dirs = _extract_governance_tool_dirs()
+        assert "tools/" in dirs
+        for name in all_tool_names():
+            rel = f"tools/{name}.py"
+            assert any(rel.startswith(d) for d in dirs), f"{rel} 不在白名单内"
+
+    def test_whitelist_dirs_stable(self):
+        """白名单常量表仍为既有 6 目录（T-0109 仅注释同步，功能零改动）。"""
+        dirs = _extract_governance_tool_dirs()
+        assert dirs == [".zcode/tools/", ".ai/checkers/", ".ai/guards/",
+                        "scripts/", "hooks/", "tools/"]
+
+    def test_hooks_only_whitelist_file_changed(self):
+        """AC-08 门禁实证：hooks/ 下仅有 loop_enforcement.py 一处改动。"""
+        import subprocess as sp
+        out = sp.run(
+            ["git", "-C", str(PROJECT_ROOT), "diff", "--name-only", "HEAD", "--", "hooks/"],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert out.returncode == 0, out.stderr
+        changed = [p for p in out.stdout.splitlines() if p.strip()]
+        assert changed == ["hooks/scripts/loop_enforcement.py"], changed

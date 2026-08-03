@@ -5,5 +5,5 @@ Provides constants, exceptions, and shared utilities used across
 hooks, MCP tools, and install scripts.
 """
 
-__version__ = "3.12.45"
+__version__ = "3.12.46"
 __author__ = "Loop Engineering"

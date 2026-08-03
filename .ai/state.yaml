@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T19:45:46.956945+08:00'
+last_handoff_at: '2026-08-03T21:22:18.475985+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -146,3 +146,9 @@ notes:
   fail-closed + 三扫描器/三 agents 收敛）+ F8（3 测试文件 50 用例）+ F2-1（validate_state 纯新增 37/0
   仅告警 + projection_engine），9/9 AC，独立审查 CONDITIONAL_GO→GO（P1=0），8 项 P3 消解，全量 3957 passed（closeout
   后 0 failed）， hooks/ 零改动、内核零触碰，bump 3.12.45 提交推送。T-0109（分层期）待用户批准。'
+- 'T-0109 COMPLETED 2026-08-03: BH 融合·分层期 — F2-2 写入收敛（governor_lib 事务写 + SCOPE_VIOLATION
+  fail-closed）+ F3 gates 分层（66 active + 36 archive verbatim + forbidden 外提 + gate_type
+  枚举 30 值 + active 域等价）+ F1 评估模型（七态 + 上限表 59/74/84/94/100 + Repair/Loop 分离，advisory-only
+  双证）+ F5 工具 capability （36/36 注册表 + 6 薄壳消除逐字节等价 + dashboard/证据链合并 + 白名单注释级同步）， 8/8
+  AC，独立审查 CONDITIONAL_GO→GO（P1 DR-002 宿主路径注入化修复），全量 4048 passed （3 项已登记瞬态），hooks/
+  仅白名单一处、内核零触碰、零工具删除（10 项候选留档待独立 gate）， bump 3.12.46 提交推送。T-0110（常量集中+巨文件拆分）待用户批准。'

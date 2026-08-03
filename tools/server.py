@@ -18,10 +18,142 @@ server.py — Loop 工程 MCP 工具服务器。
 协议：JSON-RPC 2.0 over stdin/stdout
 """
 import json
+import subprocess
 import sys
 from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = TOOLS_DIR.parent
+
+# ── T-0109 F5 薄壳消除 ────────────────────────────────────────────────────
+# 以下 5 个工具原为 tools/tool_*.py 纯委托薄壳（subprocess 转发 agent 脚本，
+# server.py 是唯一代码级调用方，grep 实证）；薄壳消除后委托逻辑收敛进 MCP
+# server 注册表（本模块），薄壳文件保留待用户独立 gate 删除（T-0109 不删）。
+# 委托目标与输出 schema 逐字节等价（行为等价测试覆盖），fail-closed 语义不变。
+
+
+def _run_quality_gates(project_root: str, output_dir: str | None = None) -> dict:
+    """原 tools/tool_quality_gates.py run()（子进程委托 quality-engineer 脚本）。"""
+    root = Path(project_root).resolve()
+    script = PROJECT_ROOT / "agents" / "quality-engineer" / "scripts" / "run_quality_gates.py"
+    if not script.exists():
+        return {"error": f"quality gates script not found: {script}", "overall": "UNAVAILABLE"}
+    cmd = [sys.executable, str(script), "--project-root", str(root), "--json"]
+    if output_dir:
+        cmd += ["--output-dir", output_dir]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        if r.stdout.strip():
+            return json.loads(r.stdout)
+        return {"overall": "UNKNOWN", "exit_code": r.returncode, "stderr": r.stderr[:500]}
+    except subprocess.TimeoutExpired:
+        return {"error": "quality gates timed out after 180s", "overall": "TIMEOUT"}
+    except Exception as e:
+        return {"error": str(e), "overall": "ERROR"}
+
+
+def _run_security_scan(project_root: str, output_dir: str | None = None) -> dict:
+    """原 tools/tool_security_scan.py run()（子进程委托 security-engineer 脚本）。"""
+    root = Path(project_root).resolve()
+    script = PROJECT_ROOT / "agents" / "security-engineer" / "scripts" / "run_security_scan.py"
+    if not script.exists():
+        return {"error": f"security scan script not found: {script}", "overall": "UNAVAILABLE"}
+    cmd = [sys.executable, str(script), "--project-root", str(root), "--json"]
+    if output_dir:
+        cmd += ["--output-dir", output_dir]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        if r.stdout.strip():
+            return json.loads(r.stdout)
+        return {"overall": "UNKNOWN", "exit_code": r.returncode, "stderr": r.stderr[:500]}
+    except subprocess.TimeoutExpired:
+        return {"error": "security scan timed out after 180s", "overall": "TIMEOUT"}
+    except Exception as e:
+        return {"error": str(e), "overall": "ERROR"}
+
+
+def _run_dependency_analysis(project_root: str, rules_file: str | None = None) -> dict:
+    """原 tools/tool_dependency_analysis.py run()（子进程委托 system-architect 脚本）。"""
+    root = Path(project_root).resolve()
+    script = PROJECT_ROOT / "agents" / "system-architect" / "scripts" / "analyze_dependencies.py"
+    if not script.exists():
+        return {"error": f"dependency analysis script not found: {script}", "overall": "UNAVAILABLE"}
+    cmd = [sys.executable, str(script), "--project-root", str(root)]
+    if rules_file:
+        cmd += ["--rules", rules_file]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+        report_file = root / ".ai" / "evidence" / "deps" / "dependency_report.json"
+        if report_file.exists():
+            return json.loads(report_file.read_text(encoding="utf-8"))
+        if r.stdout.strip():
+            return json.loads(r.stdout)
+        return {"overall": "BLOCKED" if r.returncode != 0 else "PASS", "stderr": r.stderr[:500]}
+    except subprocess.TimeoutExpired:
+        return {"error": "dependency analysis timed out after 60s", "overall": "TIMEOUT"}
+    except Exception as e:
+        return {"error": str(e), "overall": "ERROR"}
+
+
+def _run_contract_validate(project_root: str, contract_file: str,
+                           check_actual: bool = False) -> dict:
+    """原 tools/tool_contract_validate.py run()（子进程委托 module-architect 脚本）。"""
+    root = Path(project_root).resolve()
+    script = PROJECT_ROOT / "agents" / "module-architect" / "scripts" / "validate_contract.py"
+    if not script.exists():
+        return {"error": f"contract validation script not found: {script}", "valid": False}
+    cmd = [sys.executable, str(script), "--contract", contract_file]
+    if check_actual:
+        cmd += ["--check-actual", "--project-root", str(root)]
+    else:
+        cmd += ["--check-schema-only"]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        if r.stdout.strip():
+            return json.loads(r.stdout)
+        return {"valid": r.returncode == 0, "errors": [], "warnings": []}
+    except subprocess.TimeoutExpired:
+        return {"error": "contract validation timed out", "valid": False}
+    except Exception as e:
+        return {"error": str(e), "valid": False}
+
+
+def _run_cost_report(project_root: str) -> dict:
+    """原 tools/tool_cost_tracker.py run_report()（子进程委托 scripts/cost_tracker.py）。"""
+    root = Path(project_root).resolve()
+    script = PROJECT_ROOT / "scripts" / "cost_tracker.py"
+    if not script.exists():
+        return {"summary": {"total_tokens": 0}, "by_role": {}, "by_phase": {},
+                "note": "cost_tracker.py not available"}
+    try:
+        r = subprocess.run(
+            [sys.executable, str(script), "--project-root", str(root), "--report", "--json"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if r.stdout.strip():
+            return json.loads(r.stdout)
+        report_file = root / ".ai" / "evidence" / "costs" / "cost_report.json"
+        if report_file.exists():
+            return json.loads(report_file.read_text(encoding="utf-8"))
+        return {"summary": {"total_tokens": 0}}
+    except subprocess.TimeoutExpired:
+        return {"error": "cost report timed out", "summary": {"total_tokens": 0}}
+    except Exception as e:
+        return {"error": str(e), "summary": {"total_tokens": 0}}
+
+
+def _run_evidence_verify(project_root: str, strict: bool = False) -> dict:
+    """证据链验证 — T-0109 三处收敛：in-process loop_core.evidence_chain
+    （原 tools/tool_evidence_chain.py run_verify 子进程壳消除）。"""
+    from loop_core.evidence_chain import verify_chain_yaml
+    return verify_chain_yaml(project_root, strict=strict)
+
+
+def _run_evidence_freeze(project_root: str, file: str) -> dict:
+    """证据冻结 — T-0109 三处收敛：in-process loop_core.evidence_chain
+    （原 tools/tool_evidence_chain.py run_freeze 子进程壳消除）。"""
+    from loop_core.evidence_chain import freeze_file_yaml
+    return freeze_file_yaml(project_root, file)
 
 TOOLS = {
     "quality_gates_run": {
@@ -358,31 +490,30 @@ def handle_request(request: dict) -> dict:
 
 
 def _dispatch(tool_name: str, args: dict) -> dict:
-    """分派到具体的工具脚本执行。"""
+    """分派到具体的工具执行。
+
+    T-0109 F5 薄壳消除：quality_gates_run / security_scan_run /
+    dependency_analysis / contract_validate / cost_report / evidence_verify /
+    evidence_freeze 的委托逻辑已从 tools/tool_*.py 薄壳收敛进本注册表
+    （_run_* helper，行为逐字节等价）；薄壳文件保留待独立 gate 删除。
+    """
     project_root = args.get("project_root", ".")
 
     if tool_name == "quality_gates_run":
-        from tool_quality_gates import run
-        return run(project_root, args.get("output_dir"))
+        return _run_quality_gates(project_root, args.get("output_dir"))
     elif tool_name == "security_scan_run":
-        from tool_security_scan import run
-        return run(project_root, args.get("output_dir"))
+        return _run_security_scan(project_root, args.get("output_dir"))
     elif tool_name == "dependency_analysis":
-        from tool_dependency_analysis import run
-        return run(project_root, args.get("rules_file"))
+        return _run_dependency_analysis(project_root, args.get("rules_file"))
     elif tool_name == "contract_validate":
-        from tool_contract_validate import run
-        return run(project_root, args["contract_file"], args.get("check_actual", False))
-        return run(project_root, args["contract_file"], args.get("check_actual", False))
+        return _run_contract_validate(project_root, args["contract_file"],
+                                      args.get("check_actual", False))
     elif tool_name == "evidence_verify":
-        from tool_evidence_chain import run_verify
-        return run_verify(project_root, args.get("strict", False))
+        return _run_evidence_verify(project_root, args.get("strict", False))
     elif tool_name == "evidence_freeze":
-        from tool_evidence_chain import run_freeze
-        return run_freeze(project_root, args["file"])
+        return _run_evidence_freeze(project_root, args["file"])
     elif tool_name == "cost_report":
-        from tool_cost_tracker import run_report
-        return run_report(project_root)
+        return _run_cost_report(project_root)
     # v3.4 — governance tools
     elif tool_name == "loop_certify_role":
         from tool_certify_role import run

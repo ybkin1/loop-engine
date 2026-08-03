@@ -1,0 +1,62 @@
+# Standard forbidden-action templates（T-0109 F3 外提）。
+# gate 记录通过 forbidden_policy: <id> 引用本文件策略；
+# 外提仅限 kept 域精确重复 >=2 的集合，唯一列表保持内联（记录零丢失）。
+schema_version: 1
+policies:
+- id: agents-md-deploy-v1
+  forbidden_actions:
+  - modify AGENTS.md
+  - deploy / rollback / database / permission / secret / payment / production_data
+    / migration
+- id: agents-md-external-v1
+  forbidden_actions:
+  - modify AGENTS.md
+  - deploy / rollback / database / permission / secret / payment / production_data
+    / migration
+  - enter a real business project
+  - install or enable external agents, MCP, automation, protocols, or new runtime
+    behavior outside this task
+- id: agents-md-acceptance-v1
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter a real business project
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior outside
+    this task
+  - deploy / rollback / database / permission / secret / payment / production_data
+    / migration
+  - treat tests, validator, reviewer PASS, or AI recommendation as user acceptance
+  - silently accept P0/P1 risk or suppress NOT_VERIFIED evidence
+- id: agents-md-business-v1
+  forbidden_actions:
+  - modify AGENTS.md
+  - enter real business project
+  - deploy / rollback / database / permission / secret / payment / production_data
+    / migration
+- id: agents-md-only-v1
+  forbidden_actions:
+  - modify AGENTS.md
+- id: standard-v1
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+- id: standard-core-v1
+  forbidden_actions:
+  - deploy
+  - rollback
+  - modify database
+  - change permissions
+  - handle secrets
+  - payment actions
+  - production data access
+  - migration
+  - modify business source code (non-governance)
+  - weaken any activated constraint
+  - create or register T-0095+ task files or gates
+

@@ -1,0 +1,17 @@
+{
+  "task_id": "T-0109",
+  "gate_id": "G-T-0109-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-03T17:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "F2-2 写入收敛（governor_lib 事务写 + projection 刷新）",
+    "F3 gates 分层（active/archive + forbidden 外提 + gate_type 枚举）",
+    "F1 评估模型（证据七态 + 评分上限表 + Repair/Loop 分离，advisory-only）",
+    "F5 工具 capability 化（36 工具分组/薄壳/重复合并/audience 分级；死工具删除独立 gate）",
+    "hook 门禁：loop_enforcement.py 白名单常量表同步",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.46",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0109-REQUIREMENTS 已由用户批准（批准文本：批准）。范围引用 roadmap T-0109 + design-bh-integration F1/F2-2/F3/F5。硬约束：hooks/ 仅白名单常量表、治理内核判定零触碰、F1 advisory-only、死工具删除需调用图证据。"
+}

@@ -578,7 +578,12 @@ def _check_single_constraint(
 
 
 def atomic_write_state(root: str | Path, state: dict) -> None:
-    """Write state atomically using .tmp + rename to prevent corruption."""
+    """Write state atomically using .tmp + rename to prevent corruption.
+
+    T-0109 F2-2: 保持为唯一权威 state.yaml 写入入口；写入后触发
+    projection 刷新（派生视图 .ai/views/state-view.yaml 随状态转换
+    自动更新——只加刷新调用，不改任何决策语义）。
+    """
     import os
     from pathlib import Path as _Path
     root_p = _Path(root)
@@ -587,6 +592,24 @@ def atomic_write_state(root: str | Path, state: dict) -> None:
     import yaml
     tmp_path.write_text(yaml.dump(state, allow_unicode=True, default_flow_style=False), encoding="utf-8")
     os.replace(str(tmp_path), str(state_path))
+    _refresh_state_view_after_transition(root_p)
+
+
+def _refresh_state_view_after_transition(root_p) -> None:
+    """F2-2: 状态转换后触发 projection 刷新（best-effort + 显式告警）。
+
+    权威 state.yaml 已提交；刷新失败不得回滚转换（fail-closed 语义不变），
+    但失败必须显式告警，绝不静默吞错。
+    """
+    try:
+        from loop_core.projection_engine import write_state_view
+        write_state_view(root_p)
+    except Exception as exc:  # noqa: BLE001 — 防御：刷新失败显式上报
+        import warnings
+        warnings.warn(
+            f"STATE_VIEW_REFRESH_FAILED: {exc} — derived view not refreshed "
+            "(authoritative state.yaml write already committed)"
+        )
 
 
 # ── Gate Condition Evaluation (v3.3 — from Qoder state-machine.ts) ────

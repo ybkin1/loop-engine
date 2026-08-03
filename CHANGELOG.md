@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.46 (2026-08-03) — T-0109 — BH 融合·分层期（F2-2 写入收敛/F3 gates 分层/F1 评估模型/F5 工具 capability 化）
+
+### Changed (T-0109 — BH 融合·分层期（F2-2 写入收敛/F3 gates 分层/F1 评估模型/F5 工具 capability 化）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.45 (2026-08-03) — T-0108 — BH 融合·收敛期（F4 文档路由/F6 上下文打包/F7 finding 契约/F8 契约测试/F2-1 新鲜度）
 
 ### Changed (T-0108 — BH 融合·收敛期（F4 文档路由/F6 上下文打包/F7 finding 契约/F8 契约测试/F2-1 新鲜度）)

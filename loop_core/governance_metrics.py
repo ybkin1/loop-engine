@@ -50,6 +50,12 @@ from typing import Any
 import yaml
 
 from loop_core.observability import GuardCheckEvent
+from loop_core.schemas.evidence_state import (  # T-0109 F1 (advisory)
+    DEFAULT_SCORE_CAPS,
+    SCORE_BANDS,
+    apply_score_cap,
+    score_cap_for_state,
+)
 
 # ── Availability sentinel ────────────────────────────────────────────────
 # A metric value that cannot be computed from the available data sources.
@@ -688,6 +694,7 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
             "budget_total_units": DEFAULT_BUDGET_TOTAL_UNITS,
             "release_fee_units": DEFAULT_RELEASE_FEE_UNITS,
             "window": None,
+            "score_caps": dict(DEFAULT_SCORE_CAPS),  # T-0109 F1 (advisory)
         }
     try:
         doc = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -792,6 +799,32 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
         for key in ("target", "severity", "budget_share", "phase", "description"):
             if key in raw:
                 entry[key] = raw[key]
+    # ── T-0109 F1: score_caps 评分上限表（advisory-only）──────────────────
+    # 显式化评分上限（对齐 slo.yaml 配置外置模式）。校验 fail-closed：
+    # 非 mapping / 状态名非法 / 上限非有限正数 → DataSourceUnavailableError，
+    # 绝不部分应用。缺失 → 默认表（DEFAULT_SCORE_CAPS）。
+    score_caps = dict(DEFAULT_SCORE_CAPS)
+    raw_caps = doc.get("score_caps")
+    if raw_caps is not None:
+        if not isinstance(raw_caps, dict):
+            raise _invalid("'score_caps' must be a mapping of state -> cap")
+        for state, cap in raw_caps.items():
+            try:
+                cap_value = float(cap)
+            except (TypeError, ValueError):
+                raise _invalid(
+                    f"'score_caps.{state}' must be numeric, got {cap!r}"
+                ) from None
+            if not math.isfinite(cap_value) or cap_value < 0:
+                raise _invalid(
+                    f"'score_caps.{state}' must be a finite number >= 0, got {cap!r}"
+                )
+            try:
+                score_cap_for_state(str(state), score_caps)
+            except ValueError as exc:
+                raise _invalid(f"'score_caps' 非法状态名: {state!r}") from exc
+            score_caps[str(state)] = int(round(cap_value))
+
     return {
         "source": str(path),
         "slo_path": str(path),
@@ -799,6 +832,7 @@ def load_slo_config(root: str | Path, slo_path: str | Path | None = None) -> dic
         "budget_total_units": float(doc.get("budget_total_units", DEFAULT_BUDGET_TOTAL_UNITS)),
         "release_fee_units": float(doc.get("release_fee_units", DEFAULT_RELEASE_FEE_UNITS)),
         "window": (doc.get("window_start"), doc.get("window_end")),
+        "score_caps": score_caps,  # T-0109 F1 (advisory)
     }
 
 
@@ -1167,6 +1201,113 @@ def build_dora_metrics(ctx: SliContext) -> dict[str, Any]:
     return dora
 
 
+# ── T-0109 F1: Repair Progress / Loop Effectiveness 分离指标（advisory）───
+# 两族指标独立呈现、独立度量：
+#   - repair_progress：修复闭环进度（repair 触发次数 / 修复 GO 数）
+#   - loop_effectiveness：循环有效性（gate 通过率 / cycle time）
+# **评分与指标仅呈现/度量，不进任何 gate 判定路径**（AC-03 静态断言）。
+
+
+def repair_trigger_count(gates: Sequence[GateMetric]) -> int:
+    """repair 触发次数 = rejected gate 数（rejection -> fix -> re-audit 的
+    每次触发；与 rework_cycles_from_gates 同源口径）。"""
+    return sum(1 for g in gates if g.status == "rejected")
+
+
+def fixed_gate_count(gates: Sequence[GateMetric]) -> int:
+    """修复 GO 数 = 存在同任务先前 rejected 记录的 approved gate 数。
+
+    口径：approved gate 的同 task_id 下出现过 rejected gate（已知
+    recorded_at 时须早于本 gate）→ 视为修复闭环完成（GO）。确定性、
+    纯 gates 输入派生；与 rework_cycles_from_gates 同源，可复现。
+    """
+    approved = [g for g in gates if g.status == "approved"]
+    rejected_by_task: dict[str, list[datetime | None]] = {}
+    for g in gates:
+        if g.status == "rejected":
+            rejected_by_task.setdefault(g.task_id, []).append(g.recorded_at)
+    fixed = 0
+    for g in approved:
+        prior = [ts for ts in rejected_by_task.get(g.task_id, []) if ts is not None]
+        if g.recorded_at is not None:
+            if any(ts < g.recorded_at for ts in prior):
+                fixed += 1
+        else:
+            if rejected_by_task.get(g.task_id):
+                fixed += 1
+    return fixed
+
+
+def build_repair_progress(ctx: SliContext) -> dict[str, Any]:
+    """Repair Progress（修复进度族）：triggers / fixed GO / progress ratio。
+
+    数据不可用（gates 源缺失）→ NOT_AVAILABLE（fail-closed，不合成零值）。
+    """
+    if ctx.gates is None:
+        return _not_available("gates register unavailable")
+    triggers = repair_trigger_count(ctx.gates)
+    fixed = fixed_gate_count(ctx.gates)
+    progress = round(fixed / triggers, 4) if triggers else None
+    return {
+        "status": "computed",
+        "repair_triggers": triggers,
+        "fixed_gates": fixed,
+        "repair_progress": progress,
+        "basis": "triggers=rejected gates; fixed=approved gates with prior "
+                 "rejection on the same task (GO 修复闭环)",
+    }
+
+
+def build_loop_effectiveness(ctx: SliContext) -> dict[str, Any]:
+    """Loop Effectiveness（循环有效性族）：gate 通过率 + cycle time。
+
+    - gate_pass_rate：approved / (approved + rejected)（gate 通过率）
+    - task_cycle_time：task_cycle_time_stats（cycle time，天）
+    - rework_total：rework_cycles_from_gates 合计（与 DORA 同源）
+    """
+    effectiveness: dict[str, Any] = {}
+    if ctx.gates is None:
+        effectiveness["gate_pass_rate"] = _not_available("gates register unavailable")
+        effectiveness["rework_total"] = _not_available("gates register unavailable")
+    else:
+        decided = [g for g in ctx.gates if g.status in _DECIDED_STATUSES]
+        passed = sum(1 for g in decided if g.status == "approved")
+        effectiveness["gate_pass_rate"] = (
+            {"status": "computed", "value": round(passed / len(decided), 4)}
+            if decided else _not_available("no decided gates")
+        )
+        effectiveness["rework_total"] = {"status": "computed", "value": ctx.rework_total}
+    effectiveness["task_cycle_time"] = (
+        _metric(stats) if (stats := task_cycle_time_stats(ctx.tasks)) is not None
+        else _not_available("no task with both created_at and updated_at")
+    ) if ctx.tasks is not None else _not_available("task graph unavailable")
+    return {"status": "computed", **effectiveness}
+
+
+def evidence_score_advisory(raw_score: float | int,
+                            state: str | None = None,
+                            caps: dict[str, int] | None = None) -> dict[str, Any]:
+    """Evidence 评分呈现（advisory-only，T-0109 F1）。
+
+    raw_score 按证据状态上限（.ai/slo.yaml score_caps 或默认表）封顶：
+    score = apply_score_cap(raw, cap)。分档断点 SCORE_BANDS=(59,74,84,94,100)
+    在报告里逐档标注（等值断言：raw==cap → score==cap）。
+
+    本函数是纯呈现函数——调用方（dashboard/报告渲染）不得把返回值
+    传入任何 gate 判定路径（AC-03 静态断言覆盖）。
+    """
+    cap = score_cap_for_state(state, caps)
+    return {
+        "status": "computed",
+        "raw_score": int(round(float(raw_score))),
+        "evidence_state": str(state) if state else "N-A",
+        "cap": cap,
+        "score": apply_score_cap(raw_score, cap),
+        "bands": list(SCORE_BANDS),
+        "advisory": True,
+    }
+
+
 # ── Report ───────────────────────────────────────────────────────────────
 
 REPORT_SOURCE_FILES: tuple[tuple[str, str], ...] = (
@@ -1228,6 +1369,10 @@ class MetricsReport:
     missing: list[str]
     notes: list[str] = field(default_factory=list)
     advisories: list[str] = field(default_factory=list)
+    # T-0109 F1（advisory-only，不进 gate 决策）：
+    repair_progress: dict[str, Any] = field(default_factory=dict)
+    loop_effectiveness: dict[str, Any] = field(default_factory=dict)
+    score_caps: dict[str, int] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1252,6 +1397,9 @@ class MetricsReport:
             "slo_source": self.slo_source,
             "sources": self.sources,
             "notes": self.notes,
+            "repair_progress": self.repair_progress,
+            "loop_effectiveness": self.loop_effectiveness,
+            "score_caps": self.score_caps,
         }
 
 
@@ -1360,6 +1508,11 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         release_fee_units=slo_config["release_fee_units"],
         releases=releases,
     )
+    # T-0109 F1: Repair / Loop 分离指标 + 评分上限表（advisory-only，
+    # 不进 gate 判定路径；slo_config['score_caps'] 为 slo.yaml 显式化表）。
+    repair_progress = build_repair_progress(ctx)
+    loop_effectiveness = build_loop_effectiveness(ctx)
+    score_caps = dict(slo_config.get("score_caps") or DEFAULT_SCORE_CAPS)
 
     # T-0100 F-05: NOT_VERIFIED 只由"已接线源"问题驱动 —— 未接线源（wave-2）
     # 的 NOT_AVAILABLE 进 advisories（逐项标注），computed 项按实值判定。
@@ -1387,6 +1540,8 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         "no release path is blocked by this module.",
         "read-only aggregation: data sources are never modified by this report.",
         budget["note"],
+        "T-0109 F1 advisory: repair/loop metrics and score caps are "
+        "presentation-only — they never enter gate decision paths.",
     ]
     if advisories:
         notes.append(
@@ -1419,6 +1574,9 @@ def build_report(root: str | Path, window: tuple[str, str] | None = None,
         missing=report_missing,
         notes=notes,
         advisories=advisories + advisory_items,
+        repair_progress=repair_progress,
+        loop_effectiveness=loop_effectiveness,
+        score_caps=score_caps,
     )
 
 
@@ -1481,6 +1639,32 @@ def render_markdown(report: MetricsReport) -> str:
                 value = json.dumps(value, ensure_ascii=False)
             value = str(value)
         lines.append(f"| `{name}` | {value} | {basis} |")
+    lines.append("")
+
+    lines.append("## Repair Progress / Loop Effectiveness (T-0109 F1, advisory-only)")
+    lines.append("")
+    lines.append("| Family | Metric | Value | Basis |")
+    lines.append("|---|---|---|---|")
+    for family, metric_map in (("repair_progress", report.repair_progress),
+                               ("loop_effectiveness", report.loop_effectiveness)):
+        if not isinstance(metric_map, dict) or metric_map.get("status") == NOT_AVAILABLE:
+            lines.append(f"| {family} | - | NOT_AVAILABLE | "
+                         f"{metric_map.get('reason', 'no data') if isinstance(metric_map, dict) else 'no data'} |")
+            continue
+        for key, item in metric_map.items():
+            if key in ("status", "basis"):
+                continue
+            if isinstance(item, dict):
+                value = item.get("value", item.get("status"))
+                basis = item.get("basis", item.get("reason", ""))
+            else:
+                value = item
+                basis = ""
+            lines.append(f"| {family} | `{key}` | {value} | {basis} |")
+    lines.append("")
+    lines.append("| Score caps (state → cap) | " + " · ".join(
+        f"{state}={cap}" for state, cap in sorted(report.score_caps.items())
+    ) + " | advisory: 评分仅呈现/度量，不进 gate 决策 |")
     lines.append("")
 
     lines.append("## SLI / SLO evaluation")

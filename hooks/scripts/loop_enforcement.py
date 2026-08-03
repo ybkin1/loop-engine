@@ -410,9 +410,13 @@ GOVERNANCE_TOOL_DIRS: tuple[str, ...] = (
     ".ai/guards/",     # 守卫（policy_guard）
     "scripts/",        # 治理脚本（runtime_delivery_gate/regression_runner...）
     "hooks/",          # hook 自测
-    "tools/",          # 项目 loop 工具 CLI（tool_state/tool_handoff/
+    "tools/",          # 项目 loop 工具 CLI/MCP（tool_state/tool_handoff/
                        # loop_guard_health/loop_self_audit...，与
-                       # MINIMAL_METADATA_READ 中的 tools/ 治理语义一致）
+                       # MINIMAL_METADATA_READ 中的 tools/ 治理语义一致）。
+                       # T-0109 F5：36 工具 capability 化后工具清单见
+                       # loop_core/capability_registry.py
+                       # TOOL_CAPABILITY_MANIFEST；白名单按目录覆盖，工具
+                       # 变更无需逐文件同步（一致性测试 AC-05 断言）。
 )
 
 # python 家族解释器 token（裸名或路径基名）：python/py/python3/python3.11/

@@ -1,0 +1,90 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0109-98CF4672
+task_id: T-0109
+gate_id: G-T-0109-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0109
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0109/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 0C25E8801C34A2E374066EA87816CEE3D02F3AF64A0697D9574D8441FC7CBB1A
+  size: 4483
+  mtime_ns: 1785763253902681300
+- path: .ai/evidence/T-0109/approval-evidence.json
+  role: result
+  required: true
+  sha256: 5D8E18761F6ADC1C6D4A9A30B70F563AA228F833D64A51175CF2615EDCEDF3D6
+  size: 311
+  mtime_ns: 1785760533604415500
+- path: .ai/evidence/T-0109/commands.md
+  role: result
+  required: true
+  sha256: 59C5C84876D7CA3334C6E71E8459A1AF0A915724FB6EE73A0C4056DC9972CACC
+  size: 18828
+  mtime_ns: 1785763061006819600
+- path: .ai/evidence/T-0109/compile-evidence.json
+  role: result
+  required: true
+  sha256: 4D28E891CEAA905585C711082494D20EAE93F7857B3863137007180A39B7E8B0
+  size: 181
+  mtime_ns: 1785760533604968100
+- path: .ai/evidence/T-0109/design/tool-removal-candidates.md
+  role: result
+  required: true
+  sha256: 6F9138A6C06DC8C3F8C1BC0C5510B9526000167859B8694DCBC49E521932FC43
+  size: 6095
+  mtime_ns: 1785761669994194000
+- path: .ai/evidence/T-0109/execution-evidence.json
+  role: result
+  required: true
+  sha256: 979D40B26B99532B5D04A4F196247F6802594E89916B176F7C252297E26DB786
+  size: 1041
+  mtime_ns: 1785760533606979000
+- path: .ai/evidence/T-0109/fixes/f1-eval-model.md
+  role: result
+  required: true
+  sha256: 9B2DFB3C0E19E6CB02A3695D4D1B4A14EB3640171F64A00F285213E347520293
+  size: 6079
+  mtime_ns: 1785761684005267600
+- path: .ai/evidence/T-0109/fixes/f2-write-convergence.md
+  role: result
+  required: true
+  sha256: 8A541A5548949A235D91A6CC24DA3EE42429135AF3957A60E59CC4F31026731D
+  size: 5535
+  mtime_ns: 1785760658223906100
+- path: .ai/evidence/T-0109/fixes/f3-gates-layering.md
+  role: result
+  required: true
+  sha256: 913EA66E096C6E685486851F4585893B9A7FFD5358185FBD842EB88E726374D5
+  size: 7557
+  mtime_ns: 1785760677698409400
+- path: .ai/evidence/T-0109/fixes/f5-tool-capability.md
+  role: result
+  required: true
+  sha256: 150CE1A8E690251FF424A734EEDC805D632BB945EF43CC64B379BBF91EF63837
+  size: 11389
+  mtime_ns: 1785763049814940800
+- path: .ai/evidence/T-0109/fixes/hook-whitelist.md
+  role: result
+  required: true
+  sha256: E5B98EF964A2005135D1B6790B7373E8C87A654FC3D38263B94C0FA03436916E
+  size: 2417
+  mtime_ns: 1785761708777168700
+- path: .ai/evidence/T-0109/review/independent-review.md
+  role: result
+  required: true
+  sha256: 1A79A0EDA1A9CDB04529F3EE8E0EA0B8889FDB31D32D9C278D0E780B95037A16
+  size: 14937
+  mtime_ns: 1785762725740388100
+file_count: 12
+total_bytes: 78853
+ordered_entries_sha256: 98CF4672260E5EE4BA86DA80363A1C8DE4B95A868C2C9A4DED0AED9303AE67BF
+created_at: '2026-08-03T18:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: A0CED6C66D2BB6E7E810A5DF7E29BF7EB177C8AB6CB02EABB1273DCD8826D591

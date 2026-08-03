@@ -565,7 +565,8 @@ class TestValidateStateRegression:
         rc 兼容 idle 合法阻塞态（rc=3 NO_ACTIVE_TASK，T-0101 分流）：
         idle 稳态下 rc=3 + [info] NO_ACTIVE_TASK 属预期；激活态下 rc=0。
         本测试聚焦"既有判定输出不变"（usable / NO_ACTIVE_TASK 文案），
-        不绑定单一 rc。
+        不绑定单一 rc；current_task_id 仅断言前缀存在，不绑定具体任务 ID
+        （T-0109 独立审查 P3-1：任务态推进/复位自愈，去耦合）。
         """
         r = subprocess.run(
             [sys.executable, str(REPO_ROOT / ".zcode" / "tools"
@@ -576,4 +577,5 @@ class TestValidateStateRegression:
         out = r.stdout + r.stderr
         assert "stale view" not in out  # 无视图时不告警（默认路径）
         assert "[ok] state is usable" in out or "NO_ACTIVE_TASK" in out
-        assert "current_task_id: T-0108" in out or "current_task_id: none" in out
+        # 不绑定具体任务 ID（任务态随推进/复位自愈，closeout 后复位为 none）
+        assert "current_task_id:" in out

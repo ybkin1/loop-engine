@@ -318,3 +318,182 @@ def build_default_registry(project_root: str | Path | None = None,
     if seal:
         registry.seal()
     return registry
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# T-0109 F5: 工具层 capability 化 —— 36 工具分组元数据 + audience 分级
+# ═══════════════════════════════════════════════════════════════════════════
+# 每个 tools/*.py 模块（36 个）登记：域分组（domain）+ audience 分级 +
+# 描述。元数据只读标注（不改变任何工具行为）；注册表完整性由
+# tests/test_t0109_f5_tool_capability.py 断言（36 全覆盖 + 无多余）。
+
+# Audience 分级（design-bh-integration.md F5）：
+AUDIENCE_WORKFLOW = "workflow"      # 主会话日常工作流直接调用
+AUDIENCE_ADVANCED = "advanced"      # 需要领域知识的高级用法
+AUDIENCE_MAINTAINER = "maintainer"  # 治理维护/审计用途
+AUDIENCES: tuple[str, ...] = (AUDIENCE_WORKFLOW, AUDIENCE_ADVANCED, AUDIENCE_MAINTAINER)
+
+# 域分组（只读标注，供 dashboard/文档/调度消费）：
+DOMAIN_GOVERNANCE = "governance"
+DOMAIN_EVIDENCE = "evidence"
+DOMAIN_QUALITY = "quality"
+DOMAIN_SECURITY = "security"
+DOMAIN_PLANNING = "planning"
+DOMAIN_WORKFLOW = "workflow"
+DOMAIN_CONTEXT = "context"
+DOMAIN_EXECUTION = "execution"
+DOMAIN_REVIEW = "review"
+DOMAIN_METRICS = "metrics"
+DOMAIN_DASHBOARD = "dashboard"
+DOMAIN_DISPATCH = "dispatch"
+DOMAIN_SETUP = "setup"
+DOMAIN_RUNTIME = "runtime"
+
+
+@dataclass(frozen=True)
+class ToolCapability:
+    """一个工具模块的 capability 元数据（T-0109 F5）。"""
+    name: str                 # tools/<name>.py 模块名（不含 .py）
+    domain: str               # 域分组（DOMAIN_*）
+    audience: str             # workflow | advanced | maintainer
+    description: str = ""
+
+
+# name -> ToolCapability（36 个，与 tools/*.py 一一对应；新增工具必须登记，
+# 否则注册表完整性测试失败 —— fail-closed，绝不让未登记工具静默存在）。
+TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
+    "loop_dashboard": ToolCapability("loop_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
+        "AutoPlan dashboard 快照 CLI（text/html/json）"),
+    "loop_dispatch_role": ToolCapability("loop_dispatch_role", DOMAIN_DISPATCH, AUDIENCE_MAINTAINER,
+        "主线程 role dispatch prepare/complete/verify/list CLI"),
+    "loop_execute_phase": ToolCapability("loop_execute_phase", DOMAIN_EXECUTION, AUDIENCE_WORKFLOW,
+        "执行完整 Loop 阶段 CLI"),
+    "loop_guard_health": ToolCapability("loop_guard_health", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
+        "Guard Health 检测 CLI（T-0083 battery/report）"),
+    "loop_metrics": ToolCapability("loop_metrics", DOMAIN_METRICS, AUDIENCE_ADVANCED,
+        "Loop-DORA 指标报告 CLI（SLO/error-budget/DORA，含 F1 repair/loop 分离）"),
+    "loop_onboard": ToolCapability("loop_onboard", DOMAIN_SETUP, AUDIENCE_MAINTAINER,
+        "项目接入/升级/卸载（onboard/update/remove）"),
+    "loop_self_audit": ToolCapability("loop_self_audit", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
+        "Loop 自审 CLI（validate/guard-health/compile/pytest/security/static）"),
+    "loop_vertical_slice": ToolCapability("loop_vertical_slice", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
+        "S1→S6 垂直切片证据链校验 CLI"),
+    "mcp_agent_runtime": ToolCapability("mcp_agent_runtime", DOMAIN_RUNTIME, AUDIENCE_ADVANCED,
+        "MCP Agent Runtime（绕过 ZCode 子代理限制的批量调度）"),
+    "server": ToolCapability("server", DOMAIN_RUNTIME, AUDIENCE_MAINTAINER,
+        "MCP stdio 服务器注册表（tools/list + tools/call 分发）"),
+    "tool_audit_log": ToolCapability("tool_audit_log", DOMAIN_GOVERNANCE, AUDIENCE_ADVANCED,
+        "链式哈希审计日志追加/验证（loop_audit_log）"),
+    "tool_certify_role": ToolCapability("tool_certify_role", DOMAIN_GOVERNANCE, AUDIENCE_ADVANCED,
+        "角色能力认证挑战（loop_certify_role）"),
+    "tool_constraint_check": ToolCapability("tool_constraint_check", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
+        "全部 8 项硬约束检查 C1-C8（loop_constraint_check）"),
+    "tool_contract_validate": ToolCapability("tool_contract_validate", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
+        "接口契约 schema 验证（contract_validate，委托 module-architect 脚本）"),
+    "tool_cost_tracker": ToolCapability("tool_cost_tracker", DOMAIN_METRICS, AUDIENCE_ADVANCED,
+        "token 成本报告（cost_report，委托 scripts/cost_tracker.py）"),
+    "tool_dashboard": ToolCapability("tool_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
+        "Dashboard MCP 处理器（status/task_graph/gates/guard_health/snapshot）"),
+    "tool_dependency_analysis": ToolCapability("tool_dependency_analysis", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
+        "依赖图分析/循环依赖检测（dependency_analysis，委托 system-architect 脚本）"),
+    "tool_eval": ToolCapability("tool_eval", DOMAIN_QUALITY, AUDIENCE_MAINTAINER,
+        "Agent eval 套件运行器 CLI（guard sample set/自定义 cases）"),
+    "tool_evidence_chain": ToolCapability("tool_evidence_chain", DOMAIN_EVIDENCE, AUDIENCE_WORKFLOW,
+        "证据链验证/冻结（evidence_verify/evidence_freeze，T-0109 收敛至 loop_core）"),
+    "tool_evidence_submit": ToolCapability("tool_evidence_submit", DOMAIN_EVIDENCE, AUDIENCE_WORKFLOW,
+        "证据提交并绑定内容哈希（loop_evidence_submit）"),
+    "tool_execute_phase": ToolCapability("tool_execute_phase", DOMAIN_EXECUTION, AUDIENCE_WORKFLOW,
+        "执行完整 Loop 阶段（loop_execute_phase MCP）"),
+    "tool_execution_log": ToolCapability("tool_execution_log", DOMAIN_EXECUTION, AUDIENCE_ADVANCED,
+        "执行账本查询（loop_execution_log）"),
+    "tool_governance_status": ToolCapability("tool_governance_status", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
+        "治理健康状态摘要（loop_governance_status）"),
+    "tool_handoff": ToolCapability("tool_handoff", DOMAIN_WORKFLOW, AUDIENCE_WORKFLOW,
+        "角色间交接记录（loop_handoff）"),
+    "tool_inbox": ToolCapability("tool_inbox", DOMAIN_WORKFLOW, AUDIENCE_WORKFLOW,
+        "需求/消息收件箱（loop_inbox submit/list）"),
+    "tool_load_context": ToolCapability("tool_load_context", DOMAIN_CONTEXT, AUDIENCE_WORKFLOW,
+        "渐进式角色上下文加载（loop_load_context）"),
+    "tool_planner": ToolCapability("tool_planner", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,
+        "计划草案生成（loop_planner）"),
+    "tool_quality_gates": ToolCapability("tool_quality_gates", DOMAIN_QUALITY, AUDIENCE_WORKFLOW,
+        "质量门禁运行（quality_gates_run，委托 quality-engineer 脚本）"),
+    "tool_registry_status": ToolCapability("tool_registry_status", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
+        "Capability Registry 状态 CLI（T-0087 snapshot/missing/drift）"),
+    "tool_review_packet": ToolCapability("tool_review_packet", DOMAIN_REVIEW, AUDIENCE_WORKFLOW,
+        "gate 审批/否决升级/变更请求包生成（loop_review_packet）"),
+    "tool_route_intent": ToolCapability("tool_route_intent", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,
+        "意图分析/模式推荐（loop_route_intent）"),
+    "tool_safe_bash": ToolCapability("tool_safe_bash", DOMAIN_EXECUTION, AUDIENCE_ADVANCED,
+        "安全 Bash 执行（路径校验/只读分类，safe_bash MCP）"),
+    "tool_security_scan": ToolCapability("tool_security_scan", DOMAIN_SECURITY, AUDIENCE_WORKFLOW,
+        "安全扫描（security_scan_run，委托 security-engineer 脚本）"),
+    "tool_state": ToolCapability("tool_state", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
+        "项目状态查询（loop_state）"),
+    "tool_task_queue": ToolCapability("tool_task_queue", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,
+        "任务队列分析（loop_task_queue analysis/ready）"),
+    "tool_veto_escalate": ToolCapability("tool_veto_escalate", DOMAIN_REVIEW, AUDIENCE_ADVANCED,
+        "否决分析与升级级别（loop_veto_escalate）"),
+}
+
+
+def tool_capability(name: str) -> ToolCapability:
+    """按模块名（含/不含 .py 均可）取 capability；未知 → LookupError
+    （fail-closed：注册表外工具绝不静默存在）。"""
+    key = name[:-3] if name.endswith(".py") else name
+    try:
+        return TOOL_CAPABILITY_MANIFEST[key]
+    except KeyError:
+        raise LookupError(f"tool not registered in capability manifest: {key}") from None
+
+
+def tools_by_domain(domain: str) -> list[str]:
+    """某域分组下的工具名（稳定排序）。"""
+    return sorted(
+        name for name, cap in TOOL_CAPABILITY_MANIFEST.items()
+        if cap.domain == domain
+    )
+
+
+def tools_by_audience(audience: str) -> list[str]:
+    """某 audience 分级下的工具名（稳定排序）。"""
+    if audience not in AUDIENCES:
+        raise ValueError(f"非法 audience: {audience!r}（允许 {AUDIENCES}）")
+    return sorted(
+        name for name, cap in TOOL_CAPABILITY_MANIFEST.items()
+        if cap.audience == audience
+    )
+
+
+def all_tool_names() -> list[str]:
+    """注册表全部工具模块名（稳定排序，供完整性测试对照）。"""
+    return sorted(TOOL_CAPABILITY_MANIFEST)
+
+
+def build_tool_registry(project_root: str | Path | None = None,
+                        seal: bool = True) -> CapabilityRegistry:
+    """构建 tools/ 工具层 capability 注册表（T-0109 F5）。
+
+    每个工具模块绑定 content-addressed version/hash（文件被改 → 版本
+    漂移可见），provider_id="tool"。36 工具全覆盖由完整性测试断言；
+    server.py 的 TOOLS 注册表是 MCP 运行期注册，本注册表是治理期元数据。
+    """
+    root = Path(project_root) if project_root is not None else Path.cwd()
+    registry = CapabilityRegistry()
+    for name in all_tool_names():
+        rel = f"tools/{name}.py"
+        impl = root / rel
+        impl_hash = sha256_file(impl)
+        registry.register(CapabilityBinding(
+            capability_id=name,
+            provider_id="tool",
+            implementation_path=rel,
+            version=detect_version(impl, impl_hash),
+            contract_version="tool-capability@1",
+            description=tool_capability(name).description,
+            health_required=False,  # 工具层为元数据标注，不参与 guard 健康判定
+            implementation_hash=impl_hash,
+        ))
+    if seal:
+        registry.seal()
+    return registry

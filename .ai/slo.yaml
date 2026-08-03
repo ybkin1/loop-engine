@@ -13,6 +13,18 @@ window_start: null
 window_end: null
 budget_total_units: 100.0
 release_fee_units: 5.0
+# T-0109 F1: 评分上限表（advisory-only，仅呈现/度量，不进 gate 决策）。
+# 证据七态（schemas/evidence_state.py）→ 评分天花板；缺失时用代码默认表
+# （governance_metrics DEFAULT_SCORE_CAPS）。校验 fail-closed：状态名非法
+# 或上限非有限非负数 → DataSourceUnavailableError。
+score_caps:
+  Missing: 59
+  Unobserved: 59
+  N-A: 59
+  Present: 74
+  Wired: 84
+  Exercised: 94
+  Outcome-supported: 100
 slos:
 - sli_id: req_gate_rejection_rate
   phase: S1-requirements

@@ -16,11 +16,38 @@
     },
     "gate_type": {
       "type": "string",
+      "description": "T-0109 F3: gate_type 枚举化——枚举覆盖 .ai/gates.yaml（active 域）与 .ai/archive/gates-archive.yaml 的全部既有取值；新增取值须先经 schema 更新（gate 决策）。",
       "enum": [
-        "user-design", "user-approval", "user-implementation",
-        "user-quality", "user-delivery", "user-repair",
-        "user-activation", "user-installation", "user-review-only",
-        "user-discovery-approval", "user-cleanup", "user-plan-approval"
+        "baseline-approval-only",
+        "installation",
+        "installation-operating-rules-design-only",
+        "installation-rule-change-execution",
+        "installation-rule-change-gate-preparation",
+        "post-installation-startup-rules-verification",
+        "real-project-delivery-architecture-governance-design",
+        "real-project-delivery-architecture-governance-review",
+        "real-project-governance-enforcement-architecture-design",
+        "real-project-governance-enforcement-architecture-review",
+        "repair-only / candidate-update-only",
+        "review-rerun / baseline-readiness-review-only",
+        "scope-expansion",
+        "state-sync",
+        "user-acceptance",
+        "user-activation",
+        "user-approval",
+        "user-cleanup",
+        "user-closeout-review",
+        "user-closeout-review-rerun",
+        "user-delivery",
+        "user-design",
+        "user-discovery-approval",
+        "user-implementation",
+        "user-installation",
+        "user-method-repair-design",
+        "user-plan-approval",
+        "user-quality",
+        "user-repair",
+        "user-review-only"
       ]
     },
     "status": {
@@ -38,17 +65,31 @@
     },
     "approval_source": {
       "type": "string",
-      "enum": ["explicit_user_message", "ai_recommendation"],
-      "description": "ai_recommendation is evidence only, NOT approval"
+      "enum": [
+        "explicit_user_message",
+        "ai_recommendation",
+        "legacy_pre_field",
+        "explicit_user_plan_approval",
+        "explicit_user_directive"
+      ],
+      "description": "ai_recommendation is evidence only, NOT approval. 枚举覆盖既有全部取值（含 legacy_pre_field / explicit_user_plan_approval / explicit_user_directive 历史记录值，仅移域不删记录）"
     },
     "scope": { "type": "string" },
     "allowed_actions": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": ["string", "object"],
+        "description": "历史记录存在 inline-map 条目（如 G-T-0055-CLOSEOUT-REVIEW 的 if ACCEPT/REJECT/HOLD 分支）；允许 object 以兼容既有记录，新写入应为 string"
+      }
     },
     "forbidden_actions": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": { "type": "string" },
+      "description": "T-0109 F3: 标准模板外提至 .ai/policies/forbidden-actions.yaml；本字段保留任务特有（非模板精确重复）的内联列表"
+    },
+    "forbidden_policy": {
+      "type": "string",
+      "description": "T-0109 F3: 引用 .ai/policies/forbidden-actions.yaml 中命名策略的 id（forbidden_actions 精确重复集合外提为引用）"
     },
     "required_roles": {
       "type": "array",
@@ -62,7 +103,10 @@
     },
     "notes": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": ["string", "object"],
+        "description": "历史记录存在 inline-map notes 条目（如 G-T-0027-DELIVERY）；允许 object 以兼容既有记录，新写入应为 string"
+      }
     }
   }
 }

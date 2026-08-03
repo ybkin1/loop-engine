@@ -1227,6 +1227,20 @@ tasks:
     gates:
       - G-T-0108-REQUIREMENTS
   -
+    id: T-0109
+    title: BH 融合·分层期 — F2-2 写入收敛 + F3 gates 分层 + F1 评估模型 + F5 工具 capability 化
+    phase: S6-delivery
+    status: completed
+    description: >-
+      T-0106 排布第三项（风险 MED）：F2-2 写入收敛（governor_lib 事务写）+ F3 gates
+      分层（active/archive + forbidden 外提 + gate_type 枚举）+ F1 评估模型
+      （七态 + 上限表 advisory-only）+ F5 工具 capability 化（36 工具，删除类独立 gate）；
+      hook 门禁仅白名单常量表；bump 3.12.46。
+    depends_on:
+      - T-0108
+    gates:
+      - G-T-0109-REQUIREMENTS
+  -
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery

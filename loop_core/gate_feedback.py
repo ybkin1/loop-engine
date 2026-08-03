@@ -35,6 +35,11 @@ from pathlib import Path
 
 import yaml
 
+# T-0109 F1: 证据七态（advisory 呈现用；gate 判定路径不消费该字段）。
+# evidence_state 模块零依赖，无循环导入；coerce 保证旧记录缺字段时
+# 规整为 N-A（向后兼容，schema_version 保持 1 不变）。
+from loop_core.schemas.evidence_state import EvidenceState  # noqa: E402
+
 GATE_LESSONS_SCHEMA = "gate_lessons"
 GATE_LESSONS_SCHEMA_VERSION = 1
 DEFAULT_LESSONS_RELATIVE_PATH = ".ai/evidence/feedback/gate-lessons.yaml"
@@ -91,6 +96,8 @@ class GateLesson:
         reason_text: The rejection / repair reason (free text, verbatim).
         repair_suggestion: Optional suggested fix direction.
         source: Optional origin of the lesson (e.g. decision packet id).
+        evidence_state: T-0109 F1 证据七态（advisory 呈现字段；缺省 N-A）。
+            旧记录无此字段 → from_dict 规整为 N-A，向后兼容。
         recorded_at: ISO-8601 UTC timestamp of when the lesson was recorded.
         schema_version: Lesson schema version (GATE_LESSONS_SCHEMA_VERSION).
     """
@@ -102,6 +109,7 @@ class GateLesson:
     reason_text: str
     repair_suggestion: str | None = None
     source: str | None = None
+    evidence_state: str = EvidenceState.N_A.value
     recorded_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -117,6 +125,7 @@ class GateLesson:
             "reason_text": self.reason_text,
             "repair_suggestion": self.repair_suggestion,
             "source": self.source,
+            "evidence_state": EvidenceState.coerce(self.evidence_state).value,
             "recorded_at": self.recorded_at,
             "schema_version": self.schema_version,
         }
@@ -160,6 +169,8 @@ class GateLesson:
                 else None
             ),
             source=str(data["source"]) if data.get("source") is not None else None,
+            # T-0109 F1: 缺字段 → N-A（旧记录向后兼容）；非法值 fail-closed。
+            evidence_state=EvidenceState.coerce(data.get("evidence_state")).value,
             recorded_at=str(data["recorded_at"]),
             schema_version=schema_version,
         )
@@ -269,6 +280,7 @@ def record_gate_lesson(
     reason_text: str,
     repair_suggestion: str | None = None,
     source: str | None = None,
+    evidence_state: str | EvidenceState | None = None,
     recorded_at: str | None = None,
     relative_path: str | None = None,
 ) -> tuple[GateLesson, bool]:
@@ -283,6 +295,8 @@ def record_gate_lesson(
         reason_text: Rejection / repair reason (free text).
         repair_suggestion: Optional suggested fix direction.
         source: Optional origin, e.g. decision packet id ("HRP-...").
+        evidence_state: T-0109 F1 证据七态（advisory 呈现，缺省 N-A）。
+            非法值 → InvalidLessonError（fail-closed，不静默猜测）。
         recorded_at: Optional ISO timestamp; defaults to now (UTC).
         relative_path: Override for the lessons file location (tests).
 
@@ -304,6 +318,10 @@ def record_gate_lesson(
         )
     if not isinstance(reason_text, str) or not reason_text.strip():
         raise InvalidLessonError("reason_text 不能为空")
+    try:
+        evidence_state_value = EvidenceState.coerce(evidence_state).value
+    except ValueError as exc:
+        raise InvalidLessonError(str(exc)) from exc
 
     lesson_id = make_lesson_id(gate_id, decision, reason_category, reason_text)
 
@@ -330,6 +348,7 @@ def record_gate_lesson(
                 else None
             ),
             source=source.strip() if isinstance(source, str) and source.strip() else None,
+            evidence_state=evidence_state_value,
             recorded_at=recorded_at or datetime.now(timezone.utc).isoformat(),
         )
         _save_lessons(lessons_path(project_root, relative_path), lessons + [lesson])

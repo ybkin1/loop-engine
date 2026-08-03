@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -674,3 +675,96 @@ def governance_invariant_errors(root: Path) -> list[str]:
             )
 
     return errors
+
+
+# ============================================================================
+# T-0109 F2-2 状态写入收敛：统一经 governor_lib 事务写 + projection 刷新
+# ============================================================================
+#
+# 状态五写（state.yaml / task_graph.yaml / 任务卡 Status / HANDOFF / PROGRESS）
+# 收敛为 state.yaml 权威 + 派生视图（.ai/views/state-view.yaml）：
+# - 写路径统一经 `write_state_files`（内部 = transactional_write_texts 事务写
+#   + 派生视图刷新）；close_session 等既有事务写路径已天然满足。
+# - 状态转换（state_machine.atomic_write_state）触发 projection 刷新。
+# - 派生视图是只读派生产物，不参与语义哈希（T-0108 F2-1 约束保持）。
+
+# 状态相关路径（静态检查「仅 governor_lib 写 state 相关路径」的覆盖清单）
+STATE_RELATED_FILES = (
+    "state.yaml",
+    "task_graph.yaml",
+    "HANDOFF.md",
+    "PROGRESS.md",
+    # tasks/{id}.md（任务卡 Status 权威源是 task_graph，任务卡为派生视图）
+)
+
+
+def refresh_state_view(root: str | Path) -> bool:
+    """刷新派生状态视图 `.ai/views/state-view.yaml`（F2-2 projection 刷新）。
+
+    复用 T-0108 的 ``loop_core.projection_engine.write_state_view``；
+    独立运行环境（loop_core 不可导入）时显式告警并返回 False——
+    刷新失败不阻断（权威写已提交），但绝不静默吞错。
+
+    Returns:
+        True 刷新成功；False loop_core 不可用或刷新失败（已告警）。
+    """
+    root_p = Path(os.path.normpath(str(root))).resolve()
+    try:
+        # loop_core 以仓库根为包根；独立运行（如 hooks 直接调用）时补路径
+        if str(root_p) not in sys.path:
+            sys.path.insert(0, str(root_p))
+        from loop_core.projection_engine import write_state_view
+        write_state_view(root_p)
+        return True
+    except Exception as exc:  # noqa: BLE001 — 防御：刷新失败必须显式上报
+        import logging
+        logging.getLogger("governor_lib").warning(
+            "STATE_VIEW_REFRESH_FAILED: %s — derived view not refreshed "
+            "(authoritative write already committed)", exc
+        )
+        return False
+
+
+def write_state_files(
+    root: str | Path,
+    changes: dict[Path, str],
+    *,
+    refresh_projection: bool = True,
+    **kwargs,
+) -> TransactionResult | None:
+    """F2-2 收敛写入入口：state 相关路径统一经 governor_lib 事务写。
+
+    ``changes`` 的每个路径都必须是 ``.ai/`` 下的 state 相关文件
+    （state.yaml / task_graph.yaml / HANDOFF.md / PROGRESS.md /
+    tasks/{id}.md）；事务写成功后默认刷新派生视图（projection 刷新）。
+
+    除 ``refresh_projection`` 外，其余关键字参数原样透传给
+    ``transactional_write_texts``（idempotent / retry / stale_timeout_seconds）。
+    """
+    base = ai_dir(root)
+    changes = {Path(p) if not isinstance(p, Path) else p: text for p, text in changes.items()}
+    for path in changes:
+        try:
+            path.resolve().relative_to(base.resolve())
+        except (OSError, ValueError) as exc:
+            raise GovernanceError(
+                "SCOPE_VIOLATION",
+                f"write_state_files 仅接受 .ai/ 下 state 相关路径: {path}",
+            ) from exc
+        rel = path.resolve().relative_to(base.resolve()).as_posix()
+        if not (
+            rel in STATE_RELATED_FILES
+            or rel.startswith("tasks/")
+        ):
+            raise GovernanceError(
+                "SCOPE_VIOLATION",
+                f"write_state_files 仅接受 state 相关路径（state.yaml/task_graph/"
+                f"HANDOFF/PROGRESS/tasks/*.md）: {rel}",
+            )
+    result = transactional_write_texts(base, changes, **kwargs)
+    if result is None:
+        # 兼容默认（非 idempotent）模式：底层返回 None 表示写入完成
+        result = TransactionResult(written=[str(p) for p in changes])
+    if refresh_projection:
+        refresh_state_view(root)
+    return result

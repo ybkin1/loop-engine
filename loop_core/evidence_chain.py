@@ -13,11 +13,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
+
+import yaml
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -460,3 +463,147 @@ class EvidenceChain:
             lines.append("")
 
         return "\n".join(lines)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# T-0109 F5: 证据链三处收敛（chain.yaml 校验/冻结 → loop_core 单一实现）
+# ──────────────────────────────────────────────────────────────────────────────
+# 原实现散落三处：loop_core.evidence_chain（chain_index.json 信封链，本模块
+# 上部）、tools/tool_evidence_chain.py（subprocess 壳 → scripts/evidence_chain.py
+# 的 chain.yaml 校验）。T-0109 将 chain.yaml 校验/冻结逻辑收敛至此模块
+# （verify_chain_yaml / freeze_file_yaml），tools/tool_evidence_chain.py 与
+# scripts/evidence_chain.py 改为 in-process / 遗留 CLI 引用本实现。
+# 宿主无关（DR-002）：宿主特定安装副本路径（.zcode 前缀）不硬编码于
+# loop_core，由调用方经 host_candidates 参数或环境变量
+# LOOP_GOVERNANCE_CHAIN_YAML_HOST 显式注入；注入候选优先于仓库源回退
+# （T-0105 安装副本优先语义保持），仓库源候选为纯相对路径。输出 dict
+# 结构逐字段等价（整体/问题/节点），供行为等价测试对照。
+
+CHAIN_YAML_CANDIDATES = (
+    "skills/loop-governance/chain.yaml",
+)
+
+# 宿主注入通道：环境变量值为相对 project_root 的 chain.yaml 路径
+# （宿主部署时显式配置其安装副本，如 .zcode 安装副本），注入候选优先
+# 于仓库源回退。loop_core 自身不含任何宿主路径字面量。
+ENV_CHAIN_YAML_HOST_CANDIDATE = "LOOP_GOVERNANCE_CHAIN_YAML_HOST"
+
+
+def load_chain_yaml(
+    project_root: str | Path,
+    host_candidates: tuple[str, ...] = (),
+) -> dict | None:
+    """Load chain.yaml（宿主注入副本优先，仓库源回退）。缺失/不可解析 → None。
+
+    宿主特定路径由调用方显式传入（host_candidates）或经环境变量
+    LOOP_GOVERNANCE_CHAIN_YAML_HOST 配置注入；loop_core 不含宿主路径
+    字面量（DR-002 宿主无关原则）。
+    """
+    root = Path(project_root).resolve()
+    env_host = os.environ.get(ENV_CHAIN_YAML_HOST_CANDIDATE)
+    injected = (*host_candidates, *((env_host,) if env_host else ()))
+    for rel in (*injected, *CHAIN_YAML_CANDIDATES):
+        candidate = root / rel
+        if candidate.exists():
+            try:
+                return yaml.safe_load(candidate.read_text(encoding="utf-8"))
+            except Exception:
+                return None
+    return None
+
+
+def verify_chain_yaml(
+    project_root: str | Path,
+    strict: bool = False,
+    host_candidates: tuple[str, ...] = (),
+) -> dict:
+    """按 chain.yaml 校验证据节点与上游哈希（收敛自 scripts/evidence_chain.py
+    verify_chain，行为等价：overall/issues/nodes 结构逐字段一致）。
+
+    strict 参数与配置 verify.strict_mode 取或（原语义）；required 节点缺失
+    且 strict → MISSING/BLOCKED（fail-closed 语义不变）。host_candidates
+    为宿主特定安装副本路径（可选注入，优先于仓库源回退）。
+    """
+    config = load_chain_yaml(project_root, host_candidates=host_candidates)
+    if not config:
+        return {"overall": "BLOCKED", "issues": ["chain.yaml not found"]}
+
+    chain = config.get("chain", [])
+    verify_config = config.get("verify", {})
+    strict = strict or bool(verify_config.get("strict_mode", False))
+
+    nodes_status: list[dict] = []
+    issues: list[str] = []
+
+    for node in chain:
+        node_file = Path(project_root).resolve() / node["file"]
+        name = node["name"]
+        required = node.get("required", False)
+
+        if not node_file.exists():
+            if required and strict:
+                issues.append(f"MISSING required node: {name} ({node['file']})")
+                nodes_status.append({"name": name, "status": "MISSING"})
+            else:
+                nodes_status.append({"name": name, "status": "SKIPPED"})
+            continue
+
+        try:
+            file_hash = hashlib.sha256(node_file.read_bytes()).hexdigest()
+        except OSError as exc:
+            # 不可读节点（目录/权限）→ 显式 ERROR + BLOCKED（fail-closed：
+            # 不静默跳过，等价于原 subprocess 路径崩溃 → rc!=0 → BLOCKED）。
+            issues.append(f"[ERROR] {name}: cannot read {node['file']}: {exc}")
+            nodes_status.append({"name": name, "status": "HASH_MISMATCH"})
+            continue
+
+        # 上游依赖是否已断裂（与 scripts/evidence_chain.py 同语义）
+        upstream = node.get("upstream", [])
+        stale = False
+        for up_name in upstream:
+            up_node = next((n for n in nodes_status if n["name"] == up_name), None)
+            if up_node and up_node.get("status") == "HASH_MISMATCH":
+                stale = True
+                break
+
+        nodes_status.append({
+            "name": name,
+            "status": "PASS",
+            "sha256": file_hash,
+        })
+
+        if not stale:
+            issues.append(f"[ok] {name}: sha256={file_hash[:16]}...")
+
+    overall = "BLOCKED" if any(
+        n["status"] in ("MISSING", "HASH_MISMATCH") for n in nodes_status
+    ) else "PASS"
+
+    return {"overall": overall, "issues": issues, "nodes": nodes_status}
+
+
+def freeze_file_yaml(project_root: str | Path, rel_path: str) -> dict:
+    """冻结文件：计算并写入 SHA256 冻结记录（收敛自
+    scripts/evidence_chain.py freeze_file，行为等价）。
+
+    写入 .ai/evidence/frozen/<name>.freeze.json（幂等覆盖；记录含
+    path/sha256/frozen_at/size）。目标文件缺失 → 失败 dict（不静默成功）。
+    """
+    target = Path(project_root).resolve() / rel_path
+    if not target.exists():
+        return {"success": False, "message": f"File not found: {rel_path}"}
+
+    sha = hashlib.sha256(target.read_bytes()).hexdigest()
+    frozen_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    freeze_dir = Path(project_root).resolve() / ".ai" / "evidence" / "frozen"
+    freeze_dir.mkdir(parents=True, exist_ok=True)
+    record_path = freeze_dir / f"{Path(rel_path).name}.freeze.json"
+    record_path.write_text(json.dumps({
+        "path": rel_path,
+        "sha256": sha,
+        "frozen_at": frozen_at,
+        "size": target.stat().st_size,
+    }, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    return {"success": True, "message": f"Frozen {rel_path} → sha256:{sha[:16]}..."}
