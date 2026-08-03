@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.45 (2026-08-03) — T-0108 — BH 融合·收敛期（F4 文档路由/F6 上下文打包/F7 finding 契约/F8 契约测试/F2-1 新鲜度）
+
+### Changed (T-0108 — BH 融合·收敛期（F4 文档路由/F6 上下文打包/F7 finding 契约/F8 契约测试/F2-1 新鲜度）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.44 (2026-08-03) — T-0107 — 设计漏洞修复（P1 context_packager 截断专项 + P2 全量 + P3 首批 + hook 门禁强化）
 
 ### Changed (T-0107 — 设计漏洞修复（P1 context_packager 截断专项 + P2 全量 + P3 首批 + hook 门禁强化）)

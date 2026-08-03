@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-03T16:36:39.855082+08:00'
+last_handoff_at: '2026-08-03T19:45:46.956945+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -136,3 +136,13 @@ notes:
 - 'T-0112 REJECTED 2026-08-03: 用户决策撤销（+ HANDOFF Scope Correction）— Qoder 为 外部会话宿主，其会话数据不能作为
   ZCode 验收证据，原"会话源恢复"为错误框定。 state 回 idle，task_graph 标记 rejected；T-0112 证据保留为外部诊断记录；
   KNOWN_ISSUES session-source-disabled 保留。T-0106 F0 已同步改述为外部边界说明。'
+- 'T-0106 CLOSEOUT 2026-08-03: 修复闭环复验 GO（7/7 PASS）+ 4 项陈旧文本清零 （roadmap T-0112 节/KNOWN_ISSUES
+  指针/audit 头行/T-0112 表格），3e766ec 提交。'
+- 'T-0108 ACTIVE 2026-08-03: G-T-0108-REQUIREMENTS 已由用户批准。执行中：F6 上下文打包 + F4 文档路由 +
+  F7 finding 契约 + F8 契约测试 + F2 阶段 1（只读告警）； 消解 P3 八项；hooks/ 零改动、内核零触碰；bump 3.12.45；独立审查
+  → 验收 → 推送。'
+- 'T-0108 COMPLETED 2026-08-03: BH 融合·收敛期五线 — F6（context_budget 外提逐字节等价）+ F4（README
+  Switchboard/归档 2 件/路由表 golden 一致/D5-7 声明区）+ F7（finding.schema + finding_contract
+  fail-closed + 三扫描器/三 agents 收敛）+ F8（3 测试文件 50 用例）+ F2-1（validate_state 纯新增 37/0
+  仅告警 + projection_engine），9/9 AC，独立审查 CONDITIONAL_GO→GO（P1=0），8 项 P3 消解，全量 3957 passed（closeout
+  后 0 failed）， hooks/ 零改动、内核零触碰，bump 3.12.45 提交推送。T-0109（分层期）待用户批准。'

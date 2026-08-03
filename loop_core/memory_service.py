@@ -24,9 +24,12 @@ Referenced by:
 """
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 from loop_core.gate_feedback import (
     DECISION_APPROVED,
@@ -70,6 +73,51 @@ _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 _TASK_ID_RE = re.compile(r"\b(T-\d{4})\b")
 
 _LINE_CAP = 300  # content tail cap for extracted gate-line text
+
+# T-0108 F7 (D5-6 消解)：验收报告 front-matter 契约。
+# 报告生成端（主会话 closeout / 验收模板）可在报告头部输出结构化元数据块，
+# 解析端优先读取；无 front-matter 时回退正则族（旧行为不变）。格式：
+#
+#     ---
+#     acceptance_meta:
+#       task_id: T-0107
+#       title: 设计漏洞修复
+#       date: "2026-08-01"
+#       gate: {id: G-T-0107-REQUIREMENTS, decision: approved}
+#       review_verdict: GO（6/6 AC，独立审查）
+#       legacy_items:
+#         - 环境依赖项登记 KNOWN_ISSUES
+#     ---
+_ACCEPTANCE_META_KEY = "acceptance_meta"
+_META_BLOCK_RE = re.compile(r"^---\s*$")
+
+# 结构化外观行（blockquote `>` 或加粗 `**...**`）：未命中任何已知正则
+# 的这类行计入 unmatched_meta_lines 上报（D5-6：模板措辞变化不再静默丢失）。
+_META_LOOKING_LINE = re.compile(r"^\s*(?:>|\*\*)")
+
+
+def _parse_acceptance_meta(text: str) -> dict | None:
+    """解析报告头部 ``--- ... ---`` 的 acceptance_meta 结构化块；无则 None。"""
+    lines = text.splitlines()
+    if not lines or not _META_BLOCK_RE.match(lines[0]):
+        return None
+    end = None
+    for i in range(1, len(lines)):
+        if _META_BLOCK_RE.match(lines[i]):
+            end = i
+            break
+    if end is None:
+        return None
+    block = "\n".join(lines[1:end])
+    try:
+        import yaml
+        data = yaml.safe_load(block)
+    except Exception:
+        return None
+    if not isinstance(data, dict):
+        return None
+    meta = data.get(_ACCEPTANCE_META_KEY)
+    return meta if isinstance(meta, dict) else None
 
 
 # ── Report ─────────────────────────────────────────────────────────────────
@@ -158,36 +206,82 @@ def extract_from_lessons(
 # ── Acceptance reports → knowledge (验收报告为源) ───────────────────────────
 
 
-def _parse_acceptance_report(text: str, task_id: str) -> list[dict]:
+def _front_matter_end_line(lines: list[str]) -> int:
+    """返回 front-matter 块结束行下标 +1（无块则 0）。"""
+    if not lines or not _META_BLOCK_RE.match(lines[0]):
+        return 0
+    for i in range(1, len(lines)):
+        if _META_BLOCK_RE.match(lines[i]):
+            return i + 1
+    return 0
+
+
+def _count_unmatched_meta_lines(lines: list[str], skip: int = 0) -> int:
+    """统计未命中任何已知正则的结构化外观行（D5-6：未命中行计数上报）。
+
+    只统计 blockquote（``>``）与加粗（``**...**``）行 —— 这些行是
+    报告模板的元信息载体；模板措辞变化（如 Gate 行加粗）导致解析丢失时
+    计数 > 0，调用方记 warning，不再静默。
+    """
+    unmatched = 0
+    for line in lines[skip:]:
+        stripped = line.strip()
+        if not _META_LOOKING_LINE.match(stripped):
+            continue
+        if (_TITLE_LINE_RE.match(stripped) or _GATE_LINE_RE.match(stripped)
+                or _REVIEW_LINE_RE.match(stripped) or _VERDICT_RE.match(stripped)):
+            continue
+        unmatched += 1
+    return unmatched
+
+
+def _parse_acceptance_report(text: str, task_id: str) -> tuple[list[dict], int]:
     """Rule-based extraction of one standardized acceptance report.
 
-    Returns a list of put_entry keyword-arg dicts: title decision, review
-    verdict decision, gate decision and legacy pitfalls. Unmatched sections
-    are skipped — extraction never invents content.
+    T-0108 F7 (D5-6): the report generator may emit a structured
+    ``acceptance_meta`` front-matter block (see ``_parse_acceptance_meta``);
+    its fields take precedence over the legacy regex family.  Reports
+    without the block are parsed exactly as before.
+
+    Returns:
+        (entries, unmatched_meta_line_count) — ``entries`` is a list of
+        put_entry keyword-arg dicts (title decision, review verdict
+        decision, gate decision and legacy pitfalls).  Unmatched sections
+        are skipped — extraction never invents content.
     """
     lines = text.splitlines()
     entries: list[dict] = []
+    meta = _parse_acceptance_meta(text)
+    meta_skip = _front_matter_end_line(lines)
 
-    # Title line → decision entry (task source).
+    # Title / date → decision entry (task source).
     title: str | None = None
     date: str | None = None
-    for line in lines[:12]:
-        match = _TITLE_LINE_RE.match(line)
-        if match:
-            raw_title = match.group(1).strip()
-            # Strip a trailing " | <date>" suffix if present.
-            if " | " in raw_title:
-                raw_title, _, date_part = raw_title.rpartition(" | ")
-                raw_title = raw_title.strip()
-                date = date_part.strip()
-            title = raw_title
-            if date is None:
-                date_match = _DATE_RE.search(line)
-                if date_match:
-                    date = date_match.group(1)
-            break
+    if meta and meta.get("title"):
+        title = str(meta["title"]).strip()
+        date = meta.get("date")
+    else:
+        for line in lines[meta_skip: meta_skip + 12]:
+            match = _TITLE_LINE_RE.match(line)
+            if match:
+                raw_title = match.group(1).strip()
+                # Strip a trailing " | <date>" suffix if present.
+                if " | " in raw_title:
+                    raw_title, _, date_part = raw_title.rpartition(" | ")
+                    raw_title = raw_title.strip()
+                    date = date_part.strip()
+                title = raw_title
+                if date is None:
+                    date_match = _DATE_RE.search(line)
+                    if date_match:
+                        date = date_match.group(1)
+                break
     if title is None:
-        return entries  # not a standardized report — skip entirely
+        if meta is None:
+            return [], _count_unmatched_meta_lines(lines, meta_skip)
+        # Meta block present but no title: still a standardized report —
+        # fall back to task_id so the meta fields are not silently dropped.
+        title = task_id
     recorded_at = f"{date}T00:00:00+00:00" if date else None
 
     entries.append({
@@ -203,12 +297,17 @@ def _parse_acceptance_report(text: str, task_id: str) -> list[dict]:
     # Gate line → gate entry (gate source, retrievable by by_gate).
     gate_id: str | None = None
     gate_tail: str = ""
-    for line in lines:
-        match = _GATE_LINE_RE.match(line)
-        if match:
-            gate_id = match.group(1)
-            gate_tail = match.group(2).strip()[: _LINE_CAP]
-            break
+    meta_gate = meta.get("gate") if meta else None
+    if isinstance(meta_gate, dict) and meta_gate.get("id"):
+        gate_id = str(meta_gate["id"])
+        gate_tail = str(meta_gate.get("decision", ""))[: _LINE_CAP]
+    else:
+        for line in lines[meta_skip:]:
+            match = _GATE_LINE_RE.match(line)
+            if match:
+                gate_id = match.group(1)
+                gate_tail = match.group(2).strip()[: _LINE_CAP]
+                break
     if gate_id:
         tail_lower = gate_tail.casefold()
         if "批准" in tail_lower or "approve" in tail_lower:
@@ -230,17 +329,20 @@ def _parse_acceptance_report(text: str, task_id: str) -> list[dict]:
 
     # Review verdict → decision entry (独立审查 line, verdict fallback).
     review: str | None = None
-    for line in lines:
-        match = _REVIEW_LINE_RE.match(line)
-        if match:
-            review = match.group(1).strip()
-            break
-    if review is None:
-        for line in lines:
-            match = _VERDICT_RE.match(line)
+    if meta and meta.get("review_verdict"):
+        review = str(meta["review_verdict"]).strip()
+    else:
+        for line in lines[meta_skip:]:
+            match = _REVIEW_LINE_RE.match(line)
             if match:
-                review = f"{match.group(1)} {match.group(2).strip()}".strip()
+                review = match.group(1).strip()
                 break
+        if review is None:
+            for line in lines[meta_skip:]:
+                match = _VERDICT_RE.match(line)
+                if match:
+                    review = f"{match.group(1)} {match.group(2).strip()}".strip()
+                    break
     if review:
         entries.append({
             "kind": KIND_DECISION,
@@ -252,33 +354,47 @@ def _parse_acceptance_report(text: str, task_id: str) -> list[dict]:
             "recorded_at": recorded_at,
         })
 
-    # Legacy section → pitfall entries (已知遗留 bullets).
-    in_legacy = False
-    for line in lines:
-        stripped = line.strip()
-        if not stripped:
-            continue
-        if stripped.startswith("#"):
-            in_legacy = bool(_LEGACY_HEADING_RE.match(stripped))
-            continue
-        if stripped.startswith("|"):
-            continue
-        if in_legacy:
-            bullet = _BULLET_RE.match(stripped)
-            if bullet:
-                entries.append({
-                    "kind": KIND_PITFALL,
-                    "source_type": SOURCE_TASK,
-                    "source_id": task_id,
-                    "task_id": task_id,
-                    "tags": ["acceptance", "遗留"],
-                    "content": (
-                        f"{task_id} 已知遗留: "
-                        f"{bullet.group(1)[: _LINE_CAP]}"
-                    ),
-                    "recorded_at": recorded_at,
-                })
-    return entries
+    # Legacy items → pitfall entries (已知遗留 bullets).
+    meta_legacy = meta.get("legacy_items") if meta else None
+    if isinstance(meta_legacy, list):
+        for item in meta_legacy:
+            entries.append({
+                "kind": KIND_PITFALL,
+                "source_type": SOURCE_TASK,
+                "source_id": task_id,
+                "task_id": task_id,
+                "tags": ["acceptance", "遗留"],
+                "content": f"{task_id} 已知遗留: {str(item)[: _LINE_CAP]}",
+                "recorded_at": recorded_at,
+            })
+    else:
+        in_legacy = False
+        for line in lines[meta_skip:]:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith("#"):
+                in_legacy = bool(_LEGACY_HEADING_RE.match(stripped))
+                continue
+            if stripped.startswith("|"):
+                continue
+            if in_legacy:
+                bullet = _BULLET_RE.match(stripped)
+                if bullet:
+                    entries.append({
+                        "kind": KIND_PITFALL,
+                        "source_type": SOURCE_TASK,
+                        "source_id": task_id,
+                        "task_id": task_id,
+                        "tags": ["acceptance", "遗留"],
+                        "content": (
+                            f"{task_id} 已知遗留: "
+                            f"{bullet.group(1)[: _LINE_CAP]}"
+                        ),
+                        "recorded_at": recorded_at,
+                    })
+    unmatched = _count_unmatched_meta_lines(lines, meta_skip)
+    return entries, unmatched
 
 
 def extract_from_acceptance_reports(
@@ -315,18 +431,28 @@ def extract_from_acceptance_reports(
 
     report.sources["acceptance_reports"] = len(acceptance_files)
     skipped = 0
+    unmatched_total = 0
     for task_id, md_file in acceptance_files:
         try:
             text = md_file.read_text(encoding="utf-8")
         except OSError:
             continue
-        parsed = _parse_acceptance_report(text, task_id)
+        parsed, unmatched = _parse_acceptance_report(text, task_id)
+        unmatched_total += unmatched
         if not parsed:
             skipped += 1
             continue
         for kwargs in parsed:
             _put_reporting(project_root, report, relative_path, **kwargs)
     report.sources["skipped_reports"] = skipped
+    # P3 D5-6 (T-0108 F7)：未命中正则的结构化行计数上报 —— 模板措辞变化
+    # 不再静默丢失知识抽取。
+    if unmatched_total:
+        report.sources["unmatched_meta_lines"] = unmatched_total
+        logger.warning(
+            "[memory_service] acceptance 报告 %d 行结构化元信息未命中解析正则"
+            "（模板措辞变化？）— 计入 unmatched_meta_lines 上报", unmatched_total
+        )
     return report
 
 

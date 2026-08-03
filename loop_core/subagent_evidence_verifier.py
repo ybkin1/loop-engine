@@ -3,6 +3,11 @@ subagent_evidence_verifier.py — Verify that review evidence came from an
 independent sub-agent session, not from main-session role-playing.
 
 T-0067: Gate_guard uses this to enforce quality-gate evidence authenticity.
+
+T-0108 F7: the verification result is also emitted as schema-validated
+fix-contract findings (``loop_core.schemas.finding_contract``, aligned
+with BH harness-findings.input.json).  Old result fields
+(valid/reason/checks) are preserved verbatim; ``findings`` is additive.
 """
 
 import hashlib
@@ -11,6 +16,8 @@ import logging
 import re
 from pathlib import Path
 from typing import Any, Optional
+
+from loop_core.schemas.finding_contract import mark_schema_status
 
 logger = logging.getLogger(__name__)
 
@@ -103,20 +110,63 @@ def has_required_fields(content: dict) -> tuple[bool, list[str]]:
     return len(missing) == 0, missing
 
 
+# T-0108 F7: contract-shaped finding for a failed verification check.
+_EVIDENCE_CHECK_META = {
+    "file_exists": {"title": "证据文件缺失", "message": "审查证据文件不存在"},
+    "valid_json": {"title": "证据 JSON 非法", "message": "审查证据不是合法 JSON"},
+    "not_simulated": {"title": "证据疑似模拟", "message": "证据内容命中模拟/伪造标记"},
+    "has_session_id": {"title": "缺少 reviewer_session_id", "message": "证据缺少有效的 reviewer_session_id"},
+    "independent_session": {"title": "自审（非独立会话）", "message": "审查会话与主会话相同（self-review）"},
+    "required_fields": {"title": "证据必填字段缺失", "message": "证据缺少必填字段"},
+    "files_covered": {"title": "审查文件覆盖不足", "message": "未覆盖全部应审查文件"},
+}
+
+
+def _evidence_finding(check_id: str, evidence_path: str) -> dict:
+    """Build a schema-validated fix-contract finding for a failed check."""
+    meta = _EVIDENCE_CHECK_META.get(check_id, {"title": check_id, "message": check_id})
+    finding = {
+        "finding_id": f"EVID-{check_id.upper()}",
+        "source": "subagent_evidence_verifier",
+        "severity": "high",
+        "title": f"[{check_id}] {meta['title']}",
+        "message": f"{meta['message']}（evidence: {evidence_path}）",
+        "file": evidence_path,
+        "line": 0,
+        "expected_output": "提供独立子代理会话的真实审查证据（reviewer_session_id 有效、非模拟、字段完整、覆盖全部目标文件）",
+        "fix_boundary": {
+            "allowed_paths": [".ai/evidence/"],
+            "forbidden": ["hooks/", "loop_core/gate_guard.py",
+                          "loop_core/enforcement.py"],
+        },
+        "verification_command": (
+            "python -m loop_core.subagent_evidence_verifier <evidence_path> "
+            "<main_session_id>"
+        ),
+        "acceptance_checks": [
+            "valid=true 且全部 checks 通过",
+            "证据来自独立会话（reviewer_session_id != developer_session_id）",
+        ],
+    }
+    return mark_schema_status(finding)
+
+
 def verify_review_evidence(
     evidence_path: str,
     main_session_id: str = "",
     expected_files: Optional[list[str]] = None,
 ) -> dict:
     """Complete evidence verification for a quality-gate review.
-    
+
     Args:
         evidence_path: Path to the review evidence JSON file
         main_session_id: Current main session ID (to detect self-review)
         expected_files: List of files that should have been reviewed
-        
+
     Returns:
-        {"valid": bool, "reason": str, "checks": {...}}
+        {"valid": bool, "reason": str, "checks": {...}, "findings": [...]}
+        ``findings`` (T-0108 F7) lists schema-validated fix-contract dicts
+        for every failed check; empty when valid.
     """
     path = Path(evidence_path)
     checks = {
@@ -128,48 +178,80 @@ def verify_review_evidence(
         "required_fields": False,
         "files_covered": False,
     }
-    
+    failed: list[str] = []
+
     if not path.exists():
-        return {"valid": False, "reason": f"Evidence file not found: {evidence_path}", "checks": checks}
+        failed.append("file_exists")
+        return {"valid": False, "reason": f"Evidence file not found: {evidence_path}",
+                "checks": checks,
+                "findings": [_evidence_finding("file_exists", evidence_path)]}
     checks["file_exists"] = True
-    
+
     try:
         content = json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, Exception) as e:
-        return {"valid": False, "reason": f"Invalid JSON: {e}", "checks": checks}
+        failed.append("valid_json")
+        return {"valid": False, "reason": f"Invalid JSON: {e}", "checks": checks,
+                "findings": [_evidence_finding("valid_json", evidence_path)]}
     checks["valid_json"] = True
-    
+
     # 1. Anti-simulation
     if is_simulated(content):
-        return {"valid": False, "reason": "Evidence appears to be simulated/fabricated", "checks": checks}
-    checks["not_simulated"] = True
-    
+        failed.append("not_simulated")
+    else:
+        checks["not_simulated"] = True
+
     # 2. Session ID
     if not has_valid_session_id(content):
-        return {"valid": False, "reason": "Missing or invalid reviewer_session_id", "checks": checks}
-    checks["has_session_id"] = True
-    
+        failed.append("has_session_id")
+    else:
+        checks["has_session_id"] = True
+
     # 3. Independence
     if not is_independent_session(content, main_session_id):
-        return {"valid": False, "reason": "Reviewer session is not independent (self-review detected)", "checks": checks}
-    checks["independent_session"] = True
-    
+        failed.append("independent_session")
+    else:
+        checks["independent_session"] = True
+
     # 4. Required fields
     ok, missing = has_required_fields(content)
     if not ok:
-        return {"valid": False, "reason": f"Missing required fields: {missing}", "checks": checks}
-    checks["required_fields"] = True
-    
+        failed.append("required_fields")
+    else:
+        checks["required_fields"] = True
+
     # 5. File coverage (if expected files provided)
     if expected_files:
         reviewed = set(content.get("files_reviewed", []))
         expected = set(expected_files)
         uncovered = expected - reviewed
         if uncovered:
-            return {"valid": False, "reason": f"Not all files reviewed. Missing: {list(uncovered)[:5]}", "checks": checks}
-    checks["files_covered"] = True
-    
-    return {"valid": True, "reason": "All evidence checks passed", "checks": checks}
+            failed.append("files_covered")
+        else:
+            checks["files_covered"] = True
+
+    if failed:
+        # Preserve legacy reason semantics: report the first failed check.
+        first = failed[0]
+        if first == "not_simulated":
+            reason = "Evidence appears to be simulated/fabricated"
+        elif first == "has_session_id":
+            reason = "Missing or invalid reviewer_session_id"
+        elif first == "independent_session":
+            reason = "Reviewer session is not independent (self-review detected)"
+        elif first == "required_fields":
+            reason = f"Missing required fields: {missing}"
+        else:
+            reason = f"Not all files reviewed. Missing: {list(uncovered)[:5]}"
+        return {
+            "valid": False,
+            "reason": reason,
+            "checks": checks,
+            "findings": [_evidence_finding(f, evidence_path) for f in failed],
+        }
+
+    return {"valid": True, "reason": "All evidence checks passed",
+            "checks": checks, "findings": []}
 
 
 # CLI entry for hook usage

@@ -1,3 +1,14 @@
+---
+# designed_files（T-0108 F4，D5-7 消解）：本架构文档显式声明的设计文件清单。
+# scripts/role_checkers/implementation_design_diff.py 以本清单为 DRIFT 判定
+# 依据；正文中反引号代码引用（示例性/说明性）仅作提示（hint），不参与判定。
+# 目录前缀（结尾 "/"）表示该目录层整体为本设计声明；文件项为精确声明。
+# 注意：清单使用 YAML flow 风格（单行内联列表），不得改为 "- " 逐行 bullet
+# 形式——hooks/scripts/content_guard.py 的架构合规检查会按
+# "[-*] `path`" 行模式解析本文件（hook 零改动约束），bullet 形式会使其
+# 把声明项当作架构模块并阻断范围外写入。
+designed_files: [hooks/scripts/session_brief.py, hooks/scripts/gate_guard.py, hooks/scripts/path_guard.py, hooks/scripts/hook_common.py, tools/, agents/, .zcode/tools/]
+---
 # 02 — 架构设计
 
 > Loop Engine v1.0 架构设计 | 状态: draft | 对应需求: docs/01-requirements.md

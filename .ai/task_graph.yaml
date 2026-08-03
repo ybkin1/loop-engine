@@ -1214,6 +1214,19 @@ tasks:
     gates:
       - G-T-0107-REQUIREMENTS
   -
+    id: T-0108
+    title: BH 融合·收敛期 — F4 文档路由 + F6 上下文打包 + F7 finding 契约 + F8 契约测试 + F2-1
+    phase: S6-delivery
+    status: completed
+    description: >-
+      T-0106 排布次项：F6（接续 T-0107）+ F4（Switchboard/归档/路由表）+ F7
+      （finding.schema.json）+ F8（doc-link/投影新鲜度测试）+ F2 阶段 1（只读告警）；
+      消解 P3 八项；hooks/ 零改动、内核零触碰；bump 3.12.45。
+    depends_on:
+      - T-0107
+    gates:
+      - G-T-0108-REQUIREMENTS
+  -
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery

@@ -49,27 +49,52 @@ sys.dont_write_bytecode = True
 EXIT_PASS = 0
 EXIT_BLOCK = 2
 
+# P3 D4-10 (T-0108 F7)：madge 失败原因区分上报 —— 不再宽捕获静默返回 None
+# （下游可能误报"无依赖"）。失败原因结构化记录：unavailable（命令缺失）/
+# timeout / error（OSError 等）/ non-zero-exit / invalid-json。
+MADGE_TIMEOUT_SECONDS = 30
+
 
 # ──────────────────────────────────────────────
 # 1. 依赖提取
 # ──────────────────────────────────────────────
 
-def run_madge(project_root: Path) -> Optional[Dict[str, List[str]]]:
-    """尝试使用 madge 提取 JS/TS 依赖图。不可用则返回 None。"""
+def run_madge(project_root: Path) -> tuple[Optional[Dict[str, List[str]]], Optional[Dict[str, str]]]:
+    """尝试使用 madge 提取 JS/TS 依赖图。
+
+    Returns:
+        (graph, error_info)：成功 → (graph, None)；失败 → (None, error_info)，
+        error_info 含 status/reason（D4-10：失败原因区分上报，绝不静默）。
+    """
     try:
         result = subprocess.run(
             ["madge", "--json", str(project_root)],
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=MADGE_TIMEOUT_SECONDS,
             cwd=str(project_root),
         )
-        if result.returncode != 0:
-            return None
+    except FileNotFoundError:
+        return None, {"status": "unavailable",
+                      "reason": "madge 命令不可用（未安装或不在 PATH）"}
+    except subprocess.TimeoutExpired:
+        return None, {"status": "timeout",
+                      "reason": f"madge 超时（>{MADGE_TIMEOUT_SECONDS}s）"}
+    except OSError as exc:
+        return None, {"status": "error", "reason": f"madge 执行异常: {type(exc).__name__}: {exc}"}
+    if result.returncode != 0:
+        stderr_tail = (result.stderr or "").strip().splitlines()[-3:]
+        return None, {"status": "non-zero-exit",
+                      "reason": f"madge 退出码 {result.returncode}",
+                      "stderr_tail": stderr_tail}
+    try:
         # madge --json 输出形如 {"a.js": ["b.js", "c.js"], ...}
-        return json.loads(result.stdout)
-    except (FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError, Exception):
-        return None
+        return json.loads(result.stdout), None
+    except json.JSONDecodeError as exc:
+        stdout_tail = result.stdout.strip().splitlines()[-3:]
+        return None, {"status": "invalid-json",
+                      "reason": f"madge 输出不可解析: {exc}",
+                      "stdout_tail": stdout_tail}
 
 
 def _extract_imports_from_file(filepath: Path) -> List[str]:
@@ -78,7 +103,8 @@ def _extract_imports_from_file(filepath: Path) -> List[str]:
     try:
         source = filepath.read_text(encoding="utf-8", errors="replace")
         tree = ast.parse(source, filename=str(filepath))
-    except (SyntaxError, Exception):
+    except (SyntaxError, UnicodeDecodeError, OSError):
+        # D4-10 同族（T-0108 F7）：收窄宽捕获，仅语法/IO 类异常降级为空
         return imports
 
     for node in ast.walk(tree):
@@ -138,12 +164,24 @@ def _analyze_python_imports(project_root: Path) -> Dict[str, List[str]]:
     return {k: sorted(set(v)) for k, v in deps.items()}
 
 
-def extract_dependency_graph(project_root: Path) -> Dict[str, List[str]]:
-    """提取依赖图：优先 madge，回退到 Python AST。"""
-    madge_result = run_madge(project_root)
+def extract_dependency_graph(project_root: Path) -> tuple[Dict[str, List[str]], Dict[str, Any]]:
+    """提取依赖图：优先 madge，回退到 Python AST。
+
+    Returns:
+        (graph, source_info)：source_info 记录依赖来源与 madge 失败原因
+        （D4-10：失败原因区分上报；AST 回退时 reason 透明可见）。
+    """
+    madge_result, madge_error = run_madge(project_root)
     if madge_result is not None:
-        return madge_result
-    return _analyze_python_imports(project_root)
+        return madge_result, {"mode": "madge", "madge_status": "ok"}
+    if madge_error:
+        # 回退 AST 并上报失败原因（不静默）
+        return _analyze_python_imports(project_root), {
+            "mode": "python-ast",
+            "madge_status": madge_error.get("status", "unknown"),
+            "madge_reason": madge_error.get("reason", ""),
+        }
+    return _analyze_python_imports(project_root), {"mode": "python-ast"}
 
 
 # ──────────────────────────────────────────────
@@ -336,6 +374,7 @@ def generate_report(
     violations: List[Dict[str, str]],
     project_root: Path,
     output_dir: Path,
+    source_info: Optional[Dict[str, Any]] = None,
 ) -> str:
     """生成 JSON 报告和 Mermaid 图。返回 overall 判定。"""
     has_cycles = len(cycles) > 0
@@ -357,6 +396,8 @@ def generate_report(
         },
         "cycles": [{"modules": c, "length": len(c)} for c in cycles],
         "boundary_violations": violations,
+        # P3 D4-10 (T-0108 F7)：依赖来源与 madge 失败原因区分上报
+        "dependency_source": source_info or {"mode": "unknown"},
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     json_path = output_dir / "dependency_report.json"
@@ -391,9 +432,14 @@ def main():
     print(f"[analyze_dependencies] 项目: {project_root}", file=sys.stderr)
     print(f"[analyze_dependencies] 输出: {output_dir}", file=sys.stderr)
 
-    # 提取依赖图
-    graph = extract_dependency_graph(project_root)
-    print(f"[analyze_dependencies] 提取到 {len(graph)} 个模块", file=sys.stderr)
+    # 提取依赖图（D4-10：madge 失败原因区分上报，AST 回退透明）
+    graph, source_info = extract_dependency_graph(project_root)
+    print(f"[analyze_dependencies] 提取到 {len(graph)} 个模块"
+          f"（来源: {source_info.get('mode', 'unknown')}", file=sys.stderr)
+    if source_info.get("madge_status") and source_info["madge_status"] != "ok":
+        print(f"[analyze_dependencies] madge 不可用"
+              f"（{source_info.get('madge_status')}: {source_info.get('madge_reason', '')}），"
+              f"已回退 Python AST 解析", file=sys.stderr)
 
     # 检测循环依赖
     cycles = detect_circular_deps(graph)
@@ -415,7 +461,8 @@ def main():
         print("[analyze_dependencies] 未提供边界规则，跳过边界违规检测", file=sys.stderr)
 
     # 生成报告
-    overall = generate_report(graph, cycles, violations, project_root, output_dir)
+    overall = generate_report(graph, cycles, violations, project_root, output_dir,
+                              source_info=source_info)
 
     if overall == "BLOCKED":
         print("\n[analyze_dependencies] BLOCKED — 存在架构问题", file=sys.stderr)

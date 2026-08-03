@@ -13,6 +13,12 @@ Loop-specific security patterns (hooks isolation, adapter boundaries).
 
 FAIL-CLOSED POLICY: Any critical severity finding -> Verdict.BLOCKED.
 This cannot be overridden. Security is non-negotiable.
+
+T-0108 F7: findings are also emitted as schema-validated fix contracts
+(``loop_core.schemas.finding_contract``, aligned with BH
+harness-findings.input.json).  Old fields are preserved verbatim;
+``SecFinding.to_finding()`` adds the contract-shaped view and
+``SecurityReport`` reports schema validation counts.
 """
 from __future__ import annotations
 
@@ -24,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .verdicts import ReportBinding, Verdict
+from loop_core.schemas.finding_contract import mark_schema_status, validate_finding
 
 
 @dataclass
@@ -35,6 +42,33 @@ class SecFinding:
     message: str
     snippet: str = ""
 
+    def to_finding(self) -> dict:
+        """Contract-shaped finding dict (validated against finding.schema.json)."""
+        domain = self.file.split("/", 1)[0] if self.file else "loop_core"
+        finding = {
+            "finding_id": self.rule_id,
+            "source": "security_scanner",
+            "severity": self.severity,
+            "title": f"[{self.rule_id}] {self.message}",
+            "message": self.message,
+            "file": self.file,
+            "line": self.line,
+            "snippet": self.snippet,
+            "truncated": len(self.snippet) >= 100,
+            "expected_output": f"消除安全缺陷 {self.rule_id}（{self.message}）",
+            "fix_boundary": {
+                "allowed_paths": [f"{domain}/"],
+                "forbidden": ["hooks/", "loop_core/gate_guard.py",
+                              "loop_core/enforcement.py"],
+            },
+            "verification_command": "python -m pytest tests/ -q",
+            "acceptance_checks": [
+                f"{self.file} 不再命中 {self.rule_id}",
+                "python -m pytest tests/ -q 全绿",
+            ],
+        }
+        return mark_schema_status(finding)
+
 
 @dataclass
 class SecurityReport:
@@ -44,6 +78,9 @@ class SecurityReport:
     binding: ReportBinding | None = None
     verdict: Verdict = Verdict.NOT_VERIFIED
     content_hash: str = ""  # SHA-256 of findings content
+    # T-0108 F7: schema validation outcome of the contract view
+    schema_valid: int = 0
+    schema_invalid: int = 0
 
     @property
     def critical(self) -> int:
@@ -114,6 +151,10 @@ class SecurityReport:
             "binding": self.binding.to_dict() if self.binding else None,
             "verdict": self.verdict.value if self.verdict else Verdict.NOT_VERIFIED.value,
             "content_hash": self.content_hash,
+            # T-0108 F7: contract-shaped findings (schema-validated, add-only)
+            "findings_contract": [f.to_finding() for f in self.findings],
+            "schema_valid": self.schema_valid,
+            "schema_invalid": self.schema_invalid,
         }
 
 
@@ -220,6 +261,14 @@ def scan_security(root: str | Path, task_id: str = "", phase: str = "",
                         ))
 
     report = SecurityReport(files_scanned=len(py_files), findings=findings)
+    # T-0108 F7: validate the contract view of every finding (fail-closed:
+    # invalid findings are counted, never silently dropped).
+    for finding in findings:
+        ok, _ = validate_finding(finding.to_finding())
+        if ok:
+            report.schema_valid += 1
+        else:
+            report.schema_invalid += 1
     if task_id:
         report.bind(task_id=task_id, phase=phase, git_commit=git_commit,
                     gate_id=gate_id, execution_id=execution_id)

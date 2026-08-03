@@ -343,6 +343,125 @@ class ProjectionEngine:
 
 
 # ============================================================================
+# T-0108 F2-1 — state.yaml 派生视图（单一数据源阶段 1，只读）
+# ============================================================================
+
+STATE_VIEW_SCHEMA = "state-view/v1"
+STATE_VIEW_RELATIVE_PATH = ".ai/views/state-view.yaml"
+
+# 派生视图字段 → 权威源字段映射（一致性测试：同一输入逐字段一致）。
+_STATE_VIEW_FIELDS = (
+    ("project_name", "project_name"),
+    ("phase", "current_phase"),
+    ("current_task_id", "current_task_id"),
+    ("current_gate_id", "current_gate_id"),
+    ("loop_mode", "loop_mode"),
+    ("last_handoff_at", "last_handoff_at"),
+)
+
+
+def generate_state_view(project_root: str | Path) -> dict:
+    """从 state.yaml（+ task_graph.yaml 的任务状态）派生状态视图。
+
+    F2 阶段 1：视图 = 权威源派生（纯函数，不写盘）。调用方（validate_state
+    新鲜度检查 / 主会话）显式调用 ``write_state_view`` 才落盘。
+
+    Raises:
+        FileNotFoundError: state.yaml 缺失（视图不可派生）。
+    """
+    root = Path(project_root)
+    state_path = root / ".ai" / "state.yaml"
+    if not state_path.exists():
+        raise FileNotFoundError(f"state.yaml not found: {state_path}")
+    state = _parse_yaml(state_path.read_text(encoding="utf-8"))
+    if not isinstance(state, dict):
+        raise ValueError("state.yaml must contain a YAML/JSON object at the root")
+
+    view: dict[str, Any] = {"schema": STATE_VIEW_SCHEMA, "source": "state.yaml"}
+    for view_key, state_key in _STATE_VIEW_FIELDS:
+        view[view_key] = state.get(state_key)
+
+    # task_status 由 task_graph.yaml 派生（状态五写收敛：任务卡 Status 的
+    # 权威源是 task_graph，视图只读派生不手改）。
+    view["task_status"] = _derive_task_status(root, view.get("current_task_id"))
+
+    # 派生摘要（人读辅助；全部字段可逐项回源）。
+    view["derived_summary"] = {
+        "phase": view.get("phase"),
+        "task": view.get("current_task_id"),
+        "task_status": view.get("task_status"),
+        "gate": view.get("current_gate_id"),
+        "loop_mode": view.get("loop_mode"),
+    }
+    return view
+
+
+def _derive_task_status(root: Path, task_id: Any) -> str | None:
+    """从 task_graph.yaml 派生任务状态；无任务/解析失败返回 None。"""
+    if not task_id:
+        return None
+    graph_path = root / ".ai" / "task_graph.yaml"
+    if not graph_path.exists():
+        return None
+    try:
+        graph = _parse_yaml(graph_path.read_text(encoding="utf-8"))
+        tasks = graph.get("tasks") if isinstance(graph, dict) else None
+        if not isinstance(tasks, list):
+            return None
+        for task in tasks:
+            if isinstance(task, dict) and task.get("id") == task_id:
+                status = task.get("status")
+                return str(status) if status else None
+    except Exception:
+        return None
+    return None
+
+
+def write_state_view(
+    project_root: str | Path, view: dict | None = None
+) -> Path:
+    """把派生视图落盘到 ``.ai/views/state-view.yaml``（F2-1 阶段：仅显式
+    调用才写；validate_state 本身只读不写）。返回视图路径。"""
+    root = Path(project_root)
+    if view is None:
+        view = generate_state_view(root)
+    view_path = root / STATE_VIEW_RELATIVE_PATH
+    view_path.parent.mkdir(parents=True, exist_ok=True)
+    import yaml as _yaml
+
+    view_path.write_text(
+        _yaml.safe_dump(view, allow_unicode=True, sort_keys=False),
+        encoding="utf-8",
+    )
+    return view_path
+
+
+def is_state_view_stale(
+    project_root: str | Path, tolerance_seconds: float = 1.0
+) -> tuple[bool, float | None]:
+    """比较 state.yaml 与派生视图的 mtime（新鲜度检查）。
+
+    Returns:
+        (stale, age_seconds)：视图缺失或无法读取 → (False, None)；
+        视图 mtime 早于 state.yaml mtime（超容差）→ (True, age)。
+    """
+    root = Path(project_root)
+    state_path = root / ".ai" / "state.yaml"
+    view_path = root / STATE_VIEW_RELATIVE_PATH
+    if not state_path.exists() or not view_path.exists():
+        return False, None
+    try:
+        state_mtime = state_path.stat().st_mtime
+        view_mtime = view_path.stat().st_mtime
+    except OSError:
+        return False, None
+    age = state_mtime - view_mtime
+    if age > tolerance_seconds:
+        return True, age
+    return False, age
+
+
+# ============================================================================
 # Internal helpers (module-private)
 # ============================================================================
 

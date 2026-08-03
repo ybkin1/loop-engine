@@ -5637,3 +5637,85 @@ gates:
   - disabled-source-root 无未解释实例
   - 至少两个可比较 Task Episode 且 evidenceRefs 非空
   - 用户批准的范围内完成独立审查与验收
+- id: G-T-0108-REQUIREMENTS
+  task_id: T-0108
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-03T15:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-03T15:30:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准
+  approval_evidence: .ai/evidence/T-0108/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0108/execution-evidence.json
+  scope: >-
+    T-0108 BH 融合·收敛期：F6 上下文打包升级（接续 T-0107）+ F4 文档路由
+    （Switchboard/目录四态/死文档归档）+ F7 finding 结构化契约（finding.schema.json）+
+    F8 治理契约测试 + F2 阶段 1（validate_state 只读新鲜度告警 + projection_engine）；
+    消解 P3：D1-3/D2-8/D4-4/D4-10/D4-11/D5-3/D5-6/D5-7；hooks/ 零改动、
+    治理内核零触碰、F2-1 仅告警不改 fail-closed 语义；版本 bump 3.12.45。
+  allowed_paths:
+  - .ai/
+  - loop_core/context_packager.py
+  - loop_core/context_budget.py
+  - loop_core/context_loader.py
+  - loop_core/design_reviewer.py
+  - loop_core/security_scanner.py
+  - loop_core/subagent_evidence_verifier.py
+  - loop_core/projection_engine.py
+  - loop_core/schemas/
+  - .zcode/tools/validate_state.py
+  - agents/security-engineer/scripts/run_security_scan.py
+  - agents/system-architect/scripts/analyze_dependencies.py
+  - agents/module-architect/scripts/validate_contract.py
+  - scripts/role_checkers/implementation_design_diff.py
+  - docs/02-architecture.md
+  - tests/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify loop_core governance kernel (gate_guard/enforcement/hard_constraints/guard_health/state_machine/context_loader defaults)
+  - change validate_state existing verdict semantics (F2-1 read-only warning only)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  - implement T-0109+ roadmap scope (F2-2/F3/F1/F5)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - F6/F4/F7/F8/F2-1 批次证据（fixes/fN-*.md）
+  - doc-link 测试全绿（断链用例 FAIL）
+  - context_loader 黄金快照对比 + 路由表缺失回退
+  - finding schema 校验 + BH 字段映射对照测试
+  - validate_state 既有判定测试全绿（F2-1 仅告警）
+  - hooks/ 与治理内核零改动 git diff 证据
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.45 == git HEAD)
+  - acceptance evidence
+  validation_required:
+  - validate_state.py must report the pending gate blocker after gate registration
+  - after explicit user decision, validate_state.py must be rerun
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hook files and governance kernel zero modification during T-0108

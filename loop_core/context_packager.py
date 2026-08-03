@@ -10,16 +10,23 @@ logger = logging.getLogger(__name__)
 # T-0107 集中命名常量（D2-1 截断字面量 / D2-8 git timeout 字面量）
 # ══════════════════════════════════════════════════════════════════════
 
-# 任务卡 token 预算（D1-1）：替代原固定 1000 字符切片。token 估算用
-# 字符/token 启发式（无 tokenizer 依赖，见 _estimate_tokens）。
-TASK_CARD_TOKEN_BUDGET = 1500
-CHARS_PER_TOKEN = 4                       # ~4 字符/token 估算启发式
-TASK_CARD_BUDGET_CHARS = TASK_CARD_TOKEN_BUDGET * CHARS_PER_TOKEN
-TASK_CARD_HEADER_MAX_CHARS = 400          # 任务卡 `# 标题` 前头部上限
-
-# AC/验收节优先保留（D1-1）：标题包含下列任一关键词即视为验收节，
-# 该节永不截断（其余节先被丢弃）。
-TASK_CARD_AC_HEADING_MARKERS = ("可验证验收标准", "验收标准")
+# T-0108（F6）：token 预算/AC 节解析/截断标记逻辑外提到 context_budget.py
+# （纯函数、可独立单测）；此处 re-export 常量与工具，保持既有调用方与
+# 测试（TASK_CARD_TOKEN_BUDGET 等直接属性访问）零改动。
+from loop_core.context_budget import (  # noqa: E402
+    CHARS_PER_TOKEN,
+    TASK_CARD_AC_HEADING_MARKERS,
+    TASK_CARD_BUDGET_CHARS,
+    TASK_CARD_HEADER_MAX_CHARS,
+    TASK_CARD_TOKEN_BUDGET,
+    TASK_CARD_TRUNCATED_MARKER_PREFIX,
+    TRUNCATED_MARKER,
+    estimate_tokens,
+    format_task_card,
+    is_ac_section,
+    slice_with_marker,
+    split_sections,
+)
 
 EXTRA_FILE_MAX_CHARS = 2000               # extra_files 单文件上限（原字面量 2000）
 MAX_EXTRA_FILES = 5                       # extra_files 数量上限（原字面量 5）
@@ -57,118 +64,15 @@ ROLE_CONTEXT = {
 }
 
 
-# ── T-0107 截断工具 ─────────────────────────────────────────────────────
+# ── 截断工具（T-0108 F6：实现外提 context_budget.py，别名保持兼容）────
 
-def _estimate_tokens(text: str) -> int:
-    """字符 → token 估算（≈CHARS_PER_TOKEN 字符/token 启发式，无外部依赖）。"""
-    return max(1, len(text) // CHARS_PER_TOKEN)
-
-
-def _slice_with_marker(text: str, limit: int) -> str:
-    """截断并追加显式省略标记（D1-2/D1-3：截断绝不静默）。"""
-    if len(text) <= limit:
-        return text
-    marker = f"\n…[truncated {len(text) - limit} chars]"
-    return text[:limit] + marker
-
-
-def _split_task_sections(text: str) -> list[tuple[str | None, str]]:
-    """按 markdown `## ` 标题把任务卡切分为 (标题行, 节内容) 序列。
-
-    标题之前的全部内容作为 (None, preamble) 首元素返回（无前导内容时
-    preamble 为空串）；无任何 `## ` 标题时返回 [(None, 全文)]。
-    """
-    lines = text.splitlines()
-    sections: list[tuple[str | None, str]] = []
-    preamble: list[str] = []
-    current_heading: str | None = None
-    current: list[str] = []
-    for line in lines:
-        if line.startswith("## "):
-            if current_heading is None:
-                sections.append((None, "\n".join(preamble)))
-            else:
-                sections.append((current_heading, "\n".join(current)))
-            current_heading = line
-            current = []
-        else:
-            if current_heading is None:
-                preamble.append(line)
-            else:
-                current.append(line)
-    if current_heading is None:
-        return [(None, text)]
-    sections.append((current_heading, "\n".join(current)))
-    return sections
-
-
-def _is_ac_section(heading: str | None) -> bool:
-    """标题是否属于 AC/验收节（D1-1：验收节优先保留、不被切）。"""
-    if heading is None:
-        return False
-    return any(marker in heading for marker in TASK_CARD_AC_HEADING_MARKERS)
-
-
-def _format_task_card(text: str) -> str:
-    """T-0107 D1-1：任务卡按 token 预算截断 + AC 节优先保留 + truncated 标记。
-
-    替代原 ``read_text()[:1000]`` 固定字符切片：
-    - 按 markdown 节（## 标题）解析任务卡
-    - ``## 可验证验收标准``（AC）节永远完整保留（不被切）
-    - 头部（标题行及 `## ` 前的正文）保留（超长则带标记截断）
-    - 其余节按文档顺序填充，超出 token 预算的节整体丢弃
-    - 任何丢弃/截断都追加显式 ``…[task card truncated ...]`` 标记
-    """
-    sections = _split_task_sections(text)
-    header, *body = sections
-    budget = TASK_CARD_BUDGET_CHARS
-
-    out: list[str] = []
-    used = 0
-    dropped = 0
-    truncated_header = False
-
-    if header[1].strip():
-        # 前导标题/元信息（无 `## ` 节时即整文）：有节时上限小，
-        # 无节时按 token 预算截断。
-        header_cap = budget if not body else TASK_CARD_HEADER_MAX_CHARS
-        h = header[1]
-        if len(h) > header_cap:
-            truncated_header = True
-            h = _slice_with_marker(h, header_cap)
-        out.append(h)
-        used += len(h)
-
-    ac_sections: list[tuple[str, str]] = []
-    others: list[tuple[str, str]] = []
-    for heading, content in body:
-        (ac_sections if _is_ac_section(heading) else others).append((heading, content))
-
-    # AC 节永远完整保留（D1-1 硬约束：AC 不被切）
-    for heading, content in ac_sections:
-        out.append(heading)
-        out.append(content)
-        used += len(heading) + len(content) + 1
-
-    # 其余节按文档顺序填充预算
-    for heading, content in others:
-        size = len(heading) + len(content) + 1
-        if used + size > budget:
-            dropped += 1
-            continue
-        out.append(heading)
-        out.append(content)
-        used += size
-
-    if dropped or truncated_header:
-        marker = (
-            f"\n\n…[task card truncated: "
-            f"{dropped} section(s) dropped, "
-            f"{used} of {len(text)} chars included, "
-            f"token budget ≈{TASK_CARD_TOKEN_BUDGET} (AC section preserved)]"
-        )
-        out.append(marker)
-    return "\n".join(out)
+# 兼容别名：既有内部调用方（build_context）与潜在外部引用继续可用。
+# 实现见 loop_core/context_budget.py（纯函数、单测独立覆盖）。
+_estimate_tokens = estimate_tokens
+_slice_with_marker = slice_with_marker
+_split_task_sections = split_sections
+_is_ac_section = is_ac_section
+_format_task_card = format_task_card
 
 
 # ── T-0107 git diff 缓存（D4-4）────────────────────────────────────────

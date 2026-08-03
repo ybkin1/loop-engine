@@ -1,0 +1,17 @@
+{
+  "task_id": "T-0108",
+  "gate_id": "G-T-0108-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-03T15:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "F6 上下文打包升级（token 预算/AC 节/diff 缓存/timeout 常量，接续 T-0107）",
+    "F4 文档路由（README Switchboard/目录四态/死文档归档/路由表/D5-7 显式声明区）",
+    "F7 finding 结构化契约（finding.schema.json + 扫描器/agents 脚本输出收敛）",
+    "F8 治理契约测试（doc-link 完整性 + 投影新鲜度）",
+    "F2 阶段 1（validate_state 只读新鲜度告警 + projection_engine 视图）",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.45",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0108-REQUIREMENTS 已由用户批准（批准文本：批准）。范围引用 roadmap T-0108 + design-bh-integration F2/F4/F6/F7/F8。硬约束：hooks/ 零改动、治理内核零触碰、F2-1 仅只读告警不改既有判定。"
+}

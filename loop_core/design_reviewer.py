@@ -11,6 +11,12 @@ Detects:
 Project-aware: knows Loop Engine's architecture contract (loop_core
 must be host-independent, hooks/ owns ZCode specifics, tools/ implements
 HostAdapter).
+
+T-0108 F7: findings are also emitted as schema-validated fix contracts
+(``loop_core.schemas.finding_contract``, aligned with BH
+harness-findings.input.json).  Old fields are preserved verbatim;
+``DesignFinding.to_finding()`` adds the contract-shaped view and
+``review_design`` reports schema validation counts.
 """
 from __future__ import annotations
 
@@ -19,6 +25,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+from loop_core.schemas.finding_contract import mark_schema_status, validate_finding
 
 
 @dataclass
@@ -30,11 +38,43 @@ class DesignFinding:
     message: str
     snippet: str = ""
 
+    # T-0108 F7: schema-severity mapping (LE internal values are kept in
+    # ``severity`` for compatibility; the contract view uses the schema enum).
+    _SEVERITY_MAP = {"error": "high", "warning": "warning", "info": "info"}
+
+    def to_finding(self) -> dict:
+        """Contract-shaped finding dict (validated against finding.schema.json)."""
+        domain = self.file.split("/", 1)[0] if self.file else "loop_core"
+        finding = {
+            "finding_id": self.rule_id,
+            "source": "design_reviewer",
+            "severity": self._SEVERITY_MAP.get(self.severity, "warning"),
+            "title": f"[{self.rule_id}] {self.message}",
+            "message": self.message,
+            "file": self.file,
+            "line": self.line,
+            "snippet": self.snippet,
+            "expected_output": f"消除设计缺陷 {self.rule_id}（{self.message}）",
+            "fix_boundary": {
+                "allowed_paths": [f"{domain}/"],
+                "forbidden": ["hooks/"],
+            },
+            "verification_command": "python -m pytest tests/ -q",
+            "acceptance_checks": [
+                f"{self.file} 不再命中 {self.rule_id}",
+                "python -m pytest tests/ -q 全绿",
+            ],
+        }
+        return mark_schema_status(finding)
+
 
 @dataclass
 class DesignReport:
     files_scanned: int
     findings: list[DesignFinding] = field(default_factory=list)
+    # T-0108 F7: schema validation outcome of the contract view
+    schema_valid: int = 0
+    schema_invalid: int = 0
 
     @property
     def errors(self) -> int:
@@ -227,4 +267,13 @@ def review_design(root: str | Path) -> DesignReport:
         all_findings.extend(_check_dead_imports(file_path, source, tree))
         all_findings.extend(_check_complexity(file_path, source, tree))
 
-    return DesignReport(files_scanned=len(py_files), findings=all_findings)
+    # T-0108 F7: validate the contract view of every finding (fail-closed:
+    # invalid findings are counted, never silently dropped).
+    report = DesignReport(files_scanned=len(py_files), findings=all_findings)
+    for finding in all_findings:
+        ok, _ = validate_finding(finding.to_finding())
+        if ok:
+            report.schema_valid += 1
+        else:
+            report.schema_invalid += 1
+    return report

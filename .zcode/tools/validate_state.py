@@ -319,6 +319,40 @@ def check_cross_role_consistency(root: Path) -> list[str]:
     return errors
 
 
+# ── T-0108 F2-1 新鲜度检查（只读告警）──────────────────────────────────
+# 单一数据源阶段 1：state.yaml 为权威，派生视图 (.ai/views/state-view.yaml)
+# 由 projection_engine.write_state_view 显式生成。本检查只读对比 mtime，
+# 视图陈旧时输出 `[warn] stale view`——仅告警，不改变任何既有判定与
+# exit code 语义（硬约束：validate_state 既有判定零变化）。
+
+
+def check_state_view_freshness(root: Path, base: Path) -> list[str]:
+    """检查 state.yaml 与派生视图的新鲜度（只读，仅告警）。
+
+    Returns:
+        list[str]：可能含 ``[warn] stale view`` 条目；视图缺失/不可读时
+        返回空（无视图可比，不告警）。
+    """
+    warns: list[str] = []
+    state_path = base / "state.yaml"
+    view_path = base / "views" / "state-view.yaml"
+    if not state_path.exists() or not view_path.exists():
+        return warns
+    try:
+        state_mtime = state_path.stat().st_mtime
+        view_mtime = view_path.stat().st_mtime
+    except OSError:
+        return warns
+    if view_mtime < state_mtime - 1.0:  # 1s 容差（同事务写）
+        age = state_mtime - view_mtime
+        warns.append(
+            f"[warn] stale view: {view_path.relative_to(root).as_posix()} "
+            f"早于 state.yaml {age:.0f}s — 视图未反映最新状态"
+            "（T-0108 F2-1 只读检查，仅告警不阻断）"
+        )
+    return warns
+
+
 def main() -> int:
     args = project_root_arg().parse_args()
     # Normalize the path defensively: os.path.normpath handles any shell-level
@@ -416,6 +450,9 @@ def main() -> int:
         errors.extend(check_role_contract_completeness(root))
         errors.extend(check_role_file_existence(root))
         errors.extend(check_cross_role_consistency(root))
+
+    # 8. T-0108 F2-1: state view freshness (read-only warning, additive)
+    errors.extend(check_state_view_freshness(root, base))
 
     # Report
     print(f"[loop-governance] project_root: {root}")

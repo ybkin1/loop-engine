@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "loop-engine/finding/v1",
+  "title": "Loop Finding — 结构化修复契约（T-0108 F7）",
+  "description": "LE 扫描器/agents 脚本输出的 finding 结构化契约，字段对齐 BH harness-findings.input.json（id/title/severity/reason/dimensionRefs/target/aiFixPrompt/expectedArtifact/expectedOutput）。消费方（review 流程/gate 证据）兼容旧字段：加字段不删字段，additionalProperties 开放。",
+  "type": "object",
+  "required": [
+    "finding_id",
+    "source",
+    "severity",
+    "title",
+    "message",
+    "expected_output",
+    "fix_boundary",
+    "verification_command",
+    "acceptance_checks"
+  ],
+  "properties": {
+    "finding_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "BH id 映射：稳定标识（如 DR-001 / SS-001 / deps-001）"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "security_scanner",
+        "design_reviewer",
+        "subagent_evidence_verifier",
+        "run_security_scan",
+        "analyze_dependencies",
+        "validate_contract",
+        "memory_service",
+        "other"
+      ],
+      "description": "产出方标识（BH 无直接对应；用于溯源）"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "warning", "info"],
+      "description": "BH severity 映射（High/Medium/Low → 小写；critical 为 LE 特有 fail-closed 级）"
+    },
+    "title": {
+      "type": "string",
+      "description": "BH title 映射：一句话标题"
+    },
+    "message": {
+      "type": "string",
+      "description": "详细说明（BH reason 的 LE 侧载体之一）"
+    },
+    "reason": {
+      "type": "string",
+      "description": "BH reason 映射：可选，与 message 二选一或并存"
+    },
+    "file": {
+      "type": "string",
+      "description": "命中文件（相对路径）"
+    },
+    "line": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "命中行号（1-based；0/缺省 = 无行号）"
+    },
+    "snippet": {
+      "type": "string",
+      "description": "命中片段（显示用）"
+    },
+    "truncated": {
+      "type": "boolean",
+      "description": "P3 D1-7 结构化截断标志：true 表示 snippet/raw 字段被截断，下游不得把部分输出当完整结果"
+    },
+    "raw_length": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "D1-7：被截断前的原始长度（truncated=true 时必有）"
+    },
+    "expected_output": {
+      "type": "string",
+      "description": "BH expectedOutput 映射：修复后应达到的可验证产出描述"
+    },
+    "expected_outputs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "BH expectedOutput[] 映射：修复后应达到的可验证产出列表"
+    },
+    "fix_boundary": {
+      "type": "object",
+      "description": "修复边界（BH 无直接对应；LE 契约：哪些路径可改、哪些禁止）",
+      "required": ["allowed_paths"],
+      "properties": {
+        "allowed_paths": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "允许修改的路径（相对项目根）"
+        },
+        "forbidden": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "禁止触碰的路径/域（如 hooks/）"
+        }
+      }
+    },
+    "verification_command": {
+      "type": "string",
+      "description": "验证命令（修复后如何验证：pytest 目标文件 / 静态检查）"
+    },
+    "acceptance_checks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "验收检查（修复完成判据列表，可测）"
+    },
+    "dimension_refs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "BH dimensionRefs 映射：关联评估维度 id"
+    },
+    "target": {
+      "type": "object",
+      "description": "BH target 映射",
+      "properties": {
+        "kind": {"type": "string", "description": "BH target.kind（如 repo-root / file）"},
+        "package_route": {"type": ["string", "null"]},
+        "owner_route": {"type": ["string", "null"], "description": "BH target.ownerRoute（修复归属域）"}
+      }
+    },
+    "ai_fix_prompt": {
+      "type": "string",
+      "description": "BH aiFixPrompt 映射：给修复者的指令（可选）"
+    },
+    "expected_artifact": {
+      "type": "string",
+      "description": "BH expectedArtifact 映射（Tests / Docs / Config / Code）"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "证据哈希/路径引用（防篡改：只引用不修改）"
+    },
+    "schema_status": {
+      "type": "string",
+      "enum": ["VALID", "INVALID"],
+      "description": "本 finding 通过 schema 校验的标记（fail-closed：校验失败必须 INVALID + 告警，不静默丢弃）"
+    },
+    "schema_errors": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "schema 校验失败原因列表（schema_status=INVALID 时必有）"
+    }
+  },
+  "additionalProperties": true
+}

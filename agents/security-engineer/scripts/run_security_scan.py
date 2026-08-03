@@ -45,6 +45,55 @@ EXIT_BLOCK = 2
 # 0. 工具函数
 # ──────────────────────────────────────────────
 
+# P3 D1-7 (T-0108 F7)：audit 原始输出截断上限 + 结构化截断标志。
+# 截断绝不静默：truncated/raw_length 随 raw 一起返回，下游不得把部分输出
+# 当作完整结果。
+RAW_OUTPUT_MAX_CHARS = 500
+
+
+def _slice_raw(raw: str) -> tuple[str, dict]:
+    """按 RAW_OUTPUT_MAX_CHARS 截断并返回 (切片, 截断元数据)。
+
+    截断元数据 = {"truncated": bool, "raw_length": int, "raw_max": int}，
+    随结果上报（D1-7 结构化截断标志）。
+    """
+    meta = {"truncated": len(raw) > RAW_OUTPUT_MAX_CHARS,
+            "raw_length": len(raw), "raw_max": RAW_OUTPUT_MAX_CHARS}
+    return (raw[:RAW_OUTPUT_MAX_CHARS] if raw else ""), meta
+
+
+def _finding_contract(finding: Dict[str, Any], source: str,
+                      rule_key: str, project_root: Path) -> Dict[str, Any]:
+    """把扫描 finding 包装为 finding 契约视图（T-0108 F7，对齐
+    loop_core/schemas/finding.schema.json 必填字段）。
+
+    字段由构造保证完整 → schema_status=VALID（自包含，不依赖 loop_core
+    导入路径；agents 脚本以独立 subprocess 运行）。""" 
+    file = str(finding.get("file", ""))
+    domain = file.split("/", 1)[0] if file else "loop_core"
+    return {
+        "finding_id": finding.get("finding_id", rule_key),
+        "source": source,
+        "severity": str(finding.get("severity", "medium")).lower(),
+        "title": f"[{rule_key}] {finding.get('rule', finding.get('issue', ''))}",
+        "message": finding.get("description", finding.get("issue", rule_key)),
+        "file": file,
+        "line": int(finding.get("line", 0) or 0),
+        "snippet": finding.get("snippet", "")[:200],
+        "truncated": bool(finding.get("truncated", False)),
+        "expected_output": "消除该安全扫描命中项（确认非误报后修复/豁免并记录）",
+        "fix_boundary": {
+            "allowed_paths": [f"{domain}/"],
+            "forbidden": ["hooks/"],
+        },
+        "verification_command": "python -m pytest tests/ -q",
+        "acceptance_checks": [
+            f"{file} 不再命中 {rule_key}",
+            "重跑扫描确认无回归",
+        ],
+        "schema_status": "VALID",
+    }
+
 def _read_file(path: Path) -> Optional[str]:
     """安全读取文件内容。"""
     try:
@@ -134,13 +183,13 @@ def _run_npm_audit(project_root: Path) -> Tuple[Dict[str, int], str, Optional[st
                     sev = v.get("severity", "").upper()
                     if sev in counts:
                         counts[sev] += 1
-            return counts, raw[:500], None  # 真实扫描结果
+            return counts, raw, None  # 真实扫描结果（截断与标志在调用方统一处理，D1-7）
         except json.JSONDecodeError:
             pass
     # 输出不可解析：非零退出视为工具/环境失败（SKIPPED），零退出视为无漏洞
     if result.returncode == 0:
-        return counts, raw[:500], None
-    return counts, raw[:500], _tool_failure_reason("npm audit", result)
+        return counts, raw, None
+    return counts, raw, _tool_failure_reason("npm audit", result)
 
 
 def _tool_failure_reason(tool: str, result: subprocess.CompletedProcess) -> str:
@@ -192,13 +241,13 @@ def _run_pip_audit(project_root: Path) -> Tuple[Dict[str, int], str, Optional[st
                                 sev = (v.get("severity") or "").upper()
                                 if sev in counts:
                                     counts[sev] += 1
-            return counts, raw[:500], None  # 真实扫描结果（可能含真实 CVE）
+            return counts, raw, None  # 真实扫描结果（截断与标志在调用方统一处理，D1-7）（可能含真实 CVE）
         except json.JSONDecodeError:
             pass
     # 输出不可解析：零退出 = 无漏洞声明；非零退出 = 环境/工具失败 → SKIPPED
     if result.returncode == 0:
-        return counts, raw[:500], None
-    return counts, raw[:500], _tool_failure_reason("pip-audit", result)
+        return counts, raw, None
+    return counts, raw, _tool_failure_reason("pip-audit", result)
 
 
 def _detect_project_type(project_root: Path) -> str:
@@ -265,12 +314,17 @@ def run_dependency_scan(project_root: Path) -> Dict[str, Any]:
         }
 
     blocked = counts.get("HIGH", 0) > 0 or counts.get("CRITICAL", 0) > 0
+    raw_slice, raw_meta = _slice_raw(raw)
     return {
         "name": "dependency_scan",
         "status": "blocked" if blocked else "pass",
         "counts": counts,
         "source": tool,
-        "raw": raw[:500] if raw else "",
+        "raw": raw_slice,
+        # P3 D1-7 (T-0108 F7)：结构化截断标志 —— 下游不得把部分输出当完整结果
+        "raw_truncated": raw_meta["truncated"],
+        "raw_length": raw_meta["raw_length"],
+        "raw_max": raw_meta["raw_max"],
         "skipped": False,
     }
 
@@ -437,6 +491,11 @@ def run_secret_scan(project_root: Path) -> Dict[str, Any]:
                         "rule": pattern_name,
                         "match": matched[:80] + ("..." if len(matched) > 80 else ""),
                         "description": description,
+                        # T-0108 F7 (D1-7)：结构化 finding 字段
+                        "finding_id": f"SEC-{len(findings) + 1:04d}",
+                        "severity": "high",
+                        "truncated": len(matched) > 80,
+                        "snippet": matched[:80],
                     })
 
     blocked = len(findings) > 0
@@ -562,6 +621,9 @@ def run_injection_scan(project_root: Path) -> Dict[str, Any]:
                         "severity": "HIGH",
                         "description": description,
                         "snippet": stripped[:120],
+                        # T-0108 F7 (D1-7)：结构化 finding 字段
+                        "finding_id": f"INJ-H-{len(high_findings) + 1:04d}",
+                        "truncated": len(stripped) > 120,
                     })
 
             # MEDIUM 风险
@@ -574,6 +636,9 @@ def run_injection_scan(project_root: Path) -> Dict[str, Any]:
                         "severity": "MEDIUM",
                         "description": description,
                         "snippet": stripped[:120],
+                        # T-0108 F7 (D1-7)：结构化 finding 字段
+                        "finding_id": f"INJ-M-{len(medium_findings) + 1:04d}",
+                        "truncated": len(stripped) > 120,
                     })
 
     blocked = len(high_findings) > 0
@@ -715,6 +780,10 @@ def run_permission_audit(project_root: Path) -> Dict[str, Any]:
                     "route": line.strip()[:100],
                     "issue": "路由未挂载鉴权中间件",
                     "severity": "HIGH" if method in ("POST", "PUT", "PATCH", "DELETE") else "MEDIUM",
+                    # T-0108 F7 (D1-7)：结构化 finding 字段
+                    "finding_id": f"PERM-{len(findings) + 1:04d}",
+                    "truncated": len(line.strip()) > 100,
+                    "snippet": line.strip()[:100],
                 })
 
     # 只阻断高危（写操作无鉴权）
@@ -734,6 +803,26 @@ def run_permission_audit(project_root: Path) -> Dict[str, Any]:
 # ──────────────────────────────────────────────
 # 5. 报告生成
 # ──────────────────────────────────────────────
+
+def _attach_contract(scan: Dict[str, Any], project_root: Path) -> Dict[str, Any]:
+    """为扫描项附加 findings_contract 视图（T-0108 F7：输出收敛到 finding
+    契约；加字段不删字段，旧消费方兼容）。"""
+    name = scan.get("name")
+    findings: List[Dict[str, Any]] = []
+    if name == "secret_scan":
+        findings = scan.get("findings", [])
+    elif name == "injection_scan":
+        findings = (scan.get("high_findings", []) + scan.get("medium_findings", []))
+    elif name == "permission_audit":
+        findings = scan.get("findings", [])
+    scan["findings_contract"] = [
+        _finding_contract(f, "run_security_scan",
+                          str(f.get("finding_id", f.get("rule", name))),
+                          project_root)
+        for f in findings
+    ]
+    return scan
+
 
 def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir: Path) -> str:
     """生成 JSON 报告和 Markdown 摘要。返回 overall 判定。
@@ -879,6 +968,10 @@ def main():
     print("[run_security_scan] 4/4 权限模型审计...", file=sys.stderr)
     perm_scan = run_permission_audit(project_root)
     scans.append(perm_scan)
+
+    # T-0108 F7：各扫描项附加 findings_contract（finding 契约视图）
+    for scan in scans:
+        _attach_contract(scan, project_root)
 
     # 生成报告
     overall = generate_report(scans, project_root, output_dir)

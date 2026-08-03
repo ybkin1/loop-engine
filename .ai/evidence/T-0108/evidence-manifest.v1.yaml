@@ -1,0 +1,84 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0108-B7C266B1
+task_id: T-0108
+gate_id: G-T-0108-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0108
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0108/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: E85DF7508A4B6F07B71E0C7574AE0760CBDDD129FDBB70A3A86C106CF399A62C
+  size: 4414
+  mtime_ns: 1785757469567409600
+- path: .ai/evidence/T-0108/approval-evidence.json
+  role: result
+  required: true
+  sha256: 4B08C30840748F3684FF574A1DA30F1AFC4165DDAE1C4FF6AAF7DCC12465EFE6
+  size: 300
+  mtime_ns: 1785754715037168800
+- path: .ai/evidence/T-0108/commands.md
+  role: result
+  required: true
+  sha256: 09E794DB8C0F29B84A75B548AD2DE0A9E61C77CBCA9D3AC4E28F84133298C615
+  size: 11760
+  mtime_ns: 1785756559260984500
+- path: .ai/evidence/T-0108/compile-evidence.json
+  role: result
+  required: true
+  sha256: 2527C2B3BB5A3E0BC51A397E77FA47F3BEF4080375F02AFB2A5F9D6B40D0D5F2
+  size: 181
+  mtime_ns: 1785754743938764400
+- path: .ai/evidence/T-0108/execution-evidence.json
+  role: result
+  required: true
+  sha256: FD5C25486A16A4A98CD0BCB7EE4131335C3F9E6F637613629DACCA9C3AE42A21
+  size: 1022
+  mtime_ns: 1785754715060524100
+- path: .ai/evidence/T-0108/fixes/f2-freshness.md
+  role: result
+  required: true
+  sha256: 3FC6F78DF368A006355CBD8B1FFCB5224789CA790332034A63E6EE021D8E6C47
+  size: 2969
+  mtime_ns: 1785756171925957700
+- path: .ai/evidence/T-0108/fixes/f4-doc-routing.md
+  role: result
+  required: true
+  sha256: 7F4F9F101280AD9159829DC31EAFE3969820598560D7C407676B9B9E1A9F1E06
+  size: 4545
+  mtime_ns: 1785756551682971700
+- path: .ai/evidence/T-0108/fixes/f6-context.md
+  role: result
+  required: true
+  sha256: C26336F80D9020450E7DF703403CEC9BE09B810E82624BC95F520F56585505E3
+  size: 2956
+  mtime_ns: 1785756141126774400
+- path: .ai/evidence/T-0108/fixes/f7-finding.md
+  role: result
+  required: true
+  sha256: F5AB394EE69A0F6C97FFCC28895945172F5ED82D584D087A0DDA06FB2405F894
+  size: 5198
+  mtime_ns: 1785756154296126900
+- path: .ai/evidence/T-0108/fixes/f8-contract-tests.md
+  role: result
+  required: true
+  sha256: 85CAB361C3753C512CD6001675872680A5E073402603AED85C13D011D9FD7FC3
+  size: 2540
+  mtime_ns: 1785756163147417100
+- path: .ai/evidence/T-0108/review/independent-review.md
+  role: result
+  required: true
+  sha256: 8E059724754C3521CA475A66A30EF9A4EB2E8E6F1FFE386E36EB4FC21AF6CDD4
+  size: 15103
+  mtime_ns: 1785757440936822200
+file_count: 11
+total_bytes: 50988
+ordered_entries_sha256: B7C266B195E43D4B074DA4B4899DD8FFFCBF345265755B63F78594E2C348AA32
+created_at: '2026-08-03T16:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: CE989203BEC1196984A85F0950E16F102F5027AB38DC547D3D54312DC37A94B1

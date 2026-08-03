@@ -33,11 +33,14 @@ D3 (T-0096) — Optional memory injection:
 from __future__ import annotations
 
 import json
+import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -1155,8 +1158,12 @@ class ContextLoader:
         # Then, add relevant sections from the project document
         doc_index = self.build_document_index(doc_path)
 
-        # Select relevant sections based on the role and document
-        relevant_sections = _select_relevant_sections(role_id, doc_index)
+        # Select relevant sections based on the role and document.
+        # T-0108 F4 (D5-3): routed via .ai/README.md section_routing table
+        # when present; legacy keyword heuristic otherwise (with warning).
+        relevant_sections = _select_relevant_sections(
+            role_id, doc_index, project_root=self._project_root
+        )
 
         doc_parts: list[str] = []
         for section_name in relevant_sections:
@@ -1297,21 +1304,43 @@ def _extract_framework_titles(framework_path: Path) -> str | None:
 
 
 def _select_relevant_sections(
-    role_id: str, doc_index: DocumentIndex
+    role_id: str, doc_index: DocumentIndex, project_root: Path | str | None = None
 ) -> list[str]:
     """Select document sections relevant to a given role.
 
-    Uses keyword-based matching between the role_id and section names.
-    This is a simple heuristic; a production system might use embedding
-    similarity or explicit mapping rules.
+    T-0108 F4 (D5-3 消解): when *project_root* is given, section selection
+    is driven by the Switchboard routing table in ``.ai/README.md``
+    (front-matter ``section_routing:`` — role → keyword list, substring
+    match on lowercased section names, same semantics as the legacy
+    heuristic so golden snapshots are unchanged).  If the routing table is
+    missing/unparseable, falls back to the legacy keyword heuristic and
+    logs a warning (fail-closed: never silently return an empty context).
 
-    Falls back to returning all section names if no match is found (the
-    caller can decide how many to include).
+    Falls back to returning the first 3 section names when no match is
+    found (the caller can decide how many to include).
     """
     available = list(doc_index.sections.keys())
     if not available:
         return []
 
+    routing = _load_section_routing(project_root)
+    if routing is not None:
+        keywords = routing.get(role_id, routing.get("default", []))
+        if not isinstance(keywords, list):
+            keywords = []
+        keywords = [str(k) for k in keywords]
+        if not keywords:
+            return available[:3]
+        matched = [s for s in available if any(kw in s.lower() for kw in keywords)]
+        return matched if matched else available[:3]
+
+    if project_root is not None:
+        logger.warning(
+            "[context_loader] .ai/README.md section_routing missing — "
+            "falling back to legacy keyword heuristic (D5-3)"
+        )
+
+    # ── Legacy keyword heuristic (fallback, kept byte-for-byte) ─────────
     # Map role keywords to likely section-name keywords
     role_keywords: dict[str, list[str]] = {
         "quality-engineer": ["test", "quality", "coverage", "lint", "gate"],
@@ -1340,3 +1369,64 @@ def _select_relevant_sections(
             matched.append(section_name)
 
     return matched if matched else available[:3]
+
+
+# T-0108 F4: Switchboard routing-table loader (D5-3).
+# key = (readme_path, mtime_ns, size) → routing dict or None (missing/invalid).
+_ROUTING_CACHE: dict[tuple[str, int, int], dict | None] = {}
+
+
+def _parse_front_matter_yaml(text: str) -> Any:
+    """Parse a leading ``--- ... ---`` YAML front-matter block, else None."""
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    end = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end = i
+            break
+    if end is None:
+        return None
+    block = "\n".join(lines[1:end])
+    try:
+        import yaml
+        return yaml.safe_load(block)
+    except ImportError:
+        pass
+    except Exception:
+        pass
+    try:
+        return json.loads(block)
+    except Exception:
+        return None
+
+
+def _load_section_routing(project_root: Path | str | None) -> dict | None:
+    """Load the ``section_routing`` table from ``.ai/README.md``.
+
+    Returns None when the README is missing or has no usable
+    ``section_routing`` mapping — the caller falls back to the legacy
+    heuristic.  Never raises.
+    """
+    if project_root is None:
+        return None
+    readme = Path(project_root) / ".ai" / "README.md"
+    try:
+        stat = readme.stat()
+    except OSError:
+        return None
+    key = (str(readme), stat.st_mtime_ns, stat.st_size)
+    if key in _ROUTING_CACHE:
+        return _ROUTING_CACHE[key]
+    result: dict | None = None
+    try:
+        front_matter = _parse_front_matter_yaml(readme.read_text(encoding="utf-8"))
+        if isinstance(front_matter, dict):
+            routing = front_matter.get("section_routing")
+            if isinstance(routing, dict):
+                result = routing
+    except Exception:
+        result = None
+    _ROUTING_CACHE[key] = result
+    return result

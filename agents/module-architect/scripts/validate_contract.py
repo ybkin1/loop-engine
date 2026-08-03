@@ -265,6 +265,16 @@ def validate_contract_schema(contract: Dict[str, Any]) -> List[Dict[str, str]]:
 # 2. 代码实际导出解析
 # ──────────────────────────────────────────────
 
+# P3 D4-11 (T-0108 F7)：解析失败不再静默返回空导出 —— 收窄异常并记录
+# 失败文件与原因，报告内透明上报（parse_errors）。
+_PARSE_ERRORS: Dict[str, str] = {}
+
+
+def parse_errors() -> Dict[str, str]:
+    """返回解析失败记录 {文件: 原因}（D4-11 失败原因区分上报）。"""
+    return dict(_PARSE_ERRORS)
+
+
 def parse_python_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
     """
     解析 Python 模块的公共导出。
@@ -276,7 +286,10 @@ def parse_python_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
     try:
         source = filepath.read_text(encoding="utf-8", errors="replace")
         tree = ast.parse(source, filename=str(filepath))
-    except (SyntaxError, Exception):
+    except (SyntaxError, UnicodeDecodeError, OSError) as exc:
+        # D4-11：收窄异常（不再吞 KeyboardInterrupt/SystemExit/任意异常），
+        # 记录失败文件（不再静默返回空导出）
+        _PARSE_ERRORS[str(filepath)] = f"{type(exc).__name__}: {exc}"
         return exports
 
     # 查找 __all__
@@ -339,7 +352,9 @@ def parse_typescript_exports(filepath: Path) -> Dict[str, Dict[str, Any]]:
     exports: Dict[str, Dict[str, Any]] = {}
     try:
         source = filepath.read_text(encoding="utf-8", errors="replace")
-    except Exception:
+    except (UnicodeDecodeError, OSError) as exc:
+        # D4-11：收窄异常并记录失败文件（不再静默返回空导出）
+        _PARSE_ERRORS[str(filepath)] = f"{type(exc).__name__}: {exc}"
         return exports
 
     # 匹配 export function name(params): returnType
@@ -549,6 +564,9 @@ def main():
 
     if compare_result:
         output["compare"] = compare_result
+
+    # D4-11 (T-0108 F7)：解析失败文件透明上报（不静默）
+    output["parse_errors"] = parse_errors()
 
     # 判定 overall
     has_comparison_issues = False
