@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0111",
+  "gate_id": "G-T-0111-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-04T09:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "修复器度量：guard-events check_type=repair 事件 + repair_trigger_rate/classification 指标 + D4-6 读侧计数",
+    "缺陷归类报告（over_strict/unstable_generation/benign）",
+    "臃肿终态审计：死工具复核（不删除，交用户 gate）/归档核对/注册表终态",
+    "P3 追加：D3-3 归档保留 N 份 + 跨归档链延续；D3-7 留档",
+    "全量回归 0 failed + perf 基线 + bump 3.12.48",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0111-REQUIREMENTS 已由用户批准（批准文本：批准 T-0111）。T-0106 排布收官。硬约束：repair_continuity.py 零改动、hooks/ 零改动、不执行工具删除（复核交用户独立 gate）、fail-closed 不变。"
+}

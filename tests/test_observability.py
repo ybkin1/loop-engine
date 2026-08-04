@@ -537,21 +537,98 @@ class TestT0095EventRotation:
         assert not Path(f"{path}.1").exists()
         assert len(rec.read_events()) == 3
 
-    def test_rotation_failure_never_blocks_recording(self, tmp_path, monkeypatch):
-        """A rotation that cannot happen (archive rename fails) must not make
-        record() fail — observation never blocks the business path."""
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0111 D4-6: 读侧损坏行计数（与写侧 failures 对称；不再静默丢弃）
+# ═══════════════════════════════════════════════════════════════════════
+
+class TestT0111ReadCorruptCounting:
+    """损坏行被跳过但被计数 + warning，summary() 上报 read_corrupt_lines；
+    可读历史（前缀与后缀）全部保留。"""
+
+    def test_corrupt_line_counted_history_preserved(self, tmp_path):
         path = tmp_path / "events.jsonl"
-        rec = GuardEventRecorder(path, max_lines=1, max_bytes=1 << 30,
-                                 max_archives=1)
-        self._event_id(rec)
+        rec = GuardEventRecorder(path)
+        good1 = _event(rec, "gate_guard", CHECK_HEALTH, RESULT_PASS)
+        path.write_text(path.read_text(encoding="utf-8")
+                        + "this is not json {{{[[[\n")
+        good2 = _event(rec, "gate_guard", CHECK_HEALTH, RESULT_FAIL,
+                       failure_reason="boom")
+        s = rec.summary()  # 单次读：损坏行计 1，可读历史全部保留
+        assert s["read_corrupt_lines"] == 1
+        assert s["total_events"] == 2
+        assert s["by_result"] == {RESULT_PASS: 1, RESULT_FAIL: 1}
+        # 计数器为进程内累计（与写侧 failures 同语义）：再读一次 +1
+        rec.read_events()
+        assert rec.read_corrupt_lines == 2
 
-        def _broken_replace(src, dst):
-            raise OSError("simulated rotation rename failure")
+    def test_corrupt_line_in_middle_keeps_suffix(self, tmp_path):
+        """中段损坏不再截断后缀（旧实现整文件 abort，后缀丢失）。"""
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path)
+        e1 = _event(rec, "gate_guard", CHECK_HEALTH, RESULT_PASS)
+        raw = path.read_text(encoding="utf-8")
+        path.write_text(raw + "corrupt {{{\n")
+        e2 = _event(rec, "gate_guard", CHECK_HEALTH, RESULT_PASS)
+        events = rec.read_events()
+        assert [e.event_id for e in events] == [e1.event_id, e2.event_id]
+        assert rec.read_corrupt_lines == 1
 
-        monkeypatch.setattr("loop_core.observability.os.replace",
-                            _broken_replace)
-        # record() must still succeed (append proceeds) — no exception and
-        # no observation failure counted
-        self._event_id(rec)
-        assert rec.failures == 0
-        assert len(rec.read_events()) == 2
+    def test_corrupt_line_in_archive_counted(self, tmp_path):
+        """轮转归档内的损坏行同样计数（读归档与读主文件一致）。"""
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path, max_lines=2, max_bytes=1 << 30,
+                                 max_archives=2)
+        for _ in range(3):
+            _event(rec, "g_rot", CHECK_HEALTH, RESULT_PASS)
+        archive = Path(f"{path}.1")
+        assert archive.exists()
+        archive.write_text(archive.read_text(encoding="utf-8")
+                           + "broken {{{\n")
+        events = rec.read_events()
+        assert rec.read_corrupt_lines == 1
+        assert len(events) == 3
+
+    def test_repair_check_type_constant_and_recording(self, tmp_path):
+        """T-0111: check_type="repair" 事件常量 + 记录 + 回读（AC-01
+        事件层断言，与 tools 写入点同 schema）。"""
+        from loop_core.observability import CHECK_REPAIR
+        assert CHECK_REPAIR == "repair"
+        path = tmp_path / "events.jsonl"
+        rec = GuardEventRecorder(path)
+        event = GuardCheckEvent(
+            guard_id="repair_continuity",
+            check_type=CHECK_REPAIR,
+            result=RESULT_PASS,
+            duration_ms=0.0,
+            failure_reason="SOURCE_DRIFT fixed=1",
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            source="tool:validate_state",
+        )
+        rec.record(event)
+        read = rec.read_events()
+        assert len(read) == 1
+        assert read[0].check_type == CHECK_REPAIR
+        assert read[0].guard_id == "repair_continuity"
+        assert read[0].result == RESULT_PASS
+        assert "fixed=1" in read[0].failure_reason
+
+
+def test_rotation_failure_never_blocks_recording(tmp_path, monkeypatch):
+    """A rotation that cannot happen (archive rename fails) must not make
+    record() fail — observation never blocks the business path."""
+    path = tmp_path / "events.jsonl"
+    rec = GuardEventRecorder(path, max_lines=1, max_bytes=1 << 30,
+                             max_archives=1)
+    _event(rec, "g_rot", CHECK_HEALTH, RESULT_PASS)
+
+    def _broken_replace(src, dst):
+        raise OSError("simulated rotation rename failure")
+
+    monkeypatch.setattr("loop_core.observability.os.replace",
+                        _broken_replace)
+    # record() must still succeed (append proceeds) — no exception and
+    # no observation failure counted
+    _event(rec, "g_rot", CHECK_HEALTH, RESULT_PASS)
+    assert rec.failures == 0
+    assert len(rec.read_events()) == 2

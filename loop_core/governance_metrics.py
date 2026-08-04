@@ -59,6 +59,7 @@ from __future__ import annotations
 import hashlib  # noqa: F401 — 命名空间保持（拆分前同源绑定，dir() 面不变）
 import json
 import math  # noqa: F401 — 命名空间保持
+import re
 import statistics  # noqa: F401 — 命名空间保持
 import subprocess  # noqa: F401 — 命名空间保持
 from collections import Counter  # noqa: F401 — 命名空间保持
@@ -110,7 +111,7 @@ from loop_core.governance_loaders import (
     load_runtime_events,
     load_tasks,
 )
-from loop_core.observability import GuardCheckEvent  # noqa: F401 — 命名空间保持
+from loop_core.observability import CHECK_REPAIR, GuardCheckEvent  # noqa: F401 — 命名空间保持
 from loop_core.schemas.evidence_state import (  # T-0109 F1 (advisory)
     DEFAULT_SCORE_CAPS,
     SCORE_BANDS,
@@ -224,6 +225,103 @@ def build_loop_effectiveness(ctx: SliContext) -> dict[str, Any]:
         else _not_available("no task with both created_at and updated_at")
     ) if ctx.tasks is not None else _not_available("task graph unavailable")
     return {"status": "computed", **effectiveness}
+
+
+# ── T-0111: 修复器触发率 / 缺陷归类（报告制，不自动阻断）────────────────
+# 数据源 = guard-events 的 check_type="repair" 事件（observability.py
+# CHECK_REPAIR，由 validate_state REPAIR_MODE / close_session 收尾写入）。
+# 两个指标都是 guard_events 的纯函数（可复现），只进入 metrics 报告与
+# repair-classification-report，绝不进入任何 gate 判定路径（AC-03 语义）。
+
+_REPAIR_FIXED_RE = re.compile(r"fixed=(\d+)")
+
+
+def repair_trigger_rate(events: Sequence[GuardCheckEvent]) -> dict[str, Any]:
+    """repair 触发率 = 周期内 repair 事件数 / guard 检查总数。
+
+    - 无事件（空源）→ NOT_AVAILABLE（fail-closed：不合成零值，与
+      guard_anomaly_rates 同口径）。
+    - 返回 ``{status, repair_events, total_events, rate}``（rate 0~1，
+      4 位小数；repair_events=0 时 rate=0.0 为真实观测值，可计算）。
+    """
+    if not events:
+        return _not_available("no guard events")
+    total = len(events)
+    repairs = sum(1 for e in events if e.check_type == CHECK_REPAIR)
+    return {
+        "status": "computed",
+        "repair_events": repairs,
+        "total_events": total,
+        "rate": round(repairs / total, 4),
+        "basis": "repair events / guard check events (window)",
+    }
+
+
+def classify_repair_event(event: GuardCheckEvent) -> str:
+    """单条 repair 事件归类（design-common-weakness.md 3.3，报告制）。
+
+    - ``unstable_generation``：repair 事件 fixed>0 —— 生成器写入后未同步
+      manifest（修复确有物可修，说明生成路径漏更新清单）。
+    - ``over_strict``：result=FAIL 且 fixed=0 —— 修复无物可修但校验仍失败
+      （规则/白名单与真实写入路径不匹配的证据）。
+    - ``benign``：其余（动态收尾 fixed=0 属正常无漂移；修复尝试未执行或
+      failure_reason 不可解析）。
+
+    只分类、不阻断：调用方（metrics 报告/归类报告）不得把返回值传入
+    任何 gate 判定路径。
+    """
+    m = _REPAIR_FIXED_RE.search(event.failure_reason or "")
+    fixed = int(m.group(1)) if m else None
+    if fixed is not None and fixed > 0:
+        return "unstable_generation"
+    if event.result == "FAIL" and fixed == 0:
+        return "over_strict"
+    return "benign"
+
+
+def repair_classification(events: Sequence[GuardCheckEvent]) -> dict[str, Any]:
+    """repair 事件分类汇总（AC-02，报告制不自动阻断）。
+
+    输出 ``{over_strict, unstable_generation, benign}`` 三类计数 +
+    ``over_strict_runs``（连续 ≥2 条 over_strict 的连续段数，固定=0 的
+    "连续场景"是校验过严的最强证据）与逐条 ``events`` 明细。空输入 →
+    NOT_AVAILABLE。
+    """
+    repairs = [e for e in events if e.check_type == CHECK_REPAIR]
+    if not repairs:
+        return _not_available("no repair events")
+    counts: Counter[str] = Counter()
+    labels: list[dict[str, Any]] = []
+    runs = 0
+    run_len = 0
+    for e in repairs:
+        label = classify_repair_event(e)
+        counts[label] += 1
+        labels.append({
+            "event_id": e.event_id,
+            "result": e.result,
+            "failure_reason": e.failure_reason,
+            "timestamp": e.timestamp,
+            "classification": label,
+        })
+        if label == "over_strict":
+            run_len += 1
+        else:
+            if run_len >= 2:
+                runs += 1
+            run_len = 0
+    if run_len >= 2:
+        runs += 1
+    return {
+        "status": "computed",
+        "over_strict": counts["over_strict"],
+        "unstable_generation": counts["unstable_generation"],
+        "benign": counts["benign"],
+        "over_strict_runs": runs,
+        "events": labels,
+        "basis": "fixed=0+FAIL -> over_strict; fixed>0 -> "
+                 "unstable_generation; else benign (report-only)",
+    }
 
 
 def evidence_score_advisory(raw_score: float | int,

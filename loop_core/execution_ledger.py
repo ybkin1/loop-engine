@@ -110,16 +110,24 @@ class ExecutionLedger:
     chain_hash = SHA256(上一条.chain_hash || 本条 JSON 行)
     改任何一行 → 后续 chain_hash 全部断裂 → Hook 可以检测并阻断后续写入。
 
-    自动 checkpoint：超过 _MAX_ENTRIES 条后，归档旧文件并重置。
+    自动 checkpoint（T-0111 D3-3）：超过 _MAX_ENTRIES 条后，旧文件归档
+    为 executions.<ts>.jsonl（保留最近 max_archives 份，最旧删除）；新
+    活动文件从最新归档尾哈希续链 —— 全部保留历史构成一条连续防篡改链
+    （verify_archive_chain 可验证跨归档链延续）。
     """
 
     CHAIN_HASH_KEY = "chain_hash"
     _ROOT_SEED = b"LOOP_ENGINE_EXECUTION_LEDGER_V1_ROOT"
     _MAX_ENTRIES = 200  # 超过此数自动归档重置
+    # T-0111 D3-3: 归档保留 N 份（与 guard-events 轮转 max_archives=3 对齐）。
+    # 超过 N 份时删除最旧归档；跨归档链延续（新链从最新归档尾哈希续接），
+    # 使全部保留历史构成一条连续防篡改链。
+    DEFAULT_MAX_ARCHIVES = 3
 
-    def __init__(self, project_root: Path | str):
+    def __init__(self, project_root: Path | str, *, max_archives: int = DEFAULT_MAX_ARCHIVES):
         self._root = Path(project_root)
         self._ledger_path = self._root / ".ai" / "ledger" / "executions.jsonl"
+        self.max_archives = max(1, int(max_archives))
 
     @property
     def exists(self) -> bool:
@@ -148,10 +156,57 @@ class ExecutionLedger:
     def _root_hash(self) -> str:
         return hashlib.sha256(self._ROOT_SEED).hexdigest()
 
+    def _archives(self) -> list[Path]:
+        """保留的归档文件，最旧在前。归档命名 executions.<ts>[-<n>].jsonl
+        （<n> 为同秒 checkpoint 的防重名计数器）。排序键 (ts, n)：时间戳
+        主序 + 同秒计数器次序 —— 不能按字符串序（'-n' 的 '-' < '.' 会使
+        计数器文件排在无后缀文件之前，颠倒新旧）。"""
+        prefix = self._ledger_path.stem + "."
+
+        def _sort_key(p: Path):
+            rest = p.name[len(prefix):-len(".jsonl")]
+            if "-" in rest:
+                ts, _, seq = rest.rpartition("-")
+                return (ts, int(seq) if seq.isdigit() else rest)
+            return (rest, 0)
+
+        return sorted(
+            self._ledger_path.parent.glob(f"{prefix}*.jsonl"),
+            key=_sort_key,
+        )
+
+    def _read_entries(self, path: Path) -> list[dict[str, Any]]:
+        """读单个归档文件全部条目（损坏行抛 JSONDecodeError——验证语义
+        fail-closed，不静默跳过）。"""
+        with open(path, "r", encoding="utf-8") as f:
+            return [
+                json.loads(line) for line in f if line.strip()
+            ]
+
+    def _last_archive_hash(self) -> str | None:
+        """最新归档的尾 chain_hash（跨归档链延续的续接点）；无归档或
+        归档不可读 → None。"""
+        archives = self._archives()
+        if not archives:
+            return None
+        try:
+            entries = self._read_entries(archives[-1])
+        except (OSError, json.JSONDecodeError):
+            return None
+        if entries:
+            return entries[-1].get(self.CHAIN_HASH_KEY) or None
+        return None
+
     def _last_chain_hash(self) -> str:
         entries = self.read_all()
         if entries:
             return entries[-1][self.CHAIN_HASH_KEY]
+        # T-0111 D3-3: 活动文件为空时，新链从最新归档尾哈希续接而非重置
+        # 到 root —— 跨归档链延续，篡改任意历史段在 verify_archive_chain
+        # 可见。
+        tail = self._last_archive_hash()
+        if tail:
+            return tail
         return self._root_hash()
 
     def _compute_chain_hash(self, prev_hash: str, row_json: str) -> str:
@@ -182,15 +237,26 @@ class ExecutionLedger:
         return ch
 
     def _auto_checkpoint(self) -> None:
-        """超过 _MAX_ENTRIES 条后，归档旧文件并重置。"""
+        """超过 _MAX_ENTRIES 条后，归档旧文件；保留最近 max_archives 份
+        归档（最旧删除，T-0111 D3-3），新活动文件从归档尾哈希续链。"""
         entries = self.read_all()
         if len(entries) < self._MAX_ENTRIES:
             return
 
         now = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         archive_path = self._ledger_path.with_suffix(f".{now}.jsonl")
+        counter = 0
+        while archive_path.exists():  # 同秒多次 checkpoint 防重名
+            counter += 1
+            archive_path = self._ledger_path.with_suffix(f".{now}-{counter}.jsonl")
         self._ledger_path.rename(archive_path)
-        # 新文件从空开始，链自动重置为 root_hash
+        # 保留策略：只留最近 max_archives 份归档
+        archives = self._archives()
+        for stale in archives[:-self.max_archives]:
+            try:
+                stale.unlink()
+            except OSError:
+                pass
 
     def record_launch(self, record: ExecutionRecord) -> str:
         if record.status != ExecutionStatus.LAUNCHED:
@@ -247,26 +313,87 @@ class ExecutionLedger:
 
     # ── 验证 ──────────────────────────────────────────────────────────
 
-    def verify_chain(self) -> tuple[bool, str]:
-        """验证全链 hash。返回 (valid, reason)。"""
-        entries = self.read_all()
-        if not entries:
-            return True, "empty ledger"
+    def _verify_entries(self, entries: list[dict[str, Any]],
+                        prev: str) -> tuple[bool, str, str]:
+        """从 prev 起逐条验证 entries 的链式哈希。
 
-        prev = self._root_hash()
+        Returns: (valid, reason, last_hash)。注意会 pop 掉条目的
+        chain_hash（read_all/_read_entries 每次返回新 dict，无副作用）。
+        """
+        last = prev
         for i, entry in enumerate(entries, 1):
             stored = entry.pop(self.CHAIN_HASH_KEY, None)
             if stored is None:
-                return False, f"line {i}: missing chain_hash"
+                return False, f"line {i}: missing chain_hash", last
             row_json = json.dumps(entry, sort_keys=True, ensure_ascii=False)
-            computed = self._compute_chain_hash(prev, row_json)
+            computed = self._compute_chain_hash(last, row_json)
             if computed != stored:
                 return False, (
                     f"line {i}: mismatch — "
                     f"computed {computed[:16]}..., stored {stored[:16]}..."
-                )
-            prev = stored
-        return True, f"chain verified ({len(entries)} entries)"
+                ), last
+            last = stored
+        return True, f"chain verified ({len(entries)} entries)", last
+
+    def verify_chain(self) -> tuple[bool, str]:
+        """验证活动账本全链 hash。返回 (valid, reason)。
+
+        T-0111 D3-3: 活动文件续接自保留归档时，验证从归档尾哈希起算
+        （跨归档链延续）——只验证活动文件无法发现的历史篡改由
+        verify_archive_chain() 覆盖。"""
+        entries = self.read_all()
+        if not entries:
+            return True, "empty ledger"
+
+        prev = self._last_archive_hash() or self._root_hash()
+        valid, reason, _ = self._verify_entries(entries, prev)
+        return valid, reason
+
+    def verify_archive_chain(self) -> tuple[bool, str]:
+        """验证全部保留历史的连续链（T-0111 D3-3 跨归档链延续）。
+
+        每个归档段内部链完整，且段首条的 prev = 上一段尾哈希；活动文件
+        （如存在）续接最新归档尾。最旧保留段的**首条**为链锚（其前驱
+        归档已被保留策略清理，起点不可知）——锚条自身链路不验证，段内
+        其余条目与全部延续段严格验证。任一验证失败 → (False, 原因)。
+        Returns: (valid, reason)。"""
+        archives = self._archives()
+        prev: str | None = None  # None = 最旧段锚定（首条存储值为锚）
+        total = 0
+        segments = 0
+        for idx, archive in enumerate(archives):
+            try:
+                entries = self._read_entries(archive)
+            except (OSError, json.JSONDecodeError) as e:
+                return False, f"{archive.name}: unreadable ({e})"
+            if not entries:
+                return False, f"{archive.name}: empty archive (chain gap)"
+            if prev is None:
+                anchor = entries[0].get(self.CHAIN_HASH_KEY)
+                if anchor is None:
+                    return False, f"{archive.name}: line 1 missing chain_hash"
+                inner = entries[1:]
+                last = anchor
+            else:
+                inner = entries
+                last = prev
+            if inner:
+                valid, reason, last = self._verify_entries(inner, last)
+                if not valid:
+                    return False, f"{archive.name}: {reason}"
+            prev = last
+            total += len(entries)
+            segments += 1
+        live = self.read_all()
+        if live:
+            valid, reason, last = self._verify_entries(live, prev)
+            if not valid:
+                return False, f"executions.jsonl: {reason}"
+            total += len(live)
+            segments += 1
+        return True, (
+            f"retained chain verified ({segments} segments, {total} entries)"
+        )
 
     def cross_validate(self, task_id: str) -> dict[str, Any]:
         """跨 Agent 校验 Dev vs Reviewer。从账本读取，不靠 Agent 自报。"""

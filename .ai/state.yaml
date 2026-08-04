@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-04T00:29:26.697468+08:00'
+last_handoff_at: '2026-08-04T10:03:04.484175+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -157,3 +157,9 @@ notes:
   1484→965 + human_review_packet 1307→643 + context_loader 1432→839），三批 golden 逐字节一致（425,977/66,082/49,858
   B）+ 自愈 re-exec 实测 （恰一次判定一致）+ hook 套件 1273 passed 0 failed，6/6 AC，独立审查 GO（P0/P1/P2=0），
   全量 4138 passed（5 项已登记/瞬态），hooks/ 仅批 C 五文件、内核零触碰、零删除， bump 3.12.47 提交推送。T-0111（修复器治理+终态审计）待用户批准。'
+- 'T-0111 COMPLETED 2026-08-04: 排布收官 — 修复器度量（guard-events check_type=repair 旁路写入判定零改动
+  + repair_trigger_rate/classification 指标，MetricsReport 结构零改动） + 缺陷归类（over_strict=2/unstable=1/benign=2，报告制无
+  gate 路径）+ 兜底边界 （dynamic_only 不重算 semantic + 非 repair exit 2，5 项测试）+ 终态审计（死工具 复核
+  A/B/C 定性 + run_* 保留 LIVE 契约 + 注册表 36/36 双向零缺口，零删除执行） + D3-3 归档保留 3 份跨归档链 + D4-6
+  读侧计数，8/8 AC，独立审查 GO（P0/P1=0）， 全量 4168 passed（6 项已登记/瞬态），三零（hooks/repair_continuity/内核）+
+  零删除， bump 3.12.48 提交推送。T-0106 排布 T-0107~T-0111 全部完成。死工具删除待用户独立 gate。'

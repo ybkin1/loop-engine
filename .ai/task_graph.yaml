@@ -1254,6 +1254,20 @@ tasks:
     gates:
       - G-T-0110-REQUIREMENTS
   -
+    id: T-0111
+    title: 修复器治理 + 臃肿全景清理验证（排布收官）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      T-0106 排布收官：修复器度量（guard-events check_type=repair + 指标）+ 缺陷归类
+      报告 + 臃肿终态审计（死工具复核[不删除]/归档核对/注册表终态）+ P3 追加
+      （D3-3 归档保留 N 份、D4-6 读侧计数）；repair_continuity.py 零改动；
+      bump 3.12.48。
+    depends_on:
+      - T-0110
+    gates:
+      - G-T-0111-REQUIREMENTS
+  -
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery

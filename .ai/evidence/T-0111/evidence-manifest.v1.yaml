@@ -1,0 +1,84 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0111-128BA509
+task_id: T-0111
+gate_id: G-T-0111-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0111
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0111/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 8B892F39036DE24A2E69D620E5AD8B17A6CD58129C3AA973E0E6C08DCAAF37F9
+  size: 3998
+  mtime_ns: 1785808876508279700
+- path: .ai/evidence/T-0111/approval-evidence.json
+  role: result
+  required: true
+  sha256: 9C887BCC72FC8FC0DEC5B5816D29E552FA657C782E85EED49838486402D7AB5C
+  size: 307
+  mtime_ns: 1785805808786475300
+- path: .ai/evidence/T-0111/commands.md
+  role: result
+  required: true
+  sha256: 1C860CE22392C81CCA16ECE398D5902E02E571E3C02F09ABA2DA165042257263
+  size: 6967
+  mtime_ns: 1785807588177682300
+- path: .ai/evidence/T-0111/compile-evidence.json
+  role: result
+  required: true
+  sha256: 579C5F910912EB234D36C87588B64215624BBA2CB35F31E52173A24562FC6816
+  size: 181
+  mtime_ns: 1785805839878161700
+- path: .ai/evidence/T-0111/design/repair-classification-report.md
+  role: result
+  required: true
+  sha256: 81C5CCC34579130508861CD7265289C68816415A9C66F8243785DDCC604EDE95
+  size: 3949
+  mtime_ns: 1785807208264592600
+- path: .ai/evidence/T-0111/execution-evidence.json
+  role: result
+  required: true
+  sha256: 9915D6BF8257DA226C71D4F7C6119954B7F76CB432349DFC14DA7A37DE8477D0
+  size: 928
+  mtime_ns: 1785805808809488400
+- path: .ai/evidence/T-0111/fixes/archive-cleanup.md
+  role: result
+  required: true
+  sha256: 40EA6252ED1A0E7B133D45DDE745E8E4E4EA438C56F7E6BFB968BF63867AAF53
+  size: 4219
+  mtime_ns: 1785807221119968200
+- path: .ai/evidence/T-0111/fixes/classification.md
+  role: result
+  required: true
+  sha256: D0F815E159478F70FB5A526EED4E496367F8795EE5D009E0F7A8DC2A0DAF1A41
+  size: 2666
+  mtime_ns: 1785807188897434400
+- path: .ai/evidence/T-0111/fixes/final-audit.md
+  role: result
+  required: true
+  sha256: 591AA997C610774B994F58153949DC35A13BB9BF685CCD18C3CAECC57EEC9E5E
+  size: 6270
+  mtime_ns: 1785807237094862100
+- path: .ai/evidence/T-0111/fixes/repair-metrics.md
+  role: result
+  required: true
+  sha256: BD8FC88F89F99EE3CAE56563BEFFDEE557244F9AB816F298D9D63BD082D929C1
+  size: 5688
+  mtime_ns: 1785807178726532600
+- path: .ai/evidence/T-0111/review/independent-review.md
+  role: result
+  required: true
+  sha256: 75D5E5F6A5FF416BC1C51220D7E4EA39C2DE43484DB18AEECEECFAABAB145B1A
+  size: 13530
+  mtime_ns: 1785808841080937900
+file_count: 11
+total_bytes: 48703
+ordered_entries_sha256: 128BA509501F8AB473F77376D2783BEC5F75BE47D0C943526864597C0C0FA5EA
+created_at: '2026-08-04T10:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: 9554F198B8F6644D4EC90049D48BA15BCEC6A67259ACDD3769E8946689BAB05E

@@ -69,6 +69,7 @@ NON_STATE_WRITERS = {
     "hooks/scripts/role_isolation.py",    # 仅 stdout 写
     "hooks/scripts/session_brief.py",     # 仅 stdout 写
     "tools/loop_onboard.py",          # AGENTS.md/skills 模板拷贝（state 仅读）
+    ".zcode/tools/validate_state.py", # T-0111 repair 事件写 guard-events.jsonl（事件日志，非状态五写）
 }
 
 

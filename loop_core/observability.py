@@ -40,6 +40,10 @@ CHECK_DEATH = "death"          # per-guard verdict (ALIVE/DORMANT/BROKEN)
 CHECK_MISSING = "missing"      # unregistered implementation file (REPORT)
 CHECK_DRIFT = "drift"          # registered binding drifted from disk (REPORT)
 CHECK_INTEGRITY = "integrity"  # overall three-way integrity verdict
+# T-0111: 修复器触发点事件（validate_state REPAIR_MODE / close_session 收尾
+# 动态修复写入；PASS = repair 后重新校验通过，FAIL = 修复失败/无物可修）。
+# 枚举向后兼容：既有消费者只按已知 check_type 过滤，未知类型不影响其判定。
+CHECK_REPAIR = "repair"        # continuity auto-repair trigger (T-0111)
 
 # ── Event results ──────────────────────────────────────────────────────────
 RESULT_PASS = "PASS"      # guard behaved as expected / verdict healthy
@@ -132,6 +136,9 @@ class GuardEventRecorder:
         self.max_lines = max_lines
         self.max_bytes = max_bytes
         self.max_archives = max_archives
+        # T-0111 D4-6: 读侧损坏行计数（与写侧 failures 对称）——读历史时
+        # 损坏行不再静默丢弃，逐行计数 + warning，并在 summary() 上报。
+        self.read_corrupt_lines = 0
 
     @property
     def path(self) -> Path:
@@ -198,16 +205,28 @@ class GuardEventRecorder:
             f.write(line)
 
     def _read_file(self, path: Path) -> list[GuardCheckEvent]:
-        """Read one event file; a corrupt trailing line must not hide the
-        readable prefix — the readable history is still returned."""
+        """Read one event file.
+
+        T-0111 D4-6: corrupt lines are counted (``read_corrupt_lines``) and
+        logged, then skipped — a corrupt line must neither hide the readable
+        prefix nor the readable suffix, and the count is surfaced in
+        ``summary()`` instead of being silently dropped (读侧 warning/计数
+        对称，与写侧 failures/last_error 同语义）。"""
         events: list[GuardCheckEvent] = []
         try:
-            for line in path.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
-                    continue
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            return events
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            try:
                 events.append(GuardCheckEvent.from_dict(json.loads(line)))
-        except (OSError, json.JSONDecodeError, ValueError):
-            pass
+            except (json.JSONDecodeError, ValueError):
+                self.read_corrupt_lines += 1
+                logger.warning(
+                    "guard-events corrupt line skipped (counted): %s", path
+                )
         return events
 
     def read_events(self) -> list[GuardCheckEvent]:
@@ -262,4 +281,6 @@ class GuardEventRecorder:
             "by_guard": aggregated,
             "by_result": dict(by_result),
             "observability_failures": self.failures,
+            # T-0111 D4-6: 读侧损坏行计数（非零时表明事件文件有行被跳过）
+            "read_corrupt_lines": self.read_corrupt_lines,
         }

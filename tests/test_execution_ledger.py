@@ -512,3 +512,160 @@ class TestBoundaryCases:
         restored = ExecutionRecord.from_json_row(data)
         assert restored.execution_id == unicode_id
         assert "\u4e2d" in restored.execution_id
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# T-0111 D3-3: 归档保留 N 份 + 跨归档链延续（清理/防篡改链主题）
+# ═══════════════════════════════════════════════════════════════════════
+
+def _entry(i: int, task: str = "T-0001") -> ExecutionRecord:
+    return ExecutionRecord(
+        execution_id=f"exec-{i:03d}",
+        session_id=f"sess-{i}", actor_id=f"actor-{i}",
+        role_id="developer", task_id=task,
+        prompt_fingerprint="f" * 64, input_files_hash="e" * 64,
+        status=ExecutionStatus.LAUNCHED,
+        launched_at="2026-07-23T10:00:00Z",
+    )
+
+
+def _line_ids(path: Path) -> list[str]:
+    return [
+        json.loads(line)["execution_id"]
+        for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
+
+
+def _tamper_entry(path: Path, index: int) -> str:
+    """把归档第 index 条（0 起）的 execution_id 改为 exec-HACKED，返回
+    原 execution_id。"""
+    lines = [l for l in path.read_text(encoding="utf-8").splitlines()
+             if l.strip()]
+    victim = json.loads(lines[index])["execution_id"]
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            f'"execution_id": "{victim}"',
+            '"execution_id": "exec-HACKED"'),
+        encoding="utf-8")
+    return victim
+
+
+class TestArchiveRetentionAndContinuity:
+    """D3-3: checkpoint 归档只保留最近 max_archives 份；活动链从最新归档
+    尾哈希续接 —— 全部保留历史构成一条连续防篡改链（verify_archive_chain）。
+    注：归档名序（_archives，ts+同秒计数器键）与字符串序不同，测试一律
+    用 ledger._archives() 取规范序。"""
+
+    def test_retention_keeps_N_archives_and_prunes_oldest(self, tmp_root, monkeypatch):
+        """9 条 + _MAX_ENTRIES=3 → 3 次 checkpoint → 只保留最近 2 份归档
+        （max_archives=2），最旧归档被清理。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=2)
+        for i in range(9):
+            ledger.append_entry(_entry(i))
+        archives = ledger._archives()
+        assert len(archives) == 2, [p.name for p in archives]
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is True, reason
+
+    def test_default_retention_is_three(self, tmp_root, monkeypatch):
+        """默认 max_archives=3（与 guard-events 轮转保留档对齐）。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root)
+        assert ledger.max_archives == 3
+        for i in range(12):  # 4 次 checkpoint
+            ledger.append_entry(_entry(i))
+        archives = ledger._archives()
+        assert len(archives) == 3, [p.name for p in archives]
+
+    def test_live_chain_continues_from_archive_tail(self, tmp_root, monkeypatch):
+        """checkpoint 后新活动文件从最新归档尾哈希续链：verify_chain 与
+        verify_archive_chain 均通过（跨归档链延续）。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=2)
+        for i in range(3):
+            ledger.append_entry(_entry(i))   # 触发第 1 次 checkpoint
+        tail = ledger._last_archive_hash()
+        assert tail is not None
+        assert len(tail) == 64
+        ledger.append_entry(_entry(100))
+        valid, reason = ledger.verify_chain()
+        assert valid is True, reason
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is True, reason
+
+    def test_tampered_oldest_archive_detected_by_archive_chain(
+            self, tmp_root, monkeypatch):
+        """篡改最旧保留归档的段内条目（第 2 条起）→ verify_archive_chain
+        失败（历史篡改可见）；活动链只依赖最新归档尾 → verify_chain 仍
+        通过。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=2)
+        for i in range(9):
+            ledger.append_entry(_entry(i))
+        ledger.append_entry(_entry(200))  # 活动文件有内容
+        archives = ledger._archives()
+        assert len(archives) == 2
+        oldest = archives[0]
+        assert len(_line_ids(oldest)) >= 2  # 段内第 2 条可验证
+        victim = _tamper_entry(oldest, 1)
+        assert victim.startswith("exec-")
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is False
+        assert "mismatch" in reason.lower()
+        valid, _ = ledger.verify_chain()
+        assert valid is True  # 活动链（仅依赖最新归档尾）不受影响
+
+    def test_oldest_retained_anchor_link_is_bounded(self, tmp_root, monkeypatch):
+        """最旧保留段的锚条（首条）自身链路不可验证（其前驱已被保留策略
+        清理）—— 这是有界保留的固有边界；段内其余与全部延续段仍严格
+        验证。文档化该残余面。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=2)
+        for i in range(9):
+            ledger.append_entry(_entry(i))
+        archives = ledger._archives()
+        assert len(archives) == 2
+        _tamper_entry(archives[0], 0)  # 锚条篡改
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is True, reason  # 锚条篡改不在可验证面内（前驱已清理）
+
+    def test_tampered_newest_archive_detected_by_archive_chain(
+            self, tmp_root, monkeypatch):
+        """篡改最新归档段内条目 —— 归档内部链断裂由 verify_archive_chain
+        捕获；活动链只依赖归档尾哈希**值**（篡改不改变存储的尾值），
+        verify_chain 不受影响 —— 全历史验证的职责在 archive 链。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=2)
+        for i in range(9):
+            ledger.append_entry(_entry(i))
+        ledger.append_entry(_entry(300))
+        archives = ledger._archives()
+        newest = archives[-1]
+        _tamper_entry(newest, 1)  # 段内条目（非锚、非尾）
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is False
+        assert "mismatch" in reason.lower()
+        valid, _ = ledger.verify_chain()
+        assert valid is True  # 尾哈希值未变 → 活动链仍通过（职责分离）
+
+    def test_archive_gap_reported(self, tmp_root, monkeypatch):
+        """保留集内中间归档被删 → verify_archive_chain 报告链空洞
+        （后续归档首条以被删归档尾为 prev，续接断裂可见）。"""
+        monkeypatch.setattr(ExecutionLedger, "_MAX_ENTRIES", 3)
+        ledger = ExecutionLedger(tmp_root, max_archives=3)
+        for i in range(9):  # 3 次 checkpoint → 3 份归档全保留
+            ledger.append_entry(_entry(i))
+        ledger.append_entry(_entry(400))
+        archives = ledger._archives()
+        assert len(archives) == 3
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is True, reason
+        # 删除中间归档（模拟历史段丢失）
+        archives[1].unlink()
+        valid, reason = ledger.verify_archive_chain()
+        assert valid is False
+        assert "mismatch" in reason.lower()
+        # 活动链仍只依赖最新归档尾 → 单独验证仍通过（gap 由 archive 链可见）
+        valid, _ = ledger.verify_chain()
+        assert valid is True

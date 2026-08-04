@@ -17,6 +17,55 @@ from governor_lib import (
 
 # ── Role Contract Checks ──────────────────────────────────────────────────
 
+# T-0111: 修复器触发点 guard-events 事件写入（观测侧旁路，绝不阻断业务）。
+# 与 loop_core.observability 的 GuardCheckEvent 同 schema（check_type=
+# "repair"）；loop_core 不可导入时降级为等价的最小 JSONL 追加。写入失败
+# 一律吞掉——观测不得改变任何既有判定与 exit code 语义。
+def _record_repair_event(root: Path, result: str, failure_reason: str) -> None:
+    import json as _json
+    import uuid as _uuid
+    from datetime import datetime as _dt, timezone as _tz
+    try:
+        import sys as _sys
+        if str(root) not in _sys.path:
+            _sys.path.insert(0, str(root))
+        from loop_core.observability import (
+            CHECK_REPAIR, GuardCheckEvent, GuardEventRecorder,
+        )
+        rec = GuardEventRecorder(
+            root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
+        )
+        rec.record(GuardCheckEvent(
+            guard_id="repair_continuity",
+            check_type=CHECK_REPAIR,
+            result=result,
+            duration_ms=0.0,
+            failure_reason=failure_reason,
+            timestamp=_dt.now(_tz.utc).isoformat(),
+            source=f"tool:{Path(__file__).name}",
+        ))
+    except Exception:  # noqa: BLE001 — 观测失败绝不阻断业务
+        try:
+            p = root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
+            p.parent.mkdir(parents=True, exist_ok=True)
+            line = {
+                "event_id": _uuid.uuid4().hex[:16],
+                "guard_id": "repair_continuity",
+                "capability_id": None,
+                "check_type": "repair",
+                "result": result,
+                "duration_ms": 0.0,
+                "failure_reason": failure_reason,
+                "timestamp": _dt.now(_tz.utc).isoformat(),
+                "source": f"tool:{Path(__file__).name}",
+            }
+            with open(p, "a", encoding="utf-8") as f:
+                f.write(_json.dumps(line, ensure_ascii=False) + "\n")
+        except Exception:  # noqa: BLE001
+            pass
+
+
+
 # Known top-level dimensions of PROJECT_MAP (from loop_core/project_map_schema.py)
 KNOWN_PROJECT_MAP_DIMENSIONS = {"project", "pages", "api_endpoints", "modules", "database"}
 
@@ -430,10 +479,25 @@ def main() -> int:
                         print(f"[loop-governance] [repair] Auto-repaired {result['fixed']} drifted hash(es).")
                         # Re-validate after repair
                         load_project_continuity(root)
+                        # T-0111: repair 事件 PASS 分支（修复 + 重新校验通过）
+                        _record_repair_event(
+                            root, "PASS",
+                            f"SOURCE_DRIFT fixed={result['fixed']}",
+                        )
                     else:
                         errors.append(f"ProjectContinuity invalid: {exc} (auto-repair found nothing to fix)")
+                        # T-0111: repair 事件 FAIL 分支（无物可修 → 校验仍失败）
+                        _record_repair_event(
+                            root, "FAIL",
+                            "SOURCE_DRIFT fixed=0 (auto-repair found nothing to fix)",
+                        )
                 except Exception as re:
                     errors.append(f"ProjectContinuity invalid: {exc} (auto-repair failed: {re})")
+                    # T-0111: repair 事件 FAIL 分支（修复/重新校验抛错）
+                    _record_repair_event(
+                        root, "FAIL",
+                        f"SOURCE_DRIFT auto-repair failed: {re}",
+                    )
             else:
                 errors.append(f"ProjectContinuity invalid: {exc}")
     else:

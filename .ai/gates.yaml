@@ -3816,4 +3816,76 @@ gates:
   - user explicitly approves, rejects, or requests repair of this gate
   - hook files other than the five batch-C files remain unmodified during T-0110
   - no behavior change (golden byte-equivalence) during T-0110
+- id: G-T-0111-REQUIREMENTS
+  task_id: T-0111
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-04T09:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-04T09:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0111
+  approval_evidence: .ai/evidence/T-0111/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0111/execution-evidence.json
+  scope: >-
+    T-0111 排布收官：修复器度量（guard-events check_type=repair + repair_trigger_rate/
+    classification 指标）+ 缺陷归类报告（over_strict/unstable_generation/benign）+
+    臃肿终态审计（死工具复核[不执行删除，交用户独立 gate]/归档核对/注册表终态）+
+    P3 追加（D3-3 归档保留 N 份+跨归档链、D4-6 读侧损坏行计数）；D3-7 留档；
+    repair_continuity.py 零改动；版本 bump 3.12.48。
+  allowed_paths:
+  - .ai/
+  - loop_core/observability.py
+  - loop_core/governance_metrics.py
+  - loop_core/execution_ledger.py
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/close_session.py
+  - .zcode/tools/repair_continuity.py
+  - tools/
+  - tests/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify .zcode/tools/repair_continuity.py (read-only boundary verification)
+  - modify loop_core governance kernel decision logic (gate_guard/enforcement verdicts/hard_constraints/guard_health/state_machine semantics)
+  - execute any tool removal (review conclusions go to user independent gate)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged; non-repair SOURCE_DRIFT still exit 2)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - repair 事件两分支断言 + 归类规则测试
+  - 兜底边界测试（dynamic_only 不重算 semantic；非 repair SOURCE_DRIFT exit 2）
+  - 注册表终态审计（候选复核定性 + 合并清单闭环）
+  - D3-3/D4-6 测试
+  - repair_continuity.py 零改动 + hooks/ 零改动 diff 实证
+  - full regression 0 failed + compile + perf 基线无回退 + release check 6/6
+  - version sync (3.12.48 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hooks/ and repair_continuity.py remain unmodified during T-0111
+  - no tool removal executed during T-0111
 
