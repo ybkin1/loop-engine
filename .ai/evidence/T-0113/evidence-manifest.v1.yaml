@@ -1,0 +1,60 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0113-1EACA373
+task_id: T-0113
+gate_id: G-T-0113-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0113
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0113/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 4CFA01F3929DBC894C3A859EDC1F6E9B401782EEB3A582B9B63BB9EF2E50F41F
+  size: 3402
+  mtime_ns: 1785818018061607700
+- path: .ai/evidence/T-0113/approval-evidence.json
+  role: result
+  required: true
+  sha256: 12D4035EAEDAF5225A7DF646770C146572C798E1D27BBD321502628F25485768
+  size: 328
+  mtime_ns: 1785816606996671000
+- path: .ai/evidence/T-0113/commands.md
+  role: result
+  required: true
+  sha256: E8D3C52EB8A25E3BEB925A5249BA0F0E70B13D56ED7283ACA79F44DD1D038019
+  size: 4336
+  mtime_ns: 1785817406322279500
+- path: .ai/evidence/T-0113/compile-evidence.json
+  role: result
+  required: true
+  sha256: B00DAD66421413E8E8C24FE11D22C020F3CE637B2CD1E4D69BA778F950458521
+  size: 181
+  mtime_ns: 1785816632248165200
+- path: .ai/evidence/T-0113/execution-evidence.json
+  role: result
+  required: true
+  sha256: 02EE50815323C988203BAEA6EA71D3441244859713A9E0AC869CF38E41372113
+  size: 792
+  mtime_ns: 1785816607094431700
+- path: .ai/evidence/T-0113/fixes/removal-execution.md
+  role: result
+  required: true
+  sha256: 7A9E59E1C9103148533E38861EBB41E7B9A79A39953A278DBEF44945653F3151
+  size: 7878
+  mtime_ns: 1785817426266480000
+- path: .ai/evidence/T-0113/review/independent-review.md
+  role: result
+  required: true
+  sha256: EBA48EA10996C1DC3BE52E1EC216CD21AE247E77410D4928F1D7FD182B198358
+  size: 13899
+  mtime_ns: 1785817990171782000
+file_count: 7
+total_bytes: 30816
+ordered_entries_sha256: 1EACA373C4FBF7806648855179A925EE58995B3C69FCFB159DA5619DD86B79A7
+created_at: '2026-08-04T11:30:00+08:00'
+created_by: governance-controller
+semantic_sha256: 1950B32CF056A8B03A1F09D6BE9A21C622341E6AA6834CA34B3EDE2B7258DE8F

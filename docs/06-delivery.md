@@ -1,6 +1,6 @@
 # 06 — 交付清单
 
-> Loop Engine v3.12.48 | 交付日期: 2026-08-02 | 阶段: S6-delivery
+> Loop Engine v3.12.49 | 交付日期: 2026-08-02 | 阶段: S6-delivery
 
 ---
 
@@ -8,7 +8,7 @@
 
 | 属性 | 值 |
 |------|-----|
-| 版本号 | v3.12.48 |
+| 版本号 | v3.12.49 |
 | 发布日期 | 2026-07-22 |
 | 插件名 | loop-governance |
 | 插件 ID | loop-engine |
@@ -40,13 +40,7 @@
 
 | 文件 | 功能 | 状态 |
 |------|------|------|
-| `tools/server.py` | MCP JSON-RPC 服务器 | ✅ |
-| `tools/tool_quality_gates.py` | 质量门禁 | ✅ |
-| `tools/tool_security_scan.py` | 安全扫描 | ✅ |
-| `tools/tool_dependency_analysis.py` | 依赖分析 | ✅ |
-| `tools/tool_contract_validate.py` | 契约验证 | ✅ |
-| `tools/tool_evidence_chain.py` | 证据链验证/冻结 | ✅ |
-| `tools/tool_cost_tracker.py` | 成本报告 | ✅ |
+| `tools/server.py` | MCP JSON-RPC 服务器（含质量门禁/安全扫描/依赖分析/契约验证/证据链/成本报告内联注册表键，T-0113 薄壳已删） | ✅ |
 
 ### 2.4 知识层
 
@@ -90,7 +84,6 @@
 | `scripts/install.py` | 项目适配安装 | ✅ |
 | `scripts/uninstall.py` | 项目卸载 | ✅ |
 | `scripts/cost_tracker.py` | Token 成本追踪 | ✅ |
-| `scripts/evidence_chain.py` | 证据链工具 | ✅ |
 | `scripts/gen_continuity.py` | 连续性文档生成 | ✅ |
 | `.zcode/tools/` | 治理运行时（12 脚本） | ✅ |
 

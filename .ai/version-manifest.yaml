@@ -3,13 +3,13 @@ generated_at: "2026-08-02T00:00:00+08:00"
 generated_by: T-0098
 
 # pyproject.toml is the single source of truth for project release version
-project_release_version: "3.12.48"
+project_release_version: "3.12.49"
 
 # Core protocol version — the Loop Core API contract
-core_protocol_version: "3.12.48"
+core_protocol_version: "3.12.49"
 
 # Plugin version — the ZCode governance plugin
-plugin_version: "3.12.48"
+plugin_version: "3.12.49"
 
 # Historical snapshots (DO NOT modify — preserved for audit trail)
 historical_snapshots:
@@ -43,9 +43,9 @@ historical_snapshots:
 
 # Version consistency matrix
 consistency_check:
-  pyproject_toml: "3.12.48"
-  readme_md: "3.12.48"
-  loop_core_init: "3.12.48"
-  src_loop_engine_init: "3.12.48"
-  docs_06_delivery: "3.12.48"
-  plugin_json: "3.12.48"
+  pyproject_toml: "3.12.49"
+  readme_md: "3.12.49"
+  loop_core_init: "3.12.49"
+  src_loop_engine_init: "3.12.49"
+  docs_06_delivery: "3.12.49"
+  plugin_json: "3.12.49"

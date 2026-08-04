@@ -359,7 +359,7 @@ class ToolCapability:
     description: str = ""
 
 
-# name -> ToolCapability（36 个，与 tools/*.py 一一对应；新增工具必须登记，
+# name -> ToolCapability（30 个，与 tools/*.py 一一对应；新增工具必须登记，
 # 否则注册表完整性测试失败 —— fail-closed，绝不让未登记工具静默存在）。
 TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
     "loop_dashboard": ToolCapability("loop_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
@@ -388,18 +388,10 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "角色能力认证挑战（loop_certify_role）"),
     "tool_constraint_check": ToolCapability("tool_constraint_check", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
         "全部 8 项硬约束检查 C1-C8（loop_constraint_check）"),
-    "tool_contract_validate": ToolCapability("tool_contract_validate", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
-        "接口契约 schema 验证（contract_validate，委托 module-architect 脚本）"),
-    "tool_cost_tracker": ToolCapability("tool_cost_tracker", DOMAIN_METRICS, AUDIENCE_ADVANCED,
-        "token 成本报告（cost_report，委托 scripts/cost_tracker.py）"),
     "tool_dashboard": ToolCapability("tool_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
         "Dashboard MCP 处理器（status/task_graph/gates/guard_health/snapshot）"),
-    "tool_dependency_analysis": ToolCapability("tool_dependency_analysis", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
-        "依赖图分析/循环依赖检测（dependency_analysis，委托 system-architect 脚本）"),
     "tool_eval": ToolCapability("tool_eval", DOMAIN_QUALITY, AUDIENCE_MAINTAINER,
         "Agent eval 套件运行器 CLI（guard sample set/自定义 cases）"),
-    "tool_evidence_chain": ToolCapability("tool_evidence_chain", DOMAIN_EVIDENCE, AUDIENCE_WORKFLOW,
-        "证据链验证/冻结（evidence_verify/evidence_freeze，T-0109 收敛至 loop_core）"),
     "tool_evidence_submit": ToolCapability("tool_evidence_submit", DOMAIN_EVIDENCE, AUDIENCE_WORKFLOW,
         "证据提交并绑定内容哈希（loop_evidence_submit）"),
     "tool_execute_phase": ToolCapability("tool_execute_phase", DOMAIN_EXECUTION, AUDIENCE_WORKFLOW,
@@ -416,8 +408,6 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "渐进式角色上下文加载（loop_load_context）"),
     "tool_planner": ToolCapability("tool_planner", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,
         "计划草案生成（loop_planner）"),
-    "tool_quality_gates": ToolCapability("tool_quality_gates", DOMAIN_QUALITY, AUDIENCE_WORKFLOW,
-        "质量门禁运行（quality_gates_run，委托 quality-engineer 脚本）"),
     "tool_registry_status": ToolCapability("tool_registry_status", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
         "Capability Registry 状态 CLI（T-0087 snapshot/missing/drift）"),
     "tool_review_packet": ToolCapability("tool_review_packet", DOMAIN_REVIEW, AUDIENCE_WORKFLOW,
@@ -426,8 +416,6 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "意图分析/模式推荐（loop_route_intent）"),
     "tool_safe_bash": ToolCapability("tool_safe_bash", DOMAIN_EXECUTION, AUDIENCE_ADVANCED,
         "安全 Bash 执行（路径校验/只读分类，safe_bash MCP）"),
-    "tool_security_scan": ToolCapability("tool_security_scan", DOMAIN_SECURITY, AUDIENCE_WORKFLOW,
-        "安全扫描（security_scan_run，委托 security-engineer 脚本）"),
     "tool_state": ToolCapability("tool_state", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
         "项目状态查询（loop_state）"),
     "tool_task_queue": ToolCapability("tool_task_queue", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,

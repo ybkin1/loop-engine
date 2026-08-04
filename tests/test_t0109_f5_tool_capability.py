@@ -1,13 +1,14 @@
 """
-T-0109 F5 工具 capability 化 — 注册表 36 全覆盖 / 薄壳消除调用测试 /
-重复合并行为等价 / 白名单一致性（AC-04 / AC-05）。
+T-0109 F5 工具 capability 化 + T-0113 薄壳删除 — 注册表 30 全覆盖 /
+内联注册表 LIVE 断言 / 重复合并行为等价 / 白名单一致性（AC-04 / AC-05）。
 
 覆盖：
-- capability_registry 36 工具元数据全覆盖（与 tools/*.py 一一对应）+
+- capability_registry 30 工具元数据全覆盖（与 tools/*.py 一一对应）+
   audience/domain 分级。
-- 薄壳消除：server.py 注册表内联委托与旧薄壳模块 run() 行为等价
-  （subprocess 注入相同输出 → 逐字段一致）；evidence 工具 in-process
-  loop_core 收敛与 scripts/evidence_chain.py 行为等价。
+- 薄壳删除（T-0113）：6 个薄壳 + 2 个 legacy 脚本不再可导入；MCP 注册表
+  内联键（quality_gates_run/security_scan_run/…）仍 LIVE，_dispatch 返回
+  与薄壳 era 相同输出形态（subprocess 注入 fake 输出）；evidence 工具
+  in-process loop_core 为唯一实现。
 - dashboard 四层合并：status_dashboard.Dashboard is dashboard_views.Dashboard
   （单一实现）+ 输出等价。
 - AC-05 白名单一致性：GOVERNANCE_TOOL_DIRS（AST 提取）覆盖全部注册工具；
@@ -53,27 +54,27 @@ from loop_core.capability_registry import (  # noqa: E402
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# AC-04: 注册表 36 工具全覆盖
+# AC-04: 注册表 30 工具全覆盖
 # ═══════════════════════════════════════════════════════════════════════════
 
 class TestToolRegistryCoverage:
     def test_manifest_covers_every_tool_module(self):
-        """tools/*.py 与注册表一一对应（36 = 36，无遗漏无多余）。"""
+        """tools/*.py 与注册表一一对应（30 = 30，无遗漏无多余）。"""
         on_disk = {p.name[:-3] for p in (PROJECT_ROOT / "tools").glob("*.py")}
         registered = set(TOOL_CAPABILITY_MANIFEST)
         assert on_disk == registered
-        assert len(registered) == 36
+        assert len(registered) == 30
 
     def test_all_tool_names_stable(self):
         names = all_tool_names()
         assert names == sorted(names)
-        assert len(names) == 36
+        assert len(names) == 30
 
-    def test_registry_snapshot_sealed_36(self):
+    def test_registry_snapshot_sealed_30(self):
         registry = build_tool_registry(PROJECT_ROOT)
         assert registry.sealed is True
         snapshot = registry.snapshot()
-        assert len(snapshot.entries) == 36
+        assert len(snapshot.entries) == 30
         assert "server" in snapshot.entries
         assert snapshot.entries["server"].provider_id == "tool"
 
@@ -90,9 +91,9 @@ class TestToolRegistryGrouping:
             assert cap.domain, f"{name} 缺少 domain"
 
     def test_audience_grouping_counts(self):
-        """三级 audience 均非空且互斥覆盖 36 个工具。"""
+        """三级 audience 均非空且互斥覆盖 30 个工具。"""
         grouped = {a: tools_by_audience(a) for a in AUDIENCES}
-        assert sum(len(v) for v in grouped.values()) == 36
+        assert sum(len(v) for v in grouped.values()) == 30
         assert all(grouped[a] for a in AUDIENCES)
 
     def test_domain_grouping(self):
@@ -100,16 +101,18 @@ class TestToolRegistryGrouping:
         # 关键域抽查
         assert "tool_state" in tools_by_domain("governance")
         assert "tool_evidence_submit" in tools_by_domain("evidence")
-        assert "tool_security_scan" in tools_by_domain("security")
+        assert "loop_dashboard" in tools_by_domain("dashboard")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 薄壳消除：server.py 注册表内联委托 == 旧薄壳模块 run()（行为等价）
+# 薄壳删除（T-0113）：MCP 注册表内联键仍 LIVE —— 注入相同的 subprocess.run
+# 假输出 → _dispatch 返回与薄壳 era 相同的输出形态（行为等价，AC-04）
 # ═══════════════════════════════════════════════════════════════════════════
 
-class TestThinShellElimination:
-    """注入相同的 subprocess.run 假输出 → server._dispatch 与旧薄壳
-    模块 run() 输出逐字段一致（合并后行为等价，AC-04）。"""
+class TestInlineDispatchLive:
+    """T-0113 删除 6 薄壳 + 2 legacy 后，内联注册表键（quality_gates_run /
+    security_scan_run / dependency_analysis / contract_validate / cost_report
+    / evidence_verify / evidence_freeze）仍 LIVE，输出形态与薄壳 era 一致。"""
 
     @pytest.fixture(autouse=True)
     def _fake_subprocess(self, monkeypatch):
@@ -126,40 +129,35 @@ class TestThinShellElimination:
         monkeypatch.setattr(subprocess, "run", fake_run)
         return captured
 
-    def test_quality_gates_dispatch_equivalent(self, _fake_subprocess):
+    def test_quality_gates_dispatch_live(self, _fake_subprocess):
         import server
-        import tool_quality_gates
         args = {"project_root": str(PROJECT_ROOT), "output_dir": "tmp-q"}
         assert server._dispatch("quality_gates_run", dict(args)) == \
-            tool_quality_gates.run(args["project_root"], "tmp-q")
+            {"fake": "payload", "overall": "PASS", "n": 1}
 
-    def test_security_scan_dispatch_equivalent(self, _fake_subprocess):
+    def test_security_scan_dispatch_live(self, _fake_subprocess):
         import server
-        import tool_security_scan
         args = {"project_root": str(PROJECT_ROOT), "output_dir": "tmp-s"}
         assert server._dispatch("security_scan_run", dict(args)) == \
-            tool_security_scan.run(args["project_root"], "tmp-s")
+            {"fake": "payload", "overall": "PASS", "n": 1}
 
-    def test_dependency_analysis_dispatch_equivalent(self, _fake_subprocess):
+    def test_dependency_analysis_dispatch_live(self, _fake_subprocess):
         import server
-        import tool_dependency_analysis
         args = {"project_root": str(PROJECT_ROOT), "rules_file": None}
         assert server._dispatch("dependency_analysis", dict(args)) == \
-            tool_dependency_analysis.run(args["project_root"], None)
+            {"fake": "payload", "overall": "PASS", "n": 1}
 
-    def test_contract_validate_dispatch_equivalent(self, _fake_subprocess):
+    def test_contract_validate_dispatch_live(self, _fake_subprocess):
         import server
-        import tool_contract_validate
         args = {"project_root": str(PROJECT_ROOT), "contract_file": "c.json"}
         assert server._dispatch("contract_validate", dict(args)) == \
-            tool_contract_validate.run(args["project_root"], "c.json")
+            {"fake": "payload", "overall": "PASS", "n": 1}
 
-    def test_cost_report_dispatch_equivalent(self, _fake_subprocess):
+    def test_cost_report_dispatch_live(self, _fake_subprocess):
         import server
-        import tool_cost_tracker
         args = {"project_root": str(PROJECT_ROOT)}
         assert server._dispatch("cost_report", dict(args)) == \
-            tool_cost_tracker.run_report(args["project_root"])
+            {"fake": "payload", "overall": "PASS", "n": 1}
 
     def test_server_no_longer_imports_shell_modules(self):
         """薄壳消除实证：server.py 源码不再 import 6 个薄壳模块。"""
@@ -169,15 +167,18 @@ class TestThinShellElimination:
                       "tool_cost_tracker", "tool_evidence_chain"):
             assert f"from {shell} import" not in source, f"server.py 仍 import {shell}"
 
-    def test_shell_modules_still_importable(self):
-        """薄壳文件保留（未删除），可独立导入（deep_probe 兼容）。"""
-        import tool_evidence_chain  # noqa: F401
-        import tool_security_scan  # noqa: F401
-        import tool_cost_tracker  # noqa: F401
+    def test_shell_modules_removed(self):
+        """T-0113 删除实证：6 个薄壳 + 2 个 legacy 脚本不再可导入。"""
+        import importlib.util
+        for mod in ("tool_quality_gates", "tool_security_scan",
+                    "tool_dependency_analysis", "tool_contract_validate",
+                    "tool_cost_tracker", "tool_evidence_chain",
+                    "scripts.evidence_chain", "scripts.security_scan"):
+            assert importlib.util.find_spec(mod) is None, f"{mod} 仍存在"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 证据链三处收敛：loop_core.evidence_chain == scripts/evidence_chain.py
+# 证据链收敛：loop_core.evidence_chain 为唯一实现（T-0113 legacy 脚本已删）
 # ═══════════════════════════════════════════════════════════════════════════
 
 class TestEvidenceChainConvergence:
@@ -198,30 +199,25 @@ class TestEvidenceChainConvergence:
         )
         return tmp_path
 
-    def test_verify_equivalent_to_script(self, chain_root):
+    def test_verify_loop_core(self, chain_root):
+        """loop_core 唯一实现：verify 输出形态保持（legacy 脚本已删）。"""
         from loop_core.evidence_chain import verify_chain_yaml
-        from scripts.evidence_chain import verify_chain
         mine = verify_chain_yaml(chain_root, strict=True)
-        theirs = verify_chain(chain_root, strict=True)
-        assert mine == theirs  # overall/issues/nodes 逐字段一致
         assert mine["overall"] == "PASS"
+        assert {n["name"]: n["status"] for n in mine["nodes"]} == \
+            {"doc-a": "PASS", "doc-b": "PASS"}
 
-    def test_verify_missing_node_equivalent(self, chain_root):
+    def test_verify_missing_node(self, chain_root):
         (chain_root / "docs" / "a.md").unlink()
         from loop_core.evidence_chain import verify_chain_yaml
-        from scripts.evidence_chain import verify_chain
-        assert verify_chain_yaml(chain_root, strict=True) == \
-            verify_chain(chain_root, strict=True)
-        assert verify_chain_yaml(chain_root, strict=False) == \
-            verify_chain(chain_root, strict=False)
+        assert verify_chain_yaml(chain_root, strict=True)["overall"] == "BLOCKED"
+        assert verify_chain_yaml(chain_root, strict=False)["overall"] == "PASS"
 
-    def test_freeze_equivalent_to_script(self, chain_root):
+    def test_freeze_loop_core(self, chain_root):
         import hashlib
         from loop_core.evidence_chain import freeze_file_yaml
-        from scripts.evidence_chain import freeze_file
         mine = freeze_file_yaml(chain_root, "docs/a.md")
-        theirs = freeze_file(chain_root, "docs/a.md")
-        assert mine == theirs
+        assert mine["success"] is True
         record = (chain_root / ".ai" / "evidence" / "frozen" / "a.md.freeze.json")
         assert record.exists()
         data = json.loads(record.read_text(encoding="utf-8"))
@@ -365,7 +361,7 @@ def _extract_governance_tool_dirs() -> list[str]:
 
 class TestWhitelistConsistency:
     def test_every_registered_tool_covered_by_whitelist(self):
-        """注册表 36 工具模块路径全部落在白名单目录内（目录级覆盖，
+        """注册表 30 工具模块路径全部落在白名单目录内（目录级覆盖，
         工具变更无需逐文件同步）。"""
         dirs = _extract_governance_tool_dirs()
         assert "tools/" in dirs
@@ -379,8 +375,8 @@ class TestWhitelistConsistency:
         assert dirs == [".zcode/tools/", ".ai/checkers/", ".ai/guards/",
                         "scripts/", "hooks/", "tools/"]
 
-    def test_hooks_only_whitelist_file_changed(self):
-        """AC-08 门禁实证：hooks/ 下仅有 loop_enforcement.py 一处改动。"""
+    def test_hooks_zero_changes(self):
+        """hooks/ 零改动实证（T-0109 白名单改动已提交；T-0113 硬约束：hooks/ 零改动）。"""
         import subprocess as sp
         out = sp.run(
             ["git", "-C", str(PROJECT_ROOT), "diff", "--name-only", "HEAD", "--", "hooks/"],
@@ -388,4 +384,4 @@ class TestWhitelistConsistency:
         )
         assert out.returncode == 0, out.stderr
         changed = [p for p in out.stdout.splitlines() if p.strip()]
-        assert changed == ["hooks/scripts/loop_enforcement.py"], changed
+        assert changed == [], changed

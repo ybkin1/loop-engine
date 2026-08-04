@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0113",
+  "gate_id": "G-T-0113-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-04T10:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "删除 A 组 6 薄壳 + C 组 2 legacy = 8 个文件",
+    "引用同步：capability_registry 36→28 + 文档（docs/06-delivery/.ai/README）+ 测试（f5 冒烟/deep_probe）+ server.py _dispatch 清理",
+    "保留保护：B 组 4 个 + run_* 2 个不动",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.49",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0113-REQUIREMENTS 已由用户批准（批准文本：1——批准死工具删除事项）。范围：A 组 6 + C 组 2。硬约束：hooks/ 零改动、保留文件保护、fail-closed 不变。"
+}

@@ -3888,4 +3888,70 @@ gates:
   - user explicitly approves, rejects, or requests repair of this gate
   - hooks/ and repair_continuity.py remain unmodified during T-0111
   - no tool removal executed during T-0111
+- id: G-T-0113-REQUIREMENTS
+  task_id: T-0113
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-04T10:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-04T10:30:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '1（批准死工具删除事项）'
+  approval_evidence: .ai/evidence/T-0113/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0113/execution-evidence.json
+  scope: >-
+    T-0113 死工具删除执行（T-0111 终态审计复核 + 用户批准）：删 A 组 6 薄壳 +
+    C 组 2 legacy = 8 个文件 + 引用同步（capability_registry 36→28/文档/测试）；
+    保留 run_* 2 个（server 契约）与 B 组 4 个（待用户确认）；hooks/ 零改动；
+    版本 bump 3.12.49。
+  allowed_paths:
+  - .ai/
+  - tools/
+  - scripts/evidence_chain.py
+  - scripts/security_scan.py
+  - loop_core/capability_registry.py
+  - loop_core/server.py
+  - tests/
+  - docs/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify loop_core governance kernel decision logic
+  - delete B-group tools (tool_task_queue/tool_eval/loop_vertical_slice/loop_dispatch_role) or run_security_scan/run_quality_gates
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 删除清单精确 8 项（diff-filter=D 断言 + 保留文件保护断言）
+  - capability_registry 28/28 双向零缺口
+  - 全仓 grep 无被删工具符号引用（历史证据除外）
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.49 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - exactly the 8 approved files removed; B-group and run_* preserved
 

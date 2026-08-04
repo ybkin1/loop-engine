@@ -25,15 +25,18 @@ from pathlib import Path
 TOOLS_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = TOOLS_DIR.parent
 
-# ── T-0109 F5 薄壳消除 ────────────────────────────────────────────────────
-# 以下 5 个工具原为 tools/tool_*.py 纯委托薄壳（subprocess 转发 agent 脚本，
-# server.py 是唯一代码级调用方，grep 实证）；薄壳消除后委托逻辑收敛进 MCP
-# server 注册表（本模块），薄壳文件保留待用户独立 gate 删除（T-0109 不删）。
-# 委托目标与输出 schema 逐字节等价（行为等价测试覆盖），fail-closed 语义不变。
+# ── T-0109 F5 薄壳消除 / T-0113 薄壳删除 ───────────────────────────────────
+# 以下工具的委托逻辑原为 tools/tool_*.py 纯委托薄壳（subprocess 转发 agent
+# 脚本，server.py 是唯一代码级调用方，grep 实证）；T-0109 薄壳消除后委托
+# 逻辑收敛进 MCP server 注册表（本模块），T-0113 经用户 gate 批准删除薄壳
+# 文件本体。委托目标与输出 schema 逐字节等价（行为等价测试覆盖），
+# fail-closed 语义不变；MCP 注册表键（quality_gates_run/security_scan_run/
+# dependency_analysis/contract_validate/evidence_verify/evidence_freeze/
+# cost_report）保持 LIVE。
 
 
 def _run_quality_gates(project_root: str, output_dir: str | None = None) -> dict:
-    """原 tools/tool_quality_gates.py run()（子进程委托 quality-engineer 脚本）。"""
+    """质量门禁（子进程委托 quality-engineer 脚本；T-0113 薄壳已删）。"""
     root = Path(project_root).resolve()
     script = PROJECT_ROOT / "agents" / "quality-engineer" / "scripts" / "run_quality_gates.py"
     if not script.exists():
@@ -53,7 +56,7 @@ def _run_quality_gates(project_root: str, output_dir: str | None = None) -> dict
 
 
 def _run_security_scan(project_root: str, output_dir: str | None = None) -> dict:
-    """原 tools/tool_security_scan.py run()（子进程委托 security-engineer 脚本）。"""
+    """安全扫描（子进程委托 security-engineer 脚本；T-0113 薄壳已删）。"""
     root = Path(project_root).resolve()
     script = PROJECT_ROOT / "agents" / "security-engineer" / "scripts" / "run_security_scan.py"
     if not script.exists():
@@ -73,7 +76,7 @@ def _run_security_scan(project_root: str, output_dir: str | None = None) -> dict
 
 
 def _run_dependency_analysis(project_root: str, rules_file: str | None = None) -> dict:
-    """原 tools/tool_dependency_analysis.py run()（子进程委托 system-architect 脚本）。"""
+    """依赖分析（子进程委托 system-architect 脚本；T-0113 薄壳已删）。"""
     root = Path(project_root).resolve()
     script = PROJECT_ROOT / "agents" / "system-architect" / "scripts" / "analyze_dependencies.py"
     if not script.exists():
@@ -97,7 +100,7 @@ def _run_dependency_analysis(project_root: str, rules_file: str | None = None) -
 
 def _run_contract_validate(project_root: str, contract_file: str,
                            check_actual: bool = False) -> dict:
-    """原 tools/tool_contract_validate.py run()（子进程委托 module-architect 脚本）。"""
+    """契约验证（子进程委托 module-architect 脚本；T-0113 薄壳已删）。"""
     root = Path(project_root).resolve()
     script = PROJECT_ROOT / "agents" / "module-architect" / "scripts" / "validate_contract.py"
     if not script.exists():
@@ -119,7 +122,7 @@ def _run_contract_validate(project_root: str, contract_file: str,
 
 
 def _run_cost_report(project_root: str) -> dict:
-    """原 tools/tool_cost_tracker.py run_report()（子进程委托 scripts/cost_tracker.py）。"""
+    """成本报告（子进程委托 scripts/cost_tracker.py；T-0113 薄壳已删）。"""
     root = Path(project_root).resolve()
     script = PROJECT_ROOT / "scripts" / "cost_tracker.py"
     if not script.exists():
@@ -144,14 +147,14 @@ def _run_cost_report(project_root: str) -> dict:
 
 def _run_evidence_verify(project_root: str, strict: bool = False) -> dict:
     """证据链验证 — T-0109 三处收敛：in-process loop_core.evidence_chain
-    （原 tools/tool_evidence_chain.py run_verify 子进程壳消除）。"""
+    （T-0113 薄壳已删）。"""
     from loop_core.evidence_chain import verify_chain_yaml
     return verify_chain_yaml(project_root, strict=strict)
 
 
 def _run_evidence_freeze(project_root: str, file: str) -> dict:
     """证据冻结 — T-0109 三处收敛：in-process loop_core.evidence_chain
-    （原 tools/tool_evidence_chain.py run_freeze 子进程壳消除）。"""
+    （T-0113 薄壳已删）。"""
     from loop_core.evidence_chain import freeze_file_yaml
     return freeze_file_yaml(project_root, file)
 
@@ -492,10 +495,10 @@ def handle_request(request: dict) -> dict:
 def _dispatch(tool_name: str, args: dict) -> dict:
     """分派到具体的工具执行。
 
-    T-0109 F5 薄壳消除：quality_gates_run / security_scan_run /
+    T-0109 F5 薄壳消除 + T-0113 薄壳删除：quality_gates_run / security_scan_run /
     dependency_analysis / contract_validate / cost_report / evidence_verify /
     evidence_freeze 的委托逻辑已从 tools/tool_*.py 薄壳收敛进本注册表
-    （_run_* helper，行为逐字节等价）；薄壳文件保留待独立 gate 删除。
+    （_run_* helper，行为逐字节等价）；薄壳文件已于 T-0113 删除。
     """
     project_root = args.get("project_root", ".")
 

@@ -83,10 +83,8 @@ for mod_name in HOOK_MODULES:
     except Exception as e:
         check(f"import {mod_name}", False, str(e)[:120])
 
-# MCP tools
+# MCP tools（T-0113：删除 6 个已收敛薄壳模块，MCP 内联注册表键见下节 6）
 TOOL_MODULES = [
-    "tool_quality_gates", "tool_security_scan", "tool_dependency_analysis",
-    "tool_contract_validate", "tool_evidence_chain", "tool_cost_tracker",
     "tool_certify_role", "tool_governance_status", "tool_state",
     "tool_review_packet", "tool_audit_log", "tool_route_intent",
     "tool_constraint_check", "tool_execute_phase", "tool_execution_log",

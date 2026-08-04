@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.49 (2026-08-04) — T-0113 — 死工具删除执行（A 组 6 薄壳 + C 组 2 legacy，用户 gate 批准）
+
+### Changed (T-0113 — 死工具删除执行（A 组 6 薄壳 + C 组 2 legacy，用户 gate 批准）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.48 (2026-08-04) — T-0111 — 修复器治理 + 臃肿全景清理验证（排布收官）
 
 ### Changed (T-0111 — 修复器治理 + 臃肿全景清理验证（排布收官）)

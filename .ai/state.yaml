@@ -4,7 +4,7 @@ current_phase: S6-delivery
 current_task_id: null
 current_gate_id: null
 loop_mode: FULL
-last_handoff_at: '2026-08-04T10:03:04.484175+08:00'
+last_handoff_at: '2026-08-04T12:34:59.936331+08:00'
 notes:
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
@@ -163,3 +163,7 @@ notes:
   A/B/C 定性 + run_* 保留 LIVE 契约 + 注册表 36/36 双向零缺口，零删除执行） + D3-3 归档保留 3 份跨归档链 + D4-6
   读侧计数，8/8 AC，独立审查 GO（P0/P1=0）， 全量 4168 passed（6 项已登记/瞬态），三零（hooks/repair_continuity/内核）+
   零删除， bump 3.12.48 提交推送。T-0106 排布 T-0107~T-0111 全部完成。死工具删除待用户独立 gate。'
+- 'T-0113 COMPLETED 2026-08-04: 死工具删除执行（用户批准）— A 组 6 薄壳 + C 组 2 legacy 共 8 文件精确删除（diff-filter=D
+  恰 8 项）+ 引用同步（capability_registry 36→30 双向 零缺口/server _dispatch 零引用/测试/docs 同步）+
+  保留保护（B 组 4 + run_* 2 未动， server 契约 LIVE），6/6 AC，独立审查 GO（P0/P1/P2=0），全量 4169 passed（5
+  项 HEAD 基线/在途态，0 项与删除相关），hooks/ 零改动，bump 3.12.49 提交推送。 B 组 4 个待用户确认后单独删。'

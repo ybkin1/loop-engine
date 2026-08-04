@@ -40,7 +40,7 @@ python .zcode/tools/validate_state.py <项目根目录>
 
 - **代码质量监控**：`pytest` 测试套件（246 tests）
 - **Lint 监控**：`ruff check` 零违规
-- **安全监控**：`python scripts/security_scan.py --project-root .`
+- **安全监控**：`python agents/security-engineer/scripts/run_security_scan.py --project-root . --json`
 - **性能监控**：`python scripts/perf_runner.py --project-root .`
 - **成本监控**：`.ai/evidence/costs/cost_log.jsonl`
 
