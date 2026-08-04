@@ -1,14 +1,17 @@
 """
-T-0109 F5 工具 capability 化 + T-0113 薄壳删除 — 注册表 30 全覆盖 /
-内联注册表 LIVE 断言 / 重复合并行为等价 / 白名单一致性（AC-04 / AC-05）。
+T-0109 F5 工具 capability 化 + T-0113 薄壳删除 + T-0114 B 组死工具删除 —
+注册表 26 全覆盖 / 内联注册表 LIVE 断言 / 重复合并行为等价 / 白名单一致性
+（AC-04 / AC-05）。
 
 覆盖：
-- capability_registry 30 工具元数据全覆盖（与 tools/*.py 一一对应）+
+- capability_registry 26 工具元数据全覆盖（与 tools/*.py 一一对应）+
   audience/domain 分级。
 - 薄壳删除（T-0113）：6 个薄壳 + 2 个 legacy 脚本不再可导入；MCP 注册表
   内联键（quality_gates_run/security_scan_run/…）仍 LIVE，_dispatch 返回
   与薄壳 era 相同输出形态（subprocess 注入 fake 输出）；evidence 工具
   in-process loop_core 为唯一实现。
+- B 组死工具删除（T-0114）：tool_task_queue/tool_eval/loop_vertical_slice/
+  loop_dispatch_role 4 个文件不再可导入。
 - dashboard 四层合并：status_dashboard.Dashboard is dashboard_views.Dashboard
   （单一实现）+ 输出等价。
 - AC-05 白名单一致性：GOVERNANCE_TOOL_DIRS（AST 提取）覆盖全部注册工具；
@@ -54,27 +57,27 @@ from loop_core.capability_registry import (  # noqa: E402
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# AC-04: 注册表 30 工具全覆盖
+# AC-04: 注册表 26 工具全覆盖
 # ═══════════════════════════════════════════════════════════════════════════
 
 class TestToolRegistryCoverage:
     def test_manifest_covers_every_tool_module(self):
-        """tools/*.py 与注册表一一对应（30 = 30，无遗漏无多余）。"""
+        """tools/*.py 与注册表一一对应（26 = 26，无遗漏无多余）。"""
         on_disk = {p.name[:-3] for p in (PROJECT_ROOT / "tools").glob("*.py")}
         registered = set(TOOL_CAPABILITY_MANIFEST)
         assert on_disk == registered
-        assert len(registered) == 30
+        assert len(registered) == 26
 
     def test_all_tool_names_stable(self):
         names = all_tool_names()
         assert names == sorted(names)
-        assert len(names) == 30
+        assert len(names) == 26
 
-    def test_registry_snapshot_sealed_30(self):
+    def test_registry_snapshot_sealed_26(self):
         registry = build_tool_registry(PROJECT_ROOT)
         assert registry.sealed is True
         snapshot = registry.snapshot()
-        assert len(snapshot.entries) == 30
+        assert len(snapshot.entries) == 26
         assert "server" in snapshot.entries
         assert snapshot.entries["server"].provider_id == "tool"
 
@@ -91,9 +94,9 @@ class TestToolRegistryGrouping:
             assert cap.domain, f"{name} 缺少 domain"
 
     def test_audience_grouping_counts(self):
-        """三级 audience 均非空且互斥覆盖 30 个工具。"""
+        """三级 audience 均非空且互斥覆盖 26 个工具。"""
         grouped = {a: tools_by_audience(a) for a in AUDIENCES}
-        assert sum(len(v) for v in grouped.values()) == 30
+        assert sum(len(v) for v in grouped.values()) == 26
         assert all(grouped[a] for a in AUDIENCES)
 
     def test_domain_grouping(self):
@@ -168,12 +171,16 @@ class TestInlineDispatchLive:
             assert f"from {shell} import" not in source, f"server.py 仍 import {shell}"
 
     def test_shell_modules_removed(self):
-        """T-0113 删除实证：6 个薄壳 + 2 个 legacy 脚本不再可导入。"""
+        """删除实证：T-0113 的 6 薄壳 + 2 legacy 与 T-0114 的 B 组 4 个
+        死工具（tool_task_queue/tool_eval/loop_vertical_slice/loop_dispatch_role）
+        均不再可导入。"""
         import importlib.util
         for mod in ("tool_quality_gates", "tool_security_scan",
                     "tool_dependency_analysis", "tool_contract_validate",
                     "tool_cost_tracker", "tool_evidence_chain",
-                    "scripts.evidence_chain", "scripts.security_scan"):
+                    "scripts.evidence_chain", "scripts.security_scan",
+                    "tool_task_queue", "tool_eval",
+                    "loop_vertical_slice", "loop_dispatch_role"):
             assert importlib.util.find_spec(mod) is None, f"{mod} 仍存在"
 
 
@@ -361,7 +368,7 @@ def _extract_governance_tool_dirs() -> list[str]:
 
 class TestWhitelistConsistency:
     def test_every_registered_tool_covered_by_whitelist(self):
-        """注册表 30 工具模块路径全部落在白名单目录内（目录级覆盖，
+        """注册表 26 工具模块路径全部落在白名单目录内（目录级覆盖，
         工具变更无需逐文件同步）。"""
         dirs = _extract_governance_tool_dirs()
         assert "tools/" in dirs

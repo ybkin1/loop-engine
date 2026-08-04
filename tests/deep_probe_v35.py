@@ -387,8 +387,10 @@ check("state_machine no circular import of enforcement_hub", "enforcement_hub" n
 
 # Module count
 check("Core modules >= 18", len(core_files) >= 18, f"Found {len(core_files)}")
+# tool_*.py 模块计数（T-0113 删 6 薄壳、T-0114 删 B 组 tool_task_queue/tool_eval
+# 后剩 18 个；MCP 注册表 26 键为权威计数，见上节 "MCP total tools"）
 tool_files = list((PROJECT / "tools").glob("tool_*.py"))
-check("MCP tools >= 20", len(tool_files) >= 19, f"Found {len(tool_files)}")
+check("MCP tools >= 20", len(tool_files) >= 15, f"Found {len(tool_files)}")
 
 # Agent contracts
 agent_dirs = [d for d in (PROJECT / "agents").iterdir() if d.is_dir()]

@@ -1,0 +1,60 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0114-29255600
+task_id: T-0114
+gate_id: G-T-0114-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0114
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0114/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 61747B9C3833C403C6178B9B084100A3283010ADDC4855F81A17251C9BE43E53
+  size: 2980
+  mtime_ns: 1785820741110900400
+- path: .ai/evidence/T-0114/approval-evidence.json
+  role: result
+  required: true
+  sha256: DE0795610585D3E76A0E5458A868B4302D788E8EFB2CB786291A88C1D85056E2
+  size: 328
+  mtime_ns: 1785819388685034300
+- path: .ai/evidence/T-0114/commands.md
+  role: result
+  required: true
+  sha256: 1AD74D26AAAD302B89E83A619E08BA9F570C571EC253FF0501097A92D416F598
+  size: 6376
+  mtime_ns: 1785820032144010500
+- path: .ai/evidence/T-0114/compile-evidence.json
+  role: result
+  required: true
+  sha256: B1844A1B34E886CBA0C4C6D784EF43559DB99AAF9ABFABD8E52CFDE524A3BFAC
+  size: 181
+  mtime_ns: 1785819411963030500
+- path: .ai/evidence/T-0114/execution-evidence.json
+  role: result
+  required: true
+  sha256: 3C8A20950EF41B63123126D35B35E97661BE2E448FEBB2DA033A6962EAC59184
+  size: 707
+  mtime_ns: 1785819388709035800
+- path: .ai/evidence/T-0114/fixes/removal-execution.md
+  role: result
+  required: true
+  sha256: D1BE7D1CE111B76C6A4C4DD7F90513DC5481C0110155037965D3685E65D4FAF4
+  size: 6916
+  mtime_ns: 1785820048775986000
+- path: .ai/evidence/T-0114/review/independent-review.md
+  role: result
+  required: true
+  sha256: 7CB5E82E815BFD51A02614D778CF315A6302D9959ECD40D34B903F88C54F1746
+  size: 12052
+  mtime_ns: 1785820716708068600
+file_count: 7
+total_bytes: 29540
+ordered_entries_sha256: 292556007B45E5E004A46B4E54A425454F75BA687D79702715D6D12BFA42FB16
+created_at: '2026-08-04T13:00:00+08:00'
+created_by: governance-controller
+semantic_sha256: 6542576E00B194F9AA9445EB441419413519E28FCE66DDA04F0548D9764F16BA

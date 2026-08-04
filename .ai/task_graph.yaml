@@ -1281,6 +1281,19 @@ tasks:
     gates:
       - G-T-0113-REQUIREMENTS
   -
+    id: T-0114
+    title: 死工具删除执行 — B 组 4 死壳（用户确认）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      B 组 4 个死工具删除（tool_task_queue/tool_eval/loop_vertical_slice/
+      loop_dispatch_role）+ 引用同步（capability_registry 30→26）；run_* 保留；
+      hooks/ 零改动；bump 3.12.50。
+    depends_on:
+      - T-0113
+    gates:
+      - G-T-0114-REQUIREMENTS
+  -
     id: T-0112
     title: Qoder 会话源恢复与可比较观察窗口
     phase: S6-delivery

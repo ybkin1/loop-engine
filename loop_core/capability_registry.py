@@ -359,13 +359,11 @@ class ToolCapability:
     description: str = ""
 
 
-# name -> ToolCapability（30 个，与 tools/*.py 一一对应；新增工具必须登记，
+# name -> ToolCapability（26 个，与 tools/*.py 一一对应；新增工具必须登记，
 # 否则注册表完整性测试失败 —— fail-closed，绝不让未登记工具静默存在）。
 TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
     "loop_dashboard": ToolCapability("loop_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
         "AutoPlan dashboard 快照 CLI（text/html/json）"),
-    "loop_dispatch_role": ToolCapability("loop_dispatch_role", DOMAIN_DISPATCH, AUDIENCE_MAINTAINER,
-        "主线程 role dispatch prepare/complete/verify/list CLI"),
     "loop_execute_phase": ToolCapability("loop_execute_phase", DOMAIN_EXECUTION, AUDIENCE_WORKFLOW,
         "执行完整 Loop 阶段 CLI"),
     "loop_guard_health": ToolCapability("loop_guard_health", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
@@ -376,8 +374,6 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "项目接入/升级/卸载（onboard/update/remove）"),
     "loop_self_audit": ToolCapability("loop_self_audit", DOMAIN_GOVERNANCE, AUDIENCE_MAINTAINER,
         "Loop 自审 CLI（validate/guard-health/compile/pytest/security/static）"),
-    "loop_vertical_slice": ToolCapability("loop_vertical_slice", DOMAIN_QUALITY, AUDIENCE_ADVANCED,
-        "S1→S6 垂直切片证据链校验 CLI"),
     "mcp_agent_runtime": ToolCapability("mcp_agent_runtime", DOMAIN_RUNTIME, AUDIENCE_ADVANCED,
         "MCP Agent Runtime（绕过 ZCode 子代理限制的批量调度）"),
     "server": ToolCapability("server", DOMAIN_RUNTIME, AUDIENCE_MAINTAINER,
@@ -390,8 +386,6 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "全部 8 项硬约束检查 C1-C8（loop_constraint_check）"),
     "tool_dashboard": ToolCapability("tool_dashboard", DOMAIN_DASHBOARD, AUDIENCE_WORKFLOW,
         "Dashboard MCP 处理器（status/task_graph/gates/guard_health/snapshot）"),
-    "tool_eval": ToolCapability("tool_eval", DOMAIN_QUALITY, AUDIENCE_MAINTAINER,
-        "Agent eval 套件运行器 CLI（guard sample set/自定义 cases）"),
     "tool_evidence_submit": ToolCapability("tool_evidence_submit", DOMAIN_EVIDENCE, AUDIENCE_WORKFLOW,
         "证据提交并绑定内容哈希（loop_evidence_submit）"),
     "tool_execute_phase": ToolCapability("tool_execute_phase", DOMAIN_EXECUTION, AUDIENCE_WORKFLOW,
@@ -418,8 +412,6 @@ TOOL_CAPABILITY_MANIFEST: dict[str, ToolCapability] = {
         "安全 Bash 执行（路径校验/只读分类，safe_bash MCP）"),
     "tool_state": ToolCapability("tool_state", DOMAIN_GOVERNANCE, AUDIENCE_WORKFLOW,
         "项目状态查询（loop_state）"),
-    "tool_task_queue": ToolCapability("tool_task_queue", DOMAIN_PLANNING, AUDIENCE_WORKFLOW,
-        "任务队列分析（loop_task_queue analysis/ready）"),
     "tool_veto_escalate": ToolCapability("tool_veto_escalate", DOMAIN_REVIEW, AUDIENCE_ADVANCED,
         "否决分析与升级级别（loop_veto_escalate）"),
 }

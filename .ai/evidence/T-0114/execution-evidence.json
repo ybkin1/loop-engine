@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0114",
+  "gate_id": "G-T-0114-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-04T12:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "删除 B 组 4 个：tool_task_queue/tool_eval/loop_vertical_slice/loop_dispatch_role",
+    "引用同步：capability_registry 30→26 + server/docs/tests",
+    "保留保护：run_* 2 个",
+    "全量回归 0 failed + compile + release check 6/6 + bump 3.12.50",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0114-REQUIREMENTS 已由用户批准（批准文本：B——确认删除 B 组 4 死壳）。硬约束：hooks/ 零改动、删除精确 4 项、run_* 保留、fail-closed 不变。"
+}
