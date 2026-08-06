@@ -6,7 +6,7 @@
   "evidence_type": "execution",
   "workstreams": [
     "删除 A 组 6 薄壳 + C 组 2 legacy = 8 个文件",
-    "引用同步：capability_registry 36→28 + 文档（docs/06-delivery/.ai/README）+ 测试（f5 冒烟/deep_probe）+ server.py _dispatch 清理",
+    "引用同步：capability_registry 36→30（T-0116 措辞修正：C 组 scripts 从无 manifest 条目，实际 36→30）+ 文档（docs/06-delivery/.ai/README）+ 测试（f5 冒烟/deep_probe）+ server.py _dispatch 清理",
     "保留保护：B 组 4 个 + run_* 2 个不动",
     "全量回归 0 failed + compile + release check 6/6 + bump 3.12.49",
     "独立审查 + 验收 + 推送同步"

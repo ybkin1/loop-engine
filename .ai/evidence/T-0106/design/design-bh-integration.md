@@ -35,7 +35,7 @@
 - **改动方式**：分两阶段——阶段 1 只读（validate_state 加新鲜度检查 + 投影视图生成，双写告警）；阶段 2 收敛（写路径统一经 governor_lib 事务写 + projection 刷新）。任务卡 Status / HANDOFF / PROGRESS 成为派生视图，不直接手改
 - **依赖**：T-0107（D5-2 契约解析收敛）先行，保证 task_graph/任务卡解析一致
 - **风险**：收敛过渡期双写不一致（MEDIUM）→ 阶段 1 告警不阻断，阶段 2 逐写入点切换
-- **验收**：投影一致性测试（视图 = state.yaml 派生，同一输入逐字段一致）；新鲜度测试（伪造旧 mtime → validate_state 报 stale，exit code 非 0）
+- **验收**：投影一致性测试（视图 = state.yaml 派生，同一输入逐字段一致）；新鲜度测试（伪造旧 mtime → validate_state 报 `[warn] stale view` 仅告警，exit code 与既有判定一致——T-0116 措辞修正：T-0108 实现为 warn-only，任务卡 AC-04 口径为准）
 - **必须保持**：①fail-closed：loop_enforcement 的 FULL 模式写入阻断闸门不变（收敛写入不得绕过 enforcement 路径检查）；②审批闭环：状态推进仍须先经 gate 批准（`can_transition_phase`/`can_approve_gate` 语义不变）；③防篡改：project_continuity.yaml 源清单仍覆盖 state.yaml（`repair_continuity` dynamic_only 三件套不变）
 
 ## F3 gates.yaml 分层瘦身：active/archive + forbidden 模板外提 + gate_type 枚举

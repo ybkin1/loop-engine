@@ -59,7 +59,7 @@ _hook_bash）；`gate_evidence_checks`（依赖 hook_common）；壳 import 四�
 捕获器运行两次自证确定性（byte-identical）；pytest 环境（PYTEST_CURRENT_TEST
 已设置）下再跑一次仍 byte-identical。
 
-- 捕获范围（hook 入口判定矩阵，**51 场景子进程实跑**，stdin JSON +
+- 捕获范围（hook 入口判定矩阵，**48 场景子进程实跑**（T-0116 措辞修正：golden-c-before.json 实际 48 个矩阵条目），stdin JSON +
   ZCODE_PROJECT_DIR，rc+stdout+stderr 全量）：
   - PASS 放行：非治理项目、LIGHTWEIGHT、治理写入 ×5、任务范围内写入
     （S4 基线）、git 提交/本地操作、编排（Agent 无 target）、只读治理引用、

@@ -3905,7 +3905,7 @@ gates:
   execution_evidence: .ai/evidence/T-0113/execution-evidence.json
   scope: >-
     T-0113 死工具删除执行（T-0111 终态审计复核 + 用户批准）：删 A 组 6 薄壳 +
-    C 组 2 legacy = 8 个文件 + 引用同步（capability_registry 36→28/文档/测试）；
+    C 组 2 legacy = 8 个文件 + 引用同步（capability_registry 36→30（T-0116 措辞修正：C 组 scripts 从无 manifest 条目）/文档/测试）；
     保留 run_* 2 个（server 契约）与 B 组 4 个（待用户确认）；hooks/ 零改动；
     版本 bump 3.12.49。
   allowed_paths:

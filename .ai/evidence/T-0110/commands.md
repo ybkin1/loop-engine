@@ -306,7 +306,7 @@ fail-closed 抛 KnowledgeStoreError）——golden 与专项测试双覆盖。
    `_check_phase_evidence_file`/`check_security_gate_evidence`/
    `check_phase_gate_enforcement`
 4. `tests/t0110_c_golden.py`（新增，golden 捕获助手）——hook 入口判定矩阵
-   51 场景（子进程实跑）+ 关键函数直调 204 项 + dir/公开面快照
+   48 场景（子进程实跑）+ 关键函数直调 204 项 + dir/公开面快照
 5. `tests/test_t0110_batch_c.py`（新增，14 项验收）——golden 逐字节等价 /
    re-export 完整性 / 自愈 re-exec 实测（AC-03）/ 循环导入防线 / AC-01 零散落
 6. `.ai/evidence/T-0110/golden/generate_golden_c.py` + `golden-c-before.json`
@@ -326,7 +326,7 @@ fail-closed 抛 KnowledgeStoreError）——golden 与专项测试双覆盖。
 
 ## golden 等价证据（硬门槛 1/2）
 
-- 捕获器：`tests/t0110_c_golden.py`（51 场景矩阵子进程实跑 + 204 直调 + dir 快照），
+- 捕获器：`tests/t0110_c_golden.py`（48 场景矩阵子进程实跑 + 204 直调 + dir 快照），
   归一化规则：fixture 根路径（含 root.parent 形态）→ `<ROOT>`、ISO 时间戳 →
   `<TS>`、hook 自家 logger 名前缀 → `[HOOK_LOGGER]`（消息文本不变，随模块迁移
   的仅前缀）、`\` → `/`；运行两次自证确定性（byte-identical）
@@ -369,3 +369,17 @@ fail-closed 抛 KnowledgeStoreError）——golden 与专项测试双覆盖。
 | 版本文件不改 | ✓ |
 
 详见 fixes/batch-c-enforcement.md。
+
+## T-0116 P3 措辞修正记录
+
+- **P3-1（golden 场景数）**：51→48 已修正（本文件 + fixes/batch-c-enforcement.md）；
+  `tests/t0110_c_golden.py` 文档串不在本任务 allowed_paths（tests/ 零改动），
+  行为等价结论不受影响（before/after 同源同捕获器逐字节一致）。
+- **P3-2（test_t0108_fixes 登记）**：批 C 期间 2 项 test_t0108_fixes 失败为
+  continuity 漂移（.ai/ 写路径后未 repair）所致，`validate_state --repair`
+  后通过；登记于本小节，非任务缺陷。
+- **P3-3（.bak 口径）**：`hooks/scripts/loop_enforcement.py.bak` 为前序遗留的
+  已跟踪文件（非本任务引入），任务卡"15 个 hook 文件"口径不含它（实 16 个
+  零改动）；拆分后壳文件与 .bak 共存属历史状态，留待清理评估。
+- **P3-4（guard-events）**：`.ai/evidence/observability/guard-events.jsonl`
+  +307 行为运行事件追加（既有行为，轮转机制 10k 行生效），非本任务写入。

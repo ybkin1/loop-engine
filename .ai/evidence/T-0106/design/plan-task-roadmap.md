@@ -59,7 +59,7 @@ T-0107 漏洞修复（LOW）─┬─> T-0108 BH 融合·收敛期（LOW-MED）�
   1. README Switchboard 三节存在且 doc-link 测试全绿（断链用例 FAIL）
   2. context_loader 节选择读路由表，golden 快照一致；路由表缺失回退旧行为 + 告警
   3. finding 输出通过 schema 校验；BH harness-findings.input.json 字段映射对照测试
-  4. validate_state 对伪造旧 mtime 视图报 `[warn] stale view`（exit 非 0 仅告警阶段）
+  4. validate_state 对伪造旧 mtime 视图报 `[warn] stale view`（T-0116 措辞修正：仅告警，exit code 与既有判定一致）
   5. 投影视图 = state.yaml 派生（一致性测试）
 - **依赖**：T-0107
 - **风险与缓解**：文档归档破坏既有链接/continuity → 归档与链接测试同批、continuity 源清单同步；context_loader 行为变化 → 黄金快照

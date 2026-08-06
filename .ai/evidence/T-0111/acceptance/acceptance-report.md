@@ -36,7 +36,7 @@
 
 - **裁决：GO**（P0/P1=0；P2×2 均为 closeout 行动项：①continuity 重同步（t0108_fixes bump 瞬态）②git HEAD 提交后终验；P3×3 证据文档表述）
 - 约束零弱化：hooks/ 零改动 + repair_continuity.py 零改动 + 零删除（三零成立）；validate_state/close_session 仅旁路写入（逐行 diff 核对）
-- 死工具复核：A 组 0 importers 实证、server.py:38/58 子进程契约 LIVE 确认（run_* 保留成立）
+- 死工具复核：A 组 0 importers 实证、server.py:41/61 子进程契约 LIVE 确认（T-0116 行号修正：38/58→41/61，注释块扩展 +3）（run_* 保留成立）
 - 全量回归独立复验：4168 passed / 6 failed（全部已登记/瞬态）
 
 ## 四、裁决

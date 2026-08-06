@@ -82,10 +82,12 @@ SANCTIONED_WRITERS，不重复登记）。该测试现全绿（13 passed）。
 
 1. `test_manifest_t0095::test_manifest_exists_and_handoff_reference_is_real`：
    HANDOFF.md 引用 `.ai/evidence/T-0111/evidence-manifest.v1.yaml` 尚未创建
-   ——T-0111 进行中状态产物，closeout 生成后自愈（git stash 验证基线即失败）。
+   ——T-0111 进行中状态产物，closeout 生成后自愈（T-0116 措辞修正：T-0111
+   独立审查曾以"git stash 验证基线即失败"表述，实为基线 f3553aa 下测试通过、
+   失败为进行中 HANDOFF 引用所致，瞬态）。
 2. `test_t0109_f5::test_hooks_only_whitelist_file_changed`：断言工作树
-   hooks/ 相对 HEAD 恰有一处改动——T-0110 已提交，diff 为空（基线即失败，
-   状态型断言，提交本任务后恢复"仅 loop_enforcement.py"语义）。
+   hooks/ 相对 HEAD 恰有一处改动——T-0110 已提交，diff 为空（T-0116 措辞
+   修正：T-0111 不触碰 hooks/，提交后仍红属预期，非"提交本任务后恢复"）。
 3. `test_deployment_quality_checker::test_runtime_report_is_simulated_and_fail_closed`：
    service.startup 因本机 localhost:3000/8080 有服务可达而 PASS（环境相关，
    基线即失败）。
@@ -102,3 +104,10 @@ SANCTIONED_WRITERS，不重复登记）。该测试现全绿（13 passed）。
 - 写路径仅限任务卡 allowed_paths（.ai/、loop_core×3、.zcode/tools×2、
   tests/、golden 属 .ai/）。
 - 版本文件未改（bump 3.12.48 由主会话执行）。
+
+## T-0116 P3 措辞修正记录
+
+- **P3-3（快照数字）**：repair-classification-report 中"3719 总事件"为生成时刻快照
+  （当时 guard-events.jsonl 行数），当前已增长至 3800+（运行事件持续追加），
+  结论（over_strict=2/unstable=1/benign=2 分类）与统计口径不受影响；报告头部
+  已注明快照时间点。详见 design/repair-classification-report.md 头部说明。

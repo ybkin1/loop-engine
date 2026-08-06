@@ -1274,7 +1274,7 @@ tasks:
     status: completed
     description: >-
       执行 T-0111 终态审计批准的死工具删除：8 个文件 + 引用同步
-      （capability_registry 36→28/文档/测试）；保留 run_* 2 个与 B 组 4 个；
+      （capability_registry 36→30（T-0116 措辞修正）/文档/测试）；保留 run_* 2 个与 B 组 4 个；
       hooks/ 零改动；bump 3.12.49。
     depends_on:
       - T-0111
@@ -1323,7 +1323,7 @@ tasks:
     id: T-0116
     title: P3 措辞修正包（T-0108/T-0110/T-0111/T-0113 审查口径修正）
     phase: S6-delivery
-    status: approved_not_started
+    status: completed
     description: >-
       批量修正独立审查遗留 P3 措辞/口径记录（T-0108 P3-1~4/T-0110 P3-1~4/T-0111
       P3-1~3/T-0113 P3-1~6 除 P3-5/T-0104 P3×4 建议类登记留档）；纯文档级，产品代码零改动；

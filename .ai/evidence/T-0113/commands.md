@@ -63,3 +63,16 @@ MCP 内联注册表键（quality_gates_run/security_scan_run/dependency_analysis
 contract_validate/evidence_verify/evidence_freeze/cost_report）LIVE 断言全绿，
 相关测试 131 passed，全量回归与 HEAD 基线一致。版本 bump 与 evidence-manifest
 生成留主会话执行（硬约束 5 / 遗留事项）。
+
+## T-0116 P3 措辞修正记录
+
+- **P3-1（证据区零改动措辞）**：`conformance-report.json` 时间戳与
+  guard-events.jsonl +69 行为自动产物（测试/验证运行再生），非人工改动；
+  "证据区零改动"断言指人工写路径，自动产物另计。
+- **P3-2（36→28→30）**：execution-evidence.json / 任务卡 / gate scope /
+  task_graph 节点措辞已修正为 36→30（C 组 scripts 从无 manifest 条目）。
+- **P3-3（AC-05 自愈）**：验收时 8 载体 3.12.49 vs HEAD 3.12.48 为提交前
+  必然状态，提交后 version_sync 自愈（F-03 约定）。
+- **P3-4（t0108 状态敏感）**：test_t0108_fixes 2 项 validate_state 测试对
+  .ai/ 写路径后未 repair 的漂移状态敏感（HEAD 干净 worktree 亦失败），
+  repair 后自愈；为测试状态依赖特性，非缺陷。

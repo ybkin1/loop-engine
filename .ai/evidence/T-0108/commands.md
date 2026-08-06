@@ -97,3 +97,20 @@
 - AC-08 版本 bump 3.12.45 由主会话执行；T-0112 撤销记录不影响本任务
 - **known transient（closeout 自愈，T-0107 先例）**：`test_manifest_t0095::test_manifest_exists_and_handoff_reference_is_real` 在 T-0108 ACTIVE 期失败——官方 `render_handoff` 重生成的 HANDOFF 引用当前任务（T-0108）的 evidence manifest 预期路径，该 manifest 为 closeout 产物（主会话 closeout 时经 validation_runner 创建后即存在）。主会话 closeout 时创建 `.ai/evidence/T-0108/evidence-manifest.v1.yaml` 并重跑 close_session 后该测试自愈。另 1 项 `test_deployment_quality_checker::test_runtime_report_is_simulated_and_fail_closed` 为 KNOWN_ISSUES 已登记的本机环境依赖失败（localhost:3000/8000 占用，baseline stash 实证预存在）
 - **hook 交互实测发现**：docs/02-architecture.md front-matter `designed_files:` 必须用 YAML flow 风格（禁 `- ` bullet 行），否则 `hooks/scripts/content_guard.py` 架构合规检查会解析 bullet+反引号行并把声明项当架构模块、阻断范围外写入（实测 guard_health BROKEN）——hook 零改动约束下由文档侧规避，注释已写入 front-matter
+
+## T-0116 P3 措辞修正记录
+
+- **P3-1（F2 验收措辞）**：design-bh-integration.md F2 验收"exit code 非 0"
+  已修正为"仅告警，exit code 与既有判定一致"（实现遵循任务卡 warn-only，
+  与 T-0107 硬约束一致）。
+- **P3-2（版本载体枚举）**：任务卡 allowed_paths 未枚举的版本载体
+  （README.md / docs/06-delivery.md / loop_core/__init__.py /
+  src/loop_engine/__init__.py / .zcode-plugin/plugin.json）为 bump 工具
+  统一原子写载体（F-03 机制），任务卡不重复枚举属流程约定。
+- **P3-3（schema_status 静态 VALID）**：agents 脚本 `_finding_contract` 的
+  schema_status 为构造保证的静态 VALID（独立 subprocess 不加载 loop_core
+  schema）；真实 schema 校验在 loop_core/finding_contract 侧，双端一致
+  由 F7 契约测试锁定。
+- **P3-4（implementation_design_diff）**：对 hooks/scripts 非 v1.0 声明文件
+  （loop_enforcement/content_guard 等）报 actual_but_undesigned 属工具
+  保守口径（设计声明缺失即提示），非缺陷；后续文档补齐或工具白名单另行评估。

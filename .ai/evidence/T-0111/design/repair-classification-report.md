@@ -22,7 +22,8 @@
 
 ## 2. 当前仓库基线（真实数据）
 
-- guard-events 总事件数：3719
+- guard-events 总事件数：3719（T-0116 措辞修正：生成时刻快照，guard-events.jsonl
+  持续追加运行事件，当前已增长；结论与统计口径不受影响）
 - repair 事件数：**0**（check_type="repair" 为本任务新引入，历史无样本）
 - `repair_trigger_rate`：0.0（真实观测值）
 - 读侧损坏行（D4-6）：0
