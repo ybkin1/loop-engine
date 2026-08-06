@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0117",
+  "gate_id": "G-T-0117-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T13:20:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "契约差异表（schema/退出码/判定/CLI 四维收敛前后对照）",
+    "loop_core/security_scanner.py 对齐 security_report/v1 顶层 schema + CLI 入口",
+    "run_security_scan.py 收敛（共享 schema/委托或薄壳）",
+    "SCANNER_SELF_FILES 2 条已删路径清除（T-0113 P3-5 同源）",
+    "MCP security_scan_run 契约测试 + 全量回归 + compile + release check + bump 3.12.53",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0117-REQUIREMENTS 已由用户批准（全部批准）。硬约束：hooks/ 零改动、MCP security_scan_run 契约不破坏、findings_contract 语义不变。授权 agents/security-engineer 写入与 tools/server.py 调用点调整。"
+}

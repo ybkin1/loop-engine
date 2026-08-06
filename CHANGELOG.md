@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.53 (2026-08-06) — T-0117: 安全扫描双实现收敛（security_report/v1 契约统一）
+
+### Changed (T-0117: 安全扫描双实现收敛（security_report/v1 契约统一）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.52 (2026-08-06) — T-0116: P3 措辞修正包（T-0108/T-0110/T-0111/T-0113 审查口径修正）
 
 ### Changed (T-0116: P3 措辞修正包（T-0108/T-0110/T-0111/T-0113 审查口径修正）)

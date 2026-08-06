@@ -22,9 +22,11 @@ harness-findings.input.json).  Old fields are preserved verbatim;
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -158,6 +160,34 @@ class SecurityReport:
             "schema_invalid": self.schema_invalid,
         }
 
+    def to_v1_report(self, role: str = "security-engineer", project: str = "") -> dict:
+        """security_report/v1 兼容视图（T-0117 收敛，add-only）。
+
+        将本扫描器表达为 v1 的单一 secret_scan 项；判定语义与既有
+        compute_verdict 一致（critical/high → BLOCKED，其余 PASS）。
+        """
+        blocked = self.verdict in (Verdict.BLOCKED, Verdict.FAIL)
+        scans = [{
+            "name": "secret_scan",
+            "status": "blocked" if blocked else "pass",
+            "findings": [
+                {"rule_id": f.rule_id, "severity": f.severity, "file": f.file,
+                 "line": f.line, "message": f.message, "snippet": f.snippet}
+                for f in self.findings
+            ],
+            # T-0108 F7: contract-shaped findings（schema-validated）
+            "findings_contract": [f.to_finding() for f in self.findings],
+            "counts": {"CRITICAL": self.critical, "HIGH": self.high},
+            "skipped_files": [],
+        }]
+        return build_v1_report(
+            role=role,
+            project=project or "",
+            scans=scans,
+            overall="BLOCKED" if blocked else "PASS",
+            blocked_by=["secret_scan"] if blocked else [],
+        )
+
 
 # ── Patterns ─────────────────────────────────────────────────────────────
 
@@ -284,3 +314,99 @@ class SecurityScanner:
     @staticmethod
     def scan(root):
         return scan_security(root)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# T-0117 双实现收敛：security_report/v1 单一 schema 定义
+# ──────────────────────────────────────────────────────────────────────────
+# loop_core/security_scanner.py（本文件）与 agents/security-engineer/scripts/
+# run_security_scan.py 之前各自生成报告结构。收敛决策：以 run_security_scan.py
+# 既有的 security_report/v1 顶层结构为输出契约标准，schema 常量 + 构建器 +
+# 校验器收敛到本文件（单一数据源）；run_security_scan.py 改引本模块。
+# SecurityReport.to_dict() 保持原样（add-only 兼容，既有消费方零破坏）。
+# ══════════════════════════════════════════════════════════════════════════
+
+SECURITY_REPORT_V1_SCHEMA = "security_report/v1"
+SECURITY_REPORT_V1_FIELDS = ("schema", "role", "timestamp", "project",
+                             "scans", "overall", "blocked_by")
+
+
+def build_v1_report(*, role: str, project: str, scans: list,
+                    overall: str, blocked_by: list, timestamp: str | None = None) -> dict:
+    """构建 security_report/v1 顶层结构（单一 schema 定义，T-0117 收敛）。
+
+    run_security_scan.py 的 generate_report 与本模块 to_v1_report 共用，
+    保证两实现输出逐字段一致。
+    """
+    return {
+        "schema": SECURITY_REPORT_V1_SCHEMA,
+        "role": role,
+        "timestamp": timestamp or datetime.now(timezone.utc).isoformat(),
+        "project": str(Path(project).resolve()),
+        "scans": scans,
+        "overall": overall,
+        "blocked_by": list(blocked_by),
+    }
+
+
+def validate_v1_report(report: dict) -> bool:
+    """校验 security_report/v1 顶层结构（契约测试/调用方共用）。
+
+    Fail-closed：字段缺失/类型错误/overall 非法均视为无效。
+    """
+    if not isinstance(report, dict):
+        return False
+    if not set(SECURITY_REPORT_V1_FIELDS) <= set(report):
+        return False
+    if report.get("schema") != SECURITY_REPORT_V1_SCHEMA:
+        return False
+    if report.get("overall") not in {"PASS", "BLOCKED"}:
+        return False
+    if not isinstance(report.get("scans"), list) or not isinstance(report.get("blocked_by"), list):
+        return False
+    return True
+
+
+def cli_exit_code(report: dict) -> int:
+    """security_report/v1 → CLI 退出码统一口径：BLOCKED→2，PASS→0（fail-closed）。"""
+    return 2 if report.get("overall") == "BLOCKED" else 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """loop_core 安全扫描 CLI（security_report/v1 输出）。
+
+    与 run_security_scan.py 的 CLI 语义对齐：--project-root/--output-dir/--json，
+    退出码 0/2（PASS/BLOCKED；critical/high 均 fail-closed exit 2）。
+    """
+    parser = argparse.ArgumentParser(
+        description="loop_core 安全扫描 CLI（security_report/v1 输出）")
+    parser.add_argument("--project-root", default=".", help="项目根目录")
+    parser.add_argument("--output-dir", default=None,
+                        help="报告输出目录（默认不落盘）")
+    parser.add_argument("--json", action="store_true", help="输出 JSON 到 stdout")
+    args = parser.parse_args(argv)
+
+    root = Path(args.project_root).resolve()
+    if not root.is_dir():
+        print(json.dumps({"error": f"项目目录不存在: {root}"}, ensure_ascii=False))
+        return 2
+
+    report = scan_security(root)
+    v1 = report.to_v1_report(project=str(root))
+
+    if args.output_dir:
+        out = Path(args.output_dir)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "security_report.json").write_text(
+            json.dumps(v1, ensure_ascii=False, indent=2), encoding="utf-8")
+    if args.json:
+        print(json.dumps(v1, ensure_ascii=False, indent=2))
+
+    blocked = v1["overall"] == "BLOCKED"
+    print(f"[security_scanner] {'BLOCKED' if blocked else 'PASS'} — "
+          f"{len(v1['scans'])} scan(s)", file=sys.stderr)
+    return cli_exit_code(v1)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

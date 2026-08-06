@@ -1336,7 +1336,7 @@ tasks:
     id: T-0117
     title: 安全扫描双实现收敛（security_report/v1 契约统一）
     phase: S6-delivery
-    status: approved_not_started
+    status: completed
     description: >-
       T-0109 遗留 #3：loop_core/security_scanner.py 与 agents/security-engineer/
       scripts/run_security_scan.py 双实现收敛 — 统一 security_report/v1 顶层 schema/

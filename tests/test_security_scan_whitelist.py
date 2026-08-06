@@ -35,7 +35,9 @@ def fp_project(tmp_path: Path) -> Path:
     root = tmp_path / "project"
 
     # 1) 规则表自指 —— 扫描器自身文件的模式定义行
-    p = root / "scripts" / "security_scan.py"
+    # T-0117：已删工具路径（scripts/security_scan.py）从 SCANNER_SELF_FILES 清除，
+    # fixture 改用现存白名单文件（run_security_scan.py）保持豁免语义。
+    p = root / "agents" / "security-engineer" / "scripts" / "run_security_scan.py"
     p.parent.mkdir(parents=True)
     p.write_text(
         'SECURITY_ANTI_PATTERNS = [\n'
@@ -108,7 +110,7 @@ class TestInjectionWhitelist:
     def test_scanner_self_rules_not_reported(self, fp_project: Path):
         result = scan.run_injection_scan(fp_project)
         hits = [f for f in result["high_findings"]
-                if "security_scan.py" in f["file"]]
+                if "run_security_scan.py" in f["file"]]
         assert hits == [], "扫描器自身规则表不得误报"
         assert any("scanner_self" in s for s in result["skipped_files"])
 
@@ -138,7 +140,7 @@ class TestInjectionWhitelist:
         result = scan.run_injection_scan(fp_project)
         assert result["skipped_files"], "跳过清单必须透明返回"
         joined = " ".join(result["skipped_files"])
-        assert "security_scan.py" in joined
+        assert "run_security_scan.py" in joined
         assert "tests/" in joined
 
 

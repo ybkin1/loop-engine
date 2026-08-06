@@ -13,6 +13,7 @@
   - `_load_memory_injection_config` phases 误写为字符串会逐字符展开成 `["S","4"]` 永不匹配（fail-closed 方向安全）→ 可加 schema 校验
   - evidence-manifest 时序依赖：HANDOFF 在清单生成前引用致 test_manifest_t0095 暂时失败 → 建议先生成清单再更新 HANDOFF（流程约定，active 在途态已接受）
   - `_load_memory_injection_config` 每次 build_dispatch_manifest 读盘解析 → 可考虑缓存
+- [T-0117 P3 观察 Low] `scripts/certification_runner.py:613` 存在 `security_report/v1` 字面量（challenge_security_engineer 夹具构造 CVE 旧形态样本，自仓库首个提交未改动，非 T-0117 引入）→ 后续任务统一或保持现状。
 
 ## Recently Closed
 

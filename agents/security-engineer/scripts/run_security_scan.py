@@ -38,6 +38,18 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 sys.dont_write_bytecode = True
 
+# T-0117 收敛：项目根 sys.path 注入（独立脚本运行时可 import loop_core）
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+# T-0117 收敛：security_report/v1 schema 单一数据源（loop_core/security_scanner.py）
+from loop_core.security_scanner import (  # noqa: E402
+    build_v1_report,
+    validate_v1_report,
+)
+
 EXIT_PASS = 0
 EXIT_BLOCK = 2
 
@@ -387,9 +399,9 @@ EXCLUDE_PATTERNS: List[re.Pattern] = [
 # 每条豁免在报告中以 skipped_files 透明呈现，便于复核。
 
 SCANNER_SELF_FILES: Set[str] = {
-    "scripts/security_scan.py",
+    # T-0117：移除已删工具路径残留（T-0113 P3-5，scripts/security_scan.py 与
+    # tools/tool_security_scan.py 已于 T-0113 删除，保留为 no-op 允许清单）
     "agents/security-engineer/scripts/run_security_scan.py",
-    "tools/tool_security_scan.py",
     "loop_core/security_scanner.py",
 }
 
@@ -837,16 +849,18 @@ def generate_report(scans: List[Dict[str, Any]], project_root: Path, output_dir:
 
     overall = "PASS" if not blocked_by else "BLOCKED"
 
-    # JSON report
-    report = {
-        "schema": "security_report/v1",
-        "role": "security-engineer",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "project": str(project_root.resolve()),
-        "scans": scans,
-        "overall": overall,
-        "blocked_by": blocked_by,
-    }
+    # T-0117 收敛：security_report/v1 由共享构建器生成（单一 schema 数据源，
+    # 输出与收敛前逐字段一致——契约测试断言）
+    report = build_v1_report(
+        role="security-engineer",
+        project=str(project_root.resolve()),
+        scans=scans,
+        overall=overall,
+        blocked_by=blocked_by,
+    )
+    if not validate_v1_report(report):
+        raise RuntimeError("internal: build_v1_report produced an invalid security_report/v1")
+
     output_dir.mkdir(parents=True, exist_ok=True)
     json_path = output_dir / "security_report.json"
     json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -988,7 +1002,7 @@ def main():
             print(f"  - {b}", file=sys.stderr)
         sys.exit(EXIT_BLOCK)
     else:
-        print("\n[run_security_scan] PASS — 全部安全扫描通过")
+        print("\n[run_security_scan] PASS — 全部安全扫描通过", file=sys.stderr)
         sys.exit(EXIT_PASS)
 
 

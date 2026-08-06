@@ -1,0 +1,60 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0117-9DEF938E
+task_id: T-0117
+gate_id: G-T-0117-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0117
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0117/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 79FC40DB42844BDF792C12B4620BCB21D62C45564A0965C907543DBB250E09E5
+  size: 2040
+  mtime_ns: 1785992842810838200
+- path: .ai/evidence/T-0117/approval-evidence.json
+  role: result
+  required: true
+  sha256: F14F8145601BDA2FBA5D8475797C1BB47AC92FCCFBFC6CA263229DDC2750C5DC
+  size: 306
+  mtime_ns: 1785988395615736300
+- path: .ai/evidence/T-0117/commands.md
+  role: result
+  required: true
+  sha256: D958EA8084BE4531A5FCE79B857B0CF4EF23DB4516C6686FC302561868EA15E5
+  size: 3295
+  mtime_ns: 1785992775410361600
+- path: .ai/evidence/T-0117/compile-evidence.json
+  role: result
+  required: true
+  sha256: B95EBA067C0C472F29AF8435648BDF2AE94CCC7863C2FF803C61986C66FB2E1F
+  size: 181
+  mtime_ns: 1785991643333587400
+- path: .ai/evidence/T-0117/design/contract-unification.md
+  role: result
+  required: true
+  sha256: 385741C2962F327731EB06E11D06F8AEEEA46F03A7183F7588F4BC1FED6A44E8
+  size: 3545
+  mtime_ns: 1785991279864582700
+- path: .ai/evidence/T-0117/execution-evidence.json
+  role: result
+  required: true
+  sha256: 399C7404DA302D1176C1E785DF49967C290B46BF1B9C121FC79CEAF9C18AAD7E
+  size: 904
+  mtime_ns: 1785991216977557900
+- path: .ai/evidence/T-0117/fixes/security-scan-unification.md
+  role: result
+  required: true
+  sha256: DB5D90DCDA46349198378F58AFE2CBD10ACFDB4B547A2DAC53C9A70292E19C9F
+  size: 2952
+  mtime_ns: 1785992001553208300
+file_count: 7
+total_bytes: 13223
+ordered_entries_sha256: 9DEF938EA87EC665380D78225C084E81DD165E8CB54A1228C71F803C8A374E7A
+semantic_sha256: 3106F8BA8A4F315E9F2694A5FF53146F5DB17C1FF2A7F599C1FA8E89F2FE660F
+created_at: '2026-08-06T13:07:23.172022+08:00'
+created_by: zcode-main-session
