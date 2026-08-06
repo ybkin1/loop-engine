@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0125",
+  "gate_id": "G-T-0125-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T21:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "hook_common.py(831) 拆分至 <800（壳 + 外部模块，行为等价）",
+    "hook 套件测试 + deep_probe 白名单基线更新",
+    "全量回归 + compile + release check + bump 3.12.60",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0125-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。硬约束：hooks/ 仅 hook_common.py 与其外部模块、行为零变更、公共符号不删除。"
+}

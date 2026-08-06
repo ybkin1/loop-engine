@@ -1438,7 +1438,7 @@ tasks:
     id: T-0125
     title: hook_common.py 拆分（hooks/ 授权）
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       hook_common.py(831) 壳+外部模块行为等价拆分（golden + re-export）；
       hooks/ 仅 hook_common 与其外部模块；hook 套件全绿；bump 3.12.60。

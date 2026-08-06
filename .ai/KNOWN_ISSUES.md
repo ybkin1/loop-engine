@@ -6,7 +6,7 @@
 - [env-dependent Low] `test_deployment_quality_checker::test_runtime_report_is_simulated_and_fail_closed` 本机环境依赖失败：localhost:3000/8000 被无关进程占用致 `service.startup=PASS`（T-0107 独立审查经 e083f7b baseline worktree 实证为预存在环境依赖，非代码缺陷；空闲端口环境应通过）
 - Seeded defects test project exists but is not automatically invoked by the mutation tester (manual verification only).
 - E2E integration test (test_E2E_CURRENT_001) is skipped due to lab fixture dependency.
-- [Large-module-split-candidates Low] 8 个超大文件（>800 行）为拆分候选（T-0115 登记，deep_probe 已按"基线白名单 + 漂移检测"接受现状）：`loop_core/dashboard_views.py`(1108)、`loop_core/hard_constraints.py`(1107)、`loop_core/intent_router.py`(965)、`loop_core/evals.py`(905)、`loop_core/second_failure.py`(858)、`loop_core/context_loader.py`(839)、`loop_core/executor.py`(838)、`hooks/scripts/hook_common.py`(831)。→ 拆分需独立 gate 立项（涉及内核/hooks 文件）。
+- [Large-module-split-candidates Low] 8 个超大文件（>800 行）为拆分候选（T-0115 登记，deep_probe 已按"基线白名单 + 漂移检测"接受现状）：`loop_core/dashboard_views.py`(1108)、`loop_core/hard_constraints.py`(1107)、`loop_core/intent_router.py`(965)、`loop_core/evals.py`(905)、`loop_core/second_failure.py`(858)、`loop_core/context_loader.py`(839)、`loop_core/executor.py`(838)、`hooks/scripts/hook_common.py`(831)。→ 拆分需独立 gate 立项（涉及内核/hooks 文件）。→ **8/8 全部拆分完成（T-0124 七个 loop_core 模块 + T-0125 hook_common，v3.12.59/v3.12.60）**。
 - [T-0117 P3 观察 Low] `scripts/certification_runner.py`（L613）存在 `security_report/v1` 字面量（challenge_security_engineer 夹具构造 CVE 旧形态样本，自仓库首个提交未改动，非 T-0117 引入）→ **T-0123 已统一为共享常量 SECURITY_REPORT_V1_SCHEMA（v3.12.58）**。
 - [ROLE_CHALLENGES-gap Low] `loop_core/role_capability.py` ROLE_CHALLENGES 覆盖 11/12 角色，`test-engineer` 的 challenge 未定义（T-0115 探针现代化时确认；角色准入 `check_role_admission` 对 test-engineer 会因缺 challenge 而无法认证）。→ **T-0123 已补 CHALLENGE-TE-001（12/12，v3.12.58）**。
 - [T-0104 P3 建议类 Low] 四象限落地任务审查遗留 4 项建议（T-0122 核实修正：**4 项均已由 T-0105 批 2（B-4-1~4）实施**，此条为 T-0116 登记时未对照 T-0105 证据的重复登记）：
@@ -14,7 +14,7 @@
   - `_load_memory_injection_config` phases 容错 → B-4-2 已实施（_validated_phases 非法回退 disabled）
   - evidence-manifest 时序依赖 → B-4-3 已实施（CONTRACTS.md Completion Flow Conventions）
   - 配置读盘缓存 → B-4-4 已实施（_CONFIG_CACHE mtime 失效）
-- [Large-module-split-candidates Low] 8 个超大文件（>800 行）为拆分候选（T-0115 登记，deep_probe 已按"基线白名单 + 漂移检测"接受现状）：`loop_core/dashboard_views.py`(1108)、`loop_core/hard_constraints.py`(1107)、`loop_core/intent_router.py`(965)、`loop_core/evals.py`(905)、`loop_core/second_failure.py`(858)、`loop_core/context_loader.py`(839)、`loop_core/executor.py`(838)、`hooks/scripts/hook_common.py`(831)。→ T-0124/T-0125 拆分处理中。
+- [Large-module-split-candidates Low] 8 个超大文件（>800 行）为拆分候选（T-0115 登记，deep_probe 已按"基线白名单 + 漂移检测"接受现状）：`loop_core/dashboard_views.py`(1108)、`loop_core/hard_constraints.py`(1107)、`loop_core/intent_router.py`(965)、`loop_core/evals.py`(905)、`loop_core/second_failure.py`(858)、`loop_core/context_loader.py`(839)、`loop_core/executor.py`(838)、`hooks/scripts/hook_common.py`(831)。→ **8/8 全部拆分完成（T-0124 七个 loop_core 模块 <800 行 + T-0125 hook_common 727 行，v3.12.59/v3.12.60），deep_probe 模块大小项全部真实 PASS，白名单清零**。
 
 ## Recently Closed
 

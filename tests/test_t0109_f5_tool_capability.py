@@ -383,9 +383,11 @@ class TestWhitelistConsistency:
                         "scripts/", "hooks/", "tools/"]
 
     def test_hooks_zero_changes(self):
-        """hooks/ 仅允许白名单注释级改动（T-0113/T-0114 硬约束 hooks/ 零改动；
+        """hooks/ 仅允许白名单文件改动（T-0113/T-0114 硬约束 hooks/ 零改动；
         T-0119 用户 gate 批准 loop_enforcement_constants.py 注释级清理——
-        死引用注释清除。工作树 hooks diff 必须为空或仅该文件，且为注释级）。"""
+        死引用注释清除；T-0125 用户 gate 批准 hook_common.py 行为等价拆分
+        + 新增 _hook_common_paths.py 外部模块。工作树 hooks diff 必须为空
+        或仅白名单文件；注释级文件要求注释级，拆分文件要求 <800 行）。"""
         import subprocess as sp
         out = sp.run(
             ["git", "-C", str(PROJECT_ROOT), "diff", "--name-only", "HEAD", "--", "hooks/"],
@@ -393,10 +395,14 @@ class TestWhitelistConsistency:
         )
         assert out.returncode == 0, out.stderr
         changed = [p for p in out.stdout.splitlines() if p.strip()]
-        allowed = {"hooks/scripts/loop_enforcement_constants.py"}
+        allowed = {
+            "hooks/scripts/loop_enforcement_constants.py",
+            "hooks/scripts/hook_common.py",         # T-0125 拆分授权
+            "hooks/scripts/_hook_common_paths.py",  # T-0125 新增外部模块
+        }
         disallowed = [p for p in changed if p not in allowed]
         assert disallowed == [], f"hooks/ 仅允许白名单文件改动: {disallowed}"
-        if changed:
+        if "hooks/scripts/loop_enforcement_constants.py" in changed:
             # T-0119：白名单文件改动须为注释级（新增行必须为注释或空行）
             diff = sp.run(
                 ["git", "-C", str(PROJECT_ROOT), "diff", "HEAD", "--",
@@ -407,3 +413,8 @@ class TestWhitelistConsistency:
                            if ln.startswith("+") and not ln.startswith("+++")]
             assert all(ln.lstrip("+").lstrip().startswith("#") or not ln.lstrip("+").strip()
                        for ln in added_lines), f"白名单文件仅允许注释级改动: {added_lines}"
+        if "hooks/scripts/hook_common.py" in changed:
+            # T-0125：拆分授权 —— hook_common.py 必须已拆分至 <800 行
+            lines = (PROJECT_ROOT / "hooks" / "scripts" / "hook_common.py").read_text(
+                encoding="utf-8").splitlines()
+            assert len(lines) < 800, f"hook_common.py 拆分未达成: {len(lines)} 行"

@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.60 (2026-08-06) — T-0125 — hook_common 拆分（行为等价，<800 行）
+
+### Changed (T-0125 — hook_common 拆分（行为等价，<800 行）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.59 (2026-08-06) — T-0124: loop_core 7 模块拆分（行为等价，全部 <800 行）
 
 ### Changed (T-0124: loop_core 7 模块拆分（行为等价，全部 <800 行）)
