@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.59 (2026-08-06) — T-0124: loop_core 7 模块拆分（行为等价，全部 <800 行）
+
+### Changed (T-0124: loop_core 7 模块拆分（行为等价，全部 <800 行）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.58 (2026-08-06) — T-0123: ROLE_CHALLENGES 补全 + certification_runner 字面量统一
 
 ### Changed (T-0123: ROLE_CHALLENGES 补全 + certification_runner 字面量统一)

@@ -770,24 +770,10 @@ def _parse_yaml(raw: str) -> Any:
     Tries YAML first (more common for hand-authored files), falls back to
     JSON.  Returns the raw string if neither parser is available or both fail.
     """
-    # Try YAML first
-    try:
-        import yaml
-        return yaml.safe_load(raw)
-    except ImportError:
-        logging.getLogger("context_loader").debug(
-            "YAML not available, falling back to JSON")
-    except Exception as _e:
-        logging.getLogger("context_loader").debug("Parse error: %s", _e)
-
-    # Fall back to JSON
-    try:
-        return json.loads(raw)
-    except Exception as _e:
-        logging.getLogger("context_loader").debug("Parse error: %s", _e)
-
-    # Last resort: return raw — the caller will handle it
-    return raw
+    # T-0124 拆分：实现移至 context_loader_contracts 外部模块（行为等价；
+    # 函数内 import 保持模块 dir() 逐名一致）
+    from loop_core.context_loader_contracts import _parse_yaml as _impl
+    return _impl(raw)
 
 
 def _extract_fixed_stance(contract: dict, role_id: str) -> str:
@@ -795,17 +781,9 @@ def _extract_fixed_stance(contract: dict, role_id: str) -> str:
 
     Returns a compact, token-efficient string suitable for a system prompt.
     """
-    stance = contract.get("fixed_stance")
-    if not stance or not isinstance(stance, list):
-        # Graceful fallback: return a placeholder
-        identity = contract.get("identity", {})
-        title = identity.get("title", role_id) if isinstance(identity, dict) else role_id
-        return f"Role: {title}\nNo fixed_stance defined."
-
-    lines = ["## Fixed Stance"]
-    for item in stance:
-        lines.append(f"- {item}")
-    return "\n".join(lines)
+    # T-0124 拆分：实现移至 context_loader_contracts 外部模块（行为等价）
+    from loop_core.context_loader_contracts import _extract_fixed_stance as _impl
+    return _impl(contract, role_id)
 
 
 def _extract_contract_extras(contract: dict) -> str | None:
@@ -813,27 +791,6 @@ def _extract_contract_extras(contract: dict) -> str | None:
 
     Includes: responsibilities, prohibitions, veto_power (summarised).
     """
-    parts: list[str] = []
-
-    responsibilities = contract.get("responsibilities")
-    if responsibilities and isinstance(responsibilities, list):
-        lines = ["## Responsibilities"]
-        for item in responsibilities:
-            lines.append(f"- {item}")
-        parts.append("\n".join(lines))
-
-    prohibitions = contract.get("prohibitions")
-    if prohibitions and isinstance(prohibitions, list):
-        lines = ["## Prohibitions"]
-        for item in prohibitions:
-            lines.append(f"- {item}")
-        parts.append("\n".join(lines))
-
-    veto = contract.get("veto_power")
-    if veto and isinstance(veto, list):
-        lines = ["## Veto Power"]
-        for item in veto:
-            lines.append(f"- {item}")
-        parts.append("\n".join(lines))
-
-    return "\n\n".join(parts) if parts else None
+    # T-0124 拆分：实现移至 context_loader_contracts 外部模块（行为等价）
+    from loop_core.context_loader_contracts import _extract_contract_extras as _impl
+    return _impl(contract)

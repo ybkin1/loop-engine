@@ -498,6 +498,7 @@ class TestReviewCoverageChecker:
 
 _TOUCHED_FILES = [
     "loop_core/executor.py",
+    "loop_core/executor_compile.py",  # T-0124 拆分：编译门 timeout=120 随迁
     "loop_core/security_scanner.py",
     "loop_core/design_reviewer.py",
     "loop_core/intent_router.py",
@@ -508,7 +509,9 @@ _TOUCHED_FILES = [
 ]
 
 # 显式豁免（批 A 前既有散落，非 M-1~17/D2-6 清单项）：
-#   executor.py 两处 timeout=120（编译门/代理运行，审计 D2-6 未列）。
+#   executor.py / executor_compile.py 各一处 timeout=120（编译门/代理运行，
+#   审计 D2-6 未列；T-0124 拆分将原 executor 两处之一随方法体迁入
+#   executor_compile.py）。
 # 截断字面量豁免：security_scanner.py `[:16]`（SHA-256 摘要前缀，非显示截断阈值）。
 
 
@@ -519,8 +522,11 @@ class TestGrepZeroScatter:
             content = (_REPO_ROOT / rel).read_text(encoding="utf-8")
             matches = pattern.findall(content)
             if rel == "loop_core/executor.py":
-                # 既有 timeout=120 ×2（显式豁免：不在 M 清单/D2-6）
-                assert matches == ["timeout=120", "timeout=120"], rel
+                # 既有 timeout=120（显式豁免：不在 M 清单/D2-6；T-0124 拆分
+                # 后仅代理运行一处，编译门一处随迁 executor_compile.py）
+                assert matches == ["timeout=120"], rel
+            elif rel == "loop_core/executor_compile.py":
+                assert matches == ["timeout=120"], rel
             else:
                 assert matches == [], f"{rel}: 新散落 timeout 字面量 {matches}"
 

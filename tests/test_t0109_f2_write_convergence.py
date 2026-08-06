@@ -61,6 +61,7 @@ MANIFEST_REPAIR_WRITERS = {
 # 代码引用 state 路径 + 写操作，但写目标非状态五写（快照/报告/事件日志/自测 fixture）
 NON_STATE_WRITERS = {
     "loop_core/dashboard_views.py",   # 快照 .md/.html/.json
+    "loop_core/dashboard_status.py",  # T-0124 拆分：Dashboard/ProjectStatus 迁入（state.yaml 仅读 + 快照写）
     "loop_core/evals.py",             # eval 报告输出
     "loop_core/slo_gate.py",          # slo exemptions 文件
     "loop_core/guard_health.py",      # 自测 fixture（临时目录）
@@ -186,7 +187,9 @@ class TestStaticWriteConvergence:
             # T-0109 F5 dashboard 合并：Dashboard._load_state 随 status_dashboard
             # 收敛至 dashboard_views（只读呈现 + 快照 .md/.html/.json 写，非状态
             # 五写；NON_STATE_WRITERS 已登记。state_machine 仍为唯一权威写入口）。
-            "loop_core/dashboard_views.py",
+            # T-0124 拆分：Dashboard/ProjectStatus 移入 dashboard_status 外部模块
+            #（写路径随迁，dashboard_views 为同名 re-export 壳）。
+            "loop_core/dashboard_status.py",
         }
         assert core_writers == expected, (
             f"loop_core state.yaml 写路径集合漂移: "

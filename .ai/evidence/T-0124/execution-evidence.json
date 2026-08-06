@@ -1,0 +1,14 @@
+{
+  "task_id": "T-0124",
+  "gate_id": "G-T-0124-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T19:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "7 模块拆分（dashboard_views/hard_constraints/intent_router/evals/second_failure/context_loader/executor）",
+    "行为等价：dir() re-export 逐名 + 相关测试全绿 + deep_probe 白名单基线更新",
+    "测试 + 全量回归 + compile + release check + bump 3.12.59",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0124-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。硬约束：hooks/ 零改动、公共 API/行为零变更（golden 硬门槛）、公共符号不删除（re-export 全量）。"
+}

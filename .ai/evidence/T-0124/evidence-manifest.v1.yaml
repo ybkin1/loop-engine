@@ -1,0 +1,54 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0124-9EF20424
+task_id: T-0124
+gate_id: G-T-0124-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0124
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0124/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: A104A43741D2160D4CCD1F364E2413A7D53F177CBC0458F6952F693AC22011FB
+  size: 1661
+  mtime_ns: 1786018318346103900
+- path: .ai/evidence/T-0124/approval-evidence.json
+  role: result
+  required: true
+  sha256: 7EAEEE2E272672AB459219EE447E2D71B9DD214777131C5B956A572E5ECD6EF3
+  size: 321
+  mtime_ns: 1786012207426930400
+- path: .ai/evidence/T-0124/commands.md
+  role: result
+  required: true
+  sha256: 632DFD22409E8C0E60179C80DA1F43FA59DF61E11CDE75003394BAE2E7D5EF64
+  size: 2000
+  mtime_ns: 1786017651453007100
+- path: .ai/evidence/T-0124/compile-evidence.json
+  role: result
+  required: true
+  sha256: 43A9D15574508D7EAC81C4D02FD6F8ABC60DC0574B1D033B501E9FACCC1598EA
+  size: 181
+  mtime_ns: 1786017269891655000
+- path: .ai/evidence/T-0124/execution-evidence.json
+  role: result
+  required: true
+  sha256: 83B2737C558258F037BDCAE7EA54B00E103114272984BEDF24574618D641C87E
+  size: 744
+  mtime_ns: 1786015540699258000
+- path: .ai/evidence/T-0124/fixes/split-7-modules.md
+  role: result
+  required: true
+  sha256: C6699396C9AC105DAB7D33EBC63D105170A50019479C365C7B077B300C958CC1
+  size: 2494
+  mtime_ns: 1786016501477567800
+file_count: 6
+total_bytes: 7401
+ordered_entries_sha256: 9EF20424AFC85F46AC24875F74C03F17B9A0FF74237B94D88D0B3DF06A0FA7C5
+semantic_sha256: 57421CAA09F3E7AF59513BB0BB2F81DD5B97CD2E01FD3BEA81D75CED475E0248
+created_at: '2026-08-06T20:11:58.735351+08:00'
+created_by: zcode-main-session

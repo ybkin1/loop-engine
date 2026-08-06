@@ -1,7 +1,7 @@
 {
   "schema": "security_report/v1",
   "role": "security-engineer",
-  "timestamp": "2026-08-06T11:21:56.785796+00:00",
+  "timestamp": "2026-08-06T12:09:42.910882+00:00",
   "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
   "scans": [
     {
@@ -22,7 +22,7 @@
       "name": "secret_scan",
       "status": "pass",
       "findings": [],
-      "files_scanned": 1275,
+      "files_scanned": 1282,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -984,7 +984,7 @@
       "status": "pass",
       "high_findings": [],
       "medium_findings": [],
-      "files_scanned": 351,
+      "files_scanned": 358,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -1201,16 +1201,27 @@
           "file": "loop_core\\evals.py",
           "line": 401,
           "method": "GET",
-          "route": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.\"\"\"",
+          "route": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.",
           "issue": "路由未挂载鉴权中间件",
           "severity": "MEDIUM",
           "finding_id": "PERM-0005",
+          "truncated": false,
+          "snippet": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON."
+        },
+        {
+          "file": "loop_core\\evals_builtin.py",
+          "line": 123,
+          "method": "GET",
+          "route": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.\"\"\"",
+          "issue": "路由未挂载鉴权中间件",
+          "severity": "MEDIUM",
+          "finding_id": "PERM-0006",
           "truncated": false,
           "snippet": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.\"\"\""
         }
       ],
       "high_count": 0,
-      "files_scanned": 11,
+      "files_scanned": 13,
       "skipped": false,
       "findings_contract": [
         {
@@ -1325,7 +1336,7 @@
           "message": "路由未挂载鉴权中间件",
           "file": "loop_core\\evals.py",
           "line": 401,
-          "snippet": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.\"\"\"",
+          "snippet": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.",
           "truncated": false,
           "expected_output": "消除该安全扫描命中项（确认非误报后修复/豁免并记录）",
           "fix_boundary": {
@@ -1339,6 +1350,32 @@
           "verification_command": "python -m pytest tests/ -q",
           "acceptance_checks": [
             "loop_core\\evals.py 不再命中 PERM-0005",
+            "重跑扫描确认无回归"
+          ],
+          "schema_status": "VALID"
+        },
+        {
+          "finding_id": "PERM-0006",
+          "source": "run_security_scan",
+          "severity": "medium",
+          "title": "[PERM-0006] 路由未挂载鉴权中间件",
+          "message": "路由未挂载鉴权中间件",
+          "file": "loop_core\\evals_builtin.py",
+          "line": 123,
+          "snippet": "\"\"\"Walk a dot-notation path (\"a.b.0.c\") through parsed JSON.\"\"\"",
+          "truncated": false,
+          "expected_output": "消除该安全扫描命中项（确认非误报后修复/豁免并记录）",
+          "fix_boundary": {
+            "allowed_paths": [
+              "loop_core\\evals_builtin.py/"
+            ],
+            "forbidden": [
+              "hooks/"
+            ]
+          },
+          "verification_command": "python -m pytest tests/ -q",
+          "acceptance_checks": [
+            "loop_core\\evals_builtin.py 不再命中 PERM-0006",
             "重跑扫描确认无回归"
           ],
           "schema_status": "VALID"

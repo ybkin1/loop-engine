@@ -1425,7 +1425,7 @@ tasks:
     id: T-0124
     title: loop_core 超大模块拆分（7 个，行为等价）
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       dashboard_views/hard_constraints/intent_router/evals/second_failure/
       context_loader/executor 拆分（壳+外部模块，golden 逐字节 + re-export
