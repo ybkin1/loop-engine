@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0126",
+  "gate_id": "G-T-0126-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T21:30:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "test_deployment_quality_checker 端口随机化/注入修复（消除环境依赖）",
+    "checker 默认行为不变验证（既有测试全绿）",
+    "KNOWN_ISSUES env-dependent 关闭 + Open 区复核",
+    "全量回归 + compile + release check + bump 3.12.61",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0126-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。硬约束：hooks/ 零改动、治理内核零触碰、checker 判定语义不变（仅端口来源可注入）。"
+}

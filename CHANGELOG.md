@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.61 (2026-08-06) — T-0126 — env-dependent 测试修复 + KNOWN_ISSUES 收口
+
+### Changed (T-0126 — env-dependent 测试修复 + KNOWN_ISSUES 收口)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.60 (2026-08-06) — T-0125 — hook_common 拆分（行为等价，<800 行）
 
 ### Changed (T-0125 — hook_common 拆分（行为等价，<800 行）)

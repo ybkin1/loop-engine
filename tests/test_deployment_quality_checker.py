@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import socket
 from pathlib import Path
 
 import pytest
@@ -34,7 +35,20 @@ def test_rollback_requires_build_id_file(tmp_path: Path) -> None:
 
 
 def test_runtime_report_is_simulated_and_fail_closed(tmp_path: Path) -> None:
-    result = run_full_runtime_gate(str(tmp_path), skip_browser=True)
+    # KNOWN_ISSUES env-dependent 修复（T-0126）：端口注入 —— bind 一个本地
+    # 端口但不 listen（连接必被 ConnectionRefused），并把 service_url 注入
+    # checker。无论本机 localhost:3000/8000 是否被无关进程占用，service.startup
+    # 都确定 FAIL（fail-closed 语义不变），测试不再依赖端口空闲环境。
+    blocker = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    blocker.bind(("127.0.0.1", 0))
+    port = blocker.getsockname()[1]  # bind 不 listen：对端连接必被拒绝
+    try:
+        result = run_full_runtime_gate(
+            str(tmp_path), skip_browser=True,
+            service_url=f"http://127.0.0.1:{port}",
+        )
+    finally:
+        blocker.close()
     assert result["execution_mode"] == "SIMULATED_MAIN_SESSION"
     assert result["agent_takeover"] is False
     assert result["overall"] == "BLOCKED"

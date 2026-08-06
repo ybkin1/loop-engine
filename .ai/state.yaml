@@ -1,10 +1,10 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0125
-current_gate_id: G-T-0125-REQUIREMENTS
+current_task_id: T-0126
+current_gate_id: G-T-0126-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-06T20:28:29.706129+08:00'
+last_handoff_at: '2026-08-06T20:42:04.037230+08:00'
 notes:
 - 'T-0115 PENDING 2026-08-06: 收尾排布六任务已登记 — T-0115 deep_probe 探针现代化（13 项陈旧预期）/T-0116
   P3 措辞修正包/T-0117 安全扫描双实现收敛（security_report/v1 契约统一）/T-0118 verifier 七态映射消费/T-0119

@@ -1450,7 +1450,7 @@ tasks:
     id: T-0126
     title: env-dependent 测试修复 + KNOWN_ISSUES 收口
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       deployment quality checker 测试端口随机化/注入（默认行为不变）+
       KNOWN_ISSUES env-dependent 关闭与 Open 区复核；bump 3.12.61。
