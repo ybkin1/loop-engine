@@ -137,6 +137,14 @@ def match_defects_to_findings(
         defect_info = DEFECT_TYPES.get(defect_type, {})
         result = MutationResult(defect_type=defect_type, seeded=True)
 
+        # T-0128 M2: sd_ref 直配优先 —— subagent findings 显式标注 sd_id
+        for finding in findings:
+            if str(finding.get("sd_ref", "")).upper() == defect_type.upper():
+                result.detected = True
+                result.reviewer_finding_id = finding.get("id")
+                result.reviewer_severity = finding.get("severity")
+                break
+
         # Try to match against reviewer findings
         for finding in findings:
             title_lower = finding.get("title", "").lower()
@@ -178,6 +186,12 @@ def main():
 
     list_cmd = sub.add_parser("list-defects", help="List available defect types")
 
+    # T-0128: M1 确定性检出（seeded_defects × detector 规则库）
+    scan = sub.add_parser("scan", help="T-0128 M1: deterministic detection over seeded defect sample")
+    scan.add_argument("--sample", required=True, help="Path to sample source file (user_service.py)")
+    scan.add_argument("--registry", required=True, help="Path to defect_registry.json")
+    scan.add_argument("--output", default="", help="Optional JSON report output path")
+
     args = parser.parse_args()
 
     if args.command == "list-defects":
@@ -192,6 +206,53 @@ def main():
             sys.exit(2)
         else:
             print(f"\n[PASS] Detection rate {suite.detection_rate:.0%} meets threshold")
+    elif args.command == "scan":
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tests" / "seeded_defects"))
+        from detector import detect_all  # type: ignore
+
+        source = Path(args.sample).read_text(encoding="utf-8")
+        registry = json.loads(Path(args.registry).read_text(encoding="utf-8"))
+        title_map = {d["id"]: d["title"] for d in registry.get("defects", [])}
+
+        results = detect_all(source)
+        # T-0128 P2-4: registry 与规则库覆盖交叉校验（不一致即 FAIL）
+        from detector import SD_IDS as DETECTOR_SD_IDS  # type: ignore
+        registry_ids = {d.get("id") for d in registry.get("defects", [])}
+        covered = set(DETECTOR_SD_IDS)
+        registry_coverage_ok = registry_ids == covered
+        seeded = len(results)
+        detected = sum(1 for r in results.values() if r["detected"])
+        threshold = 5  # T-0128 AC-02: M1 >= 5/6
+        per_defect = [
+            {
+                "sd": sd_id,
+                "title": title_map.get(sd_id, ""),
+                "detected": r["detected"],
+                "evidence": r["evidence"],
+            }
+            for sd_id, r in results.items()
+        ]
+        report = {
+            "report_type": "mutation-scan-m1",
+            "mode": "m1_deterministic",
+            "seeded": seeded,
+            "detected": detected,
+            "threshold": f">={threshold}/{seeded}",
+            "detection_rate": f"{detected}/{seeded}",
+            "verdict": "PASS" if detected >= threshold else "FAIL",
+            "registry_coverage_ok": registry_coverage_ok,
+            "per_defect": per_defect,
+        }
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        if args.output:
+            Path(args.output).write_text(
+                json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+            print(f"\n[scan] report written to {args.output}")
+        if detected < threshold:
+            print(f"\n[BLOCKED] M1 detection rate {detected}/{seeded} below threshold {threshold}/{seeded}")
+            sys.exit(2)
+        else:
+            print(f"\n[PASS] M1 detection rate {detected}/{seeded} meets threshold")
     else:
         parser.print_help()
 

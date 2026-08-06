@@ -1,0 +1,58 @@
+{
+  "report_type": "mutation-scan-m2",
+  "mode": "m2_real_role_detection",
+  "reviewer_roles": [
+    "security-engineer",
+    "quality-engineer"
+  ],
+  "reviewer_output_ref": ".ai/evidence/observability/reviewer-output-m2.json",
+  "seeded": 6,
+  "detected": 6,
+  "threshold": ">=4/6",
+  "detection_rate": "6/6",
+  "verdict": "PASS",
+  "per_defect": [
+    {
+      "sd": "SD-001",
+      "detected": true,
+      "finding": "SEC-001",
+      "severity": "critical"
+    },
+    {
+      "sd": "SD-002",
+      "detected": true,
+      "finding": "QE-001/SEC-005",
+      "severity": "high"
+    },
+    {
+      "sd": "SD-003",
+      "detected": true,
+      "finding": "SEC-002",
+      "severity": "critical"
+    },
+    {
+      "sd": "SD-004",
+      "detected": true,
+      "finding": "QE-002",
+      "severity": "medium"
+    },
+    {
+      "sd": "SD-005",
+      "detected": true,
+      "finding": "QE-003",
+      "severity": "high"
+    },
+    {
+      "sd": "SD-006",
+      "detected": true,
+      "finding": "QE-004",
+      "severity": "medium"
+    }
+  ],
+  "unmarked_findings": 4,
+  "m1_reference": ".ai/evidence/observability/mutation-report-m1.json",
+  "raw_output_refs": [
+    ".ai/evidence/T-0128/security-engineer-raw.json",
+    ".ai/evidence/T-0128/quality-engineer-raw.json"
+  ]
+}

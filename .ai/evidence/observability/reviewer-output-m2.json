@@ -1,0 +1,108 @@
+{
+  "role": "security-engineer + quality-engineer",
+  "raw_output_refs": [
+    ".ai/evidence/T-0128/security-engineer-raw.json",
+    ".ai/evidence/T-0128/quality-engineer-raw.json"
+  ],
+  "findings": [
+    {
+      "id": "SEC-001",
+      "title": "SQL injection in search_users via f-string query building",
+      "severity": "critical",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 68,
+      "sd_ref": "SD-001",
+      "detail": "Attacker-controlled keyword is interpolated directly into the SQL LIKE clause via f-string; a payload such as '%' OR 1=1 -- escapes the clause and executes arbitrary SQL."
+    },
+    {
+      "id": "SEC-002",
+      "title": "Password stored in plaintext in set_password (no hashing or salting)",
+      "severity": "critical",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 104,
+      "sd_ref": "SD-003",
+      "detail": "The raw new_password is written to the users table as-is; any database compromise exposes all credentials in plaintext."
+    },
+    {
+      "id": "SEC-003",
+      "title": "Unmarked SQL injection pattern in get_users_with_orders orders query (f-string user_id)",
+      "severity": "medium",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 142,
+      "sd_ref": null,
+      "detail": "user['id'] is interpolated into an f-string-built SQL query with no parameterization; not directly attacker-controlled today, but any attacker-influenced user record would enable SQL injection (defense-in-depth violation)."
+    },
+    {
+      "id": "SEC-004",
+      "title": "Plaintext password stored in create_user (unmarked second instance of SD-003)",
+      "severity": "high",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 87,
+      "sd_ref": null,
+      "detail": "create_user also persists the raw password without hashing at a separate, unmarked code site — the same plaintext-at-rest credential exposure class as SD-003."
+    },
+    {
+      "id": "SEC-005",
+      "title": "No input validation on username/email/password in create_user",
+      "severity": "low",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 86,
+      "sd_ref": "SD-002",
+      "detail": "Username and email are stored without format checks or sanitization (HTML/script payloads can be persisted, enabling stored XSS when rendered), and any password including empty is accepted, weakening credential policy."
+    },
+    {
+      "id": "QE-001",
+      "title": "create_user 对 username/password/email 完全缺少输入校验",
+      "severity": "high",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 73,
+      "sd_ref": "SD-002",
+      "detail": "create_user 直接执行 INSERT，未校验 username 非空、email 格式、password 长度与复杂度，也未做 trim/归一化。"
+    },
+    {
+      "id": "QE-002",
+      "title": "get_average_age 对空列表求均值导致 ZeroDivisionError",
+      "severity": "medium",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 123,
+      "sd_ref": "SD-004",
+      "detail": "total / len(user_ids) 在 user_ids 为空时触发 ZeroDivisionError，函数没有空输入守卫。"
+    },
+    {
+      "id": "QE-003",
+      "title": "get_users_with_orders 在循环内逐用户查询订单，N+1 次数据库往返",
+      "severity": "high",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 141,
+      "sd_ref": "SD-005",
+      "detail": "对每个 user 在 for 循环内单独执行一次订单查询（N+1 模式），且内层查询同样用 f-string 拼接 SQL。"
+    },
+    {
+      "id": "QE-004",
+      "title": "UserService 与 OrderService 相互引用形成循环依赖",
+      "severity": "medium",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 153,
+      "sd_ref": "SD-006",
+      "detail": "OrderService.__init__ 接受 UserService，UserService.set_order_service 又持有 OrderService 引用，对象图成环。"
+    },
+    {
+      "id": "QE-005",
+      "title": "get_average_age 未处理用户不存在或缺少 age 字段",
+      "severity": "low",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 122,
+      "sd_ref": null,
+      "detail": "user = self.db.get_user(uid) 后直接 user[\"age\"]，未判空；真实 DB 对不存在的 id 返回 None 时会抛 TypeError。"
+    },
+    {
+      "id": "QE-006",
+      "title": "search_users 的 LIKE 关键字未转义通配符 % 和 _",
+      "severity": "low",
+      "file": "tests/seeded_defects/sample_code/user_service.py",
+      "line": 68,
+      "sd_ref": null,
+      "detail": "keyword 直接拼入 LIKE 模式，用户输入中的 % 或 _ 会被当作通配符。"
+    }
+  ]
+}

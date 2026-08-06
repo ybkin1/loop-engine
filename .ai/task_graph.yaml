@@ -1477,7 +1477,7 @@ tasks:
     id: T-0127
     title: 状态硬化（P0）— 登记自动校验 + 治理文件变更自动重生成
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       消除治理文件变更需手工 --repair/render 的高频摩擦：登记后自动校验 +
       治理文件变更自动重生成 continuity/HANDOFF + 三文件一致性正反例测试；
@@ -1490,7 +1490,7 @@ tasks:
     id: T-0128
     title: 变异测试接线（P1）— seeded_defects × mutation_tester
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       mutation_tester 自动加载 6 SD 变异体：M1 确定性规则检出（≥5/6）+ M2 真实
       角色检出（≥4/6）+ 检出率指标进 metrics + release check fail-closed 接线；

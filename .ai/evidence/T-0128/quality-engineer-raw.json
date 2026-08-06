@@ -1,0 +1,11 @@
+{
+  "role": "quality-engineer",
+  "findings": [
+    {"id": "QE-001", "title": "create_user 对 username/password/email 完全缺少输入校验", "severity": "high", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 73, "sd_ref": "SD-002", "detail": "create_user 直接执行 INSERT，未校验 username 非空、email 格式、password 长度与复杂度，也未做 trim/归一化。"},
+    {"id": "QE-002", "title": "get_average_age 对空列表求均值导致 ZeroDivisionError", "severity": "medium", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 123, "sd_ref": "SD-004", "detail": "total / len(user_ids) 在 user_ids 为空时触发 ZeroDivisionError，函数没有空输入守卫。"},
+    {"id": "QE-003", "title": "get_users_with_orders 在循环内逐用户查询订单，N+1 次数据库往返", "severity": "high", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 141, "sd_ref": "SD-005", "detail": "对每个 user 在 for 循环内单独执行一次订单查询（N+1 模式），且内层查询同样用 f-string 拼接 SQL。"},
+    {"id": "QE-004", "title": "UserService 与 OrderService 相互引用形成循环依赖", "severity": "medium", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 153, "sd_ref": "SD-006", "detail": "OrderService.__init__ 接受 UserService，UserService.set_order_service 又持有 OrderService 引用，对象图成环。"},
+    {"id": "QE-005", "title": "get_average_age 未处理用户不存在或缺少 age 字段", "severity": "low", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 122, "sd_ref": null, "detail": "user = self.db.get_user(uid) 后直接 user[\"age\"]，未判空；真实 DB 对不存在的 id 返回 None 时会抛 TypeError。"},
+    {"id": "QE-006", "title": "search_users 的 LIKE 关键字未转义通配符 % 和 _", "severity": "low", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 68, "sd_ref": null, "detail": "keyword 直接拼入 LIKE 模式，用户输入中的 % 或 _ 会被当作通配符。"}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0128",
+  "gate_id": "G-T-0128-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "mutation_tester 自动加载 defect_registry（6 SD）",
+    "M1 确定性规则检出（>=5/6）",
+    "M2 真实角色检出（>=4/6）",
+    "检出率指标进 metrics-report + release check fail-closed 接线",
+    "KNOWN_ISSUES 关闭 + 全量回归 + bump 3.12.63",
+    "独立审查 + 验收"
+  ],
+  "notes": "G-T-0128-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。hooks/ 零改动、loop_core/ 零改动。"
+}

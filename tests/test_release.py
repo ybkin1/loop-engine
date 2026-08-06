@@ -268,7 +268,7 @@ class TestReviewFixes:
     def test_check_validate_state_rc3_passes(self, tmp_root: Path, monkeypatch, capsys):
         """T-0101: check 在 idle 稳态（validate_state rc=3）下整体 PASS。"""
         for name in ("version_sync", "validate_state", "compile", "guard_health",
-                     "slo_gate", "key_tests"):
+                     "slo_gate", "key_tests", "mutation_gate"):
             if name == "validate_state":
                 monkeypatch.setattr(
                     rel, "step_validate_state",
@@ -276,7 +276,7 @@ class TestReviewFixes:
             else:
                 monkeypatch.setattr(rel, f"step_{name}",
                                     lambda root: (True, "mocked ok"))
-        assert rel.cmd_check(tmp_root) == 0, "idle 稳态下 check 必须 PASS（6/6 可达）"
+        assert rel.cmd_check(tmp_root) == 0, "idle 稳态下 check 必须 PASS（7/7 可达）"
         assert "PASS" in capsys.readouterr().out
 
     def test_validate_state_timeout_blocks(self, tmp_root: Path, monkeypatch):

@@ -1,0 +1,10 @@
+{
+  "role": "security-engineer",
+  "findings": [
+    {"id": "SEC-001", "title": "SQL injection in search_users via f-string query building", "severity": "critical", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 68, "sd_ref": "SD-001", "detail": "Attacker-controlled keyword is interpolated directly into the SQL LIKE clause via f-string; a payload such as '%' OR 1=1 -- escapes the clause and executes arbitrary SQL."},
+    {"id": "SEC-002", "title": "Password stored in plaintext in set_password (no hashing or salting)", "severity": "critical", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 104, "sd_ref": "SD-003", "detail": "The raw new_password is written to the users table as-is; any database compromise exposes all credentials in plaintext."},
+    {"id": "SEC-003", "title": "Unmarked SQL injection pattern in get_users_with_orders orders query (f-string user_id)", "severity": "medium", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 142, "sd_ref": null, "detail": "user['id'] is interpolated into an f-string-built SQL query with no parameterization; not directly attacker-controlled today, but any attacker-influenced user record would enable SQL injection (defense-in-depth violation)."},
+    {"id": "SEC-004", "title": "Plaintext password stored in create_user (unmarked second instance of SD-003)", "severity": "high", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 87, "sd_ref": null, "detail": "create_user also persists the raw password without hashing at a separate, unmarked code site — the same plaintext-at-rest credential exposure class as SD-003."},
+    {"id": "SEC-005", "title": "No input validation on username/email/password in create_user", "severity": "low", "file": "tests/seeded_defects/sample_code/user_service.py", "line": 86, "sd_ref": "SD-002", "detail": "Username and email are stored without format checks or sanitization (HTML/script payloads can be persisted, enabling stored XSS when rendered), and any password including empty is accepted, weakening credential policy."}
+  ]
+}

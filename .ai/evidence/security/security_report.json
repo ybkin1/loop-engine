@@ -1,7 +1,7 @@
 {
   "schema": "security_report/v1",
   "role": "security-engineer",
-  "timestamp": "2026-08-06T23:28:50.078095+00:00",
+  "timestamp": "2026-08-06T23:50:16.806048+00:00",
   "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
   "scans": [
     {
@@ -22,7 +22,7 @@
       "name": "secret_scan",
       "status": "pass",
       "findings": [],
-      "files_scanned": 1285,
+      "files_scanned": 1287,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -93,6 +93,7 @@
         "tests/test_mcp_capability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mcp_client.py — test_fixture (tests/ 测试夹具)",
         "tests/test_memory_injection.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_mutation_scan.py — test_fixture (tests/ 测试夹具)",
         "tests/test_observability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_operations.py — test_fixture (tests/ 测试夹具)",
         "tests/test_path_guard.py — test_fixture (tests/ 测试夹具)",
@@ -176,6 +177,7 @@
         "demo/loop-demo-todo/tests/test_todo.py — test_fixture (tests/ 测试夹具)",
         "demo/loop-demo-todo/tests/__init__.py — test_fixture (tests/ 测试夹具)",
         "tests/lab/test_project_governor_consistency.py — test_fixture (tests/ 测试夹具)",
+        "tests/seeded_defects/detector.py — test_fixture (seeded_defects/夹具)",
         "tests/seeded_defects/test_defect_detection.py — test_fixture (seeded_defects/夹具)",
         "tests/seeded_defects/__init__.py — test_fixture (seeded_defects/夹具)",
         "tests/vertical_slice/conformance.py — test_fixture (tests/ 测试夹具)",
@@ -986,7 +988,7 @@
       "status": "pass",
       "high_findings": [],
       "medium_findings": [],
-      "files_scanned": 360,
+      "files_scanned": 362,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -1057,6 +1059,7 @@
         "tests/test_mcp_capability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mcp_client.py — test_fixture (tests/ 测试夹具)",
         "tests/test_memory_injection.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_mutation_scan.py — test_fixture (tests/ 测试夹具)",
         "tests/test_observability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_operations.py — test_fixture (tests/ 测试夹具)",
         "tests/test_path_guard.py — test_fixture (tests/ 测试夹具)",
@@ -1140,6 +1143,7 @@
         "demo/loop-demo-todo/tests/test_todo.py — test_fixture (tests/ 测试夹具)",
         "demo/loop-demo-todo/tests/__init__.py — test_fixture (tests/ 测试夹具)",
         "tests/lab/test_project_governor_consistency.py — test_fixture (tests/ 测试夹具)",
+        "tests/seeded_defects/detector.py — test_fixture (seeded_defects/夹具)",
         "tests/seeded_defects/test_defect_detection.py — test_fixture (seeded_defects/夹具)",
         "tests/seeded_defects/__init__.py — test_fixture (seeded_defects/夹具)",
         "tests/vertical_slice/conformance.py — test_fixture (tests/ 测试夹具)",

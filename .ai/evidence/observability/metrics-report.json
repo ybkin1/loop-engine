@@ -554,5 +554,24 @@
     "advisory only (wave 1): budget exhaustion is reported, no release path is blocked by this module",
     "部分数据源未接线（wave-2 ledger 项，共 3 个）：逐项 advisory 标注，computed 项正常判定，不因未接线源整体 NOT_VERIFIED",
     "release fee not assessed: no release ledger exists yet; pass --releases when a release record is available. 口径提示：release.py check 的 SLO 门禁按 releases=1 评估本次发布，metrics 报告用同一 releases 值即与 slo_gate 输出一致（同一 release_fee 函数）。"
-  ]
+  ],
+  "mutation_metrics": {
+    "m1_deterministic": {
+      "detected": 6,
+      "seeded": 6,
+      "detection_rate": "6/6",
+      "verdict": "PASS"
+    },
+    "m2_real_role": {
+      "detected": 6,
+      "seeded": 6,
+      "detection_rate": "6/6",
+      "verdict": "PASS"
+    },
+    "threshold": "M1>=5/6 and M2>=4/6",
+    "source_refs": [
+      ".ai/evidence/observability/mutation-report-m1.json",
+      ".ai/evidence/observability/mutation-report-m2.json"
+    ]
+  }
 }

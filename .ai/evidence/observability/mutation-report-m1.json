@@ -1,0 +1,48 @@
+{
+  "report_type": "mutation-scan-m1",
+  "mode": "m1_deterministic",
+  "seeded": 6,
+  "detected": 6,
+  "threshold": ">=5/6",
+  "detection_rate": "6/6",
+  "verdict": "PASS",
+  "registry_coverage_ok": true,
+  "per_defect": [
+    {
+      "sd": "SD-001",
+      "title": "SQL Injection via f-string query building",
+      "detected": true,
+      "evidence": "interpolated SQL f-string at line 68"
+    },
+    {
+      "sd": "SD-002",
+      "title": "Missing input validation on user creation",
+      "detected": true,
+      "evidence": "create_user has no input validation at line 73"
+    },
+    {
+      "sd": "SD-003",
+      "title": "Plaintext password storage",
+      "detected": true,
+      "evidence": "set_password stores raw password at line 92"
+    },
+    {
+      "sd": "SD-004",
+      "title": "Division by zero on empty input list",
+      "detected": true,
+      "evidence": "unguarded total/len at line 123"
+    },
+    {
+      "sd": "SD-005",
+      "title": "N+1 query in loop",
+      "detected": true,
+      "evidence": "query inside loop at line 141"
+    },
+    {
+      "sd": "SD-006",
+      "title": "Circular module dependency between services",
+      "detected": true,
+      "evidence": "UserService <-> OrderService mutual reference (circular)"
+    }
+  ]
+}

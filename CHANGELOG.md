@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.63 (2026-08-06) — T-0128 P1: 变异测试接线 — M1/M2 检出率 6/6 + mutation_gate 接线
+
+### Changed (T-0128 P1: 变异测试接线 — M1/M2 检出率 6/6 + mutation_gate 接线)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.62 (2026-08-06) — T-0127 P0: 状态硬化 — --auto-sync 一步同步 + 一致性测试
 
 ### Changed (T-0127 P0: 状态硬化 — --auto-sync 一步同步 + 一致性测试)

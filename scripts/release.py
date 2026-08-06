@@ -401,8 +401,43 @@ def step_key_tests(root: Path) -> tuple[bool, str]:
 
 PREFLIGHT_STEPS = (
     "version_sync", "validate_state", "compile", "guard_health",
-    "slo_gate", "key_tests",
+    "slo_gate", "key_tests", "mutation_gate",
 )
+
+
+def step_mutation_gate(root: Path) -> tuple[bool, str]:
+    """T-0128 变异检出门禁（fail-closed）。
+
+    读取 .ai/evidence/observability/ 下 M1（确定性规则）/ M2（真实角色）
+    检出报告；任一报告缺失/不可解析 → FAIL（没跑过就当不合格）；
+    阈值：M1 >= 5/6 且 M2 >= 4/6。检出率是"测试/质量线程有效性"的度量，
+    见 T-0132 D-02 M1（机器可复算：报告由 scan/verify 确定性生成）。
+    """
+    obs = root / ".ai" / "evidence" / "observability"
+    try:
+        m1 = json.loads((obs / "mutation-report-m1.json").read_text(encoding="utf-8"))
+        m2 = json.loads((obs / "mutation-report-m2.json").read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        return False, f"变异检出报告缺失（fail-closed）: {exc.filename}"
+    except (json.JSONDecodeError, OSError) as exc:
+        return False, f"变异检出报告不可解析: {exc}"
+
+    m1_detected = int(m1.get("detected", 0))
+    m1_seeded = int(m1.get("seeded", 0))
+    m2_detected = int(m2.get("detected", 0))
+    m2_seeded = int(m2.get("seeded", 0))
+
+    m1_ok = m1_detected >= 5 and m1_seeded >= 6
+    m2_ok = m2_detected >= 4 and m2_seeded >= 6
+    if m1_ok and m2_ok:
+        return True, (
+            f"变异检出 PASS: M1 {m1_detected}/{m1_seeded} >= 5/6, "
+            f"M2 {m2_detected}/{m2_seeded} >= 4/6"
+        )
+    return False, (
+        f"变异检出 FAIL: M1 {m1_detected}/{m1_seeded}（需>=5/6）, "
+        f"M2 {m2_detected}/{m2_seeded}（需>=4/6）"
+    )
 
 
 def run_preflight(root: Path) -> tuple[bool, list[dict]]:
