@@ -13,6 +13,7 @@ with BH harness-findings.input.json).  Old result fields
 import hashlib
 import json
 import logging
+import os
 import re
 import sys
 from pathlib import Path
@@ -89,6 +90,44 @@ def has_valid_session_id(content: dict) -> bool:
         return False
     
     return True
+
+
+# ── T-0121: ZCode 会话存在性核验（呈现层，advisory）────────────────────────
+# 落地 T-0120 方案 A：sess_<uuid> 会话目录在 ZCode exec 目录中真实存在性核验。
+# 设计约束：
+#   - 仅呈现（结果 session_source 字段标注），不参与 verdict 判定、不改 checks
+#   - fail-safe：exec 目录不可探测（换机/未安装/权限）时返回 unverified 且不抛错
+#   - 不读取会话日志内容（存在性 ≠ 真实性；T-0112 边界保持）
+ZCODE_SESSION_EXEC_DIR = str(Path.home() / ".zcode" / "cli" / "exec")
+
+
+def _zcode_session_exec_dir() -> str:
+    """ZCode 会话 exec 目录（运行时读取环境变量，支持注入/换机，fail-safe）。"""
+    return os.environ.get("ZCODE_SESSION_EXEC_DIR", ZCODE_SESSION_EXEC_DIR)
+
+
+def session_dir_exists(session_id: str) -> bool:
+    """核验 sess_<uuid> 会话目录存在（呈现层；任何异常 → False，不抛错）。"""
+    if not session_id or not session_id.startswith("sess_"):
+        return False
+    try:
+        return (Path(_zcode_session_exec_dir()) / session_id).is_dir()
+    except OSError:
+        return False
+
+
+def session_source_label(session_id: str) -> str:
+    """会话来源标注：verified-zcode / unverified-zcode / external。
+
+    - sess_<uuid> 格式且目录存在      → verified-zcode（本地可核验）
+    - sess_<uuid> 格式但目录缺失      → unverified-zcode（存在性未证实）
+    - 其他格式（外部会话 ID）         → external（非 ZCode 会话，按既有语义）
+    """
+    if not session_id:
+        return "unavailable"
+    if not session_id.startswith("sess_"):
+        return "external"
+    return "verified-zcode" if session_dir_exists(session_id) else "unverified-zcode"
 
 
 def is_independent_session(content: dict, main_session_id: str = "") -> bool:
@@ -221,7 +260,8 @@ def verify_review_evidence(
         return {"valid": False, "reason": f"Evidence file not found: {evidence_path}",
                 "checks": checks,
                 "findings": [_evidence_finding("file_exists", evidence_path)],
-                "evidence_state": checks_to_evidence_state(checks).value}
+                "evidence_state": checks_to_evidence_state(checks).value,
+                "session_source": "unavailable"}
     checks["file_exists"] = True
 
     try:
@@ -230,7 +270,8 @@ def verify_review_evidence(
         failed.append("valid_json")
         return {"valid": False, "reason": f"Invalid JSON: {e}", "checks": checks,
                 "findings": [_evidence_finding("valid_json", evidence_path)],
-                "evidence_state": checks_to_evidence_state(checks).value}
+                "evidence_state": checks_to_evidence_state(checks).value,
+                "session_source": "unavailable"}
     checks["valid_json"] = True
 
     # 1. Anti-simulation
@@ -287,11 +328,13 @@ def verify_review_evidence(
             "checks": checks,
             "findings": [_evidence_finding(f, evidence_path) for f in failed],
             "evidence_state": checks_to_evidence_state(checks).value,
+            "session_source": session_source_label(content.get("reviewer_session_id", "")),
         }
 
     return {"valid": True, "reason": "All evidence checks passed",
             "checks": checks, "findings": [],
-            "evidence_state": checks_to_evidence_state(checks).value}
+            "evidence_state": checks_to_evidence_state(checks).value,
+            "session_source": session_source_label(content.get("reviewer_session_id", ""))}
 
 
 # CLI entry for hook usage

@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "26E98507A8A8168671625036F7219371778BAD39E4DB02BC7A1F36E7F2BF34A2",
+  "persisted_file_sha256": "9C4954A1F333A1C2EA317CE108FB53F8E7451DF62FAB198E59392826EDF256D9",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "EB329E44F91DF76DCCAEDC6E3D246057C6FDBCB36097ADDB9C797F4A221ED19E",
+  "source_sha256": "E344307C90F0B6705302350EF50E3F52F3DBD056E6FEF5C20A3C1F202203AC15",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,14 +93,18 @@ S6-delivery
 
 ## Current Task
 
-none
+T-0122
 
-Status: `unknown`
+Status: `pending`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: none
+active_gate: G-T-0122-REQUIREMENTS
+active_gate_status: approved / approved_not_started
+
+current_gate_id is null because no pending decision is required.
+G-T-0122-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -121,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0120/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0122/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -171,11 +175,11 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": null,
-  "approved_execution_status": null,
-  "current_gate_id": null,
-  "current_task_id": null,
-  "current_task_status": null,
+  "approved_execution_gate_id": "G-T-0122-REQUIREMENTS",
+  "approved_execution_status": "approved_not_started",
+  "current_gate_id": "G-T-0122-REQUIREMENTS",
+  "current_task_id": "T-0122",
+  "current_task_status": "pending",
   "lifecycle_revision": 0,
   "next_action": "USER_DECISION_REQUIRED",
   "schema": "ProjectGovernorNextAction/v2"

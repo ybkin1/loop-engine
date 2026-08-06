@@ -4372,5 +4372,362 @@ gates:
   exit_criteria:
   - user explicitly approves, rejects, or requests repair of this gate
   - design + decision packet delivered; no production change
+- id: G-T-0121-REQUIREMENTS
+  task_id: T-0121
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0121/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0121/execution-evidence.json
+  scope: >-
+    T-0121 ZCode 会话存在性核验落地（T-0120 方案 A）：verifier has_valid_session_id
+    增加 sess_<uuid> 目录存在性核验（呈现层 reason 标注，verdict 判定零变更）；
+    checks 7 项不变；fail-safe 降级；KNOWN_ISSUES session-source-disabled 更新；
+    bump 3.12.56。
+  allowed_paths:
+  - .ai/
+  - loop_core/subagent_evidence_verifier.py
+  - tests/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change gate decision semantics or checks count
+  - use session log content as acceptance evidence
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - reason 标注实证（会话目录缺失场景）
+  - test_t0118_seven_state 全过（既有判定零变化）
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.56 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - session existence check landed with verdict semantics unchanged
+- id: G-T-0122-REQUIREMENTS
+  task_id: T-0122
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0122/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0122/execution-evidence.json
+  scope: >-
+    T-0122 T-0104 P3 实施包：context_packager 记忆召回 task_id/gate_id/tag 过滤
+    （默认不传=现状）+ role_orchestrator 配置 phases schema 校验（fail-fast 告警）
+    + 配置读盘缓存（mtime 失效）；manifest 时序项登记关闭；bump 3.12.57。
+  allowed_paths:
+  - .ai/
+  - loop_core/context_packager.py
+  - loop_core/role_orchestrator.py
+  - tests/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change memory_injection default-off semantics
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 召回过滤生效测试（同/跨任务隔离）
+  - 非法 phases 告警 + 回退默认测试
+  - 配置缓存命中测试
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.57 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - 3 implementable P3 items landed; timing item registered closed
+- id: G-T-0123-REQUIREMENTS
+  task_id: T-0123
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0123/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0123/execution-evidence.json
+  scope: >-
+    T-0123 ROLE_CHALLENGES 补全 + certification_runner 统一：role_capability 补
+    test-engineer challenge（12/12）+ certification_runner:613 schema 字面量改引
+    共享常量 + deep_probe 检查补全；bump 3.12.58。
+  allowed_paths:
+  - .ai/
+  - loop_core/role_capability.py
+  - scripts/certification_runner.py
+  - tests/deep_probe_v35.py
+  - tests/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify existing 11 challenges content
+  - change check_role_admission semantics
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - ROLE_CHALLENGES 12/12 覆盖断言 + test-engineer certify 流程
+  - certification_runner 共享常量实证（grep 无第二处字面量）
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.58 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - challenge gap and schema literal both closed
+- id: G-T-0124-REQUIREMENTS
+  task_id: T-0124
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0124/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0124/execution-evidence.json
+  scope: >-
+    T-0124 loop_core 7 个超大模块拆分（dashboard_views/hard_constraints/
+    intent_router/evals/second_failure/context_loader/executor）：壳+外部模块
+    行为等价（golden 逐字节 + re-export 逐名）+ deep_probe 白名单基线更新；
+    hooks/ 零改动；bump 3.12.59。
+  allowed_paths:
+  - .ai/
+  - loop_core/
+  - tests/
+  - docs/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change any public API/behavior (golden hard gate)
+  - remove any public symbol (full re-export)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 每模块 golden 逐字节一致 + dir() re-export 逐名一致
+  - deep_probe 全 PASS（白名单基线更新）
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.59 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - 7 modules split with behavior equivalence proven
+- id: G-T-0125-REQUIREMENTS
+  task_id: T-0125
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0125/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0125/execution-evidence.json
+  scope: >-
+    T-0125 hook_common.py(831) 拆分：壳+外部模块行为等价（golden + re-export）；
+    hooks/ 仅 hook_common.py 与其外部模块；hook 套件全绿；bump 3.12.60。
+  allowed_paths:
+  - .ai/
+  - hooks/scripts/hook_common.py
+  - hooks/scripts/（新增外部模块文件）
+  - tests/
+  - docs/
+  - pyproject.toml
+  - CHANGELOG.md
+  forbidden_actions:
+  - modify any hook file other than hook_common.py and its new external modules
+  - change any behavior (golden hard gate)
+  - remove any public symbol (full re-export)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - golden 逐字节一致 + dir() re-export 逐名一致
+  - hook 套件全绿（test_hook_integration 等）
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.60 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - hook_common split with behavior equivalence proven; diff limited to allowed files
+- id: G-T-0126-REQUIREMENTS
+  task_id: T-0126
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-06T17:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-06T17:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0126/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0126/execution-evidence.json
+  scope: >-
+    T-0126 env-dependent 测试修复 + KNOWN_ISSUES 收口：deployment quality checker
+    测试端口随机化/注入（默认行为不变）+ KNOWN_ISSUES env-dependent 关闭与 Open
+    区复核；bump 3.12.61。
+  allowed_paths:
+  - .ai/
+  - tests/
+  - loop_core/deployment_quality_checker.py
+  - docs/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change checker decision semantics (port source injectable only)
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy
+  - rollback
+  - database change
+  - permission change
+  - secret handling
+  - payment action
+  - production data action
+  - migration
+  - execute real release/publish
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - 端口占用环境下测试通过实证
+  - checker 默认行为不变（既有测试全绿）
+  - KNOWN_ISSUES env-dependent 关闭记录
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.61 == git HEAD)
+  - acceptance evidence
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - env-dependent test fixed; KNOWN_ISSUES Open area reviewed
 
 

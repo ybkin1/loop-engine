@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0121",
+  "gate_id": "G-T-0121-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T17:05:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "verifier has_valid_session_id 会话存在性核验（sess_<uuid> → ~/.zcode/cli/exec/ 探测，fail-safe）",
+    "reason 标注 session source unverified (zcode)",
+    "测试 4 类用例 + KNOWN_ISSUES session-source-disabled 更新",
+    "全量回归 + compile + release check + bump 3.12.56",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0121-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。硬约束：hooks/ 零改动、checks 7 项不变、verdict 判定零变更、不把日志内容作验收证据。"
+}

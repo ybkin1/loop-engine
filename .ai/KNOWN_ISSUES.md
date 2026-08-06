@@ -2,7 +2,7 @@
 
 ## Open
 
-- [session-source-disabled Medium] Qoder 工作区会话证据源未启用或源根配置不可用：分析报告出现 `disabled-source-root` / `missing-optional-root`，仅 1/5 个 enabled source roots 存在；即使有会话也无法读取，任务理解、可控执行、改动验证、可靠交付持续处于 Unobserved，评分被证据上限锁死，学习捕获也无法验证。→ 记录保留，不立项修复（T-0112 已撤销：Qoder 为外部会话宿主，其数据不作 ZCode 验收证据；如后续需要改走 ZCode 原生会话证据路径独立立项）
+- [session-source-disabled Medium] Qoder 工作区会话证据源未启用或源根配置不可用：分析报告出现 `disabled-source-root` / `missing-optional-root`，仅 1/5 个 enabled source roots 存在；即使有会话也无法读取，任务理解、可控执行、改动验证、可靠交付持续处于 Unobserved，评分被证据上限锁死，学习捕获也无法验证。→ 记录保留，不立项修复（T-0112 已撤销：Qoder 为外部会话宿主，其数据不作 ZCode 验收证据；T-0121 已落地 ZCode 原生会话存在性核验（呈现层 session_source 标注），如需进一步走 ZCode 原生会话证据路径按 T-0120 决策包评估）
 - [env-dependent Low] `test_deployment_quality_checker::test_runtime_report_is_simulated_and_fail_closed` 本机环境依赖失败：localhost:3000/8000 被无关进程占用致 `service.startup=PASS`（T-0107 独立审查经 e083f7b baseline worktree 实证为预存在环境依赖，非代码缺陷；空闲端口环境应通过）
 - Seeded defects test project exists but is not automatically invoked by the mutation tester (manual verification only).
 - E2E integration test (test_E2E_CURRENT_001) is skipped due to lab fixture dependency.

@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.56 (2026-08-06) — T-0121: ZCode 会话存在性核验（T-0120 方案 A 落地，呈现层）
+
+### Changed (T-0121: ZCode 会话存在性核验（T-0120 方案 A 落地，呈现层）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.55 (2026-08-06) — T-0119: agents 残留清理（排除表 + 死注释 + 全仓复核）
 
 ### Changed (T-0119: agents 残留清理（排除表 + 死注释 + 全仓复核）)

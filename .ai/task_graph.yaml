@@ -1383,6 +1383,81 @@ tasks:
       - T-0119
     gates:
       - G-T-0120-REQUIREMENTS
+  -
+    id: T-0121
+    title: ZCode 会话存在性核验落地（T-0120 方案 A）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      verifier has_valid_session_id 增加 sess_<uuid> 目录存在性核验（呈现层
+      reason 标注，verdict 判定零变更，checks 7 项不变）；fail-safe 降级；
+      KNOWN_ISSUES session-source-disabled 更新；bump 3.12.56。
+    depends_on:
+      - T-0120
+    gates:
+      - G-T-0121-REQUIREMENTS
+  -
+    id: T-0122
+    title: T-0104 P3 实施包（召回过滤 + 配置校验 + 配置缓存）
+    phase: S6-delivery
+    status: pending
+    description: >-
+      context_packager 记忆召回 task_id/gate_id/tag 过滤（默认不传=现状）+
+      role_orchestrator 配置 phases schema 校验（fail-fast 告警）+ 配置读盘缓存
+      （mtime 失效）；manifest 时序项登记关闭；bump 3.12.57。
+    depends_on:
+      - T-0121
+    gates:
+      - G-T-0122-REQUIREMENTS
+  -
+    id: T-0123
+    title: ROLE_CHALLENGES 补全 + certification_runner 字面量统一
+    phase: S6-delivery
+    status: pending
+    description: >-
+      role_capability 补 test-engineer challenge（12/12）+ certification_runner
+      :613 schema 字面量改引共享常量 + deep_probe 检查补全；bump 3.12.58。
+    depends_on:
+      - T-0122
+    gates:
+      - G-T-0123-REQUIREMENTS
+  -
+    id: T-0124
+    title: loop_core 超大模块拆分（7 个，行为等价）
+    phase: S6-delivery
+    status: pending
+    description: >-
+      dashboard_views/hard_constraints/intent_router/evals/second_failure/
+      context_loader/executor 拆分（壳+外部模块，golden 逐字节 + re-export
+      逐名）；deep_probe 白名单基线更新；hooks/ 零改动；bump 3.12.59。
+    depends_on:
+      - T-0123
+    gates:
+      - G-T-0124-REQUIREMENTS
+  -
+    id: T-0125
+    title: hook_common.py 拆分（hooks/ 授权）
+    phase: S6-delivery
+    status: pending
+    description: >-
+      hook_common.py(831) 壳+外部模块行为等价拆分（golden + re-export）；
+      hooks/ 仅 hook_common 与其外部模块；hook 套件全绿；bump 3.12.60。
+    depends_on:
+      - T-0124
+    gates:
+      - G-T-0125-REQUIREMENTS
+  -
+    id: T-0126
+    title: env-dependent 测试修复 + KNOWN_ISSUES 收口
+    phase: S6-delivery
+    status: pending
+    description: >-
+      deployment quality checker 测试端口随机化/注入（默认行为不变）+
+      KNOWN_ISSUES env-dependent 关闭与 Open 区复核；bump 3.12.61。
+    depends_on:
+      - T-0125
+    gates:
+      - G-T-0126-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1444,3 +1519,15 @@ edges:
       to: T-0119
     - from: T-0119
       to: T-0120
+    - from: T-0120
+      to: T-0121
+    - from: T-0121
+      to: T-0122
+    - from: T-0122
+      to: T-0123
+    - from: T-0123
+      to: T-0124
+    - from: T-0124
+      to: T-0125
+    - from: T-0125
+      to: T-0126
