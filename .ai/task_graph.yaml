@@ -1375,7 +1375,7 @@ tasks:
     id: T-0120
     title: ZCode 原生会话证据路径（candidate-only 设计）
     phase: S6-delivery
-    status: approved_not_started
+    status: completed
     description: >-
       T-0106 F0 改写后候选：ZCode 原生会话证据路径只读调研 + 方案设计 + 决策包交用户；
       candidate-only 仅 .ai/ 写入，版本保持 3.12.55。

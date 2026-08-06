@@ -1,0 +1,66 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0120-490E8B84
+task_id: T-0120
+gate_id: G-T-0120-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0120
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0120/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: 9784C93283D85BCCD4AF7D92F3AA24712F631F1F2398C636AB6A0181E1BBA15B
+  size: 1541
+  mtime_ns: 1785995921901635000
+- path: .ai/evidence/T-0120/approval-evidence.json
+  role: result
+  required: true
+  sha256: 9B00D48A2EC971FDBC4C4F4BFC41176AA4A913232F4F9CE3A8457F454BDCACE1
+  size: 306
+  mtime_ns: 1785988395820703600
+- path: .ai/evidence/T-0120/commands.md
+  role: result
+  required: true
+  sha256: 7DC223C22A01AE9A5E5D0B122977DF2A3B16BD8FA6680E78FCDA5C514C204F0D
+  size: 1602
+  mtime_ns: 1785995687481605100
+- path: .ai/evidence/T-0120/compile-evidence.json
+  role: result
+  required: true
+  sha256: F63ABC751B3FE81E3ABBBB3632792F6E10ADDC7F35AC49E8FC1CF5DE715DA879
+  size: 181
+  mtime_ns: 1785995688481678800
+- path: .ai/evidence/T-0120/design/D-01-zcode-session-inventory.md
+  role: result
+  required: true
+  sha256: 069FBE21AD316DF297AB7C3B5B1917E06D4EBC308EE85F9874A5A970608627C6
+  size: 3152
+  mtime_ns: 1785995921873637200
+- path: .ai/evidence/T-0120/design/D-02-evidence-path.md
+  role: result
+  required: true
+  sha256: 143B3F907C18515BE3BB727AD10FD9EFE5C5FE4513BFE0F26BE2A37A8C3193B8
+  size: 3541
+  mtime_ns: 1785995677444648500
+- path: .ai/evidence/T-0120/design/decision-packet.md
+  role: result
+  required: true
+  sha256: 85D93FD694897489AD5CB6749726579674566E62263F8FAD623EE6175CCA5288
+  size: 1854
+  mtime_ns: 1785995677497170000
+- path: .ai/evidence/T-0120/execution-evidence.json
+  role: result
+  required: true
+  sha256: 9AB06382556F65ECC668FA659853C50E798CDEF8D9FE49D5A57F176807AA7E60
+  size: 725
+  mtime_ns: 1785995611183078000
+file_count: 8
+total_bytes: 12902
+ordered_entries_sha256: 490E8B84B8F4487F16C073D514AE90057EDFB049F3C9D90E227D30595CC355B5
+semantic_sha256: F00D2D12F16B03AC0227B9D507C637E5759A2E04067690E0BB476729EAC93253
+created_at: '2026-08-06T13:58:48.565121+08:00'
+created_by: zcode-main-session
