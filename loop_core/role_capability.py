@@ -284,6 +284,24 @@ ROLE_CHALLENGES: dict[str, CapabilityChallenge] = {
             "Overall PASS only when all 8 dimensions pass + upstream PASS",
         ],
     ),
+    # T-0123: 补 test-engineer challenge（ROLE_CHALLENGES 12/12 覆盖闭环，
+    # 风格对齐既有 11 项——测试工程能力挑战，验证缺陷检测与报告契约）
+    "test-engineer": CapabilityChallenge(
+        challenge_id="CHALLENGE-TE-001",
+        role_id="test-engineer",
+        description="测试工程师能力挑战：编写并执行测试且报告契约完整",
+        required_tools=["pytest"],
+        required_inputs=["contract.md", "sample_module.py"],
+        seeded_defects=[
+            {"id": "SD-020", "type": "boundary_off_by_one", "description": "边界值 off-by-one"},
+            {"id": "SD-021", "type": "exception_unhandled", "description": "异常未处理路径"},
+        ],
+        pass_conditions=[
+            "Test suite covers contract.md 全部验收点",
+            "pytest 全绿（含 seeded_defects 检出断言）",
+            "test_report.json produced with correct schema",
+        ],
+    ),
 }
 
 

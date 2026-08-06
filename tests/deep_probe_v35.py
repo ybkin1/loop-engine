@@ -247,11 +247,11 @@ with tempfile.TemporaryDirectory() as tmp:
     check("Persistence: status preserved", loaded.status == CapabilityStatus.CAPABILITY_DEGRADED)
     check("Persistence: counter preserved", loaded.pass_without_evidence_count == 3)
 
-# All defined challenges exist（T-0115: ROLE_CHALLENGES 现覆盖 11 个角色，
-# test-engineer 的 challenge 未定义——产品侧缺口，已登记 KNOWN_ISSUES）
+# All defined challenges exist（T-0123: ROLE_CHALLENGES 已补 test-engineer，12/12 覆盖）
 for role_id in ["main-thread", "product-manager", "project-manager", "system-architect",
                 "module-architect", "developer", "quality-engineer", "security-engineer",
-                "independent-reviewer", "delivery-manager", "release-engineer"]:
+                "independent-reviewer", "delivery-manager", "release-engineer",
+                "test-engineer"]:
     check(f"Challenge defined: {role_id}", role_id in ROLE_CHALLENGES)
 
 

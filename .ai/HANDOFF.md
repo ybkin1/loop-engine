@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "4612735007A5B403492C98FB5CD3852A865EF31F35AEB2E03A5504E9AD27047D",
+  "persisted_file_sha256": "EFB150A4D4FB411BD14CD32CAC8C3D910820AA7DE4346820A8FA57D14DF1D80D",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "1B0689CE6571C197EEF3620361FE1AF918382B3D90697FCD899A1B98C5EBEE91",
+  "source_sha256": "5B92636AB2983E5C3F46C5CFEB39757B9393DD97ED86B1CA8F7E7811240DC548",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0123
+T-0124
 
 Status: `pending`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0123-REQUIREMENTS
+active_gate: G-T-0124-REQUIREMENTS
 active_gate_status: approved / approved_not_started
 
 current_gate_id is null because no pending decision is required.
-G-T-0123-REQUIREMENTS is approved and execution is in progress.
+G-T-0124-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0123/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0124/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0123-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0124-REQUIREMENTS",
   "approved_execution_status": "approved_not_started",
-  "current_gate_id": "G-T-0123-REQUIREMENTS",
-  "current_task_id": "T-0123",
+  "current_gate_id": "G-T-0124-REQUIREMENTS",
+  "current_task_id": "T-0124",
   "current_task_status": "pending",
   "lifecycle_revision": 0,
   "next_action": "USER_DECISION_REQUIRED",

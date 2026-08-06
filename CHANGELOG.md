@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.58 (2026-08-06) — T-0123: ROLE_CHALLENGES 补全 + certification_runner 字面量统一
+
+### Changed (T-0123: ROLE_CHALLENGES 补全 + certification_runner 字面量统一)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.57 (2026-08-06) — T-0122: T-0104 P3 核实关闭（已由 T-0105 实施，登记修正）
 
 ### Changed (T-0122: T-0104 P3 核实关闭（已由 T-0105 实施，登记修正）)

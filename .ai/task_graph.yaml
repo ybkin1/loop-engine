@@ -1413,7 +1413,7 @@ tasks:
     id: T-0123
     title: ROLE_CHALLENGES 补全 + certification_runner 字面量统一
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       role_capability 补 test-engineer challenge（12/12）+ certification_runner
       :613 schema 字面量改引共享常量 + deep_probe 检查补全；bump 3.12.58。

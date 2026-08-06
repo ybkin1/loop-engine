@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0123",
+  "gate_id": "G-T-0123-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-06T18:45:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "role_capability ROLE_CHALLENGES 补 test-engineer（12/12）",
+    "certification_runner:613 schema 字面量改引共享常量",
+    "deep_probe test-engineer challenge 检查补全",
+    "测试 + 全量回归 + compile + release check + bump 3.12.58",
+    "独立审查 + 验收 + 推送同步"
+  ],
+  "notes": "G-T-0123-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。硬约束：hooks/ 零改动、既有 11 项 challenge 内容零修改、check_role_admission 语义不变。"
+}

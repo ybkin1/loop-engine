@@ -33,6 +33,11 @@ from typing import Any, Callable, Optional
 
 # ── Project root detection ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+# T-0123: security_report/v1 schema 单一数据源（与 run_security_scan.py 同源）
+from loop_core.security_scanner import SECURITY_REPORT_V1_SCHEMA  # noqa: E402
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -610,7 +615,7 @@ def challenge_security_engineer() -> ChallengeResult:
     checks: list[dict] = []
 
     security_report = {
-        "schema": "security_report/v1",
+        "schema": SECURITY_REPORT_V1_SCHEMA,
         "scans": [
             {
                 "name": "cve_scan",
