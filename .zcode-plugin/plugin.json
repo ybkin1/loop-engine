@@ -1,6 +1,6 @@
 {
   "name": "loop-governance",
-  "version": "3.12.53",
+  "version": "3.12.54",
   "description": "Loop 工程治理 —— 把 AI 编码变成可交付、可验证、可维护的软件工程。提供角色协作、质量门禁、证据链和 Gate 状态机。",
   "author": {
     "name": "Loop Engineering"

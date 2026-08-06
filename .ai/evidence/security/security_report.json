@@ -1,7 +1,7 @@
 {
   "schema": "security_report/v1",
   "role": "security-engineer",
-  "timestamp": "2026-08-06T05:07:09.001521+00:00",
+  "timestamp": "2026-08-06T05:28:08.431031+00:00",
   "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
   "scans": [
     {
@@ -22,7 +22,7 @@
       "name": "secret_scan",
       "status": "pass",
       "findings": [],
-      "files_scanned": 1272,
+      "files_scanned": 1273,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -137,6 +137,7 @@
         "tests/test_t0110_batch_b2.py — test_fixture (tests/ 测试夹具)",
         "tests/test_t0110_batch_c.py — test_fixture (tests/ 测试夹具)",
         "tests/test_t0117_contract_unification.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_t0118_seven_state.py — test_fixture (tests/ 测试夹具)",
         "tests/test_task_queue.py — test_fixture (tests/ 测试夹具)",
         "tests/test_technical_roles.py — test_fixture (tests/ 测试夹具)",
         "tests/test_tool_executor.py — test_fixture (tests/ 测试夹具)",
@@ -981,7 +982,7 @@
       "status": "pass",
       "high_findings": [],
       "medium_findings": [],
-      "files_scanned": 348,
+      "files_scanned": 349,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -1096,6 +1097,7 @@
         "tests/test_t0110_batch_b2.py — test_fixture (tests/ 测试夹具)",
         "tests/test_t0110_batch_c.py — test_fixture (tests/ 测试夹具)",
         "tests/test_t0117_contract_unification.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_t0118_seven_state.py — test_fixture (tests/ 测试夹具)",
         "tests/test_task_queue.py — test_fixture (tests/ 测试夹具)",
         "tests/test_technical_roles.py — test_fixture (tests/ 测试夹具)",
         "tests/test_tool_executor.py — test_fixture (tests/ 测试夹具)",

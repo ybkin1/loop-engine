@@ -1350,7 +1350,7 @@ tasks:
     id: T-0118
     title: subagent_evidence_verifier 七态映射消费
     phase: S6-delivery
-    status: approved_not_started
+    status: completed
     description: >-
       T-0109 遗留 #1：verifier 7 布尔 checks 接入 EvidenceState 七态（coerce 入口已就绪）；
       仅呈现/度量层，gate 判定零变更；hooks/ 零改动；bump 3.12.54。

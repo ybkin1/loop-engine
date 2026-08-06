@@ -14,9 +14,18 @@ import hashlib
 import json
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Any, Optional
 
+# T-0118: 独立脚本运行加固——项目根 sys.path 注入（本机 python312._pth
+# 隔离模式下 cwd/PYTHONPATH 不可靠；hook 环境与本机直跑均可用）。
+# 注意：必须位于 loop_core 导入之前（模块加载期即需解析包）。
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from loop_core.schemas.evidence_state import EvidenceState
 from loop_core.schemas.finding_contract import mark_schema_status
 
 logger = logging.getLogger(__name__)
@@ -110,6 +119,33 @@ def has_required_fields(content: dict) -> tuple[bool, list[str]]:
     return len(missing) == 0, missing
 
 
+# ── T-0118: checks → EvidenceState 七态映射（仅供呈现/度量）───────────────
+# 设计约束（evidence_state.py）：七态不进 gate 判定路径；本映射只把
+# verify_review_evidence 的 7 个布尔 checks 呈现为成熟度档位。
+#
+# 映射规则（阶梯：失败一律落在"已登记"档，全过才升档）：
+#   file_exists=False                          → MISSING（应存在但缺失）
+#   valid_json=False                           → PRESENT（存在但不可解析）
+#   内容/会话/必填检查任一失败                  → PRESENT（存在但未达可信/溯源标准）
+#   全部通过但 files_covered 未检查或失败      → EXERCISED（已执行，覆盖未完全验证）
+#   全部通过                                   → OUTCOME_SUPPORTED（结果支撑结论）
+# 注：WIRED/N-A/UNOBSERVED 不由此路径产生（接线/适用性/观测性由消费方
+# 上下文判定，本模块无此类信息）。
+def checks_to_evidence_state(checks: dict) -> EvidenceState:
+    """把 7 布尔 checks 映射为 EvidenceState（T-0118，advisory-only）。"""
+    if not checks.get("file_exists"):
+        return EvidenceState.MISSING
+    if not checks.get("valid_json"):
+        return EvidenceState.PRESENT
+    content_checks = ("not_simulated", "has_session_id",
+                      "independent_session", "required_fields")
+    if any(not checks.get(c) for c in content_checks):
+        return EvidenceState.PRESENT
+    if not checks.get("files_covered"):
+        return EvidenceState.EXERCISED
+    return EvidenceState.OUTCOME_SUPPORTED
+
+
 # T-0108 F7: contract-shaped finding for a failed verification check.
 _EVIDENCE_CHECK_META = {
     "file_exists": {"title": "证据文件缺失", "message": "审查证据文件不存在"},
@@ -184,7 +220,8 @@ def verify_review_evidence(
         failed.append("file_exists")
         return {"valid": False, "reason": f"Evidence file not found: {evidence_path}",
                 "checks": checks,
-                "findings": [_evidence_finding("file_exists", evidence_path)]}
+                "findings": [_evidence_finding("file_exists", evidence_path)],
+                "evidence_state": checks_to_evidence_state(checks).value}
     checks["file_exists"] = True
 
     try:
@@ -192,7 +229,8 @@ def verify_review_evidence(
     except (json.JSONDecodeError, Exception) as e:
         failed.append("valid_json")
         return {"valid": False, "reason": f"Invalid JSON: {e}", "checks": checks,
-                "findings": [_evidence_finding("valid_json", evidence_path)]}
+                "findings": [_evidence_finding("valid_json", evidence_path)],
+                "evidence_state": checks_to_evidence_state(checks).value}
     checks["valid_json"] = True
 
     # 1. Anti-simulation
@@ -248,15 +286,16 @@ def verify_review_evidence(
             "reason": reason,
             "checks": checks,
             "findings": [_evidence_finding(f, evidence_path) for f in failed],
+            "evidence_state": checks_to_evidence_state(checks).value,
         }
 
     return {"valid": True, "reason": "All evidence checks passed",
-            "checks": checks, "findings": []}
+            "checks": checks, "findings": [],
+            "evidence_state": checks_to_evidence_state(checks).value}
 
 
 # CLI entry for hook usage
 if __name__ == "__main__":
-    import sys
     if len(sys.argv) < 2:
         print(json.dumps({"valid": False, "reason": "Usage: evidence_path [session_id]"}))
         sys.exit(1)

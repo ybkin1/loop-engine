@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "loop-engine"
-version = "3.12.53"
+version = "3.12.54"
 description = "Loop 工程软件交付系统 — 把 AI 编码变成具备完整软件工程纪律的可交付系统"
 readme = "README.md"
 license = { text = "MIT" }
