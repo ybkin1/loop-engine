@@ -4447,15 +4447,13 @@ gates:
   approval_evidence: .ai/evidence/T-0122/approval-evidence.json
   execution_evidence: .ai/evidence/T-0122/execution-evidence.json
   scope: >-
-    T-0122 T-0104 P3 实施包：context_packager 记忆召回 task_id/gate_id/tag 过滤
-    （默认不传=现状）+ role_orchestrator 配置 phases schema 校验（fail-fast 告警）
-    + 配置读盘缓存（mtime 失效）；manifest 时序项登记关闭；bump 3.12.57。
+    T-0122 T-0104 P3 核实关闭（T-0122 范围调整：执行中核实 4 项建议已全部由
+    T-0105 批 2 B-4-1~4 实施——召回过滤/配置校验/时序约定/读盘缓存，
+    test_t0105_batch2 21 测试锁定；本任务零产品代码改动，仅登记修正与证据）；
+    bump 3.12.57。
   allowed_paths:
   - .ai/
-  - loop_core/context_packager.py
-  - loop_core/role_orchestrator.py
-  - tests/
-  - docs/
+  - tests/test_t0105_batch2.py（核实只读）
   forbidden_actions:
   - modify hooks/ (any file)
   - change memory_injection default-off semantics
@@ -4481,15 +4479,14 @@ gates:
     migration: false
     runtime_behavior: false
   evidence_required:
-  - 召回过滤生效测试（同/跨任务隔离）
-  - 非法 phases 告警 + 回退默认测试
-  - 配置缓存命中测试
+  - B-4-1~4 落地核实（代码 + test_t0105_batch2 21 passed）
+  - KNOWN_ISSUES T-0104 P3 重复登记修正
   - full regression 0 failed + compile pass + release check 6/6
   - version sync (3.12.57 == git HEAD)
   - acceptance evidence
   exit_criteria:
   - user explicitly approves, rejects, or requests repair of this gate
-  - 3 implementable P3 items landed; timing item registered closed
+  - B-4-1~4 verified landed; registration corrected; zero product change
 - id: G-T-0123-REQUIREMENTS
   task_id: T-0123
   gate_type: user-approval

@@ -1398,13 +1398,13 @@ tasks:
       - G-T-0121-REQUIREMENTS
   -
     id: T-0122
-    title: T-0104 P3 实施包（召回过滤 + 配置校验 + 配置缓存）
+    title: T-0104 P3 核实关闭（已由 T-0105 实施，登记修正）
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
-      context_packager 记忆召回 task_id/gate_id/tag 过滤（默认不传=现状）+
-      role_orchestrator 配置 phases schema 校验（fail-fast 告警）+ 配置读盘缓存
-      （mtime 失效）；manifest 时序项登记关闭；bump 3.12.57。
+      核实 B-4-1~4 已全部由 T-0105 批 2 实施（召回过滤/配置校验/时序约定/
+      读盘缓存，test_t0105_batch2 21 测试）；零产品代码改动，登记修正
+      （KNOWN_ISSUES T-0104 P3 重复登记）；bump 3.12.57。
     depends_on:
       - T-0121
     gates:
