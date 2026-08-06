@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.62 (2026-08-06) — T-0127 P0: 状态硬化 — --auto-sync 一步同步 + 一致性测试
+
+### Changed (T-0127 P0: 状态硬化 — --auto-sync 一步同步 + 一致性测试)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.61 (2026-08-06) — T-0126 — env-dependent 测试修复 + KNOWN_ISSUES 收口
 
 ### Changed (T-0126 — env-dependent 测试修复 + KNOWN_ISSUES 收口)

@@ -463,7 +463,9 @@ def main() -> int:
 
     # 5. ProjectContinuity — skip in S0-init (too heavy for fresh project)
     continuity_path = base / "project_continuity.yaml"
-    repair_mode = "--repair" in sys.argv or os.environ.get("LOOP_REPAIR_CONTINUITY") == "1"
+    repair_mode = ("--repair" in sys.argv or "--auto-sync" in sys.argv
+                   or os.environ.get("LOOP_REPAIR_CONTINUITY") == "1")
+    auto_sync = "--auto-sync" in sys.argv or os.environ.get("LOOP_AUTO_SYNC") == "1"
     if continuity_path.exists():
         try:
             from continuity_producer import load_project_continuity
@@ -502,6 +504,23 @@ def main() -> int:
                 errors.append(f"ProjectContinuity invalid: {exc}")
     else:
         print("[loop-governance] [info] ProjectContinuity not yet created (expected in S0-init)")
+
+    # T-0127 P0: --auto-sync — repair + regenerate HANDOFF in one step.
+    # Registration flow runs this after governance-file changes so that
+    # continuity drift and stale HANDOFF projection are resolved together
+    # instead of two manual steps (repair first, then render — ordering that
+    # was observed to fail if reversed).
+    if auto_sync and continuity_path.exists():
+        try:
+            from continuity_producer import render_handoff
+            new_handoff, _ = render_handoff(root)
+            # T-0127 P2-2: LF 强制，避免 Windows 下 CRLF 漂移
+            (base / "HANDOFF.md").write_text(new_handoff, encoding="utf-8", newline="\n")
+            print("[loop-governance] [auto-sync] HANDOFF regenerated.")
+            # T-0058: HANDOFF 永不入 continuity source set（自引用守卫），
+            # 无需再同步其哈希——漂移已在 §5 修复阶段消除。
+        except Exception as he:
+            errors.append(f"HANDOFF auto-sync failed: {he}")
 
     # 6. Handoff audit (skip if continuity missing, audit_handoff_model requires it)
     handoff = read_text(base / "HANDOFF.md")

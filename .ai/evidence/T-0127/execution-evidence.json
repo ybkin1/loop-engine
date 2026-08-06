@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0127",
+  "gate_id": "G-T-0127-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "登记/推进后自动校验（auto-validate）",
+    "治理文件变更自动重生成 continuity + HANDOFF（auto-sync）",
+    "三文件一致性正/反例测试（>=6 用例）",
+    "全量回归 + compile + release check + bump 3.12.62",
+    "独立审查 + 验收"
+  ],
+  "notes": "G-T-0127-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。P0 状态硬化：hooks/ 零改动、loop_core/ 零改动，机制在 .zcode/tools/ 工具层落地。"
+}

@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0132",
+  "gate_id": "G-T-0132-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "D-01 三层模型详设（角色分组契约/quality_pair schema/分层伴飞/轮次协议）",
+    "D-02 防伪造机制设计（可复算/不见预期/哈希先行/抽查复算/引用证据）",
+    "D-03 防锁死机制设计（三级 break-glass/回滚三原则/心跳预防/恢复演练）",
+    "D-04 决策包交用户",
+    "独立审查 GO（硬约束 1/2 逐条核验）"
+  ],
+  "notes": "G-T-0132-REQUIREMENTS 已由用户批准。两个硬性设计约束为用户指定：防伪造（机器可复算/检验者不见预期/防倒填）与防锁死（break-glass 恢复/回滚三原则/不得无脑删）。candidate-only：产品代码零改动，版本保持 3.12.61。"
+}

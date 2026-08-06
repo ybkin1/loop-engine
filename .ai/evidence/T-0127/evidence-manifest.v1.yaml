@@ -1,0 +1,36 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0127-8C2F51AA
+task_id: T-0127
+gate_id: G-T-0127-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0127
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0127/approval-evidence.json
+  role: result
+  required: true
+  sha256: 0B9E6B885CA55708B1D2B859BC52F5605F7AB640DF0F093004CBEE2960D943FE
+  size: 321
+  mtime_ns: 1786057812975745100
+- path: .ai/evidence/T-0127/commands.md
+  role: result
+  required: true
+  sha256: 2A4ACCF822BF73B1CFE23A98C69090F75EDFBFB78348F2C17AE01C6CBFB3728D
+  size: 1189
+  mtime_ns: 1786058040302388500
+- path: .ai/evidence/T-0127/compile-evidence.json
+  role: result
+  required: true
+  sha256: ED43023CACC58633355AB40E479BEB815D11901F79BBD9342298CE38B816746A
+  size: 181
+  mtime_ns: 1786057813907951500
+- path: .ai/evidence/T-0127/execution-evidence.json
+  role: result
+  required: true
+  sha256: 1FC6A5E9CEB907DA909DCB89C4779E718BDE32BC68056C2BD2EF44E37F504C54
+  size: 664
+  mtime_ns: 1786057813006746400

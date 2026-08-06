@@ -51,6 +51,9 @@ def project_root_arg() -> argparse.ArgumentParser:
     parser.add_argument("project_root", help="Project root containing .ai")
     parser.add_argument("--repair", action="store_true",
                         help="Auto-repair continuity hash drift instead of blocking")
+    parser.add_argument("--auto-sync", action="store_true",
+                        help="T-0127: repair continuity drift AND regenerate HANDOFF in one step "
+                             "(registration flow standard step)")
     return parser
 
 

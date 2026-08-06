@@ -1458,6 +1458,88 @@ tasks:
       - T-0125
     gates:
       - G-T-0126-REQUIREMENTS
+  -
+    id: T-0132
+    title: 三层质量线程架构设计（candidate-only）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      三层质量线程架构设计：质量类 agent 独立线程对任意动作产出与阶段产出多轮
+      校验（角色分组契约/quality_pair schema/分层伴飞/轮次协议）+ 防伪造五项
+      机制（可复算/不见预期/哈希先行/抽查复算/引用证据）+ 防锁死四项机制
+      （三级 break-glass 恢复/回滚三原则/checkpoint 心跳/恢复演练）+ 决策包
+      交用户；candidate-only 仅 .ai/ 写入，版本保持 3.12.61。
+    depends_on:
+      - T-0126
+    gates:
+      - G-T-0132-REQUIREMENTS
+  -
+    id: T-0127
+    title: 状态硬化（P0）— 登记自动校验 + 治理文件变更自动重生成
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      消除治理文件变更需手工 --repair/render 的高频摩擦：登记后自动校验 +
+      治理文件变更自动重生成 continuity/HANDOFF + 三文件一致性正反例测试；
+      bump 3.12.62。
+    depends_on:
+      - T-0132
+    gates:
+      - G-T-0127-REQUIREMENTS
+  -
+    id: T-0128
+    title: 变异测试接线（P1）— seeded_defects × mutation_tester
+    phase: S6-delivery
+    status: pending
+    description: >-
+      mutation_tester 自动加载 6 SD 变异体：M1 确定性规则检出（≥5/6）+ M2 真实
+      角色检出（≥4/6）+ 检出率指标进 metrics + release check fail-closed 接线；
+      KNOWN_ISSUES 关闭；bump 3.12.63。
+    depends_on:
+      - T-0127
+    gates:
+      - G-T-0128-REQUIREMENTS
+  -
+    id: T-0129
+    title: 防御演练（P2）— gate 拒绝路径 + 锁死恢复演练
+    phase: S6-delivery
+    status: pending
+    description: >-
+      拒绝路径端到端演练（≥6 用例）+ 锁死恢复演练 E1~E5（回滚不无脑删断言）+
+      gate_rejection_rate 语义修正（rejected_requests / defense_drill_pass_rate）；
+      演练通过 = 自治授权资格；bump 3.12.64。
+    depends_on:
+      - T-0128
+    gates:
+      - G-T-0129-REQUIREMENTS
+  -
+    id: T-0133
+    title: 三层质量线程落地（P3）— quality_pair + eval 桥接 + CHECK_RECOMPUTE
+    phase: S6-delivery
+    status: pending
+    description: >-
+      D-01/D-02 落地：SubagentSpec.quality_pair 强制配对 + agent 判定断言化
+      桥接（evals.py + evidence_ref）+ CHECK_RECOMPUTE（guard_health，比例
+      0.1/任务粒度/3 次升级 fail-closed）+ 6 角色契约 when_to_use 前置；
+      hooks/ 零改动；bump 3.12.65。
+    depends_on:
+      - T-0129
+    gates:
+      - G-T-0133-REQUIREMENTS
+  -
+    id: T-0134
+    title: 委托模式（P4）— 授权模型 v2：委托链 + 结论包
+    phase: S6-delivery
+    status: pending
+    description: >-
+      LoopMode DELEGATED/MANUAL（fail-closed 回退）+ 委托链（一次批准链内
+      自治 + revoke）+ checkpoint 心跳 fail-stop + 结论包（成果/演示/证据路径）
+      + 升级协议（仅 4 类价值问题选择题）+ 试点自举演示；规则层不豁免；
+      bump 3.12.66。
+    depends_on:
+      - T-0133
+    gates:
+      - G-T-0134-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1531,3 +1613,15 @@ edges:
       to: T-0125
     - from: T-0125
       to: T-0126
+    - from: T-0126
+      to: T-0132
+    - from: T-0132
+      to: T-0127
+    - from: T-0127
+      to: T-0128
+    - from: T-0128
+      to: T-0129
+    - from: T-0129
+      to: T-0133
+    - from: T-0133
+      to: T-0134

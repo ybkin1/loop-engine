@@ -1,7 +1,7 @@
 {
   "schema": "security_report/v1",
   "role": "security-engineer",
-  "timestamp": "2026-08-06T12:37:46.033204+00:00",
+  "timestamp": "2026-08-06T23:28:50.078095+00:00",
   "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
   "scans": [
     {
@@ -22,7 +22,7 @@
       "name": "secret_scan",
       "status": "pass",
       "findings": [],
-      "files_scanned": 1283,
+      "files_scanned": 1285,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -65,6 +65,7 @@
         "tests/test_gate_feedback.py — test_fixture (tests/ 测试夹具)",
         "tests/test_gate_guard_lifecycle.py — test_fixture (tests/ 测试夹具)",
         "tests/test_governance_consistency.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_governance_invariants.py — test_fixture (tests/ 测试夹具)",
         "tests/test_governance_metrics.py — test_fixture (tests/ 测试夹具)",
         "tests/test_guard_health.py — test_fixture (tests/ 测试夹具)",
         "tests/test_hard_constraints.py — test_fixture (tests/ 测试夹具)",
@@ -248,6 +249,7 @@
         "docs/03-interface-contract.md — docs (文档示例)",
         "docs/06-delivery.md — docs (文档示例)",
         "docs/07-phase-specification.md — docs (文档示例)",
+        "docs/08-registration-flow.md — docs (文档示例)",
         "docs/deployment-plan.md — docs (文档示例)",
         "docs/ops-handoff.md — docs (文档示例)",
         "docs/rollback-plan.md — docs (文档示例)",
@@ -984,7 +986,7 @@
       "status": "pass",
       "high_findings": [],
       "medium_findings": [],
-      "files_scanned": 359,
+      "files_scanned": 360,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -1027,6 +1029,7 @@
         "tests/test_gate_feedback.py — test_fixture (tests/ 测试夹具)",
         "tests/test_gate_guard_lifecycle.py — test_fixture (tests/ 测试夹具)",
         "tests/test_governance_consistency.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_governance_invariants.py — test_fixture (tests/ 测试夹具)",
         "tests/test_governance_metrics.py — test_fixture (tests/ 测试夹具)",
         "tests/test_guard_health.py — test_fixture (tests/ 测试夹具)",
         "tests/test_hard_constraints.py — test_fixture (tests/ 测试夹具)",

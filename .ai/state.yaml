@@ -1,11 +1,20 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0126
-current_gate_id: G-T-0126-REQUIREMENTS
+current_task_id: T-0127
+current_gate_id: G-T-0127-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-06T20:42:04.037230+08:00'
+last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0127~T-0134 REGISTERED 2026-08-07: T-0132 决策包落地排布（用户选 A×4 分阶段）—
+  P0 T-0127 状态硬化（登记自动校验+自动重生成）/P1 T-0128 变异测试接线（6 SD 检出率）
+  /P2 T-0129 防御演练（拒绝路径+E1~E5 恢复演练）/P3 T-0133 三层质量线程落地（quality_pair
+  +eval 桥接+CHECK_RECOMPUTE）/P4 T-0134 委托模式（委托链+结论包，试点自举）。
+  G-T-0127~G-T-0129/G-T-0133/G-T-0134-REQUIREMENTS pending，待用户批准；G-T-0132 已收口
+  completed。'
+- 'T-0132 COMPLETED 2026-08-07: 三层质量线程架构设计（candidate-only）— 四文档
+  （D-01/D-02/D-03/决策包）独立审查 CONDITIONAL_GO→修复 P1+P2×7→复核 GO；验收 6/6
+  PASS；产品代码零改动；版本保持 3.12.61。'
 - 'T-0115 PENDING 2026-08-06: 收尾排布六任务已登记 — T-0115 deep_probe 探针现代化（13 项陈旧预期）/T-0116
   P3 措辞修正包/T-0117 安全扫描双实现收敛（security_report/v1 契约统一）/T-0118 verifier 七态映射消费/T-0119
   agents 残留清理/T-0120 ZCode 原生会话证据设计（candidate-only）。G-T-0115~G-T-0120-REQUIREMENTS

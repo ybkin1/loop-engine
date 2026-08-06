@@ -4672,7 +4672,7 @@ gates:
   task_id: T-0126
   gate_type: user-approval
   status: approved
-  execution_status: approved_not_started
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-06T17:00:00+08:00'
   requested_by: ai
@@ -4726,5 +4726,357 @@ gates:
   exit_criteria:
   - user explicitly approves, rejects, or requests repair of this gate
   - env-dependent test fixed; KNOWN_ISSUES Open area reviewed
-
-
+- id: G-T-0132-REQUIREMENTS
+  task_id: T-0132
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '批准'
+  approval_evidence: .ai/evidence/T-0132/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0132/execution-evidence.json
+  scope: >-
+    T-0132 三层质量线程架构设计（candidate-only）：三层模型详设（角色分组契约 /
+    SubagentManifest quality_pair schema / 动作级分层伴飞 / 多轮校验轮次协议）+
+    防伪造五项机制（机器可复算/检验者不见预期/产物哈希先行/抽查复算/verdict
+    引用证据）+ 防锁死四项机制（三级 break-glass 恢复/回滚三原则/checkpoint
+    心跳预防/恢复演练）+ 决策包交用户。仅 .ai/ 写入，产品代码零改动，
+    版本保持 3.12.61。
+  allowed_paths:
+  - .ai/
+  forbidden_actions:
+  - modify product code, hooks/, agents/, tests/ (candidate-only design)
+  - implement any mechanism (design only, no landing)
+  - change existing evidence chain behavior
+  - install or enable new skill/MCP/agent/automation/protocol
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - weaken any activated constraint (fail-closed semantics unchanged)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0132/commands.md
+  - .ai/evidence/T-0132/design/D-01-three-layer-model.md
+  - .ai/evidence/T-0132/design/D-02-anti-fabrication.md
+  - .ai/evidence/T-0132/design/D-03-anti-deadlock.md
+  - .ai/evidence/T-0132/design/decision-packet.md
+  - product code zero-change assertion (diff only .ai/)
+  - independent review GO (hard constraints 1 and 2 verified item by item)
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no design work occurs while this gate is pending
+  notes:
+  - >-
+    User requested this design with two hard constraints: anti-fabrication
+    (machine-recomputable numbers, reviewer blind to executor's self-report,
+    anti-backfill hash/timestamp chain) and anti-deadlock (break-glass recovery
+    path, snapshot-first scoped rollback with audit trail, no blind deletion).
+  - G-T-0126 execution_status closed to completed during registration.
+- id: G-T-0127-REQUIREMENTS
+  task_id: T-0127
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0127/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0127/execution-evidence.json
+  scope: >-
+    T-0127 状态硬化（P0）：登记后自动校验 + 治理文件变更自动重生成
+    continuity/HANDOFF + 三文件一致性正反例测试；bump 3.12.62。
+  allowed_paths:
+  - .zcode/tools/
+  - .ai/
+  - tests/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ or loop_core/ (tool-layer only)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - install or enable new skill/MCP/agent/automation/protocol
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0127/commands.md
+  - auto-validate-after-registration record
+  - auto-regeneration record (continuity + handoff)
+  - consistency tests >=6 cases
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.62 == git HEAD)
+  - independent review GO
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0132 decision packet P0 (user chose A x4: phased landing).
+- id: G-T-0128-REQUIREMENTS
+  task_id: T-0128
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0128/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0128/execution-evidence.json
+  scope: >-
+    T-0128 变异测试接线（P1）：mutation_tester 自动加载 6 SD；M1 确定性规则
+    检出（>=5/6）+ M2 真实角色检出（>=4/6）；检出率指标进 metrics-report；
+    release check fail-closed 接线；KNOWN_ISSUES 关闭；bump 3.12.63。
+  allowed_paths:
+  - scripts/
+  - tests/seeded_defects/
+  - tests/
+  - .ai/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ or loop_core/
+  - treat M2 detection results as user approval
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - install or enable new skill/MCP/agent/automation/protocol
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0128/commands.md
+  - registry load 6/6 record
+  - M1 detection rate >=5/6 (recomputable)
+  - M2 detection rate >=4/6 (subagent records + evidence refs)
+  - metrics-report field addition
+  - release check threshold wiring tests
+  - KNOWN_ISSUES closure record
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.63 == git HEAD)
+  - independent review GO
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0132 decision packet P1 (user chose A x4: phased landing).
+- id: G-T-0129-REQUIREMENTS
+  task_id: T-0129
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0129/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0129/execution-evidence.json
+  scope: >-
+    T-0129 防御演练（P2）：gate 拒绝路径端到端演练（>=6 用例）+ 锁死恢复演练
+    E1~E5（回滚不无脑删断言）+ gate_rejection_rate 语义修正
+    （rejected_requests / defense_drill_pass_rate）；演练通过 = 自治授权资格；
+    bump 3.12.64。
+  allowed_paths:
+  - tests/
+  - .zcode/tools/
+  - .ai/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ or loop_core/
+  - touch real evidence/products in drills (fixtures only)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - install or enable new skill/MCP/agent/automation/protocol
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0129/commands.md
+  - rejection-path drill >=6 cases
+  - E1~E5 drill scripts + pass records
+  - E5 no-blind-deletion assertions (snapshot exists / evidence intact /
+    guard-events append-only / RECOVERY.md present)
+  - gate_rejection_rate semantics split record
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.64 == git HEAD)
+  - independent review GO (E1~E5 real execution records)
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0132 decision packet P2 (user chose A x4: phased landing).
+- id: G-T-0133-REQUIREMENTS
+  task_id: T-0133
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0133/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0133/execution-evidence.json
+  scope: >-
+    T-0133 三层质量线程落地（P3）：SubagentSpec.quality_pair 强制配对 +
+    agent 判定断言化桥接（evals.py + evidence_ref 强制）+ CHECK_RECOMPUTE
+    （guard_health，比例 0.1/任务粒度/3 次升级 fail-closed）+ 6 角色契约
+    when_to_use 前置；hooks/ 零改动；bump 3.12.65。
+  allowed_paths:
+  - loop_core/subagent_manifest.py
+  - loop_core/evals.py
+  - loop_core/guard_health.py
+  - loop_core/observability.py
+  - agents/main-thread/SKILL.md
+  - agents/quality-engineer/SKILL.md
+  - agents/test-engineer/SKILL.md
+  - agents/security-engineer/SKILL.md
+  - agents/independent-reviewer/SKILL.md
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (delegation context belongs to P4)
+  - modify loop_mode enum (DELEGATED/MANUAL belongs to P4)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - install or enable new skill/MCP/agent/automation/protocol
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0133/commands.md
+  - quality_pair schema + validate() positive/negative tests
+  - verdict assertion bridge + evidence_ref mandatory tests
+  - CHECK_RECOMPUTE ratio/scoping/escalation tests
+  - role contract 6-file update records
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.65 == git HEAD)
+  - independent review GO (D-01/D-02 design-to-implementation consistency)
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0132 decision packet P3 (user chose A x4: phased landing).
+  - eval stack is the core verification mechanism (user-confirmed direction).
+- id: G-T-0134-REQUIREMENTS
+  task_id: T-0134
+  gate_type: user-approval
+  status: approved
+  execution_status: approved_not_started
+  decision: approved
+  requested_at: '2026-08-07T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: '按顺序完成全量处理'
+  approval_evidence: .ai/evidence/T-0134/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0134/execution-evidence.json
+  scope: >-
+    T-0134 委托模式（P4）：LoopMode DELEGATED/MANUAL（fail-closed 回退）+
+    委托链（一次批准链内自治 + revoke）+ checkpoint 心跳 fail-stop + 结论包
+    + 升级协议（仅 4 类价值问题选择题）+ 试点自举演示；规则层不豁免；
+    bump 3.12.66。
+  allowed_paths:
+  - loop_core/router.py
+  - loop_core/state_machine.py
+  - hooks/scripts/loop_enforcement.py
+  - hooks/scripts/loop_enforcement_constants.py
+  - .zcode/tools/
+  - .ai/
+  - tests/
+  - docs/
+  - agents/main-thread/SKILL.md
+  forbidden_actions:
+  - weaken rule layer (AGENTS.md / forbidden semantics /
+    EVIDENCE_ONLY_BOUNDARY) under DELEGATED
+  - create user gates outside the 4 escalation categories
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  evidence_required:
+  - .ai/evidence/T-0134/commands.md
+  - LoopMode fail-closed fallback tests (unknown -> FULL or refuse, never
+    LIGHTWEIGHT)
+  - delegation chain register/approve/execute/revoke path tests
+  - checkpoint heartbeat fail-stop + resume tests
+  - conclusion packet three-element generation
+  - escalation protocol 4-category tests
+  - pilot demo: one real small task fully delegated end-to-end
+  - full regression 0 failed + compile pass + release check 6/6
+  - version sync (3.12.66 == git HEAD)
+  - independent review GO (rule layer not weakened)
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0132 decision packet P4 (user chose A x4: phased landing).
+  - Delegation chain is the mechanism that removes per-step user approval;
+    rule layer remains user-gated only.
