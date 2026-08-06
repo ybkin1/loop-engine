@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.55 (2026-08-06) — T-0119: agents 残留清理（排除表 + 死注释 + 全仓复核）
+
+### Changed (T-0119: agents 残留清理（排除表 + 死注释 + 全仓复核）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.54 (2026-08-06) — T-0118: subagent_evidence_verifier 七态映射消费（checks→EvidenceState，呈现层）
 
 ### Changed (T-0118: subagent_evidence_verifier 七态映射消费（checks→EvidenceState，呈现层）)

@@ -383,7 +383,9 @@ class TestWhitelistConsistency:
                         "scripts/", "hooks/", "tools/"]
 
     def test_hooks_zero_changes(self):
-        """hooks/ 零改动实证（T-0109 白名单改动已提交；T-0113 硬约束：hooks/ 零改动）。"""
+        """hooks/ 仅允许白名单注释级改动（T-0113/T-0114 硬约束 hooks/ 零改动；
+        T-0119 用户 gate 批准 loop_enforcement_constants.py 注释级清理——
+        死引用注释清除。工作树 hooks diff 必须为空或仅该文件，且为注释级）。"""
         import subprocess as sp
         out = sp.run(
             ["git", "-C", str(PROJECT_ROOT), "diff", "--name-only", "HEAD", "--", "hooks/"],
@@ -391,4 +393,17 @@ class TestWhitelistConsistency:
         )
         assert out.returncode == 0, out.stderr
         changed = [p for p in out.stdout.splitlines() if p.strip()]
-        assert changed == [], changed
+        allowed = {"hooks/scripts/loop_enforcement_constants.py"}
+        disallowed = [p for p in changed if p not in allowed]
+        assert disallowed == [], f"hooks/ 仅允许白名单文件改动: {disallowed}"
+        if changed:
+            # T-0119：白名单文件改动须为注释级（新增行必须为注释或空行）
+            diff = sp.run(
+                ["git", "-C", str(PROJECT_ROOT), "diff", "HEAD", "--",
+                 "hooks/scripts/loop_enforcement_constants.py"],
+                capture_output=True, text=True, timeout=30,
+            )
+            added_lines = [ln for ln in diff.stdout.splitlines()
+                           if ln.startswith("+") and not ln.startswith("+++")]
+            assert all(ln.lstrip("+").lstrip().startswith("#") or not ln.lstrip("+").strip()
+                       for ln in added_lines), f"白名单文件仅允许注释级改动: {added_lines}"

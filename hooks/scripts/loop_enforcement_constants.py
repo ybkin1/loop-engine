@@ -30,8 +30,9 @@ REEXEC_MAX = 1
 # ══════════════════════════════════════════════════════════════════════
 COMMAND_TIMEOUT_SECONDS = 30   # M-3 工具/命令超时族：loop_enforcement.py:686
                                # （git diff --name-only HEAD）、content_guard.py:71,76、
-                               # rollback.py:207、tool_evidence_chain.py:21,41、
-                               # tool_cost_tracker.py:20、upgrade.py:251
+                               # rollback.py:207、upgrade.py:251
+                               # （T-0119：tool_evidence_chain.py/tool_cost_tracker.py
+                               # 已于 T-0113/T-0114 删除，死引用清除）
 GUARD_HEALTH_PROBE_TIMEOUT_SECONDS = 20  # M-4 guard 健康探测超时（loop_core/guard_health.py:247,258
                                          # —— 治理内核零触碰，保持原字面量，本表为共享登记）
 
