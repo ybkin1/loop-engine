@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.51 (2026-08-06) — T-0115: deep_probe 探针现代化（13 项陈旧预期修复）
+
+### Changed (T-0115: deep_probe 探针现代化（13 项陈旧预期修复）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.50 (2026-08-04) — T-0114 — B 组死工具删除执行（用户确认）
 
 ### Changed (T-0114 — B 组死工具删除执行（用户确认）)

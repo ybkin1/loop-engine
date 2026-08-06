@@ -6,6 +6,8 @@
 - [env-dependent Low] `test_deployment_quality_checker::test_runtime_report_is_simulated_and_fail_closed` 本机环境依赖失败：localhost:3000/8000 被无关进程占用致 `service.startup=PASS`（T-0107 独立审查经 e083f7b baseline worktree 实证为预存在环境依赖，非代码缺陷；空闲端口环境应通过）
 - Seeded defects test project exists but is not automatically invoked by the mutation tester (manual verification only).
 - E2E integration test (test_E2E_CURRENT_001) is skipped due to lab fixture dependency.
+- [Large-module-split-candidates Low] 8 个超大文件（>800 行）为拆分候选（T-0115 登记，deep_probe 已按"基线白名单 + 漂移检测"接受现状）：`loop_core/dashboard_views.py`(1108)、`loop_core/hard_constraints.py`(1107)、`loop_core/intent_router.py`(965)、`loop_core/evals.py`(905)、`loop_core/second_failure.py`(858)、`loop_core/context_loader.py`(839)、`loop_core/executor.py`(838)、`hooks/scripts/hook_common.py`(831)。→ 拆分需独立 gate 立项（涉及内核/hooks 文件）。
+- [ROLE_CHALLENGES-gap Low] `loop_core/role_capability.py` ROLE_CHALLENGES 覆盖 11/12 角色，`test-engineer` 的 challenge 未定义（T-0115 探针现代化时确认；角色准入 `check_role_admission` 对 test-engineer 会因缺 challenge 而无法认证）。→ 补 challenge 需独立任务（产品代码变更）。
 
 ## Recently Closed
 

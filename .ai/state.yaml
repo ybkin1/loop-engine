@@ -6,6 +6,7 @@ current_gate_id: null
 loop_mode: FULL
 last_handoff_at: '2026-08-04T13:20:54.448581+08:00'
 notes:
+- 'T-0115 PENDING 2026-08-06: 收尾排布六任务已登记 — T-0115 deep_probe 探针现代化（13 项陈旧预期）/T-0116 P3 措辞修正包/T-0117 安全扫描双实现收敛（security_report/v1 契约统一）/T-0118 verifier 七态映射消费/T-0119 agents 残留清理/T-0120 ZCode 原生会话证据设计（candidate-only）。G-T-0115~G-T-0120-REQUIREMENTS pending，待用户批准。'
 - 'T-0112 ACTIVE 2026-08-03: 用户批准 T-0112。执行会话源逐项诊断、Qoder/Better Harness 源恢复、至少两个可比较
   Task Episode 导入与重新评审；不伪造证据、不放宽评分。'
 - 'T-0106 REGISTERED 2026-08-03: Better Harness 融合与 LE 去臃肿升级（总设计 + 全仓库漏洞排查， candidate-only）。G-T-0106-REQUIREMENTS

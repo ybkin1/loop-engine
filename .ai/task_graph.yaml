@@ -1306,6 +1306,83 @@ tasks:
       - T-0107
     gates:
       - G-T-0112-REQUIREMENTS
+  -
+    id: T-0115
+    title: deep_probe_v35 探针现代化（13 项陈旧预期修复）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      修复 deep_probe_v35.py 13 项陈旧预期/探针缺陷（EnforcementHub fixture gate id
+      陈旧/roles 11→12/MCP tools 20→25/module 7 个 >800 行/hook_common 831 行/
+      agents/references 目录过滤）；产品代码零改动；8 大文件拆分登记 KNOWN_ISSUES 候选；
+      bump 3.12.51。
+    depends_on: []
+    gates:
+      - G-T-0115-REQUIREMENTS
+  -
+    id: T-0116
+    title: P3 措辞修正包（T-0108/T-0110/T-0111/T-0113 审查口径修正）
+    phase: S6-delivery
+    status: approved_not_started
+    description: >-
+      批量修正独立审查遗留 P3 措辞/口径记录（T-0108 P3-1~4/T-0110 P3-1~4/T-0111
+      P3-1~3/T-0113 P3-1~6 除 P3-5/T-0104 P3×4 建议类登记留档）；纯文档级，产品代码零改动；
+      bump 3.12.52。
+    depends_on:
+      - T-0115
+    gates:
+      - G-T-0116-REQUIREMENTS
+  -
+    id: T-0117
+    title: 安全扫描双实现收敛（security_report/v1 契约统一）
+    phase: S6-delivery
+    status: approved_not_started
+    description: >-
+      T-0109 遗留 #3：loop_core/security_scanner.py 与 agents/security-engineer/
+      scripts/run_security_scan.py 双实现收敛 — 统一 security_report/v1 顶层 schema/
+      退出码 0/2/判定语义/CLI 入口；MCP 契约兼容为硬约束；SCANNER_SELF_FILES 残留清理；
+      bump 3.12.53。
+    depends_on:
+      - T-0116
+    gates:
+      - G-T-0117-REQUIREMENTS
+  -
+    id: T-0118
+    title: subagent_evidence_verifier 七态映射消费
+    phase: S6-delivery
+    status: approved_not_started
+    description: >-
+      T-0109 遗留 #1：verifier 7 布尔 checks 接入 EvidenceState 七态（coerce 入口已就绪）；
+      仅呈现/度量层，gate 判定零变更；hooks/ 零改动；bump 3.12.54。
+    depends_on:
+      - T-0117
+    gates:
+      - G-T-0118-REQUIREMENTS
+  -
+    id: T-0119
+    title: agents 残留清理（排除表 + 死注释）
+    phase: S6-delivery
+    status: approved_not_started
+    description: >-
+      T-0113 P3-5 + developer 遗留 5：run_security_scan.py SCANNER_SELF_FILES 2 条已删
+      路径 + loop_enforcement_constants.py:33-34 死注释（注释级）+ 全仓 grep 复核；
+      bump 3.12.55。
+    depends_on:
+      - T-0117
+    gates:
+      - G-T-0119-REQUIREMENTS
+  -
+    id: T-0120
+    title: ZCode 原生会话证据路径（candidate-only 设计）
+    phase: S6-delivery
+    status: approved_not_started
+    description: >-
+      T-0106 F0 改写后候选：ZCode 原生会话证据路径只读调研 + 方案设计 + 决策包交用户；
+      candidate-only 仅 .ai/ 写入，版本保持 3.12.55。
+    depends_on:
+      - T-0119
+    gates:
+      - G-T-0120-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1357,3 +1434,13 @@ edges:
       to: T-0102
     - from: T-0105
       to: T-0106
+    - from: T-0115
+      to: T-0116
+    - from: T-0116
+      to: T-0117
+    - from: T-0117
+      to: T-0118
+    - from: T-0117
+      to: T-0119
+    - from: T-0119
+      to: T-0120

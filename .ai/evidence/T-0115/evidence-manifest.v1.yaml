@@ -1,0 +1,60 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0115-2A8607CD
+task_id: T-0115
+gate_id: G-T-0115-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0115
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0115/acceptance/acceptance-report.md
+  role: result
+  required: true
+  sha256: B6A66AE11F7F635876796EA292FCA0EBD9B7DECE81CFCB547DB990D37D37901F
+  size: 1746
+  mtime_ns: 1785990220635044600
+- path: .ai/evidence/T-0115/approval-evidence.json
+  role: result
+  required: true
+  sha256: 6685D69C8649C1B21042F6805AF785613E866F0E0484B4011BFF2CB9618F5FF3
+  size: 306
+  mtime_ns: 1785988395495067300
+- path: .ai/evidence/T-0115/commands.md
+  role: result
+  required: true
+  sha256: 1B9EFF499AED76AB896F7FEA87166AD3B9F15DE94E73184F5D24DD4D85D1F25D
+  size: 2354
+  mtime_ns: 1785988977818241200
+- path: .ai/evidence/T-0115/compile-evidence.json
+  role: result
+  required: true
+  sha256: 7899342B6BCF28BA1744F0BC687608AC20B2EF4EABC8C960CFF02FF0AAC39DB4
+  size: 181
+  mtime_ns: 1785988441832532200
+- path: .ai/evidence/T-0115/execution-evidence.json
+  role: result
+  required: true
+  sha256: 93BD345A13EED8D32F389E0788C20957BF91C691069884AC9CF88046BCD0452A
+  size: 703
+  mtime_ns: 1785988406284915900
+- path: .ai/evidence/T-0115/fixes/probe-modernization.md
+  role: result
+  required: true
+  sha256: 80D63DF2FCF8ED3FD8BCA6D5337D62C37116678E513BA9C5EB09934EAA884F9C
+  size: 2763
+  mtime_ns: 1785988977855236400
+- path: .ai/evidence/T-0115/review/independent-review.md
+  role: result
+  required: true
+  sha256: F1B88F2803DDF6E156BFF07EA85D50538203E6F731C2D5FF5EA287A117D9C4B9
+  size: 2244
+  mtime_ns: 1785990220584044700
+file_count: 7
+total_bytes: 10297
+ordered_entries_sha256: 2A8607CD8A13D43CFB2AE88E24B8864CAE59B3B0F494AF490B1E0FE257624090
+semantic_sha256: 228F84ADDCF5F5EF92906713EEA63E8460E1A30B521552664615D23BF58CCB6D
+created_at: '2026-08-06T12:23:55.524114+08:00'
+created_by: zcode-main-session
