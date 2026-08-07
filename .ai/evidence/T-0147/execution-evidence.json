@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0147",
+  "gate_id": "G-T-0147-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T18:40:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "委托链 C-002 端到端验证（3.5）"
+  ],
+  "notes": "链 C-002 内执行（T-0147 端到端验证链）。"
+}

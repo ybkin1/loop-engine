@@ -1,0 +1,11 @@
+{
+  "gate_id": "G-T-0147-REQUIREMENTS",
+  "task_id": "T-0147",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "全部批准",
+  "recorded_at": "2026-08-07T18:40:00+08:00"
+}
