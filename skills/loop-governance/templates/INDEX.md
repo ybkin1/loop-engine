@@ -57,15 +57,47 @@ Loop Engine 内置的软件工程模板库。每个模板是**必填表单**，�
 | [deployment-plan.md](deployment/deployment-plan.md) | 部署方案 | S10 |
 | [rollback-plan.md](deployment/rollback-plan.md) | 回滚方案 | S10 |
 | [release-checklist.md](deployment/release-checklist.md) | 发布检查清单 | S10 |
+| [release-strategy-guide.md](deployment/release-strategy-guide.md) | 发布策略决策（灰度/蓝绿/金丝雀） | S10 |
 
-### 7. 评审类（review/）
+### 7. 容量类（capacity/）— T-0137 落地
+
+| 文件 | 用途 | 使用阶段 |
+|------|------|---------|
+| [capacity-estimate.md](capacity/capacity-estimate.md) | 容量预估（QPS 五步法/资源粗算） | S1, S2 |
+| [load-test-plan.md](capacity/load-test-plan.md) | 压测方案（三形态/四指标/防污染） | S9, S10 |
+
+### 8. 稳定性类（stability/）— T-0138 落地
+
+| 文件 | 用途 | 使用阶段 |
+|------|------|---------|
+| [resilience-design.md](stability/resilience-design.md) | 弹性设计（RT 治理/熔断/降级恢复） | S2, S10 |
+
+### 9. 迁移类（migration/）— T-0139 落地
+
+| 文件 | 用途 | 使用阶段 |
+|------|------|---------|
+| [data-migration-plan.md](migration/data-migration-plan.md) | 数据迁移方案（四阶段/回滚/不丢） | S2, S10 |
+
+### 10. 性能类（performance/）— T-0140 落地
+
+| 文件 | 用途 | 使用阶段 |
+|------|------|---------|
+| [performance-diagnosis.md](performance/performance-diagnosis.md) | 性能诊断（长尾/慢 SQL/GC） | S5, S9 |
+
+### 11. 一致性类（consistency/）— T-0141 落地
+
+| 文件 | 用途 | 使用阶段 |
+|------|------|---------|
+| [consistency-design.md](consistency/consistency-design.md) | 一致性设计（缓存/异步/MQ/幂等） | S2, S10 |
+
+### 12. 评审类（review/）
 
 | 文件 | 用途 | 使用阶段 |
 |------|------|---------|
 | [code-review-checklist.md](review/code-review-checklist.md) | 代码审查清单 | S4, S8 |
 | [design-review-checklist.md](review/design-review-checklist.md) | 设计审查清单 | S2, S3 |
 
-### 8. 编码类（coding/）
+### 13. 编码类（coding/）
 
 | 文件 | 用途 | 使用阶段 |
 |------|------|---------|

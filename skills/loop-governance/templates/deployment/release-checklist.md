@@ -54,6 +54,89 @@
 
 **性能退化标准**：任何指标退化 > 10% 需要解释和批准。
 
+**容量与压测检查点（T-0136 D-01 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 压测报告存在且覆盖目标 QPS | 含日常 + 活动峰值场景（≥10× 日常必须测峰值） | [状态] | [ ] |
+| 压测合格四指标 | 目标 QPS 100% / p99 ≤ 3× 基线 / 错误率 <0.1% / CPU ≤ 70% | [状态] | [ ] |
+| 容量拐点已测 | 记录 RT 陡增点 QPS（或说明不需测） | [状态] | [ ] |
+| 压测防污染证据 | 影子库/标记流量说明 + 生产残留对账 | [状态] | [ ] |
+| 容量预估表单 | capacity-estimate.md 存在且假设可复核 | [状态] | [ ] |
+
+> 配套模板：`templates/capacity/capacity-estimate.md`、`templates/capacity/load-test-plan.md`
+> 角色清单：`agents/system-architect/references/capacity-checklist.md`、
+> `agents/release-engineer/references/load-test-checklist.md`
+
+**稳定性检查点（T-0136 D-02 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 熔断配置存在 | 核心链路错误率阈值 + 最小请求量 + 半开恢复窗口 | [状态] | [ ] |
+| 阈值推导文档 | SLO 反推或基线实测（非抄默认值） | [状态] | [ ] |
+| 降级演练记录 | 注入故障 → 验证降级 → 恢复判定 | [状态] | [ ] |
+| 超时配置 | 调用方超时 ≤ 下游 p99 的 50% | [状态] | [ ] |
+
+> 配套模板：`templates/stability/resilience-design.md`
+> 角色清单：`agents/system-architect/references/resilience-checklist.md`、
+> `agents/release-engineer/references/resilience-release-checklist.md`
+
+**数据迁移检查点（T-0136 D-03 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 迁移方案三件套 | 双写 + 回滚 + 校验方案齐备 | [状态] | [ ] |
+| 回滚触发条件 | 预定义量化阈值 | [状态] | [ ] |
+| 灰度切流档位 | ≥3 档 + 每档验证指标 | [状态] | [ ] |
+| 数据校验方案 | 计数 + 抽样哈希 + 对账 | [状态] | [ ] |
+| 回滚演练记录 | 注入异常 → 回滚 → 恢复 | [状态] | [ ] |
+
+> 配套模板：`templates/migration/data-migration-plan.md`
+> 角色清单：`agents/system-architect/references/migration-checklist.md`、
+> `agents/release-engineer/references/migration-release-checklist.md`
+> ⚠️ 实际迁移执行属外部边界，必须用户单独 gate 批准
+
+**性能诊断检查点（T-0136 D-04 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 性能测试含分位指标 | p50/p95/p99 齐列（不只平均） | [状态] | [ ] |
+| 慢 SQL 清单 + explain | key/type/扫描行数记录 | [状态] | [ ] |
+| 索引确认证据 | EXPLAIN key 字段 / 强制索引对比 | [状态] | [ ] |
+| 长尾定位记录 | 慢请求采样 + 根因归类 | [状态] | [ ] |
+
+> 配套模板：`templates/performance/performance-diagnosis.md`
+> 角色清单：`agents/quality-engineer/references/performance-checklist.md`
+
+**一致性检查点（T-0136 D-05 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 数据流一致性标注 | 强/最终 + 依据 | [状态] | [ ] |
+| 缓存失效方案 | 更新后删缓存 + 补偿（延迟双删/消息重试） | [状态] | [ ] |
+| 消息不丢设计 | confirm + 持久化 + 手动 ack + DLQ | [状态] | [ ] |
+| 幂等设计 | 生产端唯一 ID + 消费端唯一键 | [状态] | [ ] |
+| 对账/补偿任务 | 业务表 vs 消息状态比对 | [状态] | [ ] |
+
+> 配套模板：`templates/consistency/consistency-design.md`
+> 角色清单：`agents/system-architect/references/consistency-checklist.md`
+> 范围：分布式事务不展开（幂等+补偿为主轴，T-0136 D-05 裁剪）
+
+**架构与方法检查点（T-0136 D-06 落地）**：
+
+| 检查项 | 通过标准 | 当前状态 | 通过 |
+|--------|---------|---------|------|
+| 拆分决策表已填 | 四问（团队/变更/数据/隔离）答案留档 | [状态] | [ ] |
+| 发布策略选择依据 | 风险等级 + 回滚能力 + 数据兼容性 + 可观测性四要素 | [状态] | [ ] |
+| 排期冲突走升级协议 | 产品取舍选择题形态（非私自定义） | [状态] | [ ] |
+| 技术债登记 | 无法即时修复项进 KNOWN_ISSUES/债务账本 | [状态] | [ ] |
+
+> 配套模板：`templates/architecture/ddd-split-guide.md`、
+> `templates/deployment/release-strategy-guide.md`
+> 角色清单：`agents/system-architect/references/ddd-checklist.md`、
+> `agents/delivery-manager/references/tradeoff-checklist.md`
+> AI 边界：`docs/designs/T-0136-D06-ai-boundary.md`
+
 ## 5. 安全审查（必检）
 
 | 检查项 | 状态 | 备注 |

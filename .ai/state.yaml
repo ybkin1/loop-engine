@@ -6,6 +6,11 @@ current_gate_id: G-T-0137-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0137~T-0142 COMPLETED 2026-08-07: 决策包选项 A 全量落地 — P0（T-0137
+  容量压测/T-0138 稳定性/T-0139 数据迁移）+ P1（T-0140 性能/T-0141 一致性）+
+  P2（T-0142 架构方法）。6 模板 + 10 角色 references + release-checklist 6 组
+  27 检查点 + INDEX 登记。批量独立审查 GO（P2-1 INDEX + P3×3 修复）；全量
+  4333 passed 0 failed；hooks/ 内核零改动。版本 3.12.67。'
 - 'T-0143 COMPLETED 2026-08-07: 遗留问题修复包 — P1（1.1 security 证据
   漂移根治/1.2 YAML exit 2/3.2 委托 gate 锚定）+ P2 七项（2.1 cli_entries
   src 布局/3.1 order 表/3.3 文本级 patch/3.4 单测/4.1 FAIL 事件/4.2 侧信道/

@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "D67C34F1CE75C0553D1142EF0A3EA910D92931B65AD74E9AC6ADB247E06A5634",
+  "persisted_file_sha256": "30FE44985534C7F3CB4DEC2BAB8262A9E9C65B64D6064A1F8E13787284E01139",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "ECEE836401C1BA8515F9AA8255C10B855B124A5DA9FE36A7CBFB3F0D2049BE83",
+  "source_sha256": "226963F80E15235B6002A52824FBA14DE2A2D3F4811949A7D02CDB5C27A8931E",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -95,13 +95,13 @@ S6-delivery
 
 T-0137
 
-Status: `in_progress`
+Status: `completed`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
 active_gate: G-T-0137-REQUIREMENTS
-active_gate_status: approved / in_progress
+active_gate_status: approved / completed
 
 current_gate_id is null because no pending decision is required.
 G-T-0137-REQUIREMENTS is approved and execution is in progress.
@@ -135,7 +135,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-CONTINUE_APPROVED_EXECUTION
+TASK_COMPLETED_AWAIT_NEXT
 
 ## Startup Prompt
 
@@ -178,12 +178,12 @@ Use $project-governor, validate structured state, and continue only inside the a
 ```json
 {
   "approved_execution_gate_id": "G-T-0137-REQUIREMENTS",
-  "approved_execution_status": "in_progress",
+  "approved_execution_status": "completed",
   "current_gate_id": "G-T-0137-REQUIREMENTS",
   "current_task_id": "T-0137",
-  "current_task_status": "in_progress",
+  "current_task_status": "completed",
   "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "next_action": "TASK_COMPLETED_AWAIT_NEXT",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```
