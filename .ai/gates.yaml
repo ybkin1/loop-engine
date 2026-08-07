@@ -6053,6 +6053,164 @@ gates:
   - User-directed batch (T-0152 closeout / T-0153 PWA prototype / T-0154 loopx study).
   - Execution via delegation chain C-003.
 
+- id: G-T-0155-REQUIREMENTS
+  task_id: T-0155
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T21:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T21:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 确认loop工程整体需要做这些提升么？那就完成设计，然后执行实现与测试；loop工程接管开始
+  approval_evidence: .ai/evidence/T-0155/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0155/execution-evidence.json
+  scope: >-
+    T-0155 事件溯源影子层（loopx P0-1）：state-events.jsonl 追加事件链；影子层只读；replay_check 一致性；失败吞掉。
+  allowed_paths:
+  - .zcode/tools/event_log.py
+  - .zcode/tools/validate_state.py
+  - loop_engine/quota_decision.py
+  - loop_engine/risk_grading.py
+  - loop_engine/cost_tracker.py
+  - loop_engine/cli_entries.py
+  - .zcode/tools/rounds_heartbeat.py
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - auto-execute quota/risk decisions (advisory only)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - loopx comparison P0 adoption batch (event sourcing / quota decision / risk grading).
+  - Execution via delegation chain C-004.
+
+- id: G-T-0156-REQUIREMENTS
+  task_id: T-0156
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T21:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T21:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 确认loop工程整体需要做这些提升么？那就完成设计，然后执行实现与测试；loop工程接管开始
+  approval_evidence: .ai/evidence/T-0156/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0156/execution-evidence.json
+  scope: >-
+    T-0156 配额决策路由（loopx P0-2）：decide_quota 5 态只建议不执行；fail-safe 默认 quiet/wait。
+  allowed_paths:
+  - .zcode/tools/event_log.py
+  - .zcode/tools/validate_state.py
+  - loop_engine/quota_decision.py
+  - loop_engine/risk_grading.py
+  - loop_engine/cost_tracker.py
+  - loop_engine/cli_entries.py
+  - .zcode/tools/rounds_heartbeat.py
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - auto-execute quota/risk decisions (advisory only)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - loopx comparison P0 adoption batch (event sourcing / quota decision / risk grading).
+  - Execution via delegation chain C-004.
+
+- id: G-T-0157-REQUIREMENTS
+  task_id: T-0157
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T21:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T21:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 确认loop工程整体需要做这些提升么？那就完成设计，然后执行实现与测试；loop工程接管开始
+  approval_evidence: .ai/evidence/T-0157/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0157/execution-evidence.json
+  scope: >-
+    T-0157 风险驱动执行分级（loopx P0-3）：grade_risk 三态 + critical_triggers 强制 FULL + ACCEPTED_RISK + SKIPPED 白名单；advisory-only。
+  allowed_paths:
+  - .zcode/tools/event_log.py
+  - .zcode/tools/validate_state.py
+  - loop_engine/quota_decision.py
+  - loop_engine/risk_grading.py
+  - loop_engine/cost_tracker.py
+  - loop_engine/cli_entries.py
+  - .zcode/tools/rounds_heartbeat.py
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - auto-execute quota/risk decisions (advisory only)
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - loopx comparison P0 adoption batch (event sourcing / quota decision / risk grading).
+  - Execution via delegation chain C-004.
 delegations:
 - chain_id: C-001
   task_ids:
@@ -6094,4 +6252,15 @@ delegations:
   approved_gate: G-T-0137-REQUIREMENTS
   approved_at: '2026-08-07T13:24:39.161717+00:00'
   note: 漂移清理+P3 收尾+KNOWN_ISSUES+backlog 批（用户指令接管）
+
+- chain_id: C-004
+  task_ids:
+  - T-0155
+  - T-0156
+  - T-0157
+  status: active
+  approved_by: user
+  approved_gate: G-T-0137-REQUIREMENTS
+  approved_at: '2026-08-07T15:18:12.518236+00:00'
+  note: loopx P0 三项采纳（事件溯源/配额决策/风险分级）
 

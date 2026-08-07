@@ -1,11 +1,14 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0152
-current_gate_id: G-T-0152-REQUIREMENTS
+current_task_id: T-0155
+current_gate_id: G-T-0155-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0155~T-0157 ACTIVE 2026-08-07: loopx P0 三项采纳（用户确认）—
+  T-0155 事件溯源影子层/T-0156 配额决策路由/T-0157 风险驱动执行分级。
+  设计→实现→测试全链，C-004 链内执行。'
 - 'T-0152~T-0154 COMPLETED 2026-08-07: 用户指令批闭环 — T-0152 P3 收尾批 2
   （legacy gate 补全 + 证据接线 + 金字塔检查点 + Debt 语义）/T-0153 手机 PWA
   叠加层原型（candidate，mock 无外部端点 + 设备配对设计）/T-0154 loop x

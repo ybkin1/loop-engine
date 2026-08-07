@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "DB16E1DC3BBE0B508155F0E17FB26A9A20931355946B2FC3DA8A474C6C506F62",
+  "persisted_file_sha256": "EB3BBBD1FFD3E09007C91D75D6DB2792C53C8BBF2A4565E92C2F81F1E664A5EE",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "A69CC254785C8D2D4A0C5CD94EE5B0CDE910B6C70BF57CC31A8F5E62BF2B8420",
+  "source_sha256": "F816BB36E2B53900DE222555FE6CBAD4C3495B6E3158F365F8381167855643A7",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0152
+T-0155
 
-Status: `completed`
+Status: `pending`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0152-REQUIREMENTS
-active_gate_status: approved / completed
+active_gate: G-T-0155-REQUIREMENTS
+active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0152-REQUIREMENTS is approved and execution is in progress.
+G-T-0155-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -116,24 +116,25 @@ Defined by the active gate's forbidden_actions in gates.yaml.
 
 ## Verified
 
-- STRUCTURED_STATE_HASHES_VERIFIED
+None
 
 ## Unverified
 
+- EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0152/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0155/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
-Checkpoint status: PENDING_SUCCESSOR_ACK.
-Blockers: none.
+Checkpoint status: NOT_ESTABLISHED.
+Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-TASK_COMPLETED_AWAIT_NEXT
+USER_DECISION_REQUIRED
 
 ## Startup Prompt
 
@@ -161,11 +162,10 @@ Use $project-governor, validate structured state, and continue only inside the a
   ],
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
+    "EVIDENCE_MANIFEST_REQUIRED",
     "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
-  "verified": [
-    "STRUCTURED_STATE_HASHES_VERIFIED"
-  ]
+  "verified": []
 }
 ```
 <!-- PROJECT-GOVERNOR-LIFECYCLE-END -->
@@ -175,13 +175,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0152-REQUIREMENTS",
-  "approved_execution_status": "completed",
-  "current_gate_id": "G-T-0152-REQUIREMENTS",
-  "current_task_id": "T-0152",
-  "current_task_status": "completed",
+  "approved_execution_gate_id": "G-T-0155-REQUIREMENTS",
+  "approved_execution_status": "in_progress",
+  "current_gate_id": "G-T-0155-REQUIREMENTS",
+  "current_task_id": "T-0155",
+  "current_task_status": "pending",
   "lifecycle_revision": 0,
-  "next_action": "TASK_COMPLETED_AWAIT_NEXT",
+  "next_action": "USER_DECISION_REQUIRED",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```
@@ -192,35 +192,11 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-CHECKPOINT-BEGIN -->
 ```json
 {
-  "authority_hash": "05E4C46C82787CA1EC0C6B52238C1809A73C60E2756467F4C046A9C15AFC8B66",
-  "blockers": [],
-  "checkpoint_id": "CP-BC2905FEBB9318EDF8142EB4",
-  "checkpoint_status": "PENDING_SUCCESSOR_ACK",
-  "contract_id": "PCC-2026-07-16-R1",
-  "controller_generation": 1,
-  "evidence_manifest_hashes": {
-    "file_count": 3,
-    "manifest_file_sha256": "1CE3AE0B1696C81C2A5C9A9AE97E6D83C03E002625254ED47B28733B6AD1CBB3",
-    "ordered_entries_sha256": "A3172132D2D29956274300D1FCD6576EC400297846BF9D6DC51C756C73F0F374",
-    "semantic_sha256": "F0F6A3A2EF601A7E93505E8409287FBFE7EC53E3B2BD47574063F56860840ABE",
-    "total_bytes": 856
-  },
-  "fixture_only": false,
-  "project_continuity_hashes": {
-    "file_sha256": "DB16E1DC3BBE0B508155F0E17FB26A9A20931355946B2FC3DA8A474C6C506F62",
-    "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-    "source_sha256": "A69CC254785C8D2D4A0C5CD94EE5B0CDE910B6C70BF57CC31A8F5E62BF2B8420"
-  },
-  "recovered_state_sha256": "A471D7FAA6B64030064E3BE826C55B509B85380FE270973C3CEE9838FAF89D0E",
-  "requirements_revision": "T-0034-REQ-2026-07-16-R1",
-  "schema": "Checkpoint/v1.0",
-  "task_scope_hash": "9358F0CD1E7CD6DC489C94161161F4EEB3D101F2793FD2B7A321904646D7C155",
-  "transaction_registry_hashes": {
-    "checkpoint_semantic_sha256": "5C99D5C2425154741AE25217E824B17AFD734D3AA776286F4ED7A94647901BCE",
-    "file_sha256": "0D99CF029CBF0D360725195E8B0825832E019976EEF988A9EFFDD2F7B01301CE",
-    "semantic_sha256": "2CF3351B01F4A75E5114D8EEED9B0C418079516C0CDD264A4579ED4299A7F555",
-    "source_sha256": "CBCD552B56BA77B10A11A38257B965B0009162F67E0F196B6824CFD44AC06262"
-  }
+  "blockers": [
+    "EVIDENCE_MANIFEST_REQUIRED"
+  ],
+  "checkpoint_status": "NOT_ESTABLISHED",
+  "schema": "Checkpoint/v1.0"
 }
 ```
 <!-- PROJECT-GOVERNOR-CHECKPOINT-END -->

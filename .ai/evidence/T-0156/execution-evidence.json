@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0156",
+  "gate_id": "G-T-0156-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T21:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "配额决策路由（loopx P0-2）"
+  ],
+  "notes": "链 C-004 内执行（loopx P0 采纳）。"
+}
