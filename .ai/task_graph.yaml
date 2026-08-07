@@ -1540,6 +1540,19 @@ tasks:
       - T-0133
     gates:
       - G-T-0134-REQUIREMENTS
+  -
+    id: T-0135
+    title: 审计发现收尾（CLI 入口 + drift 可见性 + guard-events 治理）
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      外部审计三项处理：pyproject [project.scripts] CLI 入口（薄封装）+
+      release check guard_health report 计数可见性 + guard-events gitignore
+      停止跟踪；bump 3.12.66（无版本变更）。
+    depends_on:
+      - T-0134
+    gates:
+      - G-T-0135-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

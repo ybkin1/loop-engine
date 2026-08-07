@@ -47,3 +47,9 @@ token.*
 # Agent tool runtime artifacts (BH/Qoder parallel sessions)
 .claude/
 .qoder/
+
+# T-0135: guard-events 运行时追加日志（纯追加、随每次运行增长）——
+# 停止跟踪，避免 git 体积无限增长；轮转归档（.1/.2/.3）同步排除。
+# 历史已入库记录保留；事件证据在运行时现场可读（审计/审查需要时附加快照）。
+.ai/evidence/observability/guard-events.jsonl
+.ai/evidence/observability/guard-events.jsonl.*

@@ -29,6 +29,16 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
 ]
 
+# T-0135: 审计发现收尾 — 文档化 CLI 入口（可发现性；薄封装直调既有工具，
+# 判定逻辑单一事实源不变，见 loop_engine/cli_entries.py）
+[project.scripts]
+loop-validate = "loop_engine.cli_entries:main_validate"
+loop-check = "loop_engine.cli_entries:main_check"
+loop-heartbeat = "loop_engine.cli_entries:main_heartbeat"
+loop-delegation = "loop_engine.cli_entries:main_delegation"
+loop-conclusion = "loop_engine.cli_entries:main_conclusion"
+loop-mutation = "loop_engine.cli_entries:main_mutation"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",

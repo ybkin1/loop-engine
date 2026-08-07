@@ -341,13 +341,19 @@ def step_compile(root: Path) -> tuple[bool, str]:
 
 
 def step_guard_health(root: Path) -> tuple[bool, str]:
-    """Guard 健康检查（BROKEN/DORMANT 任一 → FAIL，AC-05 fail-closed）。"""
+    """Guard 健康检查（BROKEN/DORMANT 任一 → FAIL，AC-05 fail-closed）。
+
+    T-0135: 附 missing/drift/recompute 发现计数（可见性；仍 report 级不阻断——
+    连续性/状态一致性已由 validate_state 硬阻断）。
+    """
     try:
         from loop_core.guard_health import GuardHealth
     except ImportError as exc:
         return False, f"无法导入 loop_core.guard_health: {exc}"
     try:
-        summary = GuardHealth(root).summary()
+        health = GuardHealth(root)
+        summary = health.summary()
+        integrity = health.integrity_check()
     except Exception as exc:  # noqa: BLE001
         return False, f"guard 健康检查异常: {exc}"
     overall = summary.get("overall")
@@ -357,7 +363,13 @@ def step_guard_health(root: Path) -> tuple[bool, str]:
             f"alive={summary.get('alive')} broken={summary.get('broken')} "
             f"dormant={summary.get('dormant')}）"
         )
-    return True, f"guard 健康 PASS（{summary.get('guards_checked')} 个 guard 全部存活）"
+    n_missing = len(integrity.get("missing", []))
+    n_drift = len(integrity.get("drift", []))
+    n_recompute = len(integrity.get("recompute", []))
+    # T-0135 可见性：report 级发现计数始终展示（0 也显示——确认检查在跑）
+    msg = (f"guard 健康 PASS（{summary.get('guards_checked')} 个 guard 全部存活）"
+           f" [report] missing={n_missing} drift={n_drift} recompute={n_recompute}")
+    return True, msg
 
 
 def step_slo_gate(root: Path) -> tuple[bool, str]:
