@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0136",
+  "gate_id": "G-T-0136-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T17:29:39+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "批 1 差距盘点定稿（22 组主题 → 能力域映射表 + 现状/证据/缺口等级）",
+    "批 2 六域补全方案 D-01~D-06（模板 + 角色知识 + 门禁检查点三要素）",
+    "批 3 任务排布 T-0137~T-0142（P0x3：容量/稳定性/迁移；P1x2：性能/一致性；P2x1：架构方法；每项 AC + 允许路径）",
+    "批 4 决策包（方案摘要 + 选项 + 推荐 + 理由）交用户",
+    "独立审查 GO（CONDITIONAL_GO → 修复 P1-1/P2-1/P2-2/P3-2 → 复核 GO）"
+  ],
+  "notes": "G-T-0136-REQUIREMENTS 已由用户批准（'批准 T-0136'）。candidate-only：仅 .ai/ + docs/designs/ 写入，产品代码零改动、hooks/ 零改动、内核零触碰，版本保持 3.12.66。任务卡在 T-0135 并行执行期间暂存于 .ai/evidence/T-0136/，T-0135 收口（32361ea）后恢复登记。"
+}

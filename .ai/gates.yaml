@@ -5089,6 +5089,73 @@ gates:
   - no implementation work occurs while this gate is pending
   notes:
   - "User directed: '可以，开始处理' (audit findings closure)."
+- id: G-T-0136-REQUIREMENTS
+  task_id: T-0136
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-07T17:20:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T17:29:39+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0136
+  approval_evidence: .ai/evidence/T-0136/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0136/execution-evidence.json
+  scope: >-
+    T-0136 后端工程知识层补全方案（candidate-only）：面试题 22 组主题 → 六域
+    补全方案（D-01 容量压测/D-02 稳定性/D-03 数据迁移/D-04 性能诊断/D-05
+    一致性/D-06 架构方法，每域 = 模板 + 角色知识 + 门禁检查点三要素）+
+    任务排布 T-0137~T-0142 + 决策包；仅 .ai/ + docs/designs/ 写入；
+    产品代码零改动、hooks/ 零改动、内核零触碰；版本保持 3.12.66。
+  allowed_paths:
+  - .ai/tasks/T-0136.md
+  - .ai/evidence/T-0136/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/KNOWN_ISSUES.md
+  - docs/designs/
+  forbidden_actions:
+  - write product code / modify hooks/ / modify loop_core/ kernel
+  - install or enable skill/MCP/agent/automation/protocol
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - create implementation tasks during this task (scheduling is doc-only,
+    landing requires separate user approval)
+  - modify or overwrite .ai/tasks/T-0135.md (completed task, read-only)
+  - treat reviewer PASS / test pass as user approval
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  evidence_required:
+  - .ai/evidence/T-0136/commands.md
+  - gap inventory document (22 topics -> capability domain map with status/evidence/gap level)
+  - six-domain completion design (D-01~D-06, each with template + role knowledge + gate checkpoint)
+  - task scheduling T-0137~T-0142 (P0x2/P1x2/P2x2, each with AC + allowed paths)
+  - decision packet delivered to user
+  - independent review GO (candidate-only boundary verified)
+  - zero product code / hooks / kernel changes; version stays 3.12.66
+  - full regression 0 failed (baseline unchanged)
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Registered after T-0135 closeout (32361ea). Task card drafted during
+    concurrent T-0135 execution, staged in .ai/evidence/T-0136/ to avoid
+    interfering with the parallel flow's validation, moved back at registration.
+  - "candidate-only: design artifacts only; implementation tasks T-0137~T-0142
+    need separate user gates."
 delegations:
 - chain_id: C-001
   task_ids:

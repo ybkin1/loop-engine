@@ -1,0 +1,21 @@
+{
+  "gate_id": "G-T-0136-REQUIREMENTS",
+  "task_id": "T-0136",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "批准 T-0136",
+  "requested_at": "2026-08-07T17:20:00+08:00",
+  "recorded_at": "2026-08-07T17:29:39+08:00",
+  "scope": "T-0136 后端工程知识层补全方案（candidate-only）：面试题 22 组主题 → 六域补全方案（D-01 容量压测/D-02 稳定性/D-03 数据迁移/D-04 性能诊断/D-05 一致性/D-06 架构方法，每域 = 模板 + 角色知识 + 门禁检查点三要素）+ 任务排布 T-0137~T-0142 + 决策包；仅 .ai/ + docs/designs/ 写入；产品代码零改动、hooks/ 零改动、内核零触碰；版本保持 3.12.66。",
+  "boundaries_confirmed": {
+    "candidate_only": true,
+    "product_code_changes": "none",
+    "hooks_changes": "none",
+    "kernel_changes": "none",
+    "version": "stays 3.12.66",
+    "implementation_tasks": "scheduling doc-only; landing requires separate user gates"
+  }
+}

@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "9E81AB94EAB6226D66F4EC4A72DC60565CCC00D5D8A4C4F5C83520658E6BE89A",
+  "persisted_file_sha256": "474C9CCBBB4D66F157B7BA29EF6FEEA4256E1FA9546968A0EE74552734D57A58",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "C280CECA662F9AF19485942D4B97BEE3E54F07983093A9133E3361E901DEEF24",
+  "source_sha256": "8E20196920A624DDD137BDB5F314AA9417D3908DD55CF709D4FAFC0BCB130A80",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0135
+T-0136
 
 Status: `completed`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0135-REQUIREMENTS
+active_gate: G-T-0136-REQUIREMENTS
 active_gate_status: approved / completed
 
 current_gate_id is null because no pending decision is required.
-G-T-0135-REQUIREMENTS is approved and execution is in progress.
+G-T-0136-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -125,7 +125,7 @@ None
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0135/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0136/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -175,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0135-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0136-REQUIREMENTS",
   "approved_execution_status": "completed",
-  "current_gate_id": "G-T-0135-REQUIREMENTS",
-  "current_task_id": "T-0135",
+  "current_gate_id": "G-T-0136-REQUIREMENTS",
+  "current_task_id": "T-0136",
   "current_task_status": "completed",
   "lifecycle_revision": 0,
   "next_action": "TASK_COMPLETED_AWAIT_NEXT",

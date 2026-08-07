@@ -1,11 +1,28 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0135
-current_gate_id: G-T-0135-REQUIREMENTS
+current_task_id: T-0136
+current_gate_id: G-T-0136-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0136 COMPLETED 2026-08-07: 后端工程知识层补全方案（candidate-only）—
+  9 交付物（D-00 差距盘点 + D-01~D-06 六域方案 + 排布 + 决策包）；独立审查
+  CONDITIONAL_GO→修复 4 项（P1-1 排布优先级对齐 P0×3/P1×2/P2×1、P2-1 分布式
+  事务裁剪披露、P2-2 统计口径、P3-2 路径澄清）→复核 GO；验收 7/7 PASS；
+  产品代码零改动、hooks/ 零改动、内核零触碰，版本保持 3.12.66。
+  T-0137~T-0142 排布待用户 gate 裁决（决策包选项 A/B/C）。'
+- 'T-0136 ACTIVE 2026-08-07: G-T-0136-REQUIREMENTS 已由用户批准（"批准 T-0136"）。
+  执行中（candidate-only）：批 1 差距盘点定稿 → 批 2 六域补全方案（D-01~D-06）
+  → 批 3 任务排布 T-0137~T-0142 → 批 4 决策包；仅 .ai/ + docs/designs/ 写入，
+  产品代码零改动、hooks/ 零改动、内核零触碰，版本保持 3.12.66。'
+- 'T-0136 REGISTERED 2026-08-07: 后端工程知识层补全方案（candidate-only）—
+  面试题 22 组主题 → 六域补全方案（D-01 容量压测/D-02 稳定性/D-03 数据迁移/
+  D-04 性能诊断/D-05 一致性/D-06 架构方法，每域 = 模板 + 角色知识 + 门禁
+  检查点三要素）+ 任务排布 T-0137~T-0142 + 决策包；仅 .ai/ + docs/designs/
+  写入，产品代码零改动、hooks/ 零改动、内核零触碰，版本保持 3.12.66。
+  G-T-0136-REQUIREMENTS pending，待用户批准。（T-0135 审计收尾已由并行
+  执行流收口 32361ea，state 推进至 T-0135 后本任务登记）'
 - 'T-0127~T-0134 COMPLETED 2026-08-07: P0~P4 全链完成 — P0 状态硬化（--auto-sync）/
   P1 变异测试接线（M1/M2 6/6 + mutation_gate）/P2 防御演练（R1~R6 + E1~E5 + 心跳工具）/
   P3 三层质量线程（quality_pair + eval 桥接 + CHECK_RECOMPUTE）/P4 委托模式（委托链

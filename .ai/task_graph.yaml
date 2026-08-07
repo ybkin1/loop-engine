@@ -1553,6 +1553,20 @@ tasks:
       - T-0134
     gates:
       - G-T-0135-REQUIREMENTS
+  -
+    id: T-0136
+    title: 后端工程知识层补全方案（面试题能力域差距落地，candidate-only）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      面试题 22 组主题 → 六域补全方案（D-01 容量压测/D-02 稳定性/D-03 数据迁移/
+      D-04 性能诊断/D-05 一致性/D-06 架构方法，每域 = 模板 + 角色知识 + 门禁
+      检查点三要素）+ 任务排布 T-0137~T-0142 + 决策包；candidate-only，
+      产品代码零改动，版本保持 3.12.66。
+    depends_on:
+      - T-0134
+    gates:
+      - G-T-0136-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1638,3 +1652,5 @@ edges:
       to: T-0133
     - from: T-0133
       to: T-0134
+    - from: T-0134
+      to: T-0136
