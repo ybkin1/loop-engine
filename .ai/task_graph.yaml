@@ -1571,7 +1571,7 @@ tasks:
     id: T-0137
     title: 容量规划与压测模板落地（P0）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-01 落地：capacity-estimate.md（五步估算+3 示例场景含 2000→20 万 QPS）+
       load-test-plan.md（类型/流量模型/工具矩阵/四指标合格线）+ 2 references
@@ -1584,7 +1584,7 @@ tasks:
     id: T-0138
     title: 稳定性设计模板落地（P0）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-02 落地：resilience-design.md（RT 治理五阶梯+熔断阈值推导+降级恢复
       三层判定，含 50ms→5s 案例）+ 2 references + release-checklist 4 检查点；
@@ -1597,7 +1597,7 @@ tasks:
     id: T-0139
     title: 数据迁移模板落地（P0）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-03 落地：data-migration-plan.md（四阶段法+回滚+不丢三层+拆分专项，
       含百亿表案例）+ 2 references + release-checklist 5 检查点；模板为
@@ -1610,7 +1610,7 @@ tasks:
     id: T-0140
     title: 性能诊断模板落地（P1）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-04 落地：performance-diagnosis.md（分位指标表+长尾四步+慢 SQL 六阶梯
       含索引确认+GC 四步，含 2s→20ms 与 11 亿行案例）+ quality-engineer
@@ -1623,7 +1623,7 @@ tasks:
     id: T-0141
     title: 一致性设计模板落地（P1）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-05 落地：consistency-design.md（缓存一致性+异步化取舍+三层不丢+双端
       幂等，含四案例；分布式事务裁剪遵循范围声明）+ system-architect
@@ -1636,7 +1636,7 @@ tasks:
     id: T-0142
     title: 架构与方法决策指南落地（P2）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-06 落地：ddd-split-guide + release-strategy-guide（灰度/蓝绿/金丝雀
       矩阵）+ 2 references + AI 边界方法论文档 + release-checklist 4 检查点；
@@ -1649,7 +1649,7 @@ tasks:
     id: T-0143
     title: 遗留问题修复包（legacy-issues-summary 2026-08-07）
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       legacy-issues-summary 修复：P1（1.1 security 证据时间戳漂移/1.2 YAML
       崩溃 exit 2/3.2 委托 approved_by 验证）+ P2（2.1/3.1/3.3/3.4/4.1/4.2/

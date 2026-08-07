@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0140",
+  "gate_id": "G-T-0140-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T18:00:12+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "性能诊断模板落地（P1）：performance-diagnosis + 1 reference + 4 检查点"
+  ],
+  "notes": "G-T-0140-REQUIREMENTS 已由用户批准（全部批准）。"
+}
