@@ -1530,7 +1530,7 @@ tasks:
     id: T-0134
     title: 委托模式（P4）— 授权模型 v2：委托链 + 结论包
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       LoopMode DELEGATED/MANUAL（fail-closed 回退）+ 委托链（一次批准链内
       自治 + revoke）+ checkpoint 心跳 fail-stop + 结论包（成果/演示/证据路径）
