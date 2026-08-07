@@ -97,6 +97,79 @@ class AssertionBridgeTest(unittest.TestCase):
             report = runner.run()
             self.assertEqual(report.overall.value, "FAIL")
 
+    def test_finding_without_line_fails(self):
+        """P2-2 修复：缺 line 的 finding → 桥接断言 FAIL（无有效引用 = 无效判定）。"""
+        with tempfile.TemporaryDirectory() as td:
+            art = Path(td) / "artifact.py"
+            art.write_text("x = 1\n", encoding="utf-8")
+            case = finding_to_eval_case(
+                {"id": "QE-2", "title": "no line", "severity": "low"}, str(art))
+            from loop_core.evals import EvalRunner
+            report = EvalRunner([case]).run()
+            self.assertEqual(report.overall.value, "FAIL")
+
+    def test_quality_pair_case_requires_evidence_ref(self):
+        """P1-1 修复：quality-pair case 无证据引用 → FAIL（D-02 M5 强制）。"""
+        from loop_core.evals import EvalCase, EvalRunner
+        # 手工构造 quality-pair case（无 evidence: tag → 无引用）
+        case = EvalCase(
+            case_id="QP-NO-EVIDENCE",
+            title="bridge without evidence",
+            input={"command": ["true"]},
+            rule={"type": "exit_code", "params": {"expected": 0}},
+            severity="high",
+            tags=["quality-pair"],
+        )
+        report = EvalRunner([case]).run()
+        self.assertEqual(report.overall.value, "FAIL")
+        self.assertIn("evidence_ref required", report.results[0].reason)
+
+    def test_non_quality_pair_case_unaffected(self):
+        """既有 eval 用例（无 quality-pair tag）不受强制影响。"""
+        from loop_core.evals import EvalCase, EvalRunner
+        case = EvalCase(
+            case_id="plain-1", title="plain", input={"command": ["true"]},
+            rule={"type": "exit_code", "params": {"expected": 0}}, severity="low")
+        report = EvalRunner([case]).run()
+        self.assertEqual(report.overall.value, "PASS")
+
+
+class RecomputeExecutorTest(unittest.TestCase):
+    def _reports(self, tmp: Path, cmd: str, h: str) -> list[dict]:
+        return [{"report_ref": str(tmp / "r1.json"), "repro_command": cmd, "repro_hash": h}]
+
+    def test_recompute_pass_and_fail_events(self):
+        """抽样执行器：正确 hash → PASS 事件；错误 hash → FAIL 事件。"""
+        import hashlib
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai" / "evidence" / "observability").mkdir(parents=True)
+            health = GuardHealth(root)
+            cmd = f"{sys.executable} -c 'print(42)'"
+            out = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=str(root))
+            good = hashlib.sha256((out.stdout + out.stderr).encode()).hexdigest()
+            n = health.run_sampled_recompute(
+                self._reports(root, cmd, good) + self._reports(root, cmd, "deadbeef"),
+                task_id="T-1", rate=1.0)
+            self.assertEqual(n, 2)
+            events = [json.loads(l) for l in
+                      (root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl")
+                      .read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([e["result"] for e in events], ["PASS", "FAIL"])
+
+    def test_recompute_rate_zero_skips(self):
+        """rate=0 → 不执行复算（比例配置生效）。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai" / "evidence" / "observability").mkdir(parents=True)
+            health = GuardHealth(root)
+            n = health.run_sampled_recompute(
+                self._reports(root, "true", "x"), task_id="T-1", rate=0.0)
+            self.assertEqual(n, 0)
+            p = root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl"
+            self.assertFalse(p.exists(), "rate=0 must not write events")
+
 
 class RecomputeDetectionTest(unittest.TestCase):
     def _write_recompute_events(self, root: Path, events: list[dict]) -> None:

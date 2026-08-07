@@ -401,13 +401,21 @@ class EvalExecutionError(RuntimeError):
 
 
 # ── T-0133 P3: agent 判定断言化桥接（D-01 §6.1 L2→L1）────────────────────
+def finding_evidence_ref(case: "EvalCase") -> str | None:
+    """从 quality-pair case 的 tags 提取证据引用（"evidence:path:line"）。"""
+    for tag in (case.tags or []):
+        if tag.startswith("evidence:"):
+            return tag[len("evidence:"):]
+    return None
+
+
 def finding_to_eval_case(finding: dict[str, Any], artifact_path: str,
                          root: str | Path | None = None) -> EvalCase:
     """把 agent finding（title/line/severity）桥接为可复算 EvalCase。
 
     断言：产物文件存在且行数 >= finding.line（证据引用有效性）。
     由 EvalRunner 复算确认——agent 的话不是最终证据，eval 复算才是
-    （D-02 M1/M5）。无 evidence_ref 的判定不得直接进入报告。
+    （D-02 M1/M5）。line 缺失/<=0 → 探针必然 FAIL（无有效引用 = 无效判定）。
     """
     line = int(finding.get("line") or 0)
     case_id = f"QP-{finding.get('id') or 'FIND'}"
@@ -415,7 +423,7 @@ def finding_to_eval_case(finding: dict[str, Any], artifact_path: str,
         "import sys; from pathlib import Path;"
         f"p=Path({str(artifact_path)!r});"
         "src=p.read_text(encoding='utf-8');"
-        f"ok=(len(src.splitlines()) >= {line});"
+        f"ok=({line} >= 1 and len(src.splitlines()) >= {line});"
         "sys.exit(0 if ok else 2)"
     )
     return EvalCase(
@@ -425,7 +433,8 @@ def finding_to_eval_case(finding: dict[str, Any], artifact_path: str,
                "cwd": str(root or Path.cwd())},
         rule={"type": "exit_code", "params": {"expected": 0}},
         severity=str(finding.get("severity") or "medium"),
-        tags=["quality-pair", "assertion-bridge"],
+        tags=["quality-pair", "assertion-bridge",
+              f"evidence:{artifact_path}:{line}"],
     )
 
 
@@ -663,6 +672,15 @@ class EvalRunner:
                 # Isolation: crash in one case never aborts the suite.
                 verdict = EvalVerdict.FAIL
                 reason = f"ERROR: {type(exc).__name__}: {exc}"
+            # T-0133 P3 / D-02 M5: quality-pair 类 case 无证据引用 = FAIL
+            # （agent 判定断言化后必须携带可核验引用，否则判定无效）。
+            # 限定 tags 含 "quality-pair"，不影响既有 eval 用例。
+            evidence_ref: str | None = None
+            if "quality-pair" in (case.tags or []):
+                evidence_ref = finding_evidence_ref(case)
+                if not evidence_ref and verdict is EvalVerdict.PASS:
+                    verdict = EvalVerdict.FAIL
+                    reason = "evidence_ref required (D-02 M5): no verifiable reference"
             results.append(EvalCaseResult(
                 case_id=case.case_id,
                 title=case.title,
@@ -672,6 +690,7 @@ class EvalRunner:
                 rule_type=case.rule_type,
                 version=case.version,
                 reason=reason,
+                evidence_ref=evidence_ref,
             ))
         return EvalRunResult(
             results=results,

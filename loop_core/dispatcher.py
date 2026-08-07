@@ -288,6 +288,10 @@ class LoopDispatcher:
                 timeout_seconds=step.spec.timeout_seconds,
                 retry_on_failure=True,
                 max_retries=step.spec.max_retries - 1,
+                # T-0133 P2-1: 重试透传质量配对，防止重量动作重试退化为
+                # 无配对轻量执行（绕过 T-0133 强制机制）
+                is_weighted=step.spec.is_weighted,
+                quality_pair=step.spec.quality_pair,
             )
             agent_input = AgentInput(
                 role_id=retry_spec.subagent_id,

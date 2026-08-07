@@ -128,6 +128,58 @@ class GuardHealth:
         self.observability = observability
 
     # ── T-0089 U8: observation helpers (never raise into the business path) ──
+
+    # T-0133 P3 / D-02 M4: 抽查复算默认比例（配置化；0.1 = 10% 报告被机器抽样复算）
+    RECOMPUTE_RATE_DEFAULT = 0.1
+    RECOMPUTE_EVENTS_PATH = ".ai/evidence/observability/recompute-events.jsonl"
+
+    def run_sampled_recompute(self, reports: list[dict], task_id: str,
+                              rate: float | None = None,
+                              seed: int | None = None) -> int:
+        """D-02 M4 抽样复算执行器。
+
+        reports: [{report_ref, repro_command, repro_hash}]；按 rate 抽样，
+        对抽中报告执行 repro_command 并比对输出哈希 → 追加写
+        recompute-events.jsonl（{ts, task_id, report_ref, result}）。
+        返回执行的复算次数。
+        """
+        import hashlib
+        import random
+        import subprocess
+        rate = self.RECOMPUTE_RATE_DEFAULT if rate is None else float(rate)
+        events_path = self.root / self.RECOMPUTE_EVENTS_PATH
+        if rate >= 1.0 or not reports:
+            sample = reports
+        elif rate <= 0.0:
+            sample = []
+        else:
+            rng = random.Random(seed)
+            sample = rng.sample(reports, max(1, int(len(reports) * rate)))
+        n_run = 0
+        for rep in sample:
+            cmd = rep.get("repro_command")
+            expect = rep.get("repro_hash", "")
+            if not cmd:
+                continue
+            try:
+                proc = subprocess.run(
+                    cmd, shell=True, capture_output=True, text=True,
+                    timeout=60, cwd=str(self.root))
+                out_hash = hashlib.sha256(
+                    (proc.stdout + proc.stderr).encode("utf-8")).hexdigest()
+                result = "PASS" if out_hash == expect else "FAIL"
+            except Exception:  # noqa: BLE001 — 复算失败 = FAIL（fail-safe）
+                result = "FAIL"
+            n_run += 1
+            events_path.parent.mkdir(parents=True, exist_ok=True)
+            with events_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps({
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "task_id": task_id,
+                    "report_ref": rep.get("report_ref", ""),
+                    "result": result,
+                }) + "\n")
+        return n_run
     def _registry_source(self) -> str:
         """Deterministic fingerprint of the registry the check runs against."""
         try:
