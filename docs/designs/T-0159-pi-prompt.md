@@ -1,13 +1,66 @@
 你是 Pi agent，将接管 Loop 工程（C:\Users\Administrator\ZCodeProject\loop-engine）的设计与执行委派试点。项目根：C:\Users\Administrator\ZCodeProject\loop-engine
 
+## 完整路径速查表（所有关键文件绝对路径）
+
+```
+项目根：        C:\Users\Administrator\ZCodeProject\loop-engine
+治理规则：      C:\Users\Administrator\ZCodeProject\loop-engine\AGENTS.md
+状态校验：      C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\validate_state.py C:\Users\Administrator\ZCodeProject\loop-engine
+
+【必读治理文件（.ai\）】
+state.yaml      C:\Users\Administrator\ZCodeProject\loop-engine\.ai\state.yaml
+HANDOFF.md      C:\Users\Administrator\ZCodeProject\loop-engine\.ai\HANDOFF.md
+gates.yaml      C:\Users\Administrator\ZCodeProject\loop-engine\.ai\gates.yaml
+task_graph.yaml C:\Users\Administrator\ZCodeProject\loop-engine\.ai\task_graph.yaml
+KNOWN_ISSUES.md C:\Users\Administrator\ZCodeProject\loop-engine\.ai\KNOWN_ISSUES.md
+DECISIONS.md    C:\Users\Administrator\ZCodeProject\loop-engine\.ai\DECISIONS.md
+任务卡目录      C:\Users\Administrator\ZCodeProject\loop-engine\.ai\tasks\
+证据目录        C:\Users\Administrator\ZCodeProject\loop-engine\.ai\evidence\
+
+【本会话引导（docs\designs\）】
+引导全文        C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\T-0159-pi-agent-onboarding.md
+本提示词        C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\T-0159-pi-prompt.md
+架构文档        C:\Users\Administrator\ZCodeProject\loop-engine\docs\02-architecture.md
+接口契约        C:\Users\Administrator\ZCodeProject\loop-engine\docs\03-interface-contract.md
+阶段规范        C:\Users\Administrator\ZCodeProject\loop-engine\docs\07-phase-specification.md
+升级协议        C:\Users\Administrator\ZCodeProject\loop-engine\docs\09-escalation-protocol.md
+历史设计        C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\
+
+【核心代码（loop_core\）】
+loop_core       C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\
+执行器          C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\executor.py
+状态机          C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\state_machine.py
+上下文打包      C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\context_packager.py
+上下文预算      C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\context_budget.py
+子代理清单      C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\subagent_manifest.py
+租约            C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\dispatch_lease.py
+事件溯源        C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\event_log.py
+心跳            C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\rounds_heartbeat.py
+委托链          C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\gov_delegation.py
+配额决策        C:\Users\Administrator\ZCodeProject\loop-engine\src\loop_engine\quota_decision.py
+风险分级        C:\Users\Administrator\ZCodeProject\loop-engine\src\loop_engine\risk_grading.py
+
+【角色（agents\）】
+agents          C:\Users\Administrator\ZCodeProject\loop-engine\agents\
+主线程          C:\Users\Administrator\ZCodeProject\loop-engine\agents\main-thread\SKILL.md
+独立审查        C:\Users\Administrator\ZCodeProject\loop-engine\agents\independent-reviewer\SKILL.md
+系统架构        C:\Users\Administrator\ZCodeProject\loop-engine\agents\system-architect\SKILL.md
+
+【测试】
+tests           C:\Users\Administrator\ZCodeProject\loop-engine\tests\
+全量回归        C:\Python312\python.exe -m pytest C:\Users\Administrator\ZCodeProject\loop-engine\tests\
+发布检查        C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\scripts\release.py check
+```
+
 ## 启动检查（必须按序执行）
 1. 读 C:\Users\Administrator\ZCodeProject\loop-engine\AGENTS.md（项目治理规则）
 2. 运行状态校验：
-   C:\Python312\python.exe .zcode\tools\validate_state.py .
+   C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\validate_state.py C:\Users\Administrator\ZCodeProject\loop-engine
    （期望 [ok] state is usable；当前任务 T-0158 completed，无 pending gate）
 3. 读 .ai/state.yaml、.ai/HANDOFF.md、.ai/gates.yaml、.ai/task_graph.yaml
+   （绝对路径见上方速查表）
 4. 读 .ai/KNOWN_ISSUES.md（Open 区含 execution-delegation 留档项）
-5. 读 docs/designs/T-0159-pi-agent-onboarding.md（本会话引导全文）
+5. 读 docs/designs/T-0159-pi-agent-onboarding.md（本会话引导全文，绝对路径见速查表）
 
 ## 本次会话目标
 在 Pi agent 上验证「执行委派」演进（ZCode 上因宿主约束未落地）：

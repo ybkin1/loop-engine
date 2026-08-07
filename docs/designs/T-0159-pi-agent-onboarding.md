@@ -6,7 +6,52 @@
 
 ---
 
+## 关键路径速查（Pi 深读时定位用）
+
+```
+项目根：        C:\Users\Administrator\ZCodeProject\loop-engine
+治理规则：      C:\Users\Administrator\ZCodeProject\loop-engine\AGENTS.md
+状态校验：      C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\validate_state.py C:\Users\Administrator\ZCodeProject\loop-engine
+
+治理（.ai\）：
+  state.yaml        C:\Users\Administrator\ZCodeProject\loop-engine\.ai\state.yaml
+  HANDOFF.md        C:\Users\Administrator\ZCodeProject\loop-engine\.ai\HANDOFF.md
+  gates.yaml        C:\Users\Administrator\ZCodeProject\loop-engine\.ai\gates.yaml
+  task_graph.yaml   C:\Users\Administrator\ZCodeProject\loop-engine\.ai\task_graph.yaml
+  KNOWN_ISSUES.md   C:\Users\Administrator\ZCodeProject\loop-engine\.ai\KNOWN_ISSUES.md
+  任务卡             C:\Users\Administrator\ZCodeProject\loop-engine\.ai\tasks\
+  证据               C:\Users\Administrator\ZCodeProject\loop-engine\.ai\evidence\
+
+文档（docs\）：
+  架构              C:\Users\Administrator\ZCodeProject\loop-engine\docs\02-architecture.md
+  接口契约          C:\Users\Administrator\ZCodeProject\loop-engine\docs\03-interface-contract.md
+  阶段规范          C:\Users\Administrator\ZCodeProject\loop-engine\docs\07-phase-specification.md
+  升级协议          C:\Users\Administrator\ZCodeProject\loop-engine\docs\09-escalation-protocol.md
+  设计文档          C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\
+
+代码（loop_core\ + src\ + .zcode\tools\）：
+  loop_core         C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\
+  context_packager  C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\context_packager.py
+  context_budget    C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\context_budget.py
+  subagent_manifest C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\subagent_manifest.py
+  dispatch_lease    C:\Users\Administrator\ZCodeProject\loop-engine\loop_core\dispatch_lease.py
+  event_log         C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\event_log.py
+  rounds_heartbeat  C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\rounds_heartbeat.py
+  gov_delegation    C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\gov_delegation.py
+  quota_decision    C:\Users\Administrator\ZCodeProject\loop-engine\src\loop_engine\quota_decision.py
+  risk_grading      C:\Users\Administrator\ZCodeProject\loop-engine\src\loop_engine\risk_grading.py
+
+角色（agents\）：  C:\Users\Administrator\ZCodeProject\loop-engine\agents\
+测试（tests\）：   C:\Users\Administrator\ZCodeProject\loop-engine\tests\
+发布检查：         C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\scripts\release.py check
+```
+
+---
+
 ## 第一部分：新会话启动提示词（复制给 Pi agent）
+
+> **直接使用 `docs/designs/T-0159-pi-prompt.md`（含完整绝对路径速查表），**
+> 或复制下方要点（完整版以该文件为准）：
 
 ```
 你是 Pi agent，将接管 Loop 工程（C:\Users\Administrator\ZCodeProject\loop-engine）
@@ -15,10 +60,17 @@
 ## 启动检查（必须按序执行）
 1. 读 C:\Users\Administrator\ZCodeProject\loop-engine\AGENTS.md（项目治理规则）
 2. 运行状态校验：
-   C:\Python312\python.exe .zcode\tools\validate_state.py .
+   C:\Python312\python.exe C:\Users\Administrator\ZCodeProject\loop-engine\.zcode\tools\validate_state.py C:\Users\Administrator\ZCodeProject\loop-engine
    （期望 [ok] state is usable；当前任务 T-0158 completed，无 pending gate）
-3. 读 .ai/state.yaml、.ai/HANDOFF.md、.ai/gates.yaml、.ai/task_graph.yaml
-4. 读 .ai/KNOWN_ISSUES.md（Open 区含 execution-delegation 留档项）
+3. 读 C:\Users\Administrator\ZCodeProject\loop-engine\.ai\state.yaml、
+   C:\Users\Administrator\ZCodeProject\loop-engine\.ai\HANDOFF.md、
+   C:\Users\Administrator\ZCodeProject\loop-engine\.ai\gates.yaml、
+   C:\Users\Administrator\ZCodeProject\loop-engine\.ai\task_graph.yaml
+4. 读 C:\Users\Administrator\ZCodeProject\loop-engine\.ai\KNOWN_ISSUES.md
+   （Open 区含 execution-delegation 留档项）
+5. 读 C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\T-0159-pi-agent-onboarding.md
+   （本引导全文）与 C:\Users\Administrator\ZCodeProject\loop-engine\docs\designs\T-0159-pi-prompt.md
+   （提示词 + 完整路径速查表）
 
 ## 本次会话目标
 在 Pi agent 上验证「执行委派」演进（ZCode 上因宿主约束未落地）：
