@@ -1,5 +1,5 @@
 schema: EvidenceManifest/v1
-manifest_id: EM-T-0144-DFAA4B30
+manifest_id: EM-T-0144-232226A0
 task_id: T-0144
 gate_id: G-T-0144-REQUIREMENTS
 authority_ref: user
@@ -10,6 +10,12 @@ limits:
   max_total_bytes: 268435456
   stream_chunk_bytes: 1048576
 files:
+- path: .ai/evidence/T-0144/acceptance/acceptance-record.md
+  role: result
+  required: true
+  sha256: C8E6E1FE95267227DDB600E2DDEA384B7A3FA99A66C920218D2293CFF1AECD57
+  size: 269
+  mtime_ns: 1786108752203449100
 - path: .ai/evidence/T-0144/approval-evidence.json
   role: result
   required: true
@@ -28,9 +34,15 @@ files:
   sha256: 6EA7E87F2865F32F524842F11AAAE7C26FB02477F42497FD1777A4F66D30448F
   size: 317
   mtime_ns: 1786105615269063400
-file_count: 3
-total_bytes: 815
-ordered_entries_sha256: DFAA4B30508C1AF25F66CFD1712F83C892BFEB3E8E96F3180DA6BBDFEB063A37
-semantic_sha256: 6DF43F66EF849901B9673FE44063598319E17F988E0D58C6DC07871C3AE6B573
-created_at: '2026-08-07T18:30:00+08:00'
+- path: .ai/evidence/T-0144/review/independent-review.md
+  role: result
+  required: true
+  sha256: 163012FB6164EBA219AB4A53E32344F86D7E7BACBB082A1A214B01BC650BC08B
+  size: 1132
+  mtime_ns: 1786108752202448500
+file_count: 5
+total_bytes: 2216
+ordered_entries_sha256: 232226A0098B965CB86B90E70A7DF7C3B4E82A4CD9448FF74E6BED9DC6FB3F81
+semantic_sha256: B0A0FF847DDABFD22719726A8489E9C024F01B19BB0F967AF2A77CD5904FBBAA
+created_at: '2026-08-07T19:10:00+08:00'
 created_by: governance-controller

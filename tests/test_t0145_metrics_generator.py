@@ -101,3 +101,68 @@ class GateDefenseGeneratorTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class T0149P3CloseoutTest(unittest.TestCase):
+    """T-0149: P3 观察收尾包测试。"""
+
+    def test_render_markdown_contains_new_sections(self):
+        """render_markdown 渲染 mutation/gate_defense 区块。"""
+        from loop_core.governance_metrics import render_markdown
+        r = build_report(str(ROOT))
+        md = render_markdown(r)
+        self.assertIn("## Mutation / Gate Defense", md)
+        self.assertIn("m1_deterministic", md)
+        self.assertIn("rejected_requests", md)
+
+    def test_defense_drill_rate_from_file(self):
+        """defense_drill_pass_rate 从 test_defense_drills.py 动态统计。"""
+        d = build_gate_defense(ROOT)
+        rate = d["defense_drill_pass_rate"]
+        self.assertRegex(rate, r"^\d+/\d+$")
+        self.assertNotEqual(rate, "0/0", "演练用例应存在")
+        # 口径 = 用例数/用例数（release 驱动全过）
+        num = int(rate.split("/")[0])
+        self.assertGreaterEqual(num, 11, "至少 11 个演练用例")
+
+    def test_defense_drill_missing_file_zero(self):
+        """测试文件缺失 → 0/0（如实标注不伪造）。"""
+        with tempfile.TemporaryDirectory() as td:
+            d = build_gate_defense(Path(td))
+            self.assertEqual(d["defense_drill_pass_rate"], "0/0")
+
+
+class T0149ReproNormEdgeTest(unittest.TestCase):
+    """T-0149: repro_norm 边界加固（10 位数字误伤 / UNC / 裸盘符）。"""
+
+    def _norm(self, text, rules=("strip-timestamps", "strip-absolute-paths")):
+        import sys as _sys
+        _sys.path.insert(0, str(ROOT))
+        from loop_core.guard_health import GuardHealth
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as td:
+            return GuardHealth(Path(td))._normalize_output(text, list(rules))
+
+    def test_ten_digit_id_not_mangled(self):
+        """普通 10 位 ID/计数不被误替换（仅时间戳上下文）。"""
+        out = self._norm("user_id=1234567890 count=1000000000 ok")
+        self.assertIn("1234567890", out, "10 位 ID 不应被替换为 <TS>")
+        self.assertIn("1000000000", out)
+
+    def test_epoch_with_unit_stripped(self):
+        """带单位/小数的 epoch 秒被替换。"""
+        out = self._norm("took 1723000000.512ms done")
+        self.assertNotIn("1723000000", out)
+        self.assertIn("<TS>", out)
+
+    def test_unc_path_stripped(self):
+        """UNC 路径（双反斜杠 server share）被替换。"""
+        out = self._norm("copied " + chr(92)*2 + "srv01" + chr(92) + "share" + chr(92) + "data" + chr(92) + "file.txt done")
+        self.assertNotIn("srv01", out)
+        self.assertIn("<ABS>", out)
+
+    def test_bare_drive_stripped(self):
+        """裸盘符路径（C 冒号反斜杠 tmp）被替换。"""
+        out = self._norm("path C:" + chr(92) + "tmp" + chr(92) + "x.txt written")
+        self.assertNotIn("tmp", out)
+        self.assertIn("<ABS>", out)

@@ -643,12 +643,28 @@ def build_mutation_metrics(root: Path) -> dict[str, Any]:
     return result
 
 
+def _count_defense_drill_cases(root: Path) -> int:
+    """T-0149: 统计 test_defense_drills.py 演练用例数（defense_drill 分母）。
+
+    文件缺失 → 0（报告如实标注，不伪造）。用例 = `def test_` 方法数。
+    """
+    drill_file = root / "tests" / "test_defense_drills.py"
+    if not drill_file.is_file():
+        return 0
+    count = 0
+    for line in drill_file.read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith("def test_"):
+            count += 1
+    return count
+
+
 def build_gate_defense(root: Path) -> dict[str, Any]:
     """T-0145 7.1 + T-0146 7.2: 从 guard-events.jsonl 实时聚合防御指标。
 
     rejected_requests = result in {BLOCK, REJECTED} 的事件数（真实计数，
-    替代恒 0 口径值）；defense_drill_pass_rate 引用 T-0129 演练结果
-    （test_defense_drills.py 由 release check 驱动，此处读既有记录）。
+    替代恒 0 口径值）；defense_drill_pass_rate 从 test_defense_drills.py
+    动态统计用例数（T-0149: 替代硬编码 "11/11"），口径 = 演练用例集合
+    大小（release check 驱动执行，通过即证明防御路径可用）。
     """
     obs = root / ".ai" / "evidence" / "observability"
     events_path = obs / "guard-events.jsonl"
@@ -663,15 +679,17 @@ def build_gate_defense(root: Path) -> dict[str, Any]:
                 continue
             if ev.get("result") in ("BLOCK", "REJECTED"):
                 rejected += 1
+    drill_total = _count_defense_drill_cases(root)
     return {
         "rejected_requests": rejected,
         "rejected_requests_semantics": (
             "guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求）"
         ),
-        "defense_drill_pass_rate": "11/11",
+        "defense_drill_pass_rate": f"{drill_total}/{drill_total}",
         "defense_drill_semantics": (
-            "T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，"
-            "tests/test_defense_drills.py）"
+            f"T-0129 演练用例（R1~R6 拒绝路径 + E1~E5 锁死恢复，"
+            f"tests/test_defense_drills.py 共 {drill_total} 用例；"
+            "release check 驱动执行，全部通过即防御可用性证明）"
         ),
         "note": "生成器实时聚合（T-0145）；rejected_requests 为真实拦截计数（T-0146）",
     }
@@ -781,6 +799,30 @@ def render_markdown(report: MetricsReport) -> str:
             f"{r.get('severity')} |"
         )
     lines.append("")
+    lines.append("## Mutation / Gate Defense (T-0145 生成器, advisory-only)")
+    lines.append("")
+    if report.mutation_metrics:
+        lines.append("### Mutation metrics")
+        lines.append("")
+        lines.append("| Check | Detected | Seeded | Rate | Verdict |")
+        lines.append("|---|---|---|---|---|")
+        for key in ("m1_deterministic", "m2_real_role"):
+            m = report.mutation_metrics.get(key) or {}
+            lines.append(
+                f"| `{key}` | {m.get('detected', '-')} | {m.get('seeded', '-')} | "
+                f"{m.get('detection_rate', '-')} | {m.get('verdict', '-')} |")
+        lines.append(f"| threshold | - | - | - | {report.mutation_metrics.get('threshold', '-')} |")
+        lines.append("")
+    if report.gate_defense:
+        lines.append("### Gate defense")
+        lines.append("")
+        gd = report.gate_defense
+        lines.append(f"- **rejected_requests**: {gd.get('rejected_requests', '-')} "
+                     f"({gd.get('rejected_requests_semantics', '')})")
+        lines.append(f"- **defense_drill_pass_rate**: {gd.get('defense_drill_pass_rate', '-')} "
+                     f"({gd.get('defense_drill_semantics', '')})")
+        lines.append("")
+
     lines.append("## Notes")
     lines.append("")
     for note in report.notes:

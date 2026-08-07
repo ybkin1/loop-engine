@@ -202,7 +202,7 @@ class GuardHealth:
                 }) + "\n")
         return n_run
 
-    # T-0144 4.3: repro_norm 规范化规则（D-02 M1 承诺落地）。
+    # T-0144 4.3 + T-0149 边界加固: repro_norm 规范化规则（D-02 M1 承诺落地）。
     # 支持规则：
     #   strip-timestamps   — ISO8601 时间戳 / epoch 秒 → <TS>（输出含耗时）
     #   strip-absolute-paths — 绝对路径 → <ABS>（输出含路径）
@@ -212,15 +212,20 @@ class GuardHealth:
         import re as _re
         text = output
         if "strip-timestamps" in norm:
-            # ISO8601（含 T/Z/时区偏移）与 epoch 秒（10/13 位）
+            # ISO8601（含 T/Z/时区偏移）与 epoch 秒。
+            # T-0149: 10 位 epoch 仅在带小数或单位时匹配（time.time() 输出
+            # 带小数），纯 10 位数字（ID/计数）不替换，避免误伤。
             text = _re.sub(
                 r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?",
                 "<TS>", text)
-            text = _re.sub(r"\b\d{10}(?:\.\d+)?\b", "<TS>", text)
+            text = _re.sub(r"\b\d{10}\.\d+(?:ms|us|s)?\b", "<TS>", text)
+            text = _re.sub(r"\b\d{10}(?:ms|us|s)\b", "<TS>", text)
             text = _re.sub(r"\b\d{13}\b", "<TS>", text)
         if "strip-absolute-paths" in norm:
-            # Windows 盘符路径 与 POSIX 绝对路径 → <ABS>
-            text = _re.sub(r"[A-Za-z]:[\\/][^\s<>\"']+", "<ABS>", text)
+            # Windows 盘符路径（含裸盘符 C:\）、UNC 路径（\\server\share）、
+            # POSIX 绝对路径 → <ABS>
+            text = _re.sub(r"[A-Za-z]:[\\/](?:[^\s<>\"']*)", "<ABS>", text)
+            text = _re.sub(r"\\\\[^\s<>\"']+\\[^\s<>\"']+(?:\\[^\s<>\"']*)*", "<ABS>", text)
             text = _re.sub(r"(?<![\w/])/[^\s<>\"']+(?:/[^\s<>\"']*)*", "<ABS>", text)
         return text
 

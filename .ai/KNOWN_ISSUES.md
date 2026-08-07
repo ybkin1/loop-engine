@@ -3,9 +3,10 @@
 ## Open
 
 - [session-source-disabled Medium] Qoder 工作区会话证据源未启用或源根配置不可用：分析报告出现 `disabled-source-root` / `missing-optional-root`，仅 1/5 个 enabled source roots 存在；即使有会话也无法读取，任务理解、可控执行、改动验证、可靠交付持续处于 Unobserved，评分被证据上限锁死，学习捕获也无法验证。→ 记录保留，不立项修复（T-0112 已撤销：Qoder 为外部会话宿主，其数据不作 ZCode 验收证据；T-0121 已落地 ZCode 原生会话存在性核验（呈现层 session_source 标注），如需进一步走 ZCode 原生会话证据路径按 T-0120 决策包评估）
-- E2E integration test (test_E2E_CURRENT_001) is skipped due to lab fixture dependency.
 
 ## Recently Closed
+
+- 2026-08-07: E2E integration test 记录过时关闭 — **T-0150 核验**：`test_E2E_CURRENT_001.py` 在 git 历史中从未存在（无提交记录），KNOWN_ISSUES 的 skipped 记录为过时项；实际集成测试资产为 `tests/lab/test_project_governor_consistency.py`（64 用例，可收集、可运行、全通过，纳入全量回归 testpaths=tests 覆盖）。已关闭并改述。
 
 - 2026-08-07: Seeded defects 未自动调用关闭 — **T-0128 变异测试接线，v3.12.63**：`mutation_tester.py scan` 子命令自动加载 defect_registry（6 SD）+ `tests/seeded_defects/detector.py` 确定性检出规则库（M1 6/6，AST/正则，可复算）；M2 真实角色检出（security-engineer + quality-engineer subagent 独立审查，6/6，sd_ref 标注）；检出率报告落盘 `observability/mutation-report-m1/m2.json` 并接入 `release.py check` mutation_gate（M1>=5/6 且 M2>=4/6，缺失 fail-closed）。
 - 2026-08-06: env-dependent 测试关闭 — **T-0126 端口注入修复，v3.12.61**：`test_runtime_report_is_simulated_and_fail_closed` 改为 bind 随机端口（绑定不监听，连接必被拒）注入 `service_url`（显式 127.0.0.1），与端口占用/localhost 解析/代理配置完全无关（占用 3000/8000 实证确定性 FAIL，AC-01）；checker 零改动，fail-closed 断言原样保留。

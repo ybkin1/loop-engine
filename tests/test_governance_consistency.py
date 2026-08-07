@@ -240,3 +240,38 @@ class TestValidateStateYamlFailClosed:
         r = self._run(str(tmp_path))
         # idle 合法态 → exit 3；真实损坏（其他错误）→ exit 2；绝不允许 exit 1 traceback
         assert r.returncode in (0, 2, 3), f"unexpected rc {r.returncode}: {r.stderr}"
+
+
+class TestGateExecutionStatusConsistency:
+    """T-0148: gate execution_status 必须与任务完成态一致（防漂移复发）。
+
+    任务 completed → 其 approved gate 的 execution_status 不得停留
+    in_progress/approved_not_started（历史 55 条漂移已回填）。
+    """
+
+    def test_completed_tasks_gates_not_stale(self):
+        tg = _load_yaml(".ai/task_graph.yaml")
+        tasks = {t["id"]: t.get("status") for t in tg["tasks"] if isinstance(t, dict)}
+        gates = _load_yaml(".ai/gates.yaml").get("gates", [])
+        stale = [
+            g["id"] for g in gates
+            if isinstance(g, dict)
+            and g.get("status") == "approved"
+            and g.get("execution_status") in ("in_progress", "approved_not_started")
+            and tasks.get(g.get("task_id")) == "completed"
+        ]
+        assert stale == [], (
+            f"gate execution_status 与任务完成态漂移（T-0148 应已回填）: {stale}"
+        )
+
+    def test_rejected_task_gate_not_completed(self):
+        """rejected 任务的 gate 不得被误标 completed（T-0112 语义保留）。"""
+        tg = _load_yaml(".ai/task_graph.yaml")
+        tasks = {t["id"]: t.get("status") for t in tg["tasks"] if isinstance(t, dict)}
+        gates = _load_yaml(".ai/gates.yaml").get("gates", [])
+        for g in gates:
+            if isinstance(g, dict) and tasks.get(g.get("task_id")) == "rejected":
+                assert g.get("execution_status") != "completed", (
+                    f"rejected 任务 {g.get('task_id')} 的 gate {g.get('id')} "
+                    "不得标 completed"
+                )
