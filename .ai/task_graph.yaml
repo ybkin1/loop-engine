@@ -1795,7 +1795,7 @@ tasks:
     id: T-0155
     title: 事件溯源影子层（loopx P0-1）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       state-events.jsonl 追加事件链（task/gate/evidence/handoff 生命周期）；
       影子层只读审计流，state.yaml 仍权威投影；replay_check 一致性；
@@ -1808,7 +1808,7 @@ tasks:
     id: T-0156
     title: 配额决策路由（loopx P0-2）
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       decide_quota 5 态（deliver/ask/wait/repair/quiet）+ reason；
       /loop-quota 只建议不执行；fail-safe 默认 quiet/wait。
@@ -1820,7 +1820,7 @@ tasks:
     id: T-0157
     title: 风险驱动执行分级（loopx P0-3）
     phase: S6-delivery
-    status: pending
+    status: completed
     description: >-
       grade_risk 三态（LIGHT/STANDARD/FULL）+ critical_triggers 强制 FULL
       + ACCEPTED_RISK + SKIPPED 白名单；advisory-only 不改 gate 语义。

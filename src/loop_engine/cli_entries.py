@@ -90,6 +90,50 @@ def main_mutation(args: list[str] | None = None) -> int:
     return _run(SCRIPTS / "mutation_tester.py", args, inject_root=False)
 
 
+def main_quota(args: list[str] | None = None) -> int:
+    """loop-quota: 配额决策建议（T-0156，只建议不执行）。
+
+    loop-quota <root> → 打印 5 态决策（deliver/ask/wait/repair/quiet）。
+    """
+    args = sys.argv[1:] if args is None else args
+    if not args:
+        print("usage: loop-quota <project-root>", file=sys.stderr)
+        return 2
+    import json as _json
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+    sys.path.insert(0, str(PROJECT_ROOT))
+    from loop_engine.quota_decision import decide_quota_safe
+    result = decide_quota_safe(Path(args[0]).resolve())
+    print(f"[loop-quota] decision: {result['decision']}")
+    print(f"  reason: {result['reason']}")
+    if result.get("factors"):
+        print(f"  factors: {_json.dumps(result['factors'], ensure_ascii=False)}")
+    print("  (advisory only — 放行仍需用户 gate)")
+    return 0
+
+
+def main_risk(args: list[str] | None = None) -> int:
+    """loop-risk: 风险分级建议（T-0157，advisory-only）。
+
+    loop-risk <task_desc> → 输出 LIGHT/STANDARD/FULL + triggers/score/reason。
+    """
+    args = sys.argv[1:] if args is None else args
+    if not args:
+        print("usage: loop-risk <task-description>", file=sys.stderr)
+        return 2
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
+    sys.path.insert(0, str(PROJECT_ROOT))
+    from loop_engine.risk_grading import grade_risk
+    result = grade_risk(" ".join(args))
+    print(f"[loop-risk] level: {result['level']}")
+    if result.get("triggers_hit"):
+        print(f"  critical triggers: {', '.join(result['triggers_hit'])}")
+    print(f"  score: {result.get('score')}")
+    print(f"  reason: {result['reason']}")
+    print("  (advisory only — gate 批准语义不变)")
+    return 0
+
+
 ENTRY_POINTS = {
     "loop-validate": main_validate,
     "loop-check": main_check,
@@ -97,6 +141,8 @@ ENTRY_POINTS = {
     "loop-delegation": main_delegation,
     "loop-conclusion": main_conclusion,
     "loop-mutation": main_mutation,
+    "loop-quota": main_quota,
+    "loop-risk": main_risk,
 }
 
 

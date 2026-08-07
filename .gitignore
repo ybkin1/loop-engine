@@ -53,3 +53,5 @@ token.*
 # 历史已入库记录保留；事件证据在运行时现场可读（审计/审查需要时附加快照）。
 .ai/evidence/observability/guard-events.jsonl
 .ai/evidence/observability/guard-events.jsonl.*
+# T-0155: 事件溯源影子层运行时产物（同 guard-events 治理）
+.ai/evidence/observability/state-events.jsonl

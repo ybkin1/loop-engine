@@ -254,7 +254,7 @@ class DeadlockRecoveryDrillTest(unittest.TestCase):
             root = self._with_continuity(make_project(Path(td)))
             ev_file = root / ".ai" / "evidence" / "T-D000" / "approval-evidence.json"
             guard_events = root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
-            guard_events.parent.mkdir(parents=True)
+            guard_events.parent.mkdir(parents=True, exist_ok=True)
             guard_events.write_text('{"event_id": "g1", "result": "PASS"}\n', encoding="utf-8")
             before_ev = ev_file.read_bytes()
             before_guard = guard_events.read_bytes()

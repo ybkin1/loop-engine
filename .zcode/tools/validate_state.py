@@ -519,6 +519,14 @@ def main() -> int:
             print("[loop-governance] [auto-sync] HANDOFF regenerated.")
             # T-0058: HANDOFF 永不入 continuity source set（自引用守卫），
             # 无需再同步其哈希——漂移已在 §5 修复阶段消除。
+            # T-0155: 事件溯源影子层 —— HANDOFF 重生成追加审计事件（失败吞掉）。
+            try:
+                from event_log import append as _event_append
+                _event_append(root, "handoff_generated",
+                              task_id=task_id, actor="system",
+                              detail={"action": "auto-sync"})
+            except Exception:  # noqa: BLE001 — 影子层失败绝不阻断
+                pass
         except Exception as he:
             errors.append(f"HANDOFF auto-sync failed: {he}")
 
