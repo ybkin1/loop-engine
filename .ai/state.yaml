@@ -6,6 +6,11 @@ current_gate_id: G-T-0152-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0152~T-0154 COMPLETED 2026-08-07: 用户指令批闭环 — T-0152 P3 收尾批 2
+  （legacy gate 补全 + 证据接线 + 金字塔检查点 + Debt 语义）/T-0153 手机 PWA
+  叠加层原型（candidate，mock 无外部端点 + 设备配对设计）/T-0154 loop x
+  对比研究（两项目深读 + 分级建议，candidate-only）。终审 GO（4374 passed
+  0 failed，release 7/7）；hooks/ 零改动；C-003 链内执行。'
 - 'T-0152~T-0154 ACTIVE 2026-08-07: 用户指令批（登记即执行）— T-0152 P3
   收尾批 2/T-0153 手机 PWA 叠加层原型（外部边界单独 gate）/T-0154 loop x
   对比研究（candidate-only）。C-003 链内执行。'

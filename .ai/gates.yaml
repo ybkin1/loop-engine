@@ -3199,7 +3199,7 @@ gates:
   approval_text: 准
   scope: T-0103 提示词工程全量盘点 + 四象限差距分析 + 整合设计（candidate-only）+ B1 eval 最小实验设计；不修改任何生产代码、不安装/启用
     skill/MCP/ automation、不 bump 版本（无代码变更保持 3.12.41）。
-  execution_evidence: .ai/evidence/T-0103/execution-evidence.json
+  execution_evidence: .ai/evidence/T-0103/review/independent-review.md
   allowed_paths:
   - .ai/
   - docs/08-prompt-engineering.md
@@ -5904,7 +5904,7 @@ gates:
   task_id: T-0152
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T20:00:00+08:00'
   requested_by: ai
@@ -5955,7 +5955,7 @@ gates:
   task_id: T-0153
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T20:00:00+08:00'
   requested_by: ai
@@ -6006,7 +6006,7 @@ gates:
   task_id: T-0154
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T20:00:00+08:00'
   requested_by: ai

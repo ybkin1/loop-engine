@@ -1,0 +1,8 @@
+/* NordRelay Mobile — PWA 图标（ZCode 深色风格） */
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d1117"/>
+  <path d="M128 160h256v48H128z" fill="#58a6ff"/>
+  <circle cx="256" cy="300" r="72" fill="none" stroke="#58a6ff" stroke-width="20"/>
+  <circle cx="256" cy="300" r="24" fill="#3fb950"/>
+  <path d="M160 420h192" stroke="#8b949e" stroke-width="16" stroke-linecap="round"/>
+</svg>

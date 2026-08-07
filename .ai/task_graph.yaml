@@ -1759,7 +1759,7 @@ tasks:
     id: T-0152
     title: P3 观察收尾批 2（治理记录完整性）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       legacy gate execution_status 补全（10 条）+ G-T-0103/0106 证据接线 +
       release-checklist 金字塔检查点 + Debt Register 语义修正 + 口径文档化。

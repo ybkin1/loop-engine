@@ -1,0 +1,18 @@
+{
+  "name": "NordRelay Mobile",
+  "short_name": "NR Mobile",
+  "description": "NordRelay 会话移动端叠加层（独立于桌面 WebUI 的 PWA）",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

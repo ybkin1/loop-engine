@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1117">
+  <title>NordRelay Mobile</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 工作区首页：/api/sessions 按 workspace 分组 -->
+  <header class="topbar">
+    <h1>NordRelay <span class="badge">Mobile</span></h1>
+    <button id="btn-reload" class="icon-btn" title="刷新">⟳</button>
+  </header>
+
+  <main id="view-workspaces" class="view">
+    <div id="workspace-list" class="group-list"></div>
+  </main>
+
+  <!-- 会话详情视图 -->
+  <main id="view-session" class="view hidden">
+    <header class="session-bar">
+      <button id="btn-back" class="icon-btn">←</button>
+      <div class="session-meta">
+        <div id="session-title" class="title">会话</div>
+        <div id="session-model" class="model"></div>
+      </div>
+      <button id="btn-abort" class="icon-btn danger" title="abort">■</button>
+    </header>
+    <div id="messages" class="messages"></div>
+    <footer class="composer">
+      <select id="model-select" class="model-select" title="切换模型">
+        <option value="deepseek-v4">deepseek-v4</option>
+        <option value="claude-sonnet">claude-sonnet</option>
+        <option value="gpt-4o">gpt-4o</option>
+      </select>
+      <input id="input-msg" type="text" placeholder="输入消息…" autocomplete="off">
+      <button id="btn-send" class="send-btn">发送</button>
+    </footer>
+  </main>
+
+  <!-- 实时事件条 -->
+  <div id="event-toast" class="toast hidden"></div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+  </script>
+</body>
+</html>
