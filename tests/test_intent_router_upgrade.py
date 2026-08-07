@@ -365,8 +365,10 @@ class TestBackwardCompatibility:
         assert snap.loop_mode == LoopMode.FULL
 
     def test_active_task_snapshot_from_task_unknown_mode(self):
+        # T-0134 P4 AC-01: 未知 mode fail-closed 回退 FULL（绝不 LIGHTWEIGHT，
+        # 否则会静默关闭 enforcement）
         snap = ActiveTaskSnapshot.from_task({"id": "T-9", "loop_mode": "weird"})
-        assert snap.loop_mode == LoopMode.LIGHTWEIGHT
+        assert snap.loop_mode == LoopMode.FULL
 
     def test_task_frame_default_shape(self):
         frame = TaskFrame(

@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.66 (2026-08-07) — T-0134 P4: 委托模式 — 委托链 + 结论包 + LoopMode DELEGATED/MANUAL + 试点自举
+
+### Changed (T-0134 P4: 委托模式 — 委托链 + 结论包 + LoopMode DELEGATED/MANUAL + 试点自举)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.65 (2026-08-07) — T-0133 P3: 三层质量线程落地 — quality_pair + eval 桥接 + CHECK_RECOMPUTE + 角色契约
 
 ### Changed (T-0133 P3: 三层质量线程落地 — quality_pair + eval 桥接 + CHECK_RECOMPUTE + 角色契约)

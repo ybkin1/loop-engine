@@ -38,6 +38,8 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # Also add loop-engine project root so loop_core is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# T-0134 P4: .zcode/tools 工具层（gov_delegation 委托上下文）
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / ".zcode" / "tools"))
 from hook_common import (  # noqa: E402 — 必须先完成 sys.path 就绪
     DEFAULT_CONFIG,
     extract_target_path,
@@ -271,7 +273,9 @@ def is_loop_mode_enforced(root: Path) -> bool:
         return True
 
     loop_mode = state.get("loop_mode", "")
-    return loop_mode in ("FULL", "STANDARD")
+    # T-0134 P4: DELEGATED 亦为强制执行模式（链内任务仍受任务卡 scope 约束）；
+    # MANUAL 为手工接管（L3 恢复路径），不强制。
+    return loop_mode in ("FULL", "STANDARD", "DELEGATED")
 
 
 def is_legacy_synthetic_hook_fixture() -> bool:
@@ -976,6 +980,25 @@ def main():
                 return EXIT_BLOCK
 
         # ── Task Scope Enforcement ──
+
+        # T-0134 P4: 委托链上下文（授权模型 v2）——DELEGATED mode 下，链内
+        # 任务由 delegation 记录一次性授权（用户批准链即批准链内任务执行）；
+        # 规则层不因委托豁免。链内任务仍受其任务卡 allowed_paths 约束。
+        delegated_task = False
+        if task_id:
+            try:
+                _dl_state = load_state(root)
+                if str(_dl_state.get("loop_mode", "")).upper() == "DELEGATED":
+                    from gov_delegation import task_in_active_delegation
+                    delegated_task = task_in_active_delegation(root, task_id)
+                    if delegated_task:
+                        logger.info(
+                            "DELEGATED: task %s is in an active delegation "
+                            "(approved by chain).",
+                            task_id,
+                        )
+            except Exception:  # noqa: BLE001 — 委托上下文不可读时保持现状（fail-safe）
+                delegated_task = False
 
         if not task_id:
             logger.warning(

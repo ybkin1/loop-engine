@@ -1,6 +1,3 @@
-# Active-domain gate register（T-0109 F3 分层）。
-# 历史 gate 记录已归档至 .ai/archive/gates-archive.yaml（仅移域不删记录）；
-# 本文件 = active 域：当前治理纪元（T-0081+）+ 内核判定消费的 phase 相关 gate。
 schema_version: 1
 gates:
 - id: G-T-0017-REAL-PROJECT-DELIVERY-ARCHITECTURE-GOVERNANCE-DESIGN
@@ -3758,11 +3755,9 @@ gates:
   approval_text: 批准T-0110
   approval_evidence: .ai/evidence/T-0110/approval-evidence.json
   execution_evidence: .ai/evidence/T-0110/execution-evidence.json
-  scope: >-
-    T-0110 共同弱点·常量集中（M-1~17 + P3 D2-3~7/D1-5/6/8/D3-6/8/D4-9）+
-    5 巨文件行为等价拆分（loop_enforcement/governance_metrics/intent_router/
-    human_review_packet/context_loader，golden 逐字节/逐字段一致；hook 拆分最后做
-    + 自愈路径实测）；不改变任何行为、零删除；版本 bump 3.12.47。
+  scope: T-0110 共同弱点·常量集中（M-1~17 + P3 D2-3~7/D1-5/6/8/D3-6/8/D4-9）+ 5 巨文件行为等价拆分（loop_enforcement/governance_metrics/intent_router/
+    human_review_packet/context_loader，golden 逐字节/逐字段一致；hook 拆分最后做 + 自愈路径实测）；不改变任何行为、零删除；版本
+    bump 3.12.47。
   allowed_paths:
   - .ai/
   - loop_core/
@@ -3778,8 +3773,10 @@ gates:
   - CHANGELOG.md
   forbidden_actions:
   - modify hooks/ files other than the five batch-C files
-  - modify loop_core governance kernel decision logic (gate_guard/enforcement verdicts/hard_constraints/guard_health/state_machine semantics)
-  - change any behavior (pure extraction with golden byte-equivalence is the hard gate)
+  - modify loop_core governance kernel decision logic (gate_guard/enforcement verdicts/hard_constraints/guard_health/state_machine
+    semantics)
+  - change any behavior (pure extraction with golden byte-equivalence is the hard
+    gate)
   - delete any tool (removals stay with T-0111)
   - install or enable new skill/MCP/agent/automation/protocol
   - deploy
@@ -3831,12 +3828,10 @@ gates:
   approval_text: 批准 T-0111
   approval_evidence: .ai/evidence/T-0111/approval-evidence.json
   execution_evidence: .ai/evidence/T-0111/execution-evidence.json
-  scope: >-
-    T-0111 排布收官：修复器度量（guard-events check_type=repair + repair_trigger_rate/
-    classification 指标）+ 缺陷归类报告（over_strict/unstable_generation/benign）+
-    臃肿终态审计（死工具复核[不执行删除，交用户独立 gate]/归档核对/注册表终态）+
-    P3 追加（D3-3 归档保留 N 份+跨归档链、D4-6 读侧损坏行计数）；D3-7 留档；
-    repair_continuity.py 零改动；版本 bump 3.12.48。
+  scope: T-0111 排布收官：修复器度量（guard-events check_type=repair + repair_trigger_rate/ classification
+    指标）+ 缺陷归类报告（over_strict/unstable_generation/benign）+ 臃肿终态审计（死工具复核[不执行删除，交用户独立
+    gate]/归档核对/注册表终态）+ P3 追加（D3-3 归档保留 N 份+跨归档链、D4-6 读侧损坏行计数）；D3-7 留档； repair_continuity.py
+    零改动；版本 bump 3.12.48。
   allowed_paths:
   - .ai/
   - loop_core/observability.py
@@ -3852,7 +3847,8 @@ gates:
   forbidden_actions:
   - modify hooks/ (any file)
   - modify .zcode/tools/repair_continuity.py (read-only boundary verification)
-  - modify loop_core governance kernel decision logic (gate_guard/enforcement verdicts/hard_constraints/guard_health/state_machine semantics)
+  - modify loop_core governance kernel decision logic (gate_guard/enforcement verdicts/hard_constraints/guard_health/state_machine
+    semantics)
   - execute any tool removal (review conclusions go to user independent gate)
   - install or enable new skill/MCP/agent/automation/protocol
   - deploy
@@ -3864,7 +3860,8 @@ gates:
   - production data action
   - migration
   - execute real release/publish
-  - weaken any activated constraint (fail-closed semantics unchanged; non-repair SOURCE_DRIFT still exit 2)
+  - weaken any activated constraint (fail-closed semantics unchanged; non-repair SOURCE_DRIFT
+    still exit 2)
   high_risk_flags:
     deployment: false
     rollback: false
@@ -3900,14 +3897,12 @@ gates:
   recorded_at: '2026-08-04T10:30:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '1（批准死工具删除事项）'
+  approval_text: 1（批准死工具删除事项）
   approval_evidence: .ai/evidence/T-0113/approval-evidence.json
   execution_evidence: .ai/evidence/T-0113/execution-evidence.json
-  scope: >-
-    T-0113 死工具删除执行（T-0111 终态审计复核 + 用户批准）：删 A 组 6 薄壳 +
-    C 组 2 legacy = 8 个文件 + 引用同步（capability_registry 36→30（T-0116 措辞修正：C 组 scripts 从无 manifest 条目）/文档/测试）；
-    保留 run_* 2 个（server 契约）与 B 组 4 个（待用户确认）；hooks/ 零改动；
-    版本 bump 3.12.49。
+  scope: T-0113 死工具删除执行（T-0111 终态审计复核 + 用户批准）：删 A 组 6 薄壳 + C 组 2 legacy = 8 个文件 +
+    引用同步（capability_registry 36→30（T-0116 措辞修正：C 组 scripts 从无 manifest 条目）/文档/测试）；
+    保留 run_* 2 个（server 契约）与 B 组 4 个（待用户确认）；hooks/ 零改动； 版本 bump 3.12.49。
   allowed_paths:
   - .ai/
   - tools/
@@ -3922,7 +3917,8 @@ gates:
   forbidden_actions:
   - modify hooks/ (any file)
   - modify loop_core governance kernel decision logic
-  - delete B-group tools (tool_task_queue/tool_eval/loop_vertical_slice/loop_dispatch_role) or run_security_scan/run_quality_gates
+  - delete B-group tools (tool_task_queue/tool_eval/loop_vertical_slice/loop_dispatch_role)
+    or run_security_scan/run_quality_gates
   - install or enable new skill/MCP/agent/automation/protocol
   - deploy
   - rollback
@@ -3966,14 +3962,12 @@ gates:
   recorded_at: '2026-08-04T12:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: 'B（确认删除 B 组 4 死壳）'
+  approval_text: B（确认删除 B 组 4 死壳）
   approval_evidence: .ai/evidence/T-0114/approval-evidence.json
   execution_evidence: .ai/evidence/T-0114/execution-evidence.json
-  scope: >-
-    T-0114 B 组死工具删除执行（用户确认）：tool_task_queue/tool_eval/
-    loop_vertical_slice/loop_dispatch_role 4 个文件 + 引用同步
-    （capability_registry 30→26/文档/测试）；run_* 2 个保留；hooks/ 零改动；
-    版本 bump 3.12.50。
+  scope: T-0114 B 组死工具删除执行（用户确认）：tool_task_queue/tool_eval/ loop_vertical_slice/loop_dispatch_role
+    4 个文件 + 引用同步 （capability_registry 30→26/文档/测试）；run_* 2 个保留；hooks/ 零改动； 版本 bump
+    3.12.50。
   allowed_paths:
   - .ai/
   - tools/
@@ -4030,14 +4024,12 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0115/approval-evidence.json
   execution_evidence: .ai/evidence/T-0115/execution-evidence.json
-  scope: >-
-    T-0115 deep_probe_v35 探针现代化：修复 13 项陈旧预期/探针缺陷（EnforcementHub
-    fixture/roles 11→12/MCP tools 20→25/module 7 项 >800 行/hook_common 831 行/
-    agents/references 目录过滤）；8 大文件拆分登记 KNOWN_ISSUES 候选（不拆分）；
-    产品代码零改动；bump 3.12.51。
+  scope: T-0115 deep_probe_v35 探针现代化：修复 13 项陈旧预期/探针缺陷（EnforcementHub fixture/roles
+    11→12/MCP tools 20→25/module 7 项 >800 行/hook_common 831 行/ agents/references 目录过滤）；8
+    大文件拆分登记 KNOWN_ISSUES 候选（不拆分）； 产品代码零改动；bump 3.12.51。
   allowed_paths:
   - .ai/
   - tests/deep_probe_v35.py
@@ -4088,14 +4080,12 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0116/approval-evidence.json
   execution_evidence: .ai/evidence/T-0116/execution-evidence.json
-  scope: >-
-    T-0116 P3 措辞修正包：修正 T-0108 P3-1~4/T-0110 P3-1~4/T-0111 P3-1~3/T-0113
-    P3-1~6（P3-5 归 T-0119）审查口径（F2 措辞/golden 51→48/commands.md 遗留事项/
-    36→28→30/server 行号 41/61 等）+ T-0104 P3×4 建议类 KNOWN_ISSUES 登记；
-    纯文档级；bump 3.12.52。
+  scope: T-0116 P3 措辞修正包：修正 T-0108 P3-1~4/T-0110 P3-1~4/T-0111 P3-1~3/T-0113 P3-1~6（P3-5
+    归 T-0119）审查口径（F2 措辞/golden 51→48/commands.md 遗留事项/ 36→28→30/server 行号 41/61 等）+
+    T-0104 P3×4 建议类 KNOWN_ISSUES 登记； 纯文档级；bump 3.12.52。
   allowed_paths:
   - .ai/
   forbidden_actions:
@@ -4143,15 +4133,13 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0117/approval-evidence.json
   execution_evidence: .ai/evidence/T-0117/execution-evidence.json
-  scope: >-
-    T-0117 安全扫描双实现收敛（T-0109 遗留 #3）：loop_core/security_scanner.py 与
-    agents/security-engineer/scripts/run_security_scan.py 统一 security_report/v1
-    顶层 schema/退出码 0/2/判定语义/CLI 入口；MCP security_scan_run 输出契约兼容为
-    硬约束；SCANNER_SELF_FILES 残留清理；bump 3.12.53。授权 agents/security-engineer
-    写入与 tools/server.py 调用点调整。
+  scope: 'T-0117 安全扫描双实现收敛（T-0109 遗留 #3）：loop_core/security_scanner.py 与 agents/security-engineer/scripts/run_security_scan.py
+    统一 security_report/v1 顶层 schema/退出码 0/2/判定语义/CLI 入口；MCP security_scan_run 输出契约兼容为
+    硬约束；SCANNER_SELF_FILES 残留清理；bump 3.12.53。授权 agents/security-engineer 写入与 tools/server.py
+    调用点调整。'
   allowed_paths:
   - .ai/
   - loop_core/security_scanner.py
@@ -4210,13 +4198,12 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0118/approval-evidence.json
   execution_evidence: .ai/evidence/T-0118/execution-evidence.json
-  scope: >-
-    T-0118 subagent_evidence_verifier 七态映射消费（T-0109 遗留 #1）：verifier 7 布尔
-    checks 接入 EvidenceState 七态（coerce 入口已就绪），仅呈现/度量层，gate 判定零
-    变更；hooks/ 零改动（含 gate_evidence_checks.py trace-only 调用点）；bump 3.12.54。
+  scope: 'T-0118 subagent_evidence_verifier 七态映射消费（T-0109 遗留 #1）：verifier 7 布尔 checks
+    接入 EvidenceState 七态（coerce 入口已就绪），仅呈现/度量层，gate 判定零 变更；hooks/ 零改动（含 gate_evidence_checks.py
+    trace-only 调用点）；bump 3.12.54。'
   allowed_paths:
   - .ai/
   - loop_core/subagent_evidence_verifier.py
@@ -4270,14 +4257,12 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0119/approval-evidence.json
   execution_evidence: .ai/evidence/T-0119/execution-evidence.json
-  scope: >-
-    T-0119 agents 残留清理（T-0113 P3-5 + developer 遗留 5）：run_security_scan.py
-    SCANNER_SELF_FILES 2 条已删路径（T-0117 后复核终态）+ loop_enforcement_constants.py
-    :33-34 死注释（注释级）+ 全仓 grep 复核；bump 3.12.55。授权 agents/ 与
-    hooks/loop_enforcement_constants.py 注释级写入。
+  scope: T-0119 agents 残留清理（T-0113 P3-5 + developer 遗留 5）：run_security_scan.py SCANNER_SELF_FILES
+    2 条已删路径（T-0117 后复核终态）+ loop_enforcement_constants.py :33-34 死注释（注释级）+ 全仓 grep
+    复核；bump 3.12.55。授权 agents/ 与 hooks/loop_enforcement_constants.py 注释级写入。
   allowed_paths:
   - .ai/
   - agents/security-engineer/scripts/run_security_scan.py
@@ -4329,13 +4314,11 @@ gates:
   recorded_at: '2026-08-06T11:52:56+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '全部批准'
+  approval_text: 全部批准
   approval_evidence: .ai/evidence/T-0120/approval-evidence.json
   execution_evidence: .ai/evidence/T-0120/execution-evidence.json
-  scope: >-
-    T-0120 ZCode 原生会话证据路径（candidate-only 设计）：只读调研 ZCode 会话持久化
-    格式/元数据 + 方案设计（可信边界/与 evidence-manifest 衔接/与 T-0112 撤销理由一致
-    性论证）+ 决策包交用户；仅 .ai/ 写入，版本保持 3.12.55，不落地。
+  scope: T-0120 ZCode 原生会话证据路径（candidate-only 设计）：只读调研 ZCode 会话持久化 格式/元数据 + 方案设计（可信边界/与
+    evidence-manifest 衔接/与 T-0112 撤销理由一致 性论证）+ 决策包交用户；仅 .ai/ 写入，版本保持 3.12.55，不落地。
   allowed_paths:
   - .ai/
   forbidden_actions:
@@ -4384,14 +4367,12 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0121/approval-evidence.json
   execution_evidence: .ai/evidence/T-0121/execution-evidence.json
-  scope: >-
-    T-0121 ZCode 会话存在性核验落地（T-0120 方案 A）：verifier has_valid_session_id
-    增加 sess_<uuid> 目录存在性核验（呈现层 reason 标注，verdict 判定零变更）；
-    checks 7 项不变；fail-safe 降级；KNOWN_ISSUES session-source-disabled 更新；
-    bump 3.12.56。
+  scope: T-0121 ZCode 会话存在性核验落地（T-0120 方案 A）：verifier has_valid_session_id 增加 sess_<uuid>
+    目录存在性核验（呈现层 reason 标注，verdict 判定零变更）； checks 7 项不变；fail-safe 降级；KNOWN_ISSUES session-source-disabled
+    更新； bump 3.12.56。
   allowed_paths:
   - .ai/
   - loop_core/subagent_evidence_verifier.py
@@ -4443,14 +4424,11 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0122/approval-evidence.json
   execution_evidence: .ai/evidence/T-0122/execution-evidence.json
-  scope: >-
-    T-0122 T-0104 P3 核实关闭（T-0122 范围调整：执行中核实 4 项建议已全部由
-    T-0105 批 2 B-4-1~4 实施——召回过滤/配置校验/时序约定/读盘缓存，
-    test_t0105_batch2 21 测试锁定；本任务零产品代码改动，仅登记修正与证据）；
-    bump 3.12.57。
+  scope: T-0122 T-0104 P3 核实关闭（T-0122 范围调整：执行中核实 4 项建议已全部由 T-0105 批 2 B-4-1~4 实施——召回过滤/配置校验/时序约定/读盘缓存，
+    test_t0105_batch2 21 测试锁定；本任务零产品代码改动，仅登记修正与证据）； bump 3.12.57。
   allowed_paths:
   - .ai/
   - tests/test_t0105_batch2.py（核实只读）
@@ -4499,13 +4477,12 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0123/approval-evidence.json
   execution_evidence: .ai/evidence/T-0123/execution-evidence.json
-  scope: >-
-    T-0123 ROLE_CHALLENGES 补全 + certification_runner 统一：role_capability 补
-    test-engineer challenge（12/12）+ certification_runner:613 schema 字面量改引
-    共享常量 + deep_probe 检查补全；bump 3.12.58。
+  scope: T-0123 ROLE_CHALLENGES 补全 + certification_runner 统一：role_capability 补 test-engineer
+    challenge（12/12）+ certification_runner:613 schema 字面量改引 共享常量 + deep_probe 检查补全；bump
+    3.12.58。
   allowed_paths:
   - .ai/
   - loop_core/role_capability.py
@@ -4559,14 +4536,11 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0124/approval-evidence.json
   execution_evidence: .ai/evidence/T-0124/execution-evidence.json
-  scope: >-
-    T-0124 loop_core 7 个超大模块拆分（dashboard_views/hard_constraints/
-    intent_router/evals/second_failure/context_loader/executor）：壳+外部模块
-    行为等价（golden 逐字节 + re-export 逐名）+ deep_probe 白名单基线更新；
-    hooks/ 零改动；bump 3.12.59。
+  scope: T-0124 loop_core 7 个超大模块拆分（dashboard_views/hard_constraints/ intent_router/evals/second_failure/context_loader/executor）：壳+外部模块
+    行为等价（golden 逐字节 + re-export 逐名）+ deep_probe 白名单基线更新； hooks/ 零改动；bump 3.12.59。
   allowed_paths:
   - .ai/
   - loop_core/
@@ -4620,12 +4594,11 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0125/approval-evidence.json
   execution_evidence: .ai/evidence/T-0125/execution-evidence.json
-  scope: >-
-    T-0125 hook_common.py(831) 拆分：壳+外部模块行为等价（golden + re-export）；
-    hooks/ 仅 hook_common.py 与其外部模块；hook 套件全绿；bump 3.12.60。
+  scope: T-0125 hook_common.py(831) 拆分：壳+外部模块行为等价（golden + re-export）； hooks/ 仅 hook_common.py
+    与其外部模块；hook 套件全绿；bump 3.12.60。
   allowed_paths:
   - .ai/
   - hooks/scripts/hook_common.py
@@ -4680,13 +4653,11 @@ gates:
   recorded_at: '2026-08-06T17:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0126/approval-evidence.json
   execution_evidence: .ai/evidence/T-0126/execution-evidence.json
-  scope: >-
-    T-0126 env-dependent 测试修复 + KNOWN_ISSUES 收口：deployment quality checker
-    测试端口随机化/注入（默认行为不变）+ KNOWN_ISSUES env-dependent 关闭与 Open
-    区复核；bump 3.12.61。
+  scope: T-0126 env-dependent 测试修复 + KNOWN_ISSUES 收口：deployment quality checker 测试端口随机化/注入（默认行为不变）+
+    KNOWN_ISSUES env-dependent 关闭与 Open 区复核；bump 3.12.61。
   allowed_paths:
   - .ai/
   - tests/
@@ -4738,15 +4709,12 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '批准'
+  approval_text: 批准
   approval_evidence: .ai/evidence/T-0132/approval-evidence.json
   execution_evidence: .ai/evidence/T-0132/execution-evidence.json
-  scope: >-
-    T-0132 三层质量线程架构设计（candidate-only）：三层模型详设（角色分组契约 /
-    SubagentManifest quality_pair schema / 动作级分层伴飞 / 多轮校验轮次协议）+
-    防伪造五项机制（机器可复算/检验者不见预期/产物哈希先行/抽查复算/verdict
-    引用证据）+ 防锁死四项机制（三级 break-glass 恢复/回滚三原则/checkpoint
-    心跳预防/恢复演练）+ 决策包交用户。仅 .ai/ 写入，产品代码零改动，
+  scope: T-0132 三层质量线程架构设计（candidate-only）：三层模型详设（角色分组契约 / SubagentManifest quality_pair
+    schema / 动作级分层伴飞 / 多轮校验轮次协议）+ 防伪造五项机制（机器可复算/检验者不见预期/产物哈希先行/抽查复算/verdict 引用证据）+
+    防锁死四项机制（三级 break-glass 恢复/回滚三原则/checkpoint 心跳预防/恢复演练）+ 决策包交用户。仅 .ai/ 写入，产品代码零改动，
     版本保持 3.12.61。
   allowed_paths:
   - .ai/
@@ -4755,8 +4723,8 @@ gates:
   - implement any mechanism (design only, no landing)
   - change existing evidence chain behavior
   - install or enable new skill/MCP/agent/automation/protocol
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration
   - weaken any activated constraint (fail-closed semantics unchanged)
   high_risk_flags:
     deployment: false
@@ -4780,11 +4748,10 @@ gates:
   - user explicitly approves, rejects, or requests repair of this gate
   - no design work occurs while this gate is pending
   notes:
-  - >-
-    User requested this design with two hard constraints: anti-fabrication
-    (machine-recomputable numbers, reviewer blind to executor's self-report,
-    anti-backfill hash/timestamp chain) and anti-deadlock (break-glass recovery
-    path, snapshot-first scoped rollback with audit trail, no blind deletion).
+  - 'User requested this design with two hard constraints: anti-fabrication (machine-recomputable
+    numbers, reviewer blind to executor''s self-report, anti-backfill hash/timestamp
+    chain) and anti-deadlock (break-glass recovery path, snapshot-first scoped rollback
+    with audit trail, no blind deletion).'
   - G-T-0126 execution_status closed to completed during registration.
 - id: G-T-0127-REQUIREMENTS
   task_id: T-0127
@@ -4798,12 +4765,11 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0127/approval-evidence.json
   execution_evidence: .ai/evidence/T-0127/execution-evidence.json
-  scope: >-
-    T-0127 状态硬化（P0）：登记后自动校验 + 治理文件变更自动重生成
-    continuity/HANDOFF + 三文件一致性正反例测试；bump 3.12.62。
+  scope: T-0127 状态硬化（P0）：登记后自动校验 + 治理文件变更自动重生成 continuity/HANDOFF + 三文件一致性正反例测试；bump
+    3.12.62。
   allowed_paths:
   - .zcode/tools/
   - .ai/
@@ -4811,8 +4777,8 @@ gates:
   - docs/
   forbidden_actions:
   - modify hooks/ or loop_core/ (tool-layer only)
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration
   - install or enable new skill/MCP/agent/automation/protocol
   high_risk_flags:
     deployment: false
@@ -4849,13 +4815,11 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0128/approval-evidence.json
   execution_evidence: .ai/evidence/T-0128/execution-evidence.json
-  scope: >-
-    T-0128 变异测试接线（P1）：mutation_tester 自动加载 6 SD；M1 确定性规则
-    检出（>=5/6）+ M2 真实角色检出（>=4/6）；检出率指标进 metrics-report；
-    release check fail-closed 接线；KNOWN_ISSUES 关闭；bump 3.12.63。
+  scope: T-0128 变异测试接线（P1）：mutation_tester 自动加载 6 SD；M1 确定性规则 检出（>=5/6）+ M2 真实角色检出（>=4/6）；检出率指标进
+    metrics-report； release check fail-closed 接线；KNOWN_ISSUES 关闭；bump 3.12.63。
   allowed_paths:
   - scripts/
   - tests/seeded_defects/
@@ -4865,8 +4829,8 @@ gates:
   forbidden_actions:
   - modify hooks/ or loop_core/
   - treat M2 detection results as user approval
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration
   - install or enable new skill/MCP/agent/automation/protocol
   high_risk_flags:
     deployment: false
@@ -4906,14 +4870,11 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0129/approval-evidence.json
   execution_evidence: .ai/evidence/T-0129/execution-evidence.json
-  scope: >-
-    T-0129 防御演练（P2）：gate 拒绝路径端到端演练（>=6 用例）+ 锁死恢复演练
-    E1~E5（回滚不无脑删断言）+ gate_rejection_rate 语义修正
-    （rejected_requests / defense_drill_pass_rate）；演练通过 = 自治授权资格；
-    bump 3.12.64。
+  scope: T-0129 防御演练（P2）：gate 拒绝路径端到端演练（>=6 用例）+ 锁死恢复演练 E1~E5（回滚不无脑删断言）+ gate_rejection_rate
+    语义修正 （rejected_requests / defense_drill_pass_rate）；演练通过 = 自治授权资格； bump 3.12.64。
   allowed_paths:
   - tests/
   - .zcode/tools/
@@ -4922,8 +4883,8 @@ gates:
   forbidden_actions:
   - modify hooks/ or loop_core/
   - touch real evidence/products in drills (fixtures only)
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration
   - install or enable new skill/MCP/agent/automation/protocol
   high_risk_flags:
     deployment: false
@@ -4939,8 +4900,8 @@ gates:
   - .ai/evidence/T-0129/commands.md
   - rejection-path drill >=6 cases
   - E1~E5 drill scripts + pass records
-  - E5 no-blind-deletion assertions (snapshot exists / evidence intact /
-    guard-events append-only / RECOVERY.md present)
+  - E5 no-blind-deletion assertions (snapshot exists / evidence intact / guard-events
+    append-only / RECOVERY.md present)
   - gate_rejection_rate semantics split record
   - full regression 0 failed + compile pass + release check 6/6
   - version sync (3.12.64 == git HEAD)
@@ -4954,7 +4915,7 @@ gates:
   task_id: T-0133
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T00:00:00+08:00'
   requested_by: ai
@@ -4962,14 +4923,12 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0133/approval-evidence.json
   execution_evidence: .ai/evidence/T-0133/execution-evidence.json
-  scope: >-
-    T-0133 三层质量线程落地（P3）：SubagentSpec.quality_pair 强制配对 +
-    agent 判定断言化桥接（evals.py + evidence_ref 强制）+ CHECK_RECOMPUTE
-    （guard_health，比例 0.1/任务粒度/3 次升级 fail-closed）+ 6 角色契约
-    when_to_use 前置；hooks/ 零改动；bump 3.12.65。
+  scope: T-0133 三层质量线程落地（P3）：SubagentSpec.quality_pair 强制配对 + agent 判定断言化桥接（evals.py
+    + evidence_ref 强制）+ CHECK_RECOMPUTE （guard_health，比例 0.1/任务粒度/3 次升级 fail-closed）+
+    6 角色契约 when_to_use 前置；hooks/ 零改动；bump 3.12.65。
   allowed_paths:
   - loop_core/subagent_manifest.py
   - loop_core/evals.py
@@ -4986,8 +4945,8 @@ gates:
   forbidden_actions:
   - modify hooks/ (delegation context belongs to P4)
   - modify loop_mode enum (DELEGATED/MANUAL belongs to P4)
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration
   - install or enable new skill/MCP/agent/automation/protocol
   high_risk_flags:
     deployment: false
@@ -5018,7 +4977,7 @@ gates:
   task_id: T-0134
   gate_type: user-approval
   status: approved
-  execution_status: approved_not_started
+  execution_status: in_progress
   decision: approved
   requested_at: '2026-08-07T00:00:00+08:00'
   requested_by: ai
@@ -5026,14 +4985,12 @@ gates:
   recorded_at: '2026-08-07T00:00:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
-  approval_text: '按顺序完成全量处理'
+  approval_text: 按顺序完成全量处理
   approval_evidence: .ai/evidence/T-0134/approval-evidence.json
   execution_evidence: .ai/evidence/T-0134/execution-evidence.json
-  scope: >-
-    T-0134 委托模式（P4）：LoopMode DELEGATED/MANUAL（fail-closed 回退）+
-    委托链（一次批准链内自治 + revoke）+ checkpoint 心跳 fail-stop + 结论包
-    + 升级协议（仅 4 类价值问题选择题）+ 试点自举演示；规则层不豁免；
-    bump 3.12.66。
+  scope: T-0134 委托模式（P4）：LoopMode DELEGATED/MANUAL（fail-closed 回退）+ 委托链（一次批准链内自治 +
+    revoke）+ checkpoint 心跳 fail-stop + 结论包 + 升级协议（仅 4 类价值问题选择题）+ 试点自举演示；规则层不豁免； bump
+    3.12.66。
   allowed_paths:
   - loop_core/router.py
   - loop_core/state_machine.py
@@ -5045,11 +5002,11 @@ gates:
   - docs/
   - agents/main-thread/SKILL.md
   forbidden_actions:
-  - weaken rule layer (AGENTS.md / forbidden semantics /
-    EVIDENCE_ONLY_BOUNDARY) under DELEGATED
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY) under
+    DELEGATED
   - create user gates outside the 4 escalation categories
-  - deploy / rollback / database / permission / secret / payment / production
-    data / migration / real business project entry
+  - deploy / rollback / database / permission / secret / payment / production data
+    / migration / real business project entry
   - install or enable new skill/MCP/agent/automation/protocol
   high_risk_flags:
     deployment: false
@@ -5063,8 +5020,7 @@ gates:
     runtime_behavior: true
   evidence_required:
   - .ai/evidence/T-0134/commands.md
-  - LoopMode fail-closed fallback tests (unknown -> FULL or refuse, never
-    LIGHTWEIGHT)
+  - LoopMode fail-closed fallback tests (unknown -> FULL or refuse, never LIGHTWEIGHT)
   - delegation chain register/approve/execute/revoke path tests
   - checkpoint heartbeat fail-stop + resume tests
   - conclusion packet three-element generation
@@ -5078,5 +5034,13 @@ gates:
   - no implementation work occurs while this gate is pending
   notes:
   - Part of T-0132 decision packet P4 (user chose A x4: phased landing).
-  - Delegation chain is the mechanism that removes per-step user approval;
-    rule layer remains user-gated only.
+  - Delegation chain is the mechanism that removes per-step user approval; rule layer
+    remains user-gated only.
+delegations:
+- chain_id: C-001
+  task_ids:
+  - T-0134
+  status: active
+  approved_by: user
+  approved_at: '2026-08-07T00:59:10.726759+00:00'
+  note: P4 试点自举：委托链首次真实运行

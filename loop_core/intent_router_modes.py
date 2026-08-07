@@ -76,14 +76,14 @@ class ActiveTaskSnapshot:
         from loop_core.router import LoopMode
         """Build a snapshot from a task_graph.yaml task entry (dict).
 
-        Unknown/missing loop_mode falls back to LIGHTWEIGHT; unknown status
-        defaults to "active" (the router never hard-fails on shape drift).
+        T-0134 P4: unknown/missing loop_mode falls back to FULL (fail-closed —
+        enforcement stays on; LIGHTWEIGHT fallback would disable enforcement).
         """
         raw_mode = task.get("loop_mode") or task.get("mode")
-        mode = LoopMode.LIGHTWEIGHT
+        mode = LoopMode.FULL
         if isinstance(raw_mode, str):
             mode = {m.name: m for m in LoopMode}.get(
-                raw_mode.upper(), LoopMode.LIGHTWEIGHT
+                raw_mode.upper(), LoopMode.FULL
             )
         return ActiveTaskSnapshot(
             task_id=str(task.get("id") or task.get("task_id") or ""),

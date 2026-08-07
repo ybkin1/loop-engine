@@ -399,6 +399,7 @@ class TestWhitelistConsistency:
             "hooks/scripts/loop_enforcement_constants.py",
             "hooks/scripts/hook_common.py",         # T-0125 拆分授权
             "hooks/scripts/_hook_common_paths.py",  # T-0125 新增外部模块
+            "hooks/scripts/loop_enforcement.py",    # T-0134 P4 委托上下文授权
         }
         disallowed = [p for p in changed if p not in allowed]
         assert disallowed == [], f"hooks/ 仅允许白名单文件改动: {disallowed}"

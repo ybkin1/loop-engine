@@ -1516,7 +1516,7 @@ tasks:
     id: T-0133
     title: 三层质量线程落地（P3）— quality_pair + eval 桥接 + CHECK_RECOMPUTE
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       D-01/D-02 落地：SubagentSpec.quality_pair 强制配对 + agent 判定断言化
       桥接（evals.py + evidence_ref）+ CHECK_RECOMPUTE（guard_health，比例
@@ -1530,7 +1530,7 @@ tasks:
     id: T-0134
     title: 委托模式（P4）— 授权模型 v2：委托链 + 结论包
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       LoopMode DELEGATED/MANUAL（fail-closed 回退）+ 委托链（一次批准链内
       自治 + revoke）+ checkpoint 心跳 fail-stop + 结论包（成果/演示/证据路径）

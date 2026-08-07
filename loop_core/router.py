@@ -14,6 +14,10 @@ class LoopMode(str, Enum):
     LIGHTWEIGHT = "lightweight"  # Simple task, single agent, minimal ceremony
     STANDARD = "standard"        # Moderate project, basic Loop phases
     FULL = "full"                # High-risk project, complete 12-phase Loop
+    # T-0134 P4 授权模型 v2: 委托链执行中（一次批准，链内任务自治；规则层不豁免）
+    DELEGATED = "delegated"
+    # T-0134 P4: 手工接管（L3 恢复路径；规则层变更仍需用户 gate）
+    MANUAL = "manual"
 
 
 class RiskLevel(str, Enum):
