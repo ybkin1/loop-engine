@@ -10,7 +10,7 @@
 
 | 指标 | 语义 | 当前值 | 解读 |
 |---|---|---|---|
-| `rejected_requests` | guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求） | 0 / 4477 | AI 侧从未触发拦截——**防御未被真实挑战**（不等于防御无效） |
+| `rejected_requests` | guard-events 中拦截类事件数（AI 曾提交被拦请求） | 0 / 4477 | AI 侧从未触发拦截——**防御未被真实挑战**（不等于防御无效）。**生产者现状（如实标注）**：observability 结果词表当前仅 PASS/FAIL/REPORT，无 BLOCK 值（loop_core/observability.py:67），故该计数当前为口径定义值（恒 0）；词表扩展随 P3/P4 observability 演进，届时读侧自动计数 |
 | `defense_drill_pass_rate` | T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，tests/test_defense_drills.py） | 11/11 | **防御路径可用性被演练证明**（替代"从未被挑战"的空白） |
 
 ## 设计意图（T-0132 D-03 / 决策包 P2）

@@ -90,11 +90,10 @@ class RejectionPathDrillTest(unittest.TestCase):
 
     def test_r3_rejected_gate_converges(self):
         """R3: 用户拒绝 gate → rejected 记录 + current_gate 清空 → 状态收敛
-        （无 pending blocker、无 contradiction）。"""
+        （校验器通过，无 pending blocker、无 contradiction）。"""
         with tempfile.TemporaryDirectory() as td:
             root = make_project(Path(td))
             ai = root / ".ai"
-            # 用户拒绝：gate 标 rejected，current_gate_id 清空，任务停用
             (ai / "gates.yaml").write_text(
                 "gates:\n"
                 "  - id: G-T-D000-REQUIREMENTS\n    task_id: T-D000\n"
@@ -103,8 +102,11 @@ class RejectionPathDrillTest(unittest.TestCase):
             (ai / "state.yaml").write_text(
                 "current_phase: S6-delivery\ncurrent_task_id: null\n"
                 "current_gate_id: null\nloop_mode: FULL\n", encoding="utf-8")
+            # 收敛断言：校验器通过（无 pending blocker）
+            self.assertEqual(validate_rc(root), 0,
+                             "rejected+idle state must converge (no pending blocker)")
             errors = governance_invariant_errors(root)
-            self.assertEqual(errors, [], f"rejected state must converge: {errors}")
+            self.assertEqual(errors, [], f"no invariant errors: {errors}")
 
     def test_r4_deny_then_retry_requires_new_gate(self):
         """R4: 拒绝后同一任务无 approved gate → 无法进入执行（fail-closed）。"""
@@ -198,7 +200,7 @@ class DeadlockRecoveryDrillTest(unittest.TestCase):
             self.assertEqual(validate_rc(root), 0, "converged after auto-sync")
 
     def test_e3_yaml_corruption_l2_snapshot_rollback(self):
-        """E3: YAML 损坏 → L1 不可用 → L2 快照回滚恢复（副本演练）。"""
+        """E3: YAML 损坏 → L1 失败确认 → L2 快照回滚恢复（副本演练）。"""
         with tempfile.TemporaryDirectory() as td:
             root = self._with_continuity(make_project(Path(td)))
             healthy_state = (root / ".ai" / "state.yaml").read_text(encoding="utf-8")
@@ -209,39 +211,73 @@ class DeadlockRecoveryDrillTest(unittest.TestCase):
             # ② 注入损坏
             (root / ".ai" / "state.yaml").write_text("current_phase: [unclosed\n", encoding="utf-8")
             self.assertNotEqual(validate_rc(root), 0, "corruption must break validate")
-            # ③ L2: 用健康副本恢复（仅治理文件）
+            # ③ L1 失败确认：--repair 无法修复不可解析 YAML（L1 不可用 → 升 L2）
+            proc = subprocess.run([*VALIDATE, "--repair", str(root)], capture_output=True,
+                                  text=True, encoding="utf-8", cwd=str(ROOT), timeout=120)
+            self.assertNotEqual(proc.returncode, 0,
+                                "L1 repair must fail on unparseable YAML (escalate to L2)")
+            # ④ L2: 用健康副本恢复（仅治理文件）+ 留痕
             (root / ".ai" / "state.yaml").write_text(healthy_state, encoding="utf-8")
+            (snap / "RECOVERY.md").write_text(
+                "# RECOVERY\n- timestamp: drill\n- rollback_target: healthy-state\n"
+                "- scope: state.yaml only\n", encoding="utf-8")
             self.assertEqual(validate_rc(root), 0, "L2 rollback must converge")
+            self.assertTrue((snap / "RECOVERY.md").is_file(), "recovery trail must exist")
 
-    def test_e4_abandoned_rounds_detected(self):
-        """E4: 自治中断残留（rounds 日志悬空）→ 心跳检测可发现（fail-stop 前置）。"""
+    def test_e4_abandoned_rounds_detected_by_heartbeat(self):
+        """E4: 自治中断残留（rounds 悬空）→ 心跳工具真实检出（fail-stop 前置）。"""
         with tempfile.TemporaryDirectory() as td:
             root = make_project(Path(td))
             rounds = root / ".ai" / "evidence" / "T-D000" / "rounds"
             rounds.mkdir(parents=True)
-            # 悬空：CHECKING 无闭合（无后续 RE-CHECK/PASS 行）
             (rounds / "action-001.jsonl").write_text(
                 '{"ts": "1", "state": "CHECKING", "action": "a1"}\n', encoding="utf-8")
-            # 心跳检查：末行状态非终态 = 悬空
-            last = [l for l in (rounds / "action-001.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()][-1]
-            dangling = '"CHECKING"' in last or '"FIXING"' in last
-            self.assertTrue(dangling, "abandoned round must be detectable as dangling")
+            # 心跳工具真实调用：悬空 → rc=2（fail-stop 语义）
+            proc = subprocess.run(
+                [sys.executable, str(TOOLS / "rounds_heartbeat.py"), str(root), "--task", "T-D000"],
+                capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT), timeout=60)
+            self.assertEqual(proc.returncode, 2, f"heartbeat must flag dangling: {proc.stdout}")
+            self.assertIn("DANGLING", proc.stdout)
+            # 闭合后心跳通过 → 可从 checkpoint 续跑
+            (rounds / "action-001.jsonl").write_text(
+                '{"ts": "1", "state": "CHECKING", "action": "a1"}\n'
+                '{"ts": "2", "state": "PASS", "action": "a1"}\n', encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, str(TOOLS / "rounds_heartbeat.py"), str(root), "--task", "T-D000"],
+                capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT), timeout=60)
+            self.assertEqual(proc.returncode, 0, f"closed rounds must pass: {proc.stdout}")
 
     def test_e5_rollback_no_blind_delete(self):
-        """E5: 回滚不无脑删——快照存在 / evidence 完整 / 恢复后无丢失。"""
+        """E5: 回滚不无脑删——真实破坏动作 + 恢复后：快照存在 / evidence 完整 /
+        guard-events 无删除 / RECOVERY.md 存在。"""
         with tempfile.TemporaryDirectory() as td:
             root = self._with_continuity(make_project(Path(td)))
             ev_file = root / ".ai" / "evidence" / "T-D000" / "approval-evidence.json"
-            before = ev_file.read_bytes()
+            guard_events = root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
+            guard_events.parent.mkdir(parents=True)
+            guard_events.write_text('{"event_id": "g1", "result": "PASS"}\n', encoding="utf-8")
+            before_ev = ev_file.read_bytes()
+            before_guard = guard_events.read_bytes()
+            # ① 快照先行（回滚前归档原样副本）
             snap = root / ".ai" / "evidence" / "T-D000" / "recovery" / "snapshot-drill"
             snap.mkdir(parents=True)
             shutil.copy2(ev_file, snap / "approval-evidence.json.bak")
-            # 回滚演练：恢复后
-            ev_file.write_bytes(before)
-            # 断言：快照存在、evidence 完整、无删除
+            # ② 真实破坏动作（模拟异常导致的丢失/损坏）
+            ev_file.write_text("{corrupt", encoding="utf-8")
+            # ③ 回滚恢复（从快照还原，仅治理/证据文件）
+            shutil.copy2(snap / "approval-evidence.json.bak", ev_file)
+            (snap / "RECOVERY.md").write_text(
+                "# RECOVERY\n- scope: evidence/T-D000 only\n- guard-events untouched\n",
+                encoding="utf-8")
+            # ④ 断言：快照先行 / evidence 完整 / guard-events append-only（无删除）/
+            #    RECOVERY.md 留痕
             self.assertTrue((snap / "approval-evidence.json.bak").is_file(),
                             "snapshot must exist (snapshot-first)")
-            self.assertEqual(ev_file.read_bytes(), before, "evidence intact")
+            self.assertEqual(ev_file.read_bytes(), before_ev, "evidence restored intact")
+            self.assertEqual(guard_events.read_bytes(), before_guard,
+                             "guard-events must be append-only (never deleted)")
+            self.assertTrue((snap / "RECOVERY.md").is_file(),
+                            "recovery trail must exist (action trace)")
             self.assertTrue((root / ".ai" / "tasks" / "T-D000.md").is_file(),
                             "task card not deleted")
             self.assertTrue((root / ".ai" / "state.yaml").is_file(),
