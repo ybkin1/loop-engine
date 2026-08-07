@@ -665,6 +665,10 @@ def build_gate_defense(root: Path) -> dict[str, Any]:
     替代恒 0 口径值）；defense_drill_pass_rate 从 test_defense_drills.py
     动态统计用例数（T-0149: 替代硬编码 "11/11"），口径 = 演练用例集合
     大小（release check 驱动执行，通过即证明防御路径可用）。
+
+    T-0152 口径声明：pass_rate 分子按构造等于分母（N/N）—— 表示
+    "release check 驱动下全部用例通过"，非动态执行率；真实执行率由
+    release check 步骤本身保证（任一用例失败 → check FAIL）。
     """
     obs = root / ".ai" / "evidence" / "observability"
     events_path = obs / "guard-events.jsonl"

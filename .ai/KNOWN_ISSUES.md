@@ -40,17 +40,23 @@
 - 2026-07-07: T-0005 closeout rerun passed; unified-governance-architecture.v0.2.1 installed as project-local AGENTS.md.
 - 2026-07-07: Placeholder content in CONTRACTS.md, ACCEPTANCE.md, KNOWN_ISSUES.md replaced under T-0004.
 
-## Debt Register（T-0151 落地）
+## Debt Register（T-0151 落地，T-0152 语义修正）
 
 > 技术债结构化账本（roadmap backlog bug-caps/debt-register 项落地）。
 > 分级：P0 安全/数据风险（无豁免）> P1 稳定性（故障面）> P2 性能 > P3 维护性。
 > 无法即时修复的项登记于此（含"老系统不可改"场景：隔离+监控+封装，不强行重构）。
-> 新增债务：`- [编号 等级] 描述 → 来源/处理`；闭环后移入 Recently Closed。
+> **本表只保留未决债务**；已闭环项移入下表 Closed。新增债务：
+> `- [编号 等级] 描述 → 来源/处理`。
 
 | 编号 | 等级 | 债务 | 来源 | 处理 |
 |------|------|------|------|------|
 | DR-001 | P3 | Qoder 会话源不可用（session-source-disabled，保留不立项） | T-0112 边界 | 保留记录 |
-| DR-002 | P3 | defense_drill_pass_rate 以用例数/用例数为口径（release 驱动全过即证明，非动态执行率） | T-0149 观察 | 已落地动态统计，口径文档化 |
-| DR-003 | P3 | render_markdown 未渲染部分可选字段（如缺失时） | T-0149 收尾 | 已渲染 mutation/gate_defense |
 | DR-004 | P3 | repro_norm 生产方声明仍为跨组件约定（消费侧已就绪） | T-0144 观察 | 待生产方接线 |
-| DR-005 | P3 | E2E 集成测试以 lab 64 用例承载（无独立 E2E 套件） | T-0150 核验 | 已确认纳入回归 |
+
+### Debt Register Closed（已闭环）
+
+| 编号 | 等级 | 债务 | 闭环 |
+|------|------|------|------|
+| DR-002 | P3 | defense_drill_pass_rate 以用例数/用例数为口径 | T-0149 动态统计 + 口径文档化 |
+| DR-003 | P3 | render_markdown 未渲染 mutation/gate_defense | T-0149 已渲染 |
+| DR-005 | P3 | E2E 以 lab 64 用例承载 | T-0150 确认纳入回归 |

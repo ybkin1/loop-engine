@@ -207,6 +207,12 @@ class GuardHealth:
     #   strip-timestamps   — ISO8601 时间戳 / epoch 秒 → <TS>（输出含耗时）
     #   strip-absolute-paths — 绝对路径 → <ABS>（输出含路径）
     # 未知规则忽略（向后兼容，不报错）。
+    #
+    # T-0152 权衡声明（文档化取舍）：
+    #   1) 裸 10 位 epoch 整数（无小数/单位）不替换 —— 与 10 位 ID/计数
+    #      无法可靠区分，为防误伤选择不替换（time.time() 实际输出带小数）。
+    #   2) 无 share 的裸 `\\server` 不替换 —— UNC 需 server\share 完整形态
+    #      才匹配，避免误伤普通双反斜杠文本。
     @staticmethod
     def _normalize_output(output: str, norm: list) -> str:
         import re as _re

@@ -275,3 +275,37 @@ class TestGateExecutionStatusConsistency:
                     f"rejected 任务 {g.get('task_id')} 的 gate {g.get('id')} "
                     "不得标 completed"
                 )
+
+    def test_approved_completed_tasks_gates_have_execution_status(self):
+        """T-0152: approved 且任务 completed 的 gate 不得缺 execution_status。
+
+        覆盖 legacy gate（G-T-0017~G-T-0081）缺失字段场景 —— 缺失即视为
+        漂移（任务已完成而 gate 无执行状态）。
+        """
+        tg = _load_yaml(".ai/task_graph.yaml")
+        tasks = {t["id"]: t.get("status") for t in tg["tasks"] if isinstance(t, dict)}
+        gates = _load_yaml(".ai/gates.yaml").get("gates", [])
+        missing = [
+            g["id"] for g in gates
+            if isinstance(g, dict)
+            and g.get("status") == "approved"
+            and not g.get("execution_status")
+            and tasks.get(g.get("task_id")) == "completed"
+        ]
+        assert missing == [], (
+            f"approved 已完成任务的 gate 缺 execution_status（T-0152 应已补全）: {missing}"
+        )
+
+    def test_approved_in_progress_tasks_have_execution_evidence(self):
+        """T-0152: execution_status=in_progress 的 approved gate 需 execution_evidence。
+
+        G-T-0103/G-T-0106 接线后，在途任务 gate 必须指向真实证据文件。
+        """
+        gates = _load_yaml(".ai/gates.yaml").get("gates", [])
+        for g in gates:
+            if (isinstance(g, dict) and g.get("status") == "approved"
+                    and g.get("execution_status") == "in_progress"):
+                ee = g.get("execution_evidence")
+                assert ee, f"在途 gate {g.get('id')} 缺 execution_evidence"
+                assert os.path.exists(os.path.join(PROJECT_ROOT, ee)), (
+                    f"execution_evidence 不存在: {ee}")

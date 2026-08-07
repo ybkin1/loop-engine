@@ -38,3 +38,19 @@ class BacklogLandingTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class T0152ReleaseChecklistPyramidTest(unittest.TestCase):
+    """T-0152: release-checklist 金字塔检查点与 test-strategy §4.5 对应。"""
+
+    def test_release_checklist_has_pyramid_check(self):
+        text = (ROOT / "skills" / "loop-governance" / "templates" / "deployment" / "release-checklist.md").read_text(encoding="utf-8")
+        self.assertIn("测试金字塔", text)
+        self.assertIn("单元 ≥60%", text)
+        self.assertIn("test-strategy §4.5", text)
+
+    def test_test_strategy_pyramid_section_consistent(self):
+        text = (ROOT / "skills" / "loop-governance" / "templates" / "testing" / "test-strategy.md").read_text(encoding="utf-8")
+        self.assertIn("单元测试 | ≥60%", text)
+        self.assertIn("15~25%", text)
+        self.assertIn("≤15%", text)

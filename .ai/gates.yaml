@@ -5,6 +5,7 @@ gates:
   gate_type: real-project-delivery-architecture-governance-design
   status: approved
   decision: approved
+  execution_status: completed
   requested_at: '2026-07-08T17:43:23+08:00'
   requested_by: ai
   approval_required_from: user
@@ -88,6 +89,7 @@ gates:
   gate_type: real-project-delivery-architecture-governance-review
   status: approved
   decision: approved
+  execution_status: completed
   requested_at: '2026-07-08T18:23:46+08:00'
   requested_by: ai
   approval_required_from: user
@@ -202,6 +204,7 @@ gates:
   gate_type: real-project-governance-enforcement-architecture-design
   status: approved
   decision: approved
+  execution_status: completed
   requested_at: '2026-07-08T19:23:10+08:00'
   requested_by: ai
   approval_required_from: user
@@ -319,6 +322,7 @@ gates:
   gate_type: real-project-governance-enforcement-architecture-review
   status: approved
   decision: approved
+  execution_status: completed
   requested_at: '2026-07-08T20:13:27+08:00'
   requested_by: ai
   approval_required_from: user
@@ -442,6 +446,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-22T15:05:00+08:00'
   approval_text: 批准 G-T-0025-IMPLEMENTATION
   approval_actor: user
@@ -475,6 +480,7 @@ gates:
   gate_type: user-quality
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-22T15:25:00+08:00'
   approval_text: 批准 G-T-0026-QUALITY-GATES
   approval_actor: user
@@ -502,6 +508,7 @@ gates:
   gate_type: user-delivery
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-22T15:40:00+08:00'
   approval_text: 批准 G-T-0027-DELIVERY
   approval_actor: user
@@ -527,6 +534,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-22T16:20:00+08:00'
   approval_text: 开始做
   approval_actor: user
@@ -548,6 +556,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-23T14:35:00+08:00'
   requested_by: ai
   approval_actor: user
@@ -1958,6 +1967,7 @@ gates:
   gate_type: user-implementation
   status: approved
   decision: approved
+  execution_status: completed
   recorded_at: '2026-07-29T23:30:00+08:00'
   approval_actor: user
   approval_source: explicit_user_message
@@ -3189,6 +3199,7 @@ gates:
   approval_text: 准
   scope: T-0103 提示词工程全量盘点 + 四象限差距分析 + 整合设计（candidate-only）+ B1 eval 最小实验设计；不修改任何生产代码、不安装/启用
     skill/MCP/ automation、不 bump 版本（无代码变更保持 3.12.41）。
+  execution_evidence: .ai/evidence/T-0103/execution-evidence.json
   allowed_paths:
   - .ai/
   - docs/08-prompt-engineering.md
@@ -3390,6 +3401,7 @@ gates:
     只读审计不改码）+ 批 2 BH 融合详细方案（评估模型/单一数据源/gates 分层/ 按需加载/工具 capability 化/上下文打包/契约测试，模块级）+
     批 3 共同弱点 优化方案（巨模块拆分/魔法数字集中化/修复器治理）+ 批 4 整合任务排布 T-0107~T-0111；仅 .ai/ 写入；hook 强制层
     0 改动、治理内核 0 触碰； 无产品代码变更；实施自 T-0107 起按批准排布执行。
+  execution_evidence: .ai/evidence/T-0106/execution-evidence.json
   allowed_paths:
   - .ai/tasks/T-0106.md
   - .ai/task_graph.yaml
