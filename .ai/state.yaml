@@ -1,8 +1,8 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0134
-current_gate_id: G-T-0134-REQUIREMENTS
+current_task_id: T-0135
+current_gate_id: G-T-0135-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:

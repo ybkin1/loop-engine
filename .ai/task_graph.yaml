@@ -1544,7 +1544,7 @@ tasks:
     id: T-0135
     title: 审计发现收尾（CLI 入口 + drift 可见性 + guard-events 治理）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       外部审计三项处理：pyproject [project.scripts] CLI 入口（薄封装）+
       release check guard_health report 计数可见性 + guard-events gitignore

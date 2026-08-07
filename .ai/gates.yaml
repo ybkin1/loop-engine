@@ -5040,7 +5040,7 @@ gates:
   task_id: T-0135
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T00:00:00+08:00'
   requested_by: ai
