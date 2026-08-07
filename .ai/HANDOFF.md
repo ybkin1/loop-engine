@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0127
+T-0134
 
 Status: `completed`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0127-REQUIREMENTS
+active_gate: G-T-0134-REQUIREMENTS
 active_gate_status: approved / completed
 
 current_gate_id is null because no pending decision is required.
-G-T-0127-REQUIREMENTS is approved and execution is in progress.
+G-T-0134-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -122,11 +122,10 @@ None
 
 - EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
-- EVIDENCE_MANIFEST_INVALID
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0127/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0134/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -164,8 +163,7 @@ Use $project-governor, validate structured state, and continue only inside the a
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
     "EVIDENCE_MANIFEST_REQUIRED",
-    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED",
-    "EVIDENCE_MANIFEST_INVALID"
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
   "verified": []
 }
@@ -177,10 +175,10 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0127-REQUIREMENTS",
+  "approved_execution_gate_id": "G-T-0134-REQUIREMENTS",
   "approved_execution_status": "completed",
-  "current_gate_id": "G-T-0127-REQUIREMENTS",
-  "current_task_id": "T-0127",
+  "current_gate_id": "G-T-0134-REQUIREMENTS",
+  "current_task_id": "T-0134",
   "current_task_status": "completed",
   "lifecycle_revision": 0,
   "next_action": "TASK_COMPLETED_AWAIT_NEXT",
