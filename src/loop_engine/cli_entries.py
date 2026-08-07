@@ -24,8 +24,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-# 项目根：本文件位于 <root>/loop_engine/ 下
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# 项目根：向上查找含 .zcode/tools 的目录（T-0143 2.1: 本文件已迁入
+# src/loop_engine/ 以进入 wheel 分发集，不能再用固定 parent.parent）
+def _find_project_root(start: Path) -> Path:
+    for p in [start, *start.parents]:
+        if (p / ".zcode" / "tools").is_dir():
+            return p
+    return start.parent.parent  # 兜底：找不到则退回旧语义
+
+
+PROJECT_ROOT = _find_project_root(Path(__file__).resolve().parent)
 TOOLS = PROJECT_ROOT / ".zcode" / "tools"
 SCRIPTS = PROJECT_ROOT / "scripts"
 

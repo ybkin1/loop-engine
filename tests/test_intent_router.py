@@ -373,6 +373,27 @@ class TestRouterCompatibility:
         result2 = route_intent(profile2)
         assert result2.mode == LoopMode.FULL
 
+    def test_forced_delegated_does_not_crash(self):
+        """T-0143 3.1: user_forced_mode=DELEGATED 不再 KeyError（order 表补全）。"""
+        profile = ProjectProfile(description="Simple task", user_forced_mode=LoopMode.DELEGATED)
+        mode = profile.route()
+        assert mode == LoopMode.DELEGATED
+
+    def test_forced_manual_does_not_crash(self):
+        """T-0143 3.1: user_forced_mode=MANUAL 不再 KeyError（order 表补全）。"""
+        profile = ProjectProfile(description="Simple task", user_forced_mode=LoopMode.MANUAL)
+        mode = profile.route()
+        assert mode == LoopMode.MANUAL
+
+    def test_forced_delegated_never_downgraded(self):
+        """T-0143 3.1: DELEGATED 置顶于 FULL 之上，低风险也不被降级。"""
+        profile = ProjectProfile(description="Simple task", user_forced_mode=LoopMode.DELEGATED)
+        assert profile.route() == LoopMode.DELEGATED
+        # 高风险场景下 DELEGATED 仍保持（不低于 FULL）
+        profile_high = ProjectProfile(description="Payment DB API prod",
+                                      user_forced_mode=LoopMode.DELEGATED)
+        assert profile_high.route() == LoopMode.DELEGATED
+
 
 # ============================================================================
 # Complexity scoring

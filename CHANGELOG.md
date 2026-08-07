@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.67 (2026-08-07) — v3.12.67: T-0143 遗留问题修复包（legacy-issues-summary 全项）
+
+### Changed (v3.12.67: T-0143 遗留问题修复包（legacy-issues-summary 全项）)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.66 (2026-08-07) — T-0134 P4: 委托模式 — 委托链 + 结论包 + LoopMode DELEGATED/MANUAL + 试点自举
 
 ### Changed (T-0134 P4: 委托模式 — 委托链 + 结论包 + LoopMode DELEGATED/MANUAL + 试点自举)

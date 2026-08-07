@@ -160,6 +160,18 @@ class GuardHealth:
             cmd = rep.get("repro_command")
             expect = rep.get("repro_hash", "")
             if not cmd:
+                # T-0143 4.1: 缺 repro_command 不得静默跳过——不可复算报告
+                # 逃过复算 = fail-closed 漏洞；写 FAIL 事件让检测层可见。
+                n_run += 1
+                events_path.parent.mkdir(parents=True, exist_ok=True)
+                with events_path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps({
+                        "ts": datetime.now(timezone.utc).isoformat(),
+                        "task_id": task_id,
+                        "report_ref": rep.get("report_ref", ""),
+                        "result": "FAIL",
+                        "reason": "missing repro_command (not recomputable)",
+                    }) + "\n")
                 continue
             try:
                 proc = subprocess.run(
@@ -593,6 +605,18 @@ class GuardHealth:
                     "implementation_path": "recompute-events.jsonl",
                     "message": f"recompute failed {trailing_fail} time(s) — report level",
                 })
+                # T-0143 4.2: 单次 FAIL 也追加 GuardCheckEvent（check_type=recompute
+                # 侧信道），不再只等 3 次 BROKEN 升级才可见。
+                self._observe(GuardCheckEvent(
+                    guard_id=f"recompute:{task_id}",
+                    capability_id=task_id,
+                    check_type=CHECK_RECOMPUTE,
+                    result=RESULT_FAIL,
+                    duration_ms=0.0,
+                    failure_reason=findings[-1]["message"],
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    source=source,
+                ))
         return findings
 
     def integrity_check(self) -> dict:

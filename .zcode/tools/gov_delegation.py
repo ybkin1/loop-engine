@@ -29,9 +29,33 @@ def _load_gates(root: Path) -> dict:
 
 
 def _save_gates(root: Path, doc: dict) -> None:
+    """仅 patch delegations 键，保持 gates.yaml 其余部分（头部注释/gates 列表）
+    原样不动 —— T-0143 3.3: 全文件 yaml.dump 会丢头部注释并产生数千行 churn。
+    """
     import yaml
-    (root / ".ai" / "gates.yaml").write_text(
-        yaml.safe_dump(doc, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    path = root / ".ai" / "gates.yaml"
+    text = path.read_text(encoding="utf-8")
+    delegations = doc.get("delegations", [])
+    # delegations 区块序列化为紧凑列表（保持原文件 2 空格缩进风格）
+    block = "\n".join(
+        f"- chain_id: {d['chain_id']}\n"
+        f"  task_ids:\n"
+        + "".join(f"  - {t}\n" for t in d.get("task_ids", []))
+        + f"  status: {d.get('status')}\n"
+        + (f"  approved_by: {d.get('approved_by')}\n" if d.get("approved_by") else "")
+        + (f"  approved_gate: {d.get('approved_gate')}\n" if d.get("approved_gate") else "")
+        + (f"  approved_at: '{d.get('approved_at')}'\n" if d.get("approved_at") else "")
+        + (f"  revoked_at: '{d.get('revoked_at')}'\n" if d.get("revoked_at") else "")
+        + (f"  note: {d.get('note')}\n" if d.get("note") else "")
+        for d in delegations
+    )
+    if "delegations:" in text:
+        # 截断原 delegations 区块（含其后内容），替换为新的
+        head = text.split("delegations:", 1)[0].rstrip()
+        new_text = head + "\ndelegations:\n" + block + "\n"
+    else:
+        new_text = text.rstrip() + "\n\ndelegations:\n" + block + "\n"
+    path.write_text(new_text, encoding="utf-8", newline="\n")
 
 
 def active_delegations(root: Path) -> list[dict]:
@@ -48,22 +72,55 @@ def task_in_active_delegation(root: Path, task_id: str) -> bool:
     return False
 
 
-def register(root: Path, chain_id: str, task_ids: list[str], note: str = "") -> None:
+def _gate_approved_with_evidence(root: Path, gate_id: str) -> str | None:
+    """校验 gate 已批准且 approval 证据存在。返回错误消息（None=通过）。
+
+    T-0143 3.2: 委托链授权必须锚定真实用户批准 —— register 要求 --gate
+    指向一个 status=approved 且 approval_evidence 文件存在的 gate，
+    否则拒绝（防 AI 自授委托）。
+    """
+    doc = _load_gates(root)
+    for g in doc.get("gates", []):
+        if g.get("id") != gate_id:
+            continue
+        if g.get("status") != "approved":
+            return f"gate {gate_id} is not approved (status={g.get('status')})"
+        ev = g.get("approval_evidence")
+        if not ev:
+            return f"gate {gate_id} has no approval_evidence field"
+        ev_path = root / ev
+        if not ev_path.is_file():
+            return f"approval evidence not found: {ev}"
+        return None
+    return f"gate not found in gates.yaml: {gate_id}"
+
+
+def register(root: Path, chain_id: str, task_ids: list[str], note: str = "",
+             gate_id: str | None = None) -> None:
     doc = _load_gates(root)
     delegations = doc.setdefault("delegations", [])
     if any(d.get("chain_id") == chain_id for d in delegations):
         print(f"[delegation] chain {chain_id} already exists (use revoke/register)")
+        sys.exit(2)
+    if not gate_id:
+        print("[delegation] register requires --gate <GATE_ID> (an approved user gate "
+              "with approval evidence) — T-0143 3.2 fail-closed")
+        sys.exit(2)
+    err = _gate_approved_with_evidence(root, gate_id)
+    if err:
+        print(f"[delegation] register rejected: {err}")
         sys.exit(2)
     delegations.append({
         "chain_id": chain_id,
         "task_ids": task_ids,
         "status": "active",
         "approved_by": "user",
+        "approved_gate": gate_id,
         "approved_at": datetime.now(timezone.utc).isoformat(),
         "note": note,
     })
     _save_gates(root, doc)
-    print(f"[delegation] registered {chain_id}: tasks={task_ids} (active)")
+    print(f"[delegation] registered {chain_id}: tasks={task_ids} (active, gate={gate_id})")
 
 
 def revoke(root: Path, chain_id: str) -> None:
@@ -101,6 +158,8 @@ def main() -> int:
     p_reg.add_argument("--chain", required=True)
     p_reg.add_argument("--tasks", required=True, help="comma-separated task ids")
     p_reg.add_argument("--note", default="")
+    p_reg.add_argument("--gate", default=None,
+                       help="T-0143 3.2: 关联的已批准 user gate（G-T-XXXX-REQUIREMENTS）")
 
     p_rev = sub.add_parser("revoke")
     p_rev.add_argument("--chain", required=True)
@@ -115,7 +174,7 @@ def main() -> int:
     root = Path(args.root).resolve()
     if args.command == "register":
         register(root, args.chain, [t.strip() for t in args.tasks.split(",") if t.strip()],
-                 args.note)
+                 args.note, args.gate)
     elif args.command == "revoke":
         revoke(root, args.chain)
     elif args.command == "status":

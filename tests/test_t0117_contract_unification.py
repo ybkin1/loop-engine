@@ -163,7 +163,12 @@ def test_loop_core_cli_missing_root():
 def test_run_security_scan_json_is_v1():
     """MCP security_scan_run 输出契约：--json 输出符合 security_report/v1。"""
     script = PROJECT / "agents" / "security-engineer" / "scripts" / "run_security_scan.py"
-    r = _run_py([sys.executable, str(script), "--project-root", str(PROJECT), "--json"],
+    # T-0143 1.1: 必须传 --output-dir 到临时目录——脚本默认写
+    # .ai/evidence/security/（带时间戳），直接扫 PROJECT 会重写已登记证据
+    # → CONTINUITY_SOURCE_DRIFT（每次全量回归后 release check 假红）。
+    out = Path(tempfile.mkdtemp())
+    r = _run_py([sys.executable, str(script), "--project-root", str(PROJECT),
+                 "--output-dir", str(out), "--json"],
                 timeout=300)
     assert r.returncode in (0, 2), r.stderr[-500:]
     assert r.stdout.strip(), "CLI 必须输出 JSON（--json）"

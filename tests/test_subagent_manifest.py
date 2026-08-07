@@ -264,6 +264,37 @@ class TestManifestValidate:
         # At least 5 distinct errors
         assert len(errors) >= 5
 
+    def test_weighted_without_quality_pair_fails_validate(self):
+        """T-0143 4.4: is_weighted=True 且 quality_pair=None → validate() 报错。
+
+        __post_init__ 仅构造期拦截，JSON 反序列化路径可绕过（object.__new__
+        不触发 __post_init__）；validate() 必须独立校验（fail-closed）。
+        """
+        from loop_core.subagent_manifest import SubagentSpec
+        spec = _make_spec("sa-w")
+        # 模拟 JSON 反序列化：绕过 __post_init__ 直接构造实例
+        raw = SubagentSpec.__new__(SubagentSpec)
+        for f in spec.__dataclass_fields__:
+            setattr(raw, f, getattr(spec, f))
+        raw.is_weighted = True
+        raw.quality_pair = None
+        manifest = _make_manifest(subagents=[raw])
+        is_valid, errors = manifest.validate()
+        assert is_valid is False
+        assert any("quality_pair" in e for e in errors)
+
+    def test_weighted_with_quality_pair_passes_validate(self):
+        """T-0143 4.4: is_weighted=True 且 quality_pair 存在 → validate() 通过。"""
+        from loop_core.subagent_manifest import QualityPair
+        import dataclasses
+        spec = _make_spec("sa-w")
+        spec_w = dataclasses.replace(
+            spec, is_weighted=True,
+            quality_pair=QualityPair(quality_role="independent-reviewer"))
+        manifest = _make_manifest(subagents=[spec_w])
+        is_valid, errors = manifest.validate()
+        assert is_valid is True, errors
+
 
 # ═══════════════════════════════════════════════════════════════════════
 # SubagentManifest.compute_fingerprint()

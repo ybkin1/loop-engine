@@ -47,11 +47,31 @@ class LoopModeEnumTest(unittest.TestCase):
 
 
 class DelegationChainTest(unittest.TestCase):
-    def _chain(self, root: Path, tasks: str, chain: str = "C-TEST") -> None:
-        proc = subprocess.run(
-            [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
-             str(root), "register", "--chain", chain, "--tasks", tasks],
-            capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
+    def _make_approved_gate(self, root: Path, gate_id: str = "G-TEST-REQUIREMENTS") -> None:
+        """创建 approved gate + 证据文件（T-0143 3.2 前置要求）。"""
+        import yaml
+        p = self._gates_file(root)
+        doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        gates = doc.setdefault("gates", [])
+        ev = root / ".ai" / "evidence" / "T-TEST" / "approval-evidence.json"
+        ev.parent.mkdir(parents=True, exist_ok=True)
+        ev.write_text('{"decision": "approved"}', encoding="utf-8")
+        if not any(g.get("id") == gate_id for g in gates):
+            gates.append({
+                "id": gate_id, "task_id": "T-TEST", "gate_type": "user-approval",
+                "status": "approved", "approval_evidence": str(ev.relative_to(root)),
+            })
+            p.write_text(yaml.safe_dump(doc, allow_unicode=True, sort_keys=False),
+                         encoding="utf-8")
+
+    def _chain(self, root: Path, tasks: str, chain: str = "C-TEST",
+               gate: str | None = "G-TEST-REQUIREMENTS") -> None:
+        cmd = [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
+               str(root), "register", "--chain", chain, "--tasks", tasks]
+        if gate:
+            cmd += ["--gate", gate]
+        proc = subprocess.run(cmd, capture_output=True, text=True,
+                              encoding="utf-8", cwd=str(ROOT))
         self.assertEqual(proc.returncode, 0, proc.stderr)
 
     def _gates_file(self, root: Path) -> Path:
@@ -66,6 +86,7 @@ class DelegationChainTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             self._gates_file(root)
+            self._make_approved_gate(root)
             self._chain(root, "T-A,T-B", "C-1")
             chk = subprocess.run(
                 [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
@@ -88,6 +109,7 @@ class DelegationChainTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             self._gates_file(root)
+            self._make_approved_gate(root)
             self._chain(root, "T-A")
             chk = subprocess.run(
                 [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
@@ -100,6 +122,7 @@ class DelegationChainTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             self._gates_file(root)
+            self._make_approved_gate(root)
             self._chain(root, "T-A", "C-2")
             subprocess.run(
                 [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
@@ -110,6 +133,62 @@ class DelegationChainTest(unittest.TestCase):
             chains = [d for d in doc.get("delegations", []) if d["chain_id"] == "C-2"]
             self.assertEqual(len(chains), 1)
             self.assertEqual(chains[0]["status"], "revoked")
+
+    def test_register_requires_approved_gate(self):
+        """T-0143 3.2: register 缺 --gate → 拒绝（exit 2，防 AI 自授）。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._gates_file(root)
+            proc = subprocess.run(
+                [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
+                 str(root), "register", "--chain", "C-NO-GATE", "--tasks", "T-A"],
+                capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
+            self.assertEqual(proc.returncode, 2, proc.stdout)
+            self.assertIn("--gate", proc.stdout)
+
+    def test_register_rejects_unapproved_gate(self):
+        """T-0143 3.2: --gate 指向未批准 gate → 拒绝（exit 2）。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._gates_file(root)
+            import yaml
+            p = root / ".ai" / "gates.yaml"
+            doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+            doc.setdefault("gates", []).append({
+                "id": "G-PENDING-REQ", "task_id": "T-X", "gate_type": "user-approval",
+                "status": "pending",
+            })
+            p.write_text(yaml.safe_dump(doc, allow_unicode=True, sort_keys=False),
+                         encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
+                 str(root), "register", "--chain", "C-BAD", "--tasks", "T-A",
+                 "--gate", "G-PENDING-REQ"],
+                capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
+            self.assertEqual(proc.returncode, 2, proc.stdout)
+            self.assertIn("not approved", proc.stdout)
+
+    def test_register_rejects_missing_evidence(self):
+        """T-0143 3.2: gate approved 但 approval 证据缺失 → 拒绝（exit 2）。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._gates_file(root)
+            import yaml
+            p = root / ".ai" / "gates.yaml"
+            doc = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+            doc.setdefault("gates", []).append({
+                "id": "G-NO-EVIDENCE", "task_id": "T-X", "gate_type": "user-approval",
+                "status": "approved", "approval_evidence": ".ai/evidence/T-X/missing.json",
+            })
+            p.write_text(yaml.safe_dump(doc, allow_unicode=True, sort_keys=False),
+                         encoding="utf-8")
+            proc = subprocess.run(
+                [sys.executable, str(ROOT / ".zcode" / "tools" / "gov_delegation.py"),
+                 str(root), "register", "--chain", "C-MISS", "--tasks", "T-A",
+                 "--gate", "G-NO-EVIDENCE"],
+                capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
+            self.assertEqual(proc.returncode, 2, proc.stdout)
+            self.assertIn("not found", proc.stdout)
 
 
 class ConclusionPacketTest(unittest.TestCase):

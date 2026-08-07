@@ -584,4 +584,15 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    # T-0143 1.2: 治理文件 YAML 损坏等 GovernanceError 必须干净 fail-closed
+    # （exit 2），而非未捕获 traceback exit 1 —— 外部消费者（release check/
+    # 脚本）依赖 rc 语义时避免误判。
+    try:
+        code = main()
+    except GovernanceError as ge:
+        print(f"[error] {ge}", file=sys.stderr)
+        code = 2
+    except Exception as exc:  # noqa: BLE001 — 兜底：任何未预期异常也 fail-closed
+        print(f"[error] validate_state crashed: {type(exc).__name__}: {exc}", file=sys.stderr)
+        code = 2
+    raise SystemExit(code)

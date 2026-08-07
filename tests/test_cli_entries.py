@@ -13,6 +13,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))  # T-0143 2.1: cli_entries 已迁入 src/loop_engine/
 sys.path.insert(0, str(ROOT))
 
 from loop_engine.cli_entries import ENTRY_POINTS, PROJECT_ROOT  # noqa: E402
@@ -35,7 +36,7 @@ class CliEntriesTest(unittest.TestCase):
 
     def _run_entry(self, entry: str, *args: str):
         return subprocess.run(
-            [sys.executable, str(ROOT / "loop_engine" / "cli_entries.py"), entry, *args],
+            [sys.executable, str(ROOT / "src" / "loop_engine" / "cli_entries.py"), entry, *args],
             capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT), timeout=120)
 
     def test_validate_entry_runs(self):

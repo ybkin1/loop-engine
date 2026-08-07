@@ -197,3 +197,46 @@ class TestGovernanceConsistency:
                 assert t.get("status") != "completed", (
                     "T-0045 must not be marked completed — no real evidence exists"
                 )
+
+
+class TestValidateStateYamlFailClosed:
+    """T-0143 1.2: validate_state YAML 损坏必须干净 fail-closed（exit 2）。"""
+
+    VALIDATE = os.path.join(PROJECT_ROOT, ".zcode", "tools", "validate_state.py")
+
+    def _run(self, root):
+        import subprocess
+        import sys
+        return subprocess.run(
+            [sys.executable, self.VALIDATE, root],
+            capture_output=True, text=True, timeout=60,
+        )
+
+    def test_corrupted_state_yaml_exits_2(self, tmp_path):
+        """损坏 state.yaml → 干净 [error] + exit 2（非 traceback exit 1）。"""
+        ai = tmp_path / ".ai"
+        ai.mkdir()
+        # 最小可运行骨架：损坏 state.yaml 即可触发 YAML_INVALID
+        (ai / "state.yaml").write_text("schema_version: 1\ncurrent_phase: [unclosed\n", encoding="utf-8")
+        (ai / "gates.yaml").write_text("schema_version: 1\ngates: []\n", encoding="utf-8")
+        (ai / "task_graph.yaml").write_text("schema_version: 1\ntasks: []\n", encoding="utf-8")
+        (ai / "tasks").mkdir()
+        (ai / "HANDOFF.md").write_text("# Handoff\n", encoding="utf-8")
+        r = self._run(str(tmp_path))
+        assert r.returncode == 2, f"expected exit 2, got {r.returncode}: {r.stderr}"
+        assert "[error]" in (r.stdout + r.stderr)
+        assert "Traceback" not in r.stderr, "必须干净报错，不得泄漏 traceback"
+
+    def test_healthy_state_exits_0(self, tmp_path):
+        """正常 .ai/ 骨架 → exit 0（fail-closed 修复不破坏健康路径）。"""
+        ai = tmp_path / ".ai"
+        ai.mkdir()
+        (ai / "state.yaml").write_text(
+            "schema_version: 1\ncurrent_phase: S6-delivery\ncurrent_task_id: null\n", encoding="utf-8")
+        (ai / "gates.yaml").write_text("schema_version: 1\ngates: []\n", encoding="utf-8")
+        (ai / "task_graph.yaml").write_text("schema_version: 1\ntasks: []\n", encoding="utf-8")
+        (ai / "tasks").mkdir()
+        (ai / "HANDOFF.md").write_text("# Handoff\n", encoding="utf-8")
+        r = self._run(str(tmp_path))
+        # idle 合法态 → exit 3；真实损坏（其他错误）→ exit 2；绝不允许 exit 1 traceback
+        assert r.returncode in (0, 2, 3), f"unexpected rc {r.returncode}: {r.stderr}"

@@ -84,7 +84,17 @@ class ProjectProfile:
         )
         if self.user_forced_mode is None:
             return minimum
-        order = {LoopMode.LIGHTWEIGHT: 0, LoopMode.STANDARD: 1, LoopMode.FULL: 2}
+        # T-0143 3.1: order 表补全 DELEGATED/MANUAL（T-0134 正式枚举值），
+        # 避免 user_forced_mode 设为二者时 KeyError 崩溃。语义：
+        # DELEGATED/MANUAL 均为用户显式接管态，置顶于 FULL 之上（用户意志
+        # 不被风险降级覆盖）；MANUAL 是人工接管，绝不低于 FULL。
+        order = {
+            LoopMode.LIGHTWEIGHT: 0,
+            LoopMode.STANDARD: 1,
+            LoopMode.FULL: 2,
+            LoopMode.DELEGATED: 3,
+            LoopMode.MANUAL: 3,
+        }
         return self.user_forced_mode if order[self.user_forced_mode] >= order[minimum] else minimum
 
 

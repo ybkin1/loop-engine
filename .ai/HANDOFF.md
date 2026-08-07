@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "9439B7F59B0703A3D26246A316647F8CABC4FECFC990595DC378BCE0DEE5AB97",
+  "persisted_file_sha256": "A70BFB331AACB42F5A09DF4D01D65BE145A75CDEC640518C7D8D29B9DE50D2C4",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "B465F8BC2138F299B92507F94E3C1836816BD037AA449C527DA569D0B31F6D5A",
+  "source_sha256": "2CD28562EED66FCE78D3715E610DC40C260552AD0E305BC72DACD76AD2A73BD8",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -122,6 +122,7 @@ None
 
 - EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
+- EVIDENCE_MANIFEST_HASH_MISMATCH
 
 ## Evidence
 
@@ -163,7 +164,8 @@ Use $project-governor, validate structured state, and continue only inside the a
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
     "EVIDENCE_MANIFEST_REQUIRED",
-    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED",
+    "EVIDENCE_MANIFEST_HASH_MISMATCH"
   ],
   "verified": []
 }

@@ -376,6 +376,13 @@ class TestD42FailClosed:
         _write(tmp_root, ".ai/state.yaml", "project_name: x\n")
         assert loop_enforcement.is_loop_mode_enforced(tmp_root) is False
 
+    def test_delegated_enforced_manual_not(self, tmp_root):
+        """T-0143 3.4: DELEGATED → True（链内仍受 scope 约束）；MANUAL → False。"""
+        _write(tmp_root, ".ai/state.yaml", "loop_mode: DELEGATED\n")
+        assert loop_enforcement.is_loop_mode_enforced(tmp_root) is True
+        _write(tmp_root, ".ai/state.yaml", "loop_mode: MANUAL\n")
+        assert loop_enforcement.is_loop_mode_enforced(tmp_root) is False
+
 
 # ══════════════════════════════════════════════════════════════════════
 # D4-7：hook 哈希跳过告警（不静默）

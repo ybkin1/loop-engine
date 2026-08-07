@@ -38,6 +38,11 @@ class QualityPair:
 
     每个重量执行 spec 必须配对质量校验 spec；无配对 = 编排无效（机器可判）。
     eval_cases 字段对齐 EvalCase schema（loop_core/evals.py）。
+
+    T-0143 4.5（偏离说明）：与 T-0132 D-01 设计相比——
+    1) 无独立 `enabled` 字段：启用态由 `is_weighted`（SubagentSpec）表达；
+    2) `check_scope` 简化为 list[str]（原设计 list[dict]），仅保留路径清单。
+    偏离为落地期简化，语义等价（is_weighted=False 即不启用配对）。
     """
     quality_role: str                       # quality-engineer / test-engineer / ...
     check_scope: list[str] = field(default_factory=list)   # 校验对象路径
@@ -159,6 +164,13 @@ class SubagentManifest:
                 errors.append(
                     f"{prefix} ({spec.subagent_id}): max_retries must be >= 0, "
                     f"got {spec.max_retries}"
+                )
+            # T-0143 4.4: quality_pair 一致性 —— __post_init__ 仅构造期拦截，
+            # JSON 反序列化路径可绕过；validate() 补同规则（fail-closed）。
+            if spec.is_weighted and spec.quality_pair is None:
+                errors.append(
+                    f"{prefix} ({spec.subagent_id}): weighted action requires "
+                    "quality_pair (T-0133) — manifest validation fail-closed"
                 )
 
         return (len(errors) == 0, errors)

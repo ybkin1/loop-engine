@@ -1,0 +1,42 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0137-C5FD5790
+task_id: T-0137
+gate_id: G-T-0137-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0137
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0137/approval-evidence.json
+  role: result
+  required: true
+  sha256: 0CC91B8C2B4C6723DCDC839DF4CB410187A7D0B96D82AF54602A7CADC07C4091
+  size: 315
+  mtime_ns: 1786096826172852500
+- path: .ai/evidence/T-0137/compile-evidence.json
+  role: result
+  required: true
+  sha256: 0768DDEA8E35C9698DFDF3F1A034BBA2AF3145AB3D548DE1391EB011B3D9650B
+  size: 183
+  mtime_ns: 1786096845709089600
+- path: .ai/evidence/T-0137/execution-evidence.json
+  role: result
+  required: true
+  sha256: F4FCB196D3AFF4A1D2DF49EC55BACC15EA858FCE446B5BD9F0B5996E4E5F0B0B
+  size: 391
+  mtime_ns: 1786096843927087000
+- path: .ai/evidence/T-0137/registration-batch.md
+  role: result
+  required: true
+  sha256: 98AA608725F68B718D3DD848083CE267000C46537ED6548FC2E0A6A5DC8CEF68
+  size: 2194
+  mtime_ns: 1786096642137744400
+file_count: 4
+total_bytes: 3083
+ordered_entries_sha256: C5FD5790F69D6953A3A3C19593842776E4829637C1CDFDD6AFFB02CE99D4DB61
+semantic_sha256: C2D11CD0E09E6C153A2CB6152FAFA723086DDC5399C91BDC300B8E46AE2B665C
+created_at: '2026-08-07T18:00:00+08:00'
+created_by: governance-controller

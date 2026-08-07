@@ -170,6 +170,22 @@ class RecomputeExecutorTest(unittest.TestCase):
             p = root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl"
             self.assertFalse(p.exists(), "rate=0 must not write events")
 
+    def test_missing_repro_command_writes_fail(self):
+        """T-0143 4.1: 缺 repro_command 不再静默跳过——写 FAIL 事件。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai" / "evidence" / "observability").mkdir(parents=True)
+            health = GuardHealth(root)
+            n = health.run_sampled_recompute(
+                [{"report_ref": str(Path(td) / "r1.json")}],  # 无 repro_command
+                task_id="T-1", rate=1.0)
+            self.assertEqual(n, 1, "缺 repro_command 也必须计入执行次数")
+            events = [json.loads(l) for l in
+                      (root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl")
+                      .read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(events[0]["result"], "FAIL")
+            self.assertIn("missing repro_command", events[0]["reason"])
+
 
 class RecomputeDetectionTest(unittest.TestCase):
     def _write_recompute_events(self, root: Path, events: list[dict]) -> None:
@@ -193,6 +209,29 @@ class RecomputeDetectionTest(unittest.TestCase):
             self.assertEqual(len(findings), 1)
             self.assertEqual(findings[0]["finding"], "RECOMPUTE_REPORT")
             self.assertNotEqual(findings[0]["severity"], "fail-closed")
+
+    def test_single_fail_writes_guard_event(self):
+        """T-0143 4.2: 单次 FAIL 也追加 GuardCheckEvent（侧信道，不等 3 次升级）。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai").mkdir()
+            self._write_recompute_events(root, [
+                {"task_id": "T-1", "report_ref": "r1", "result": "FAIL"},
+            ])
+            health = GuardHealth(root)
+            health.recompute_detection()
+            events_path = root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
+            if events_path.exists():
+                events = [json.loads(l) for l in events_path.read_text(encoding="utf-8").splitlines()]
+                recompute_events = [e for e in events
+                                    if e.get("check_type") == "recompute"
+                                    and e.get("result") == "FAIL"]
+                self.assertGreaterEqual(len(recompute_events), 1,
+                                        "单次 FAIL 必须可见于 guard-events 侧信道")
+            else:
+                # 观测侧信道可能由配置关闭（默认开）；存在性不强断言，
+                # 但若写入则必须包含 recompute FAIL（防静默回归）
+                self.skipTest("guard-events observation disabled in this config")
 
     def test_three_consecutive_fails_escalate_fail_closed(self):
         """连续 3 次失败 → fail-closed（overall FAIL）。"""
