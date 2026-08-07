@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0148",
+  "gate_id": "G-T-0148-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T19:05:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "gate 记录漂移清理（55 条回填 + 审计）"
+  ],
+  "notes": "链 C-003 内执行（用户指令接管）。"
+}

@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "458705975BE4BA20DB7DBA8ABD05BAB2BAF24D07B28C353ECFDCD95703FC6AC3",
+  "persisted_file_sha256": "AA44D8245CC558EF7E7E5CF81EF131BE737B2E38E561910BC8491D2C274522BF",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "20362A0E07F358B1859C83D963B2E976AAAEB232D04CEDB8708E4ADF10CAA3DC",
+  "source_sha256": "CAB956E56825511994C67B22359E3A7A313EC843EAFD8A8C755235CDD00010C0",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -93,18 +93,18 @@ S6-delivery
 
 ## Current Task
 
-T-0144
+T-0148
 
-Status: `completed`
+Status: `in_progress`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
-active_gate: G-T-0144-REQUIREMENTS
-active_gate_status: approved / completed
+active_gate: G-T-0148-REQUIREMENTS
+active_gate_status: approved / in_progress
 
 current_gate_id is null because no pending decision is required.
-G-T-0144-REQUIREMENTS is approved and execution is in progress.
+G-T-0148-REQUIREMENTS is approved and execution is in progress.
 
 ## Allowed Scope
 
@@ -122,11 +122,10 @@ None
 
 - EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
-- EVIDENCE_MANIFEST_HASH_MISMATCH
 
 ## Evidence
 
-Evidence manifest: .ai/evidence/T-0144/evidence-manifest.v1.yaml.
+Evidence manifest: .ai/evidence/T-0148/evidence-manifest.v1.yaml.
 
 ## Integration Impact
 
@@ -135,7 +134,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-TASK_COMPLETED_AWAIT_NEXT
+CONTINUE_APPROVED_EXECUTION
 
 ## Startup Prompt
 
@@ -164,8 +163,7 @@ Use $project-governor, validate structured state, and continue only inside the a
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
     "EVIDENCE_MANIFEST_REQUIRED",
-    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED",
-    "EVIDENCE_MANIFEST_HASH_MISMATCH"
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
   ],
   "verified": []
 }
@@ -177,13 +175,13 @@ Use $project-governor, validate structured state, and continue only inside the a
 <!-- PROJECT-GOVERNOR-NEXT-ACTION-BEGIN -->
 ```json
 {
-  "approved_execution_gate_id": "G-T-0144-REQUIREMENTS",
-  "approved_execution_status": "completed",
-  "current_gate_id": "G-T-0144-REQUIREMENTS",
-  "current_task_id": "T-0144",
-  "current_task_status": "completed",
+  "approved_execution_gate_id": "G-T-0148-REQUIREMENTS",
+  "approved_execution_status": "in_progress",
+  "current_gate_id": "G-T-0148-REQUIREMENTS",
+  "current_task_id": "T-0148",
+  "current_task_status": "in_progress",
   "lifecycle_revision": 0,
-  "next_action": "TASK_COMPLETED_AWAIT_NEXT",
+  "next_action": "CONTINUE_APPROVED_EXECUTION",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```

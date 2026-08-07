@@ -1,11 +1,14 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0144
-current_gate_id: G-T-0144-REQUIREMENTS
+current_task_id: T-0148
+current_gate_id: G-T-0148-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0148~T-0151 ACTIVE 2026-08-07: 用户指令接管完成所有漂移与未完成项 —
+  T-0148 gate 漂移清理（55 条）/T-0149 P3 收尾包/T-0150 KNOWN_ISSUES
+  过时记录+lab 接线/T-0151 backlog 评估落地。C-003 链内自治执行。'
 - 'T-0144~T-0147 COMPLETED 2026-08-07: 委托链 C-002 端到端验证闭环（3.5）—
   T-0144 repro_norm（4.3）/T-0145 metrics 生成器（7.1，P2 阈值+产出修复）/
   T-0146 词表 BLOCK+计数（7.2）/T-0147 结论包。批量审查 GO（4347 passed
