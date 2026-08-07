@@ -573,5 +573,12 @@
       ".ai/evidence/observability/mutation-report-m1.json",
       ".ai/evidence/observability/mutation-report-m2.json"
     ]
+  },
+  "gate_defense": {
+    "rejected_requests": 0,
+    "rejected_requests_semantics": "guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求）",
+    "defense_drill_pass_rate": "11/11",
+    "defense_drill_semantics": "T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，tests/test_defense_drills.py）",
+    "note": "旧 gate_rejection_rate=0.0 无法区分'从未挑战'与'防御有效'；拆分见 .ai/evidence/T-0129"
   }
 }

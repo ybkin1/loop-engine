@@ -1,0 +1,15 @@
+{
+  "task_id": "T-0129",
+  "gate_id": "G-T-0129-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "拒绝路径端到端演练（>=6 用例）",
+    "锁死恢复演练 E1~E5（回滚不无脑删断言）",
+    "gate_rejection_rate 语义修正（rejected_requests / defense_drill_pass_rate）",
+    "全量回归 + bump 3.12.64",
+    "独立审查 + 验收"
+  ],
+  "notes": "G-T-0129-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。演练通过 = 自治授权资格。hooks/ 零改动、loop_core/ 零改动。"
+}

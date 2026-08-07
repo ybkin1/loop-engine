@@ -4841,7 +4841,7 @@ gates:
   task_id: T-0128
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T00:00:00+08:00'
   requested_by: ai
@@ -4898,7 +4898,7 @@ gates:
   task_id: T-0129
   gate_type: user-approval
   status: approved
-  execution_status: approved_not_started
+  execution_status: in_progress
   decision: approved
   requested_at: '2026-08-07T00:00:00+08:00'
   requested_by: ai

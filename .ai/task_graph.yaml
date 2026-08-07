@@ -1490,7 +1490,7 @@ tasks:
     id: T-0128
     title: 变异测试接线（P1）— seeded_defects × mutation_tester
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       mutation_tester 自动加载 6 SD 变异体：M1 确定性规则检出（≥5/6）+ M2 真实
       角色检出（≥4/6）+ 检出率指标进 metrics + release check fail-closed 接线；
@@ -1503,7 +1503,7 @@ tasks:
     id: T-0129
     title: 防御演练（P2）— gate 拒绝路径 + 锁死恢复演练
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       拒绝路径端到端演练（≥6 用例）+ 锁死恢复演练 E1~E5（回滚不无脑删断言）+
       gate_rejection_rate 语义修正（rejected_requests / defense_drill_pass_rate）；

@@ -1,7 +1,7 @@
 {
   "schema": "security_report/v1",
   "role": "security-engineer",
-  "timestamp": "2026-08-06T23:50:16.806048+00:00",
+  "timestamp": "2026-08-07T00:01:41.619070+00:00",
   "project": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine",
   "scans": [
     {
@@ -22,7 +22,7 @@
       "name": "secret_scan",
       "status": "pass",
       "findings": [],
-      "files_scanned": 1287,
+      "files_scanned": 1289,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -52,6 +52,7 @@
         "tests/test_cross_layer_safety.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dashboard.py — test_fixture (tests/ 测试夹具)",
         "tests/test_deep_qa_probe.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_defense_drills.py — test_fixture (tests/ 测试夹具)",
         "tests/test_deployment_quality_checker.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dispatcher.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dispatch_lease.py — test_fixture (tests/ 测试夹具)",
@@ -93,6 +94,7 @@
         "tests/test_mcp_capability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mcp_client.py — test_fixture (tests/ 测试夹具)",
         "tests/test_memory_injection.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_mutation_gate.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mutation_scan.py — test_fixture (tests/ 测试夹具)",
         "tests/test_observability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_operations.py — test_fixture (tests/ 测试夹具)",
@@ -988,7 +990,7 @@
       "status": "pass",
       "high_findings": [],
       "medium_findings": [],
-      "files_scanned": 362,
+      "files_scanned": 364,
       "skipped_files": [
         "loop_core/security_scanner.py — scanner_self (扫描器自身规则表)",
         "tests/deep_probe_v35.py — test_fixture (tests/ 测试夹具)",
@@ -1018,6 +1020,7 @@
         "tests/test_cross_layer_safety.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dashboard.py — test_fixture (tests/ 测试夹具)",
         "tests/test_deep_qa_probe.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_defense_drills.py — test_fixture (tests/ 测试夹具)",
         "tests/test_deployment_quality_checker.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dispatcher.py — test_fixture (tests/ 测试夹具)",
         "tests/test_dispatch_lease.py — test_fixture (tests/ 测试夹具)",
@@ -1059,6 +1062,7 @@
         "tests/test_mcp_capability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mcp_client.py — test_fixture (tests/ 测试夹具)",
         "tests/test_memory_injection.py — test_fixture (tests/ 测试夹具)",
+        "tests/test_mutation_gate.py — test_fixture (tests/ 测试夹具)",
         "tests/test_mutation_scan.py — test_fixture (tests/ 测试夹具)",
         "tests/test_observability.py — test_fixture (tests/ 测试夹具)",
         "tests/test_operations.py — test_fixture (tests/ 测试夹具)",

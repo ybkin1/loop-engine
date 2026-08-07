@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.64 (2026-08-06) — T-0129 P2: 防御演练 — 拒绝路径 R1~R6 + 锁死恢复 E1~E5（11 用例）+ 指标语义修正
+
+### Changed (T-0129 P2: 防御演练 — 拒绝路径 R1~R6 + 锁死恢复 E1~E5（11 用例）+ 指标语义修正)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.63 (2026-08-06) — T-0128 P1: 变异测试接线 — M1/M2 检出率 6/6 + mutation_gate 接线
 
 ### Changed (T-0128 P1: 变异测试接线 — M1/M2 检出率 6/6 + mutation_gate 接线)
