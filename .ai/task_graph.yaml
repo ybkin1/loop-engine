@@ -1711,7 +1711,7 @@ tasks:
     id: T-0148
     title: gate 记录漂移清理（55 条 execution_status 回填）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       55 条 gate execution_status 未 completed 但任务已完成（T-0055~T-0125
       历史收口未回填）；批量回填 + 一致性审计测试 + C-002 链收口。
@@ -1723,7 +1723,7 @@ tasks:
     id: T-0149
     title: P3 观察收尾包（render_markdown/repro_norm/defense_drill/manifest）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       render_markdown 渲染新字段；repro_norm 边界加固（10 位数字/UNC/裸盘符）；
       defense_drill 读 T-0129 真实记录；T-0144 manifest 重生成。
@@ -1735,7 +1735,7 @@ tasks:
     id: T-0150
     title: KNOWN_ISSUES 过时记录清理 + lab 测试接线
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       E2E 记录过时（test_E2E_CURRENT_001 已不存在，lab 64 测试可收集）；
       更新 KNOWN_ISSUES + lab 接线决策 + 运行状态记录。
@@ -1747,7 +1747,7 @@ tasks:
     id: T-0151
     title: roadmap backlog 评估与落地
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       debt register 落地 + test strategy 金字塔 70/20/10 文档化；
       tech-writer/SRE/threat-modeling 评估；backlog 状态表。
