@@ -6,6 +6,10 @@ current_gate_id: G-T-0144-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0144~T-0147 COMPLETED 2026-08-07: 委托链 C-002 端到端验证闭环（3.5）—
+  T-0144 repro_norm（4.3）/T-0145 metrics 生成器（7.1，P2 阈值+产出修复）/
+  T-0146 词表 BLOCK+计数（7.2）/T-0147 结论包。批量审查 GO（4347 passed
+  0 failed，release 7/7）；3.2 锚定反例实测；golden 演进记录；hooks/ 零改动。'
 - 'T-0144~T-0147 REGISTERED 2026-08-07: legacy 收尾批 — T-0144 repro_norm
   （4.3）/T-0145 metrics 生成器（7.1）/T-0146 词表 BLOCK+计数（7.2）/
   T-0147 委托链 C-002 端到端验证（3.5）。G-T-0144~G-T-0147-REQUIREMENTS

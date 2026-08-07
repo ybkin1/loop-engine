@@ -1662,7 +1662,7 @@ tasks:
     id: T-0144
     title: repro_norm 规范化规则实现（legacy 4.3）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       run_sampled_recompute 消费 repro_norm（strip-timestamps/
       strip-absolute-paths），规范化后哈希稳定；无 repro_norm 向后兼容；
@@ -1675,7 +1675,7 @@ tasks:
     id: T-0145
     title: metrics-report 生成器接入（legacy 7.1）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       mutation_metrics/gate_defense 由生成器从 guard-events/mutation 报告
       实时聚合，替代手写快照；schema 向后兼容；链 C-002 内执行。
@@ -1687,7 +1687,7 @@ tasks:
     id: T-0146
     title: guard-events 词表 BLOCK + 拦截计数（legacy 7.2）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       词表新增 RESULT_BLOCK/RESULT_REJECTED；rejected_requests 真实计数；
       与 T-0145 生成器联动；hooks/ 零改动；链 C-002 内执行。
@@ -1699,7 +1699,7 @@ tasks:
     id: T-0147
     title: 委托链 C-002 端到端验证（legacy 3.5）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       真实任务链 C-002（覆盖 T-0144~T-0146）闭环：登记→链内自治→结论包；
       3.2 锚定反例实测；规则层不豁免。

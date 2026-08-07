@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "AA24F303FA52D7D448314D81ED4BCCEC79B0357E2BC291DE82E88072FA0EDA25",
+  "persisted_file_sha256": "458705975BE4BA20DB7DBA8ABD05BAB2BAF24D07B28C353ECFDCD95703FC6AC3",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "04FECBF02614C2FAA6BCE5166D8B57C68AAF37A20C1471A2C2CAE5A9A1B1EABA",
+  "source_sha256": "20362A0E07F358B1859C83D963B2E976AAAEB232D04CEDB8708E4ADF10CAA3DC",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -95,13 +95,13 @@ S6-delivery
 
 T-0144
 
-Status: `in_progress`
+Status: `completed`
 
 ## Current Gate
 
 pending_gate_status: none (no pending decision required)
 active_gate: G-T-0144-REQUIREMENTS
-active_gate_status: approved / in_progress
+active_gate_status: approved / completed
 
 current_gate_id is null because no pending decision is required.
 G-T-0144-REQUIREMENTS is approved and execution is in progress.
@@ -122,6 +122,7 @@ None
 
 - EVIDENCE_MANIFEST_REQUIRED
 - FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED
+- EVIDENCE_MANIFEST_HASH_MISMATCH
 
 ## Evidence
 
@@ -134,7 +135,7 @@ Blockers: EVIDENCE_MANIFEST_REQUIRED.
 
 ## Next Session First Step
 
-CONTINUE_APPROVED_EXECUTION
+TASK_COMPLETED_AWAIT_NEXT
 
 ## Startup Prompt
 
@@ -163,7 +164,8 @@ Use $project-governor, validate structured state, and continue only inside the a
   "schema": "ProjectLifecycleProjection/v1",
   "unverified": [
     "EVIDENCE_MANIFEST_REQUIRED",
-    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED"
+    "FRESH_INDEPENDENT_REREVIEW_NOT_PERFORMED",
+    "EVIDENCE_MANIFEST_HASH_MISMATCH"
   ],
   "verified": []
 }
@@ -176,12 +178,12 @@ Use $project-governor, validate structured state, and continue only inside the a
 ```json
 {
   "approved_execution_gate_id": "G-T-0144-REQUIREMENTS",
-  "approved_execution_status": "in_progress",
+  "approved_execution_status": "completed",
   "current_gate_id": "G-T-0144-REQUIREMENTS",
   "current_task_id": "T-0144",
-  "current_task_status": "in_progress",
+  "current_task_status": "completed",
   "lifecycle_revision": 0,
-  "next_action": "CONTINUE_APPROVED_EXECUTION",
+  "next_action": "TASK_COMPLETED_AWAIT_NEXT",
   "schema": "ProjectGovernorNextAction/v2"
 }
 ```

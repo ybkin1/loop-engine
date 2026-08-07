@@ -186,6 +186,68 @@ class RecomputeExecutorTest(unittest.TestCase):
             self.assertEqual(events[0]["result"], "FAIL")
             self.assertIn("missing repro_command", events[0]["reason"])
 
+    def test_repro_norm_timestamps_stabilize_hash(self):
+        """T-0144 4.3: strip-timestamps 后不同时间戳输出 → 同哈希（PASS）。"""
+        import hashlib
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai" / "evidence" / "observability").mkdir(parents=True)
+            health = GuardHealth(root)
+            # 输出含 ISO8601 时间戳 + epoch：两次运行时间戳不同
+            cmd = (f"{sys.executable} -c \"import datetime,time;"
+                   "print(datetime.datetime.now().isoformat());"
+                   "print(time.time())\"")
+            out1 = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=str(root))
+            import time as _time
+            _time.sleep(1.1)  # 确保时间戳变化
+            out2 = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=str(root))
+            self.assertNotEqual(out1.stdout, out2.stdout, "时间戳应已变化")
+            norm1 = health._normalize_output(out1.stdout + out1.stderr, ["strip-timestamps"])
+            norm2 = health._normalize_output(out2.stdout + out2.stderr, ["strip-timestamps"])
+            self.assertEqual(norm1, norm2, "规范化后输出必须一致")
+            h = hashlib.sha256(norm1.encode("utf-8")).hexdigest()
+            n = health.run_sampled_recompute(
+                [{"report_ref": "r1", "repro_command": cmd, "repro_hash": h,
+                  "repro_norm": ["strip-timestamps"]}],
+                task_id="T-1", rate=1.0)
+            self.assertEqual(n, 1)
+            events = [json.loads(l) for l in
+                      (root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl")
+                      .read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(events[0]["result"], "PASS",
+                             "规范化后哈希应稳定（时间戳差异被消除）")
+
+    def test_repro_norm_absolute_paths(self):
+        """T-0144 4.3: strip-absolute-paths 去除绝对路径。"""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            health = GuardHealth(root)
+            out = f"output at {str(Path(td) / 'sub' / 'file.txt')} done"
+            norm = health._normalize_output(out, ["strip-absolute-paths"])
+            self.assertNotIn(str(Path(td)), norm)
+            self.assertIn("<ABS>", norm)
+
+    def test_repro_norm_absent_backward_compatible(self):
+        """T-0144 4.3: 无 repro_norm → 原始哈希约定不变（向后兼容）。"""
+        import hashlib
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai" / "evidence" / "observability").mkdir(parents=True)
+            health = GuardHealth(root)
+            cmd = f"{sys.executable} -c 'print(42)'"
+            out = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=str(root))
+            good = hashlib.sha256((out.stdout + out.stderr).encode()).hexdigest()
+            n = health.run_sampled_recompute(
+                [{"report_ref": "r1", "repro_command": cmd, "repro_hash": good}],
+                task_id="T-1", rate=1.0)
+            self.assertEqual(n, 1)
+            events = [json.loads(l) for l in
+                      (root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl")
+                      .read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(events[0]["result"], "PASS")
+
 
 class RecomputeDetectionTest(unittest.TestCase):
     def _write_recompute_events(self, root: Path, events: list[dict]) -> None:

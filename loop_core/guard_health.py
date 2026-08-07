@@ -138,13 +138,19 @@ class GuardHealth:
                               seed: int | None = None) -> int:
         """D-02 M4 抽样复算执行器。
 
-        reports: [{report_ref, repro_command, repro_hash}]；按 rate 抽样，
-        对抽中报告执行 repro_command 并比对输出哈希 → 追加写
-        recompute-events.jsonl（{ts, task_id, report_ref, result}）。
-        返回执行的复算次数。
+        reports: [{report_ref, repro_command, repro_hash, repro_norm?}]；
+        按 rate 抽样，对抽中报告执行 repro_command → 规范化输出（T-0144
+        repro_norm 可选）→ 比对输出哈希 → 追加写 recompute-events.jsonl
+        （{ts, task_id, report_ref, result}）。返回执行的复算次数。
+
+        repro_norm（T-0144 4.3）: 报告可选声明规范化规则
+        （["strip-timestamps", "strip-absolute-paths"]）——去耗时/绝对路径
+        后哈希，保证同一逻辑输出的复算哈希稳定；未声明时保持原始哈希
+        约定（向后兼容）。
         """
         import hashlib
         import random
+        import re
         import subprocess
         rate = self.RECOMPUTE_RATE_DEFAULT if rate is None else float(rate)
         events_path = self.root / self.RECOMPUTE_EVENTS_PATH
@@ -177,8 +183,11 @@ class GuardHealth:
                 proc = subprocess.run(
                     cmd, shell=True, capture_output=True, text=True,
                     timeout=60, cwd=str(self.root))
-                out_hash = hashlib.sha256(
-                    (proc.stdout + proc.stderr).encode("utf-8")).hexdigest()
+                output = proc.stdout + proc.stderr
+                norm = rep.get("repro_norm") or []
+                if norm:
+                    output = self._normalize_output(output, norm)
+                out_hash = hashlib.sha256(output.encode("utf-8")).hexdigest()
                 result = "PASS" if out_hash == expect else "FAIL"
             except Exception:  # noqa: BLE001 — 复算失败 = FAIL（fail-safe）
                 result = "FAIL"
@@ -192,6 +201,29 @@ class GuardHealth:
                     "result": result,
                 }) + "\n")
         return n_run
+
+    # T-0144 4.3: repro_norm 规范化规则（D-02 M1 承诺落地）。
+    # 支持规则：
+    #   strip-timestamps   — ISO8601 时间戳 / epoch 秒 → <TS>（输出含耗时）
+    #   strip-absolute-paths — 绝对路径 → <ABS>（输出含路径）
+    # 未知规则忽略（向后兼容，不报错）。
+    @staticmethod
+    def _normalize_output(output: str, norm: list) -> str:
+        import re as _re
+        text = output
+        if "strip-timestamps" in norm:
+            # ISO8601（含 T/Z/时区偏移）与 epoch 秒（10/13 位）
+            text = _re.sub(
+                r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?",
+                "<TS>", text)
+            text = _re.sub(r"\b\d{10}(?:\.\d+)?\b", "<TS>", text)
+            text = _re.sub(r"\b\d{13}\b", "<TS>", text)
+        if "strip-absolute-paths" in norm:
+            # Windows 盘符路径 与 POSIX 绝对路径 → <ABS>
+            text = _re.sub(r"[A-Za-z]:[\\/][^\s<>\"']+", "<ABS>", text)
+            text = _re.sub(r"(?<![\w/])/[^\s<>\"']+(?:/[^\s<>\"']*)*", "<ABS>", text)
+        return text
+
     def _registry_source(self) -> str:
         """Deterministic fingerprint of the registry the check runs against."""
         try:

@@ -59,7 +59,9 @@
    "approval_latencies",
    "approval_latency_stats",
    "build_dora_metrics",
+   "build_gate_defense",
    "build_loop_effectiveness",
+   "build_mutation_metrics",
    "build_repair_progress",
    "build_report",
    "classify_gate_phase",
@@ -1585,6 +1587,13 @@
     "status": "CONSUMING",
     "total_units": 80.0
    },
+   "gate_defense": {
+    "defense_drill_pass_rate": "11/11",
+    "defense_drill_semantics": "T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，tests/test_defense_drills.py）",
+    "note": "生成器实时聚合（T-0145）；rejected_requests 为真实拦截计数（T-0146）",
+    "rejected_requests": 0,
+    "rejected_requests_semantics": "guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求）"
+   },
    "loop_effectiveness": {
     "gate_pass_rate": {
      "status": "computed",
@@ -1609,6 +1618,21 @@
    "missing": [
     "sli:custom_sli_xyz"
    ],
+   "mutation_metrics": {
+    "m1_deterministic": {
+     "reason": "missing mutation-report-m1.json",
+     "verdict": "NOT_AVAILABLE"
+    },
+    "m2_real_role": {
+     "reason": "missing mutation-report-m2.json",
+     "verdict": "NOT_AVAILABLE"
+    },
+    "source_refs": [
+     ".ai/evidence/observability/mutation-report-m1.json",
+     ".ai/evidence/observability/mutation-report-m2.json"
+    ],
+    "threshold": "M1>=5/6 and M2>=4/6"
+   },
    "notes": [
     "wave 1 advisory: budget exhaustion is reported (FREEZE_RECOMMENDED); no release path is blocked by this module.",
     "read-only aggregation: data sources are never modified by this report.",
@@ -2181,6 +2205,13 @@
     "status": "CONSUMING",
     "total_units": 80.0
    },
+   "gate_defense": {
+    "defense_drill_pass_rate": "11/11",
+    "defense_drill_semantics": "T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，tests/test_defense_drills.py）",
+    "note": "生成器实时聚合（T-0145）；rejected_requests 为真实拦截计数（T-0146）",
+    "rejected_requests": 0,
+    "rejected_requests_semantics": "guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求）"
+   },
    "loop_effectiveness": {
     "gate_pass_rate": {
      "status": "computed",
@@ -2205,6 +2236,21 @@
    "missing": [
     "sli:custom_sli_xyz"
    ],
+   "mutation_metrics": {
+    "m1_deterministic": {
+     "reason": "missing mutation-report-m1.json",
+     "verdict": "NOT_AVAILABLE"
+    },
+    "m2_real_role": {
+     "reason": "missing mutation-report-m2.json",
+     "verdict": "NOT_AVAILABLE"
+    },
+    "source_refs": [
+     ".ai/evidence/observability/mutation-report-m1.json",
+     ".ai/evidence/observability/mutation-report-m2.json"
+    ],
+    "threshold": "M1>=5/6 and M2>=4/6"
+   },
    "notes": [
     "wave 1 advisory: budget exhaustion is reported (FREEZE_RECOMMENDED); no release path is blocked by this module.",
     "read-only aggregation: data sources are never modified by this report.",

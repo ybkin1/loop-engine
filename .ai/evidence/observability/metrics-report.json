@@ -5,14 +5,14 @@
     "task_id": "T-0090",
     "phase": "S6-delivery",
     "gate_id": null,
-    "git_commit": "387c7befdca3fe396e170cfadef25f41422a32df",
-    "timestamp": "2026-08-02T04:28:53.567114+00:00",
+    "git_commit": "36d4ca671f446af1ecc81b56d2c8a4023463b8ba",
+    "timestamp": "2026-08-07T13:09:52.143102+00:00",
     "tool_name": "loop_metrics",
     "tool_version": "1.0.0"
   },
   "window": {
-    "start": "2026-07-06T17:44:53+08:00",
-    "end": "2026-08-02T04:28:28.693420+00:00"
+    "start": "2026-07-06T15:12:38+00:00",
+    "end": "2026-08-07T13:08:28.175904+00:00"
   },
   "status": "PASS",
   "missing": [],
@@ -47,58 +47,37 @@
         "S5-quality": 0.0,
         "S6-delivery": 0.0
       },
-      "phase_unmapped_gates": 50,
-      "decided_gates": 92
+      "phase_unmapped_gates": 24,
+      "decided_gates": 101
     },
     "gate_rejection_rate_by_gate_type": {
       "status": "computed",
       "value": {
-        "baseline-approval-only": 0.0,
-        "installation": 0.0,
-        "installation-operating-rules-design-only": 0.0,
-        "installation-rule-change-execution": 0.0,
-        "installation-rule-change-gate-preparation": 0.0,
-        "post-installation-startup-rules-verification": 0.0,
         "real-project-delivery-architecture-governance-design": 0.0,
         "real-project-delivery-architecture-governance-review": 0.0,
         "real-project-governance-enforcement-architecture-design": 0.0,
         "real-project-governance-enforcement-architecture-review": 0.0,
-        "repair-only / candidate-update-only": 0.0,
-        "review-rerun / baseline-readiness-review-only": 0.0,
-        "scope-expansion": 0.0,
-        "state-sync": 0.0,
-        "user-acceptance": 0.0,
-        "user-activation": 0.0,
         "user-approval": 0.0,
-        "user-cleanup": 0.0,
-        "user-closeout-review": 0.0,
-        "user-closeout-review-rerun": 0.0,
         "user-delivery": 0.0,
-        "user-design": 0.0,
-        "user-discovery-approval": 0.0,
         "user-implementation": 0.0,
-        "user-installation": 0.0,
-        "user-method-repair-design": 0.0,
-        "user-quality": 0.0,
-        "user-repair": 0.0,
-        "user-review-only": 0.0
+        "user-quality": 0.0
       }
     },
     "gate_decision_coverage": {
       "status": "computed",
-      "value": 0.3043,
+      "value": 0.0396,
       "basis": "decided with evidence / decided"
     },
     "approval_latency": {
       "status": "computed",
       "value": {
-        "count": 31,
+        "count": 63,
         "p50_seconds": 0.0,
-        "p95_seconds": 1712.0,
-        "mean_seconds": 300.419,
+        "p95_seconds": 1800.0,
+        "mean_seconds": 274.429,
         "p50_hours": 0.0,
-        "p95_hours": 0.476,
-        "mean_hours": 0.083
+        "p95_hours": 0.5,
+        "mean_hours": 0.076
       }
     },
     "task_cycle_time": {
@@ -132,7 +111,7 @@
     "guard_anomaly_rate": {
       "status": "computed",
       "value": 0.0,
-      "total_events": 1627,
+      "total_events": 7427,
       "by_guard": {
         ".ai/checkers/second_failure_checker.py": {
           "total": 2,
@@ -145,32 +124,37 @@
           "anomaly_rate": 0.0
         },
         "bash_content_guard": {
-          "total": 369,
+          "total": 1653,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "content_guard": {
-          "total": 369,
+          "total": 1653,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "gate_guard": {
-          "total": 369,
+          "total": 1653,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "guard_health": {
-          "total": 22,
+          "total": 207,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "ledger_guard": {
-          "total": 246,
+          "total": 1102,
           "fail": 0,
           "anomaly_rate": 0.0
         },
         "path_guard": {
-          "total": 246,
+          "total": 1102,
+          "fail": 0,
+          "anomaly_rate": 0.0
+        },
+        "repair_continuity": {
+          "total": 51,
           "fail": 0,
           "anomaly_rate": 0.0
         }
@@ -181,14 +165,15 @@
       "status": "computed",
       "value": {
         "by_result": {
-          "PASS": 1621,
+          "PASS": 7421,
           "REPORT": 6
         },
         "by_check_type": {
-          "health": 984,
-          "death": 615,
+          "health": 4408,
+          "death": 2755,
           "missing": 6,
-          "integrity": 22
+          "integrity": 207,
+          "repair": 51
         }
       }
     },
@@ -369,7 +354,7 @@
         "unit": "h"
       },
       "status": "computed",
-      "value": 0.476,
+      "value": 0.5,
       "reason": null,
       "over_target": false,
       "breach_events": 0,
@@ -388,10 +373,10 @@
         "value": 1.0
       },
       "status": "computed",
-      "value": 0.30434782608695654,
+      "value": 0.039603960396039604,
       "reason": null,
       "over_target": true,
-      "breach_events": 64,
+      "breach_events": 97,
       "consumed_units": 0.0,
       "source": ".ai/gates.yaml evidence fields",
       "advisory": false
@@ -503,25 +488,25 @@
     "status": "HEALTHY",
     "note": "advisory only (wave 1): budget exhaustion is reported, no release path is blocked by this module"
   },
-  "slo_source": "C:\\Users\\Administrator\\ZCodeProject\\loop-engine\\.ai\\slo.yaml",
+  "slo_source": ".ai\\slo.yaml",
   "sources": [
     {
       "path": ".ai/gates.yaml",
       "status": "available",
-      "sha256": "3170a81ad1f2bd5028b3e153a4b7a0c0a7967ffa7faa7ebb5a6222b2cc775bcc",
-      "lines": 5094
+      "sha256": "b23d0e2bd89c7caba53da0c1c9cb773339488d30b02e1f36a08101a530c68330",
+      "lines": 5716
     },
     {
       "path": ".ai/task_graph.yaml",
       "status": "available",
-      "sha256": "e799b69fb49f7e847455deeea45cd01a833afbe7265550c18c55dfe1e18bab7c",
-      "lines": 1167
+      "sha256": "9f56fc31d3192dd1d8aaa939a8dbb99e21d71c1d382fa31984ebfa40e4e82099",
+      "lines": 1818
     },
     {
       "path": ".ai/evidence/observability/guard-events.jsonl",
       "status": "available",
-      "sha256": "b48154df35e0c0e6b403d7f5a33544a086b308ff0a7dcc975bddbfbf2442f626",
-      "lines": 1627
+      "sha256": "c6affdb887ccd409a5d5f1343db90a53c260106841039e4950844bb9b92f245f",
+      "lines": 7427
     },
     {
       "path": ".ai/ledger/executions.jsonl",
@@ -552,10 +537,49 @@
     "wave 1 advisory: budget exhaustion is reported (FREEZE_RECOMMENDED); no release path is blocked by this module.",
     "read-only aggregation: data sources are never modified by this report.",
     "advisory only (wave 1): budget exhaustion is reported, no release path is blocked by this module",
+    "T-0109 F1 advisory: repair/loop metrics and score caps are presentation-only — they never enter gate decision paths.",
     "部分数据源未接线（wave-2 ledger 项，共 3 个）：逐项 advisory 标注，computed 项正常判定，不因未接线源整体 NOT_VERIFIED",
     "release fee not assessed: no release ledger exists yet; pass --releases when a release record is available. 口径提示：release.py check 的 SLO 门禁按 releases=1 评估本次发布，metrics 报告用同一 releases 值即与 slo_gate 输出一致（同一 release_fee 函数）。"
   ],
+  "repair_progress": {
+    "status": "computed",
+    "repair_triggers": 0,
+    "fixed_gates": 0,
+    "repair_progress": null,
+    "basis": "triggers=rejected gates; fixed=approved gates with prior rejection on the same task (GO 修复闭环)"
+  },
+  "loop_effectiveness": {
+    "status": "computed",
+    "gate_pass_rate": {
+      "status": "computed",
+      "value": 1.0
+    },
+    "rework_total": {
+      "status": "computed",
+      "value": 0
+    },
+    "task_cycle_time": {
+      "status": "computed",
+      "value": {
+        "count": 27,
+        "p50_days": 0.011,
+        "p95_days": 0.369,
+        "mean_days": 0.084,
+        "basis": "created_at -> updated_at"
+      }
+    }
+  },
+  "score_caps": {
+    "Missing": 59,
+    "Unobserved": 59,
+    "N-A": 59,
+    "Present": 74,
+    "Wired": 84,
+    "Exercised": 94,
+    "Outcome-supported": 100
+  },
   "mutation_metrics": {
+    "threshold": "M1>=5/6 and M2>=4/6",
     "m1_deterministic": {
       "detected": 6,
       "seeded": 6,
@@ -568,7 +592,6 @@
       "detection_rate": "6/6",
       "verdict": "PASS"
     },
-    "threshold": "M1>=5/6 and M2>=4/6",
     "source_refs": [
       ".ai/evidence/observability/mutation-report-m1.json",
       ".ai/evidence/observability/mutation-report-m2.json"
@@ -579,6 +602,6 @@
     "rejected_requests_semantics": "guard-events 中 result=BLOCK/REJECTED 事件数（AI 曾提交被拦请求）",
     "defense_drill_pass_rate": "11/11",
     "defense_drill_semantics": "T-0129 演练通过率（R1~R6 拒绝路径 + E1~E5 锁死恢复，tests/test_defense_drills.py）",
-    "note": "旧 gate_rejection_rate=0.0 无法区分'从未挑战'与'防御有效'；拆分见 .ai/evidence/T-0129"
+    "note": "生成器实时聚合（T-0145）；rejected_requests 为真实拦截计数（T-0146）"
   }
 }

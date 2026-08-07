@@ -52,6 +52,11 @@ CHECK_RECOMPUTE = "recompute"  # sampled recompute of a quality report (T-0133)
 RESULT_PASS = "PASS"      # guard behaved as expected / verdict healthy
 RESULT_FAIL = "FAIL"      # guard misbehaved / verdict unhealthy (failure_reason set)
 RESULT_REPORT = "REPORT"  # informative finding — never flips any verdict
+# T-0146 7.2: 拦截语义词表 —— BLOCK = 守卫拒绝动作（hook 拦截写入/命令）；
+# REJECTED = 请求被拒计数（与 BLOCK 同属"被拦请求"聚合口径）。
+# 枚举向后兼容：既有消费者只按已知 result 过滤，未知值不影响其判定。
+RESULT_BLOCK = "BLOCK"      # guard blocked an action (hook rejection)
+RESULT_REJECTED = "REJECTED"  # request rejected (same aggregation bucket as BLOCK)
 
 DEFAULT_EVENT_PATH = ".ai/evidence/observability/guard-events.jsonl"
 
@@ -67,7 +72,7 @@ class GuardCheckEvent:
     """One guard check observation — append-only recorded, never blocks."""
     guard_id: str                       # guard name (hook basename) or asset path
     check_type: str                     # health | death | missing | drift | integrity
-    result: str                         # PASS | FAIL | REPORT
+    result: str                         # PASS | FAIL | REPORT | BLOCK | REJECTED (T-0146)
     duration_ms: float                  # wall-clock duration of the check
     timestamp: str                      # ISO-8601 UTC
     source: str                         # registry fingerprint the check ran against
