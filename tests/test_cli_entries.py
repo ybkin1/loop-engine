@@ -33,22 +33,46 @@ class CliEntriesTest(unittest.TestCase):
         for name, fn in ENTRY_POINTS.items():
             self.assertTrue(callable(fn), name)
 
-    def test_validate_entry_runs(self):
-        """loop-validate 冒烟：调用真实校验器（rc 0 或 2 语义）。"""
-        proc = subprocess.run(
-            [sys.executable, str(ROOT / "loop_engine" / "cli_entries.py"),
-             "loop-validate", str(ROOT)],
+    def _run_entry(self, entry: str, *args: str):
+        return subprocess.run(
+            [sys.executable, str(ROOT / "loop_engine" / "cli_entries.py"), entry, *args],
             capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT), timeout=120)
-        # 校验器可用态 rc=0；pending blocker 时 rc=2 —— 两者都是合法语义
-        self.assertIn(proc.returncode, (0, 2), proc.stderr)
+
+    def test_validate_entry_runs(self):
+        """loop-validate 直调：rc=0（root 自动注入，不传 root）。"""
+        proc = self._run_entry("loop-validate")
+        self.assertEqual(proc.returncode, 0, proc.stderr + proc.stdout[-300:])
+
+    def test_check_entry_runs(self):
+        """loop-check 直调：release check 全 PASS（rc=0，root 不注入）。"""
+        proc = self._run_entry("loop-check")
+        self.assertEqual(proc.returncode, 0, proc.stdout[-400:])
+        self.assertIn("check 通过", proc.stdout)
 
     def test_heartbeat_entry_runs(self):
-        """loop-heartbeat 冒烟：rc 0（无悬空）。"""
-        proc = subprocess.run(
-            [sys.executable, str(ROOT / "loop_engine" / "cli_entries.py"),
-             "loop-heartbeat", str(ROOT)],
-            capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT), timeout=60)
+        """loop-heartbeat 直调：rc 0（无悬空）。"""
+        proc = self._run_entry("loop-heartbeat", str(ROOT))
         self.assertEqual(proc.returncode, 0, proc.stdout)
+
+    def test_delegation_entry_runs(self):
+        """loop-delegation 直调：status rc=0（root 自动注入）。"""
+        proc = self._run_entry("loop-delegation", "status")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+
+    def test_mutation_entry_runs(self):
+        """loop-mutation 直调：scan 子命令（root 不注入）PASS。"""
+        proc = self._run_entry(
+            "loop-mutation", "scan",
+            "--sample", str(ROOT / "tests" / "seeded_defects" / "sample_code" / "user_service.py"),
+            "--registry", str(ROOT / "tests" / "seeded_defects" / "defect_registry.json"))
+        self.assertEqual(proc.returncode, 0, proc.stdout[-300:])
+        self.assertIn("PASS", proc.stdout)
+
+    def test_unknown_entry_rejected(self):
+        """未知入口 → rc=2。"""
+        proc = self._run_entry("loop-bogus")
+        self.assertEqual(proc.returncode, 2)
+        self.assertIn("unknown entry", proc.stderr)
 
 
 class GuardHealthVisibilityTest(unittest.TestCase):

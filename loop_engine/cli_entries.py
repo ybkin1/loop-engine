@@ -11,6 +11,11 @@ subprocess 调用既有工具，不复制任何判定逻辑（单一事实源不
 - loop-delegation → gov_delegation（委托链）
 - loop-conclusion → conclusion_packet（结论包）
 - loop-mutation   → mutation_tester scan（M1 变异检出）
+
+调用模式：
+1. console scripts（pip 安装后）：`loop-validate .` —— sys.argv[1:] 为用户参数
+2. 脚本直调：`python loop_engine/cli_entries.py loop-validate .`
+   —— _dispatch 剥离入口名后调用对应 main
 """
 
 from __future__ import annotations
@@ -25,50 +30,56 @@ TOOLS = PROJECT_ROOT / ".zcode" / "tools"
 SCRIPTS = PROJECT_ROOT / "scripts"
 
 
-def _run(script: Path, args: list[str], auto_root: bool = True) -> int:
-    """调用项目内工具（默认追加项目根位置参数）。"""
+def _run(script: Path, args: list[str], inject_root: bool = True) -> int:
+    """调用项目内工具。
+
+    inject_root=True：工具首参为项目根（validate_state/rounds_heartbeat/
+    gov_delegation/conclusion_packet）。
+    inject_root=False：工具无 root 位置参数（release.py check / mutation_tester
+    子命令），仅设置 cwd。
+    """
     cmd = [sys.executable, str(script)]
-    if auto_root:
+    if inject_root:
         cmd.append(str(PROJECT_ROOT))
     cmd.extend(args)
     proc = subprocess.run(cmd, cwd=str(PROJECT_ROOT))
     return proc.returncode
 
 
-def main_validate() -> int:
+def main_validate(args: list[str] | None = None) -> int:
     """loop-validate: 状态校验（--auto-sync 一步同步可选）。"""
-    args = [a for a in sys.argv[1:] if a != "validate"]
+    args = sys.argv[1:] if args is None else args
     return _run(TOOLS / "validate_state.py", args)
 
 
-def main_check() -> int:
-    """loop-check: release 质量门前置（7 步）。"""
-    args = [a for a in sys.argv[1:] if a != "check"]
-    return _run(SCRIPTS / "release.py", ["check", *args])
+def main_check(args: list[str] | None = None) -> int:
+    """loop-check: release 质量门前置（7 步；无 root 位置参数）。"""
+    args = sys.argv[1:] if args is None else args
+    return _run(SCRIPTS / "release.py", ["check", *args], inject_root=False)
 
 
-def main_heartbeat() -> int:
+def main_heartbeat(args: list[str] | None = None) -> int:
     """loop-heartbeat: 自治心跳（rounds 悬空检测）。"""
-    args = [a for a in sys.argv[1:] if a != "heartbeat"]
+    args = sys.argv[1:] if args is None else args
     return _run(TOOLS / "rounds_heartbeat.py", args)
 
 
-def main_delegation() -> int:
+def main_delegation(args: list[str] | None = None) -> int:
     """loop-delegation: 委托链管理（register/revoke/status/check）。"""
-    args = [a for a in sys.argv[1:] if a != "delegation"]
+    args = sys.argv[1:] if args is None else args
     return _run(TOOLS / "gov_delegation.py", args)
 
 
-def main_conclusion() -> int:
+def main_conclusion(args: list[str] | None = None) -> int:
     """loop-conclusion: 结论包生成。"""
-    args = [a for a in sys.argv[1:] if a != "conclusion"]
+    args = sys.argv[1:] if args is None else args
     return _run(TOOLS / "conclusion_packet.py", args)
 
 
-def main_mutation() -> int:
-    """loop-mutation: M1 变异检出（scan 子命令）。"""
-    args = [a for a in sys.argv[1:] if a != "mutation"]
-    return _run(SCRIPTS / "mutation_tester.py", args)
+def main_mutation(args: list[str] | None = None) -> int:
+    """loop-mutation: M1 变异检出（scan 子命令；无 root 位置参数）。"""
+    args = sys.argv[1:] if args is None else args
+    return _run(SCRIPTS / "mutation_tester.py", args, inject_root=False)
 
 
 ENTRY_POINTS = {
@@ -82,14 +93,21 @@ ENTRY_POINTS = {
 
 
 def _dispatch() -> int:
-    """脚本直调分发：python loop_engine/cli_entries.py <entry> [args...]。"""
-    name = sys.argv[1] if len(sys.argv) > 1 else "loop-validate"
+    """脚本直调分发：python loop_engine/cli_entries.py <entry> [args...]。
+
+    剥离入口名（不传给工具），剩余参数透传。
+    """
+    if len(sys.argv) < 2:
+        print(f"usage: python cli_entries.py <{'|'.join(ENTRY_POINTS)}> [args...]",
+              file=sys.stderr)
+        return 2
+    name = sys.argv[1]
     fn = ENTRY_POINTS.get(name)
     if fn is None:
         print(f"unknown entry: {name}; available: {', '.join(ENTRY_POINTS)}",
               file=sys.stderr)
         return 2
-    return fn()
+    return fn(sys.argv[2:])
 
 
 if __name__ == "__main__":

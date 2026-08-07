@@ -5036,14 +5036,6 @@ gates:
   - Part of T-0132 decision packet P4 (user chose A x4: phased landing).
   - Delegation chain is the mechanism that removes per-step user approval; rule layer
     remains user-gated only.
-delegations:
-- chain_id: C-001
-  task_ids:
-  - T-0134
-  status: active
-  approved_by: user
-  approved_at: '2026-08-07T00:59:10.726759+00:00'
-  note: P4 试点自举：委托链首次真实运行
 - id: G-T-0135-REQUIREMENTS
   task_id: T-0135
   gate_type: user-approval
@@ -5097,3 +5089,11 @@ delegations:
   - no implementation work occurs while this gate is pending
   notes:
   - "User directed: '可以，开始处理' (audit findings closure)."
+delegations:
+- chain_id: C-001
+  task_ids:
+  - T-0134
+  status: active
+  approved_by: user
+  approved_at: '2026-08-07T00:59:10.726759+00:00'
+  note: P4 试点自举：委托链首次真实运行
