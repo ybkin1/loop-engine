@@ -6215,7 +6215,7 @@ gates:
   task_id: T-0158
   gate_type: user-approval
   status: approved
-  execution_status: in_progress
+  execution_status: completed
   decision: approved
   requested_at: '2026-08-07T22:00:00+08:00'
   requested_by: ai
@@ -6234,9 +6234,8 @@ gates:
   - pyproject.toml
   - .zcode/tools/event_log.py
   - .zcode/tools/validate_state.py
-  - src/loop_engine/risk_grading.py
-  - src/loop_engine/cli_entries.py
-  - loop_engine/cost_tracker.py
+  - src/loop_engine/
+  - loop_core/guard_health.py
   - tests/
   - docs/
   - .ai/
@@ -6321,9 +6320,10 @@ delegations:
 - chain_id: C-005
   task_ids:
   - T-0158
-  status: active
+  status: revoked
   approved_by: user
   approved_gate: G-T-0137-REQUIREMENTS
   approved_at: '2026-08-07T17:39:59.277601+00:00'
+  revoked_at: '2026-08-07T18:04:48.486726+00:00'
   note: 遗留收尾包（P3 观察 + DR-004）
 

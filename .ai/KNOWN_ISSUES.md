@@ -51,7 +51,6 @@
 | 编号 | 等级 | 债务 | 来源 | 处理 |
 |------|------|------|------|------|
 | DR-001 | P3 | Qoder 会话源不可用（session-source-disabled，保留不立项） | T-0112 边界 | 保留记录 |
-| DR-004 | P3 | repro_norm 生产方声明仍为跨组件约定（消费侧已就绪） | T-0144 观察 | 待生产方接线 |
 
 ### Debt Register Closed（已闭环）
 
@@ -59,4 +58,5 @@
 |------|------|------|------|
 | DR-002 | P3 | defense_drill_pass_rate 以用例数/用例数为口径 | T-0149 动态统计 + 口径文档化 |
 | DR-003 | P3 | render_markdown 未渲染 mutation/gate_defense | T-0149 已渲染 |
+| DR-004 | P3 | repro_norm 生产方接线 | T-0158 生产方约定文档化 + 事件记录 repro_norm |
 | DR-005 | P3 | E2E 以 lab 64 用例承载 | T-0150 确认纳入回归 |

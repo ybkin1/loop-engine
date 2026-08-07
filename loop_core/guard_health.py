@@ -143,10 +143,16 @@ class GuardHealth:
         repro_norm 可选）→ 比对输出哈希 → 追加写 recompute-events.jsonl
         （{ts, task_id, report_ref, result}）。返回执行的复算次数。
 
-        repro_norm（T-0144 4.3）: 报告可选声明规范化规则
+        repro_norm（T-0144 4.3 + T-0158 生产方接线）: 报告可选声明规范化规则
         （["strip-timestamps", "strip-absolute-paths"]）——去耗时/绝对路径
         后哈希，保证同一逻辑输出的复算哈希稳定；未声明时保持原始哈希
         约定（向后兼容）。
+
+        生产方约定（T-0158 DR-004 闭环）：复算报告生成方（调用本执行器的
+        角色/脚本）应在产出报告时声明 repro_norm —— 凡 repro_command 输出
+        含时间戳/绝对路径（耗时、路径、ISO 时间）者必须声明
+        ["strip-timestamps", "strip-absolute-paths"]，否则复算哈希会因环境
+        差异不稳定（消费侧已就绪，生产方按本约定接线）。
         """
         import hashlib
         import random
@@ -199,6 +205,7 @@ class GuardHealth:
                     "task_id": task_id,
                     "report_ref": rep.get("report_ref", ""),
                     "result": result,
+                    "repro_norm": rep.get("repro_norm") or [],
                 }) + "\n")
         return n_run
 

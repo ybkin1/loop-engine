@@ -1832,7 +1832,7 @@ tasks:
     id: T-0158
     title: 遗留收尾包（P3 观察 + DR-004）
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       pyproject 注册 loop-quota/loop-risk；EVENT_TYPES + risk_accepted；
       is_skippable 仅 LIGHT；auto-sync 状态变化检测；顶层残留处理；

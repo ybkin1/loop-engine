@@ -49,7 +49,7 @@ SANCTIONED_WRITERS = {
 LEGACY_WRITERS = {
     "loop_core/executor.py": "PhaseExecutor 遗留持久化（T-0110 拆分目标）",
     "loop_core/runtime_controller.py": "S0-init onboard 引导 ensure-file（遗留初始化路径）",
-    "loop_engine/adapters/zcode_adapter.py": "host adapter save_state API（适配层遗留）",
+    "src/loop_engine/adapters/zcode_adapter.py": "host adapter save_state API（T-0158 迁入 src 布局）",
     "hooks/scripts/loop_auto_activate.py": "SessionStart 自动激活写 loop_mode（hooks 零改动）",
 }
 

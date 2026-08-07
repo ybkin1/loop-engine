@@ -15,7 +15,7 @@
 - Real business projects must not be entered without a separate real-project-application gate.
 - Deployment, rollback, database, permission, secret, payment, production data, and migration actions require separate explicit user approval.
 - Evidence history should be superseded rather than deleted unless the user approves a destructive action.
-- Loop Core (`loop_core/`) defines host-independent protocols. Host Adapter (`loop_engine/adapters/`) implements them for ZCode (MEDIUM enforcement level).
+- Loop Core (`loop_core/`) defines host-independent protocols. Host Adapter (`src/loop_engine/adapters/`) implements them for ZCode (MEDIUM enforcement level, T-0158 迁入 src 布局).
 - Role isolation is enforced: developer != reviewer, each role via isolated Agent call.
 - Bash command interception is NOT available via ZCode hooks — enforcement level is honestly MEDIUM.
 

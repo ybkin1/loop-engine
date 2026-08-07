@@ -4,7 +4,7 @@
 |------|------|---------|
 | `hooks/` | ZCode 执行层（4 hook） | gate_guard.py, loop_enforcement.py, path_guard.py, session_brief.py |
 | `loop_core/` | 宿主无关控制内核 | state_machine.py, router.py, enforcement.py, contracts.py |
-| `loop_engine/` | Python 核心库 + 适配器 | adapters/, cost_tracker, degradation, enforcement_degradation |
+| `src/loop_engine/` | Python 核心库 + 适配器（T-0158 迁入 src 布局） | adapters/, cost_tracker, degradation, enforcement_degradation, quota_decision, risk_grading |
 | `agents/` | 11 角色合同 | */SKILL.md（12 字段合同） |
 | `tools/` | MCP 工具 | server.py + 7 tool_*.py |
 | `scripts/` | CLI 工具 | install, uninstall, certification, auto_mutation, perf, security, regression |

@@ -77,13 +77,16 @@ class RiskGradingTest(unittest.TestCase):
             from event_log import read_events
             events = read_events(root)
             self.assertEqual(len(events), 1)
+            self.assertEqual(events[0]["event_type"], "risk_accepted",
+                             "T-0158: 独立 risk_accepted 事件类型")
             self.assertEqual(events[0]["actor"], "user")
             self.assertTrue(events[0]["detail"].get("accepted_risk"))
 
     def test_skippable_whitelist(self):
-        """SKIPPED 白名单：仅审核/审计门，FULL 不可跳过。"""
+        """T-0158 收紧：仅 LIGHT 可跳过审核/审计门；STANDARD/FULL 不可。"""
         self.assertTrue(is_skippable("design_review", "LIGHT"))
-        self.assertTrue(is_skippable("audit_review", "STANDARD"))
+        self.assertTrue(is_skippable("audit_review", "LIGHT"))
+        self.assertFalse(is_skippable("audit_review", "STANDARD"), "STANDARD 不可跳过")
         self.assertFalse(is_skippable("design_review", "FULL"))
         self.assertFalse(is_skippable("development", "LIGHT"), "开发门不可跳过")
         self.assertFalse(is_skippable("health_check", "LIGHT"), "健康门不可跳过")

@@ -34,6 +34,7 @@ EVENTS_PATH = ".ai/evidence/observability/state-events.jsonl"
 EVENT_TYPES = {
     "task_registered", "task_status_changed", "gate_created", "gate_approved",
     "gate_completed", "evidence_attached", "handoff_generated",
+    "risk_accepted",  # T-0158: 风险接受记录（ACCEPTED_RISK，独立于 gate_approved）
 }
 
 ACTORS = {"ai", "user", "system"}

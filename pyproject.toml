@@ -38,6 +38,8 @@ loop-heartbeat = "loop_engine.cli_entries:main_heartbeat"
 loop-delegation = "loop_engine.cli_entries:main_delegation"
 loop-conclusion = "loop_engine.cli_entries:main_conclusion"
 loop-mutation = "loop_engine.cli_entries:main_mutation"
+loop-quota = "loop_engine.cli_entries:main_quota"
+loop-risk = "loop_engine.cli_entries:main_risk"
 
 [project.optional-dependencies]
 dev = [

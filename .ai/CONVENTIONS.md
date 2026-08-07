@@ -12,7 +12,7 @@
 - `.ai/` — 治理数据（state, gates, tasks, evidence）
 - `.zcode/` — ZCode 运行时（tools, skills）
 - `loop_core/` — 宿主无关协议
-- `loop_engine/` — Python 核心库 + 适配器
+- `src/loop_engine/` — Python 核心库 + 适配器（T-0158 迁入 src 布局）
 
 ## 代码风格
 

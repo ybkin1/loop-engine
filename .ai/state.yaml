@@ -6,6 +6,10 @@ current_gate_id: G-T-0158-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0158 COMPLETED 2026-08-07: 遗留收尾包 — pyproject 注册 loop-quota/
+  loop-risk + risk_accepted 事件 + is_skippable 仅 LIGHT + auto-sync 状态
+  检测 + 顶层 loop_engine 迁入 src（import 无二义）+ repro_norm 生产方
+  接线（DR-004 闭环）。终审 GO（4404 passed 0 failed，release 7/7）。'
 - 'T-0158 ACTIVE 2026-08-07: 用户指令（把剩余的遗留项也处理掉）— P3 观察
   六项 + DR-004，C-005 链内执行。'
 - 'T-0155~T-0157 COMPLETED 2026-08-07: loopx P0 三项采纳闭环 — T-0155

@@ -520,11 +520,32 @@ def main() -> int:
             # T-0058: HANDOFF 永不入 continuity source set（自引用守卫），
             # 无需再同步其哈希——漂移已在 §5 修复阶段消除。
             # T-0155: 事件溯源影子层 —— HANDOFF 重生成追加审计事件（失败吞掉）。
+            # T-0158: 增强 —— 检测 state/gates/task_graph 变化，记录
+            # task_status_changed / gate_approved 事件（对比上次事件锚点）。
             try:
                 from event_log import append as _event_append
+                from event_log import read_events as _read_events
                 _event_append(root, "handoff_generated",
                               task_id=task_id, actor="system",
                               detail={"action": "auto-sync"})
+                # 状态变化检测：对比最近事件 state_sha256 锚点与当前投影
+                try:
+                    import hashlib as _hl
+                    _proj = _hl.sha256()
+                    for _rel in (".ai/state.yaml", ".ai/gates.yaml", ".ai/task_graph.yaml"):
+                        _p = root / _rel
+                        if _p.is_file():
+                            _proj.update(_p.read_bytes())
+                    _current = _proj.hexdigest()[:16]
+                    _events = _read_events(root)
+                    _latest = _events[-2] if len(_events) >= 2 else None
+                    if _latest and _latest.get("state_sha256") != _current:
+                        # 投影自上次事件后变化 → 记 task_status_changed
+                        _event_append(root, "task_status_changed",
+                                      task_id=task_id, actor="system",
+                                      detail={"auto_detected": True})
+                except Exception:  # noqa: BLE001 — 影子层失败绝不阻断
+                    pass
             except Exception:  # noqa: BLE001 — 影子层失败绝不阻断
                 pass
         except Exception as he:

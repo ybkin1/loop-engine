@@ -119,7 +119,8 @@ def accepted_risk(root: Path, task_id: str, level: str, reason: str) -> bool:
         repo_root = module_dir.parent.parent if module_dir.name == "loop_engine" else module_dir.parent
         _sys.path.insert(0, str(repo_root / ".zcode" / "tools"))
         from event_log import append
-        return append(root, "gate_approved" if level in LEVELS else "task_registered",
+        # T-0158: 独立 risk_accepted 事件类型（审计语义纯净，不复用 gate_approved）
+        return append(root, "risk_accepted",
                       task_id=task_id, actor="user",
                       detail={"accepted_risk": True, "level": level, "reason": reason})
     except Exception:  # noqa: BLE001 — 记录失败不阻断
@@ -127,7 +128,10 @@ def accepted_risk(root: Path, task_id: str, level: str, reason: str) -> bool:
 
 
 def is_skippable(stage: str, level: str) -> bool:
-    """SKIPPED 白名单校验：仅审核/审计门在非 FULL 下可建议跳过。"""
-    if level == "FULL":
+    """SKIPPED 白名单校验：仅 LIGHT 可建议跳过审核/审计门（T-0158 收紧）。
+
+    STANDARD/FULL 一律不可跳过（任务描述"LIGHT 仅允许跳过审核/审计门"）。
+    """
+    if level != "LIGHT":
         return False
     return stage in MODE_SKIPPABLE_STAGES
