@@ -1,0 +1,11 @@
+{
+  "gate_id": "G-T-0158-REQUIREMENTS",
+  "task_id": "T-0158",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "把剩余的遗留项也处理掉",
+  "recorded_at": "2026-08-07T22:00:00+08:00"
+}

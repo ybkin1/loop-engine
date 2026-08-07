@@ -1,11 +1,13 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0155
-current_gate_id: G-T-0155-REQUIREMENTS
+current_task_id: T-0158
+current_gate_id: G-T-0158-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0158 ACTIVE 2026-08-07: 用户指令（把剩余的遗留项也处理掉）— P3 观察
+  六项 + DR-004，C-005 链内执行。'
 - 'T-0155~T-0157 COMPLETED 2026-08-07: loopx P0 三项采纳闭环 — T-0155
   事件溯源影子层（state-events.jsonl + replay_check + 失败吞掉）/T-0156
   配额决策路由（5 态 advisory + fail-safe wait，P2 方案 A 修复）/T-0157
