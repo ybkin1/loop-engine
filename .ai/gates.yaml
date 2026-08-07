@@ -5438,7 +5438,7 @@ gates:
   gate_type: user-approval
   status: approved
   decision: approved
-  execution_status: in_progress
+  execution_status: completed
   requested_at: '2026-08-07T18:00:00+08:00'
   requested_by: ai
   approval_required_from: user

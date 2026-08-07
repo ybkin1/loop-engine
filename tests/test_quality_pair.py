@@ -211,7 +211,11 @@ class RecomputeDetectionTest(unittest.TestCase):
             self.assertNotEqual(findings[0]["severity"], "fail-closed")
 
     def test_single_fail_writes_guard_event(self):
-        """T-0143 4.2: 单次 FAIL 也追加 GuardCheckEvent（侧信道，不等 3 次升级）。"""
+        """T-0143 4.2: 单次 FAIL 也追加 GuardCheckEvent（侧信道，不等 3 次升级）。
+
+        强断言（复核 GO 后加固）：observability 默认 ON、测试上下文无禁用
+        路径，skip 兜底为不可达死代码且会掩盖 4.2 回归——必须断言事件存在。
+        """
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             (root / ".ai").mkdir()
@@ -221,17 +225,13 @@ class RecomputeDetectionTest(unittest.TestCase):
             health = GuardHealth(root)
             health.recompute_detection()
             events_path = root / ".ai" / "evidence" / "observability" / "guard-events.jsonl"
-            if events_path.exists():
-                events = [json.loads(l) for l in events_path.read_text(encoding="utf-8").splitlines()]
-                recompute_events = [e for e in events
-                                    if e.get("check_type") == "recompute"
-                                    and e.get("result") == "FAIL"]
-                self.assertGreaterEqual(len(recompute_events), 1,
-                                        "单次 FAIL 必须可见于 guard-events 侧信道")
-            else:
-                # 观测侧信道可能由配置关闭（默认开）；存在性不强断言，
-                # 但若写入则必须包含 recompute FAIL（防静默回归）
-                self.skipTest("guard-events observation disabled in this config")
+            self.assertTrue(events_path.exists(), "guard-events.jsonl 必须被写入")
+            events = [json.loads(l) for l in events_path.read_text(encoding="utf-8").splitlines()]
+            recompute_events = [e for e in events
+                                if e.get("check_type") == "recompute"
+                                and e.get("result") == "FAIL"]
+            self.assertGreaterEqual(len(recompute_events), 1,
+                                    "单次 FAIL 必须可见于 guard-events 侧信道")
 
     def test_three_consecutive_fails_escalate_fail_closed(self):
         """连续 3 次失败 → fail-closed（overall FAIL）。"""
