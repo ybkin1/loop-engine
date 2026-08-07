@@ -5156,6 +5156,294 @@ gates:
     interfering with the parallel flow's validation, moved back at registration.
   - "candidate-only: design artifacts only; implementation tasks T-0137~T-0142
     need separate user gates."
+- id: G-T-0137-REQUIREMENTS
+  task_id: T-0137
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0137 T-0136 决策包选项 A（P0 批）：将 D-01 设计落地为可复用资产 —— 容量预估模板（QPS 估算→资源投入→示例场景含 2000→20 万 QPS）+ 压测方案 模板（类型/流量模型/工具矩阵/四指标合格线）+ 两个角色知识清单 + 发布 检查点 4 项。
+  allowed_paths:
+  - skills/loop-governance/templates/capacity/
+  - agents/system-architect/references/capacity-checklist.md
+  - agents/release-engineer/references/load-test-checklist.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0138-REQUIREMENTS
+  task_id: T-0138
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0138 T-0136 决策包选项 A（P0 批）：将 D-02 设计落地 —— 弹性设计模板 （RT 治理五阶梯 + 熔断阈值推导 + 降级恢复三层判定，含 50ms→5s 案例）+ system-architect/release-engineer 角色知识 + 发布检查点 4 项。
+  allowed_paths:
+  - skills/loop-governance/templates/stability/
+  - agents/system-architect/references/resilience-checklist.md
+  - agents/release-engineer/references/resilience-release-checklist.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0139-REQUIREMENTS
+  task_id: T-0139
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0139 T-0136 决策包选项 A（P0 批）：将 D-03 设计落地 —— 数据迁移模板 （四阶段法：准备/双写/校验/灰度切流 + 回滚方案 + 数据不丢三层保证 + 单体→微服务拆分专项），含百亿表与拆分案例；两个角色知识 + 发布检查点 5 项。
+  allowed_paths:
+  - skills/loop-governance/templates/migration/
+  - agents/system-architect/references/migration-checklist.md
+  - agents/release-engineer/references/migration-release-checklist.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - "实际数据迁移执行（模板为设计方法论，执行仍需用户单独 gate）"
+  - 部署/数据库/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0140-REQUIREMENTS
+  task_id: T-0140
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0140 T-0136 决策包选项 A（P1 批）：将 D-04 设计落地 —— 性能诊断模板 （分位指标选择表 + 长尾四步定位 + 慢 SQL 六阶梯含索引确认 + GC 四步， 含 2s→20ms 与 11 亿行案例）；quality-engineer 角色知识 + 发布检查点 4 项。
+  allowed_paths:
+  - skills/loop-governance/templates/performance/
+  - agents/quality-engineer/references/performance-checklist.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0141-REQUIREMENTS
+  task_id: T-0141
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0141 T-0136 决策包选项 A（P1 批）：将 D-05 设计落地 —— 一致性设计模板 （缓存一致性对比含延迟双删 + 异步化取舍 + 消息三层不丢 + 双端幂等， 含四案例）；system-architect 角色知识 + 发布检查点 5 项。 范围遵循 D-05 裁剪声明：分布式事务仅提及不展开（幂等+补偿为主轴）。
+  allowed_paths:
+  - skills/loop-governance/templates/consistency/
+  - agents/system-architect/references/consistency-checklist.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  - 超出 D-05 范围声明（分布式事务详设不展开）
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0142-REQUIREMENTS
+  task_id: T-0142
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0142 T-0136 决策包选项 A（P2 批）：将 D-06 设计落地 —— DDD 与微服务拆分 指南（何时用/决策表/顺序）+ 发布策略决策指南（灰度/蓝绿/金丝雀矩阵）+ 两个角色知识（DDD 清单/tradeoff 清单）+ AI 能力边界方法论文档 + 发布检查点 4 项。
+  allowed_paths:
+  - skills/loop-governance/templates/architecture/ddd-split-guide.md
+  - skills/loop-governance/templates/deployment/release-strategy-guide.md
+  - agents/system-architect/references/ddd-checklist.md
+  - agents/delivery-manager/references/tradeoff-checklist.md
+  - docs/designs/T-0136-D06-ai-boundary.md
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - docs/
+  - .ai/
+  - tests/
+
+  forbidden_actions:
+  - hooks/ 零改动、loop_core/ 内核零触碰
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
+- id: G-T-0143-REQUIREMENTS
+  task_id: T-0143
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:00:00+08:00'
+  scope: >-
+    T-0143 处理 `.ai/evidence/observability/legacy-issues-summary-2026-08-07.md` 中登记的 T-0127~T-0135 审查遗留 + KNOWN_ISSUES 待办项。按优先级分三批： **P1 批**（反复工程性问题 + 治理核心）：1.1 测试套件非密封（security 证据 时间戳漂移）、1.2 validate_state YAML 崩溃 exit 1、3.2 委托链 approved_by 无验证；**P2 批**：2.1 安装态打包、3.1 route order 表、3.3 _save_gates 重写、3.4 白名单单测、4.1 不可复算逃过、4.2 单次 FAIL 无侧信道、4.4 manifest.validate 无 quality_pair 规则；**P3 批**：4.3/4.5/5.1/7.1/7.2 （低影响/观测面，按需）。6.2 session-source-disabled 保留不立项。
+  allowed_paths:
+  - .zcode/tools/validate_state.py
+  - .zcode/tools/governor_lib.py
+  - .zcode/tools/gov_delegation.py
+  - loop_core/router.py
+  - loop_core/schemas/
+  - loop_engine/cli_entries.py
+  - src/loop_engine/
+  - pyproject.toml
+  - scripts/
+  - agents/security-engineer/scripts/run_security_scan.py
+  - tests/
+  - docs/
+  - .ai/
+
+  forbidden_actions:
+  - 修改 hooks/ 语义（仅允许不涉及 hook 逻辑的测试修复）
+  - 部署/数据库/迁移/真实业务项目
+  - 安装或启用新 skill/MCP/agent
+  - 修改历史证据源文件（security 证据语义评估除外，需注明）
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
+
 delegations:
 - chain_id: C-001
   task_ids:
