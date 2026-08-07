@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0133",
+  "gate_id": "G-T-0133-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T00:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "SubagentSpec.quality_pair schema + validate() 强制规则",
+    "agent 判定断言化桥接 + EvalCaseResult.evidence_ref",
+    "CHECK_RECOMPUTE（guard_health 抽查复算）",
+    "6 角色契约 when_to_use 前置 + 只读校验规范",
+    "全量回归 + bump 3.12.65",
+    "独立审查 + 验收"
+  ],
+  "notes": "G-T-0133-REQUIREMENTS 已由用户批准（按顺序完成全量处理）。hooks/ 零改动；loop_mode 枚举不改（P4）。eval 栈为质量校验核心机制（用户确认方向）。"
+}

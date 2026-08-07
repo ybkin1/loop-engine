@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.12.65 (2026-08-07) — T-0133 P3: 三层质量线程落地 — quality_pair + eval 桥接 + CHECK_RECOMPUTE + 角色契约
+
+### Changed (T-0133 P3: 三层质量线程落地 — quality_pair + eval 桥接 + CHECK_RECOMPUTE + 角色契约)
+- 版本同步：release.py bump 更新 pyproject/CHANGELOG/版本载体（原子写）；提交流程约定：先 bump 再提交（版本与 git HEAD 一致）
+
 ## v3.12.64 (2026-08-06) — T-0129 P2: 防御演练 — 拒绝路径 R1~R6 + 锁死恢复 E1~E5（11 用例）+ 指标语义修正
 
 ### Changed (T-0129 P2: 防御演练 — 拒绝路径 R1~R6 + 锁死恢复 E1~E5（11 用例）+ 指标语义修正)

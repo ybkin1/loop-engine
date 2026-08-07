@@ -33,6 +33,20 @@ class SubagentStatus(str, Enum):
 
 
 @dataclass
+class QualityPair:
+    """T-0133 P3: 质量校验配对（三层质量线程 D-01 §4）。
+
+    每个重量执行 spec 必须配对质量校验 spec；无配对 = 编排无效（机器可判）。
+    eval_cases 字段对齐 EvalCase schema（loop_core/evals.py）。
+    """
+    quality_role: str                       # quality-engineer / test-engineer / ...
+    check_scope: list[str] = field(default_factory=list)   # 校验对象路径
+    eval_cases: list[dict] = field(default_factory=list)   # 质量校验断言
+    round_limit: int = 3                    # 轮次上限（D-01 §5）
+    on_escalate: str = "default_no"         # 超限默认不通过（fail-safe）
+
+
+@dataclass
 class SubagentSpec:
     """Single sub-agent specification.
 
@@ -48,6 +62,8 @@ class SubagentSpec:
     timeout_seconds: int = 300
     retry_on_failure: bool = True
     max_retries: int = 2
+    is_weighted: bool = False           # T-0133: 重量动作（跨模块/契约变更等）
+    quality_pair: QualityPair | None = None  # T-0133: 质量校验配对（重量动作强制）
 
     def __post_init__(self):
         if not self.subagent_id or not self.subagent_id.strip():
@@ -58,6 +74,11 @@ class SubagentSpec:
             raise ValueError(f"timeout_seconds must be positive, got {self.timeout_seconds}")
         if self.max_retries < 0:
             raise ValueError(f"max_retries must be >= 0, got {self.max_retries}")
+        if self.is_weighted and self.quality_pair is None:
+            raise ValueError(
+                f"weighted action '{self.subagent_id}' requires quality_pair "
+                "(T-0133: 重量动作无质量校验配对 = 编排无效)"
+            )
 
 
 @dataclass

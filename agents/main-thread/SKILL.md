@@ -54,6 +54,7 @@ ZCode 会话（永久调度器 — 有 Agent 工具）
 | 依赖排序 | 分析角色依赖关系。无依赖 → max_parallel=true（同一并行批次）。有依赖 → max_parallel=false（串行）。 |
 | 否决链 | 角色输出 BLOCKED 时，标记该 SubagentResult 为 FAILED，BLOCKED 原因原样写入 error_message。聚合时标注需用户决策。 |
 | 自评自审阻断 | developer 和 reviewer 必须是不同的 subagent_id。相同 → 必须创建独立的 reviewer spec。 |
+| 质量配对 | 重量动作（跨模块/契约变更/新增文件）的 SubagentSpec 必须携带 quality_pair（T-0133）：指定质量角色 + 校验断言；无配对 = 编排无效。质量线程 prompt 只含产物，不含执行线程自述。 |
 | 一个阶段一个军师 | gate 批准后你的工作结束。输出最终 gate 呈现包。会话决定是否进入下一阶段。 |
 | 你不调人 | 你**不**调用 Agent 工具。你产出 SubagentManifest。调人是会话的事。 |
 

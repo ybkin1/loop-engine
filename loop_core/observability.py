@@ -44,6 +44,9 @@ CHECK_INTEGRITY = "integrity"  # overall three-way integrity verdict
 # 动态修复写入；PASS = repair 后重新校验通过，FAIL = 修复失败/无物可修）。
 # 枚举向后兼容：既有消费者只按已知 check_type 过滤，未知类型不影响其判定。
 CHECK_REPAIR = "repair"        # continuity auto-repair trigger (T-0111)
+# T-0133 P3 / D-02 M4: 抽查复算事件（质量报告抽样重算；单次 FAIL 为 REPORT，
+# 连续 3 次 FAIL 升级 fail-closed —— 防质量线程系统性虚报）。
+CHECK_RECOMPUTE = "recompute"  # sampled recompute of a quality report (T-0133)
 
 # ── Event results ──────────────────────────────────────────────────────────
 RESULT_PASS = "PASS"      # guard behaved as expected / verdict healthy

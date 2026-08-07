@@ -45,6 +45,7 @@ from loop_core.observability import (
     CHECK_HEALTH,
     CHECK_INTEGRITY,
     CHECK_MISSING,
+    CHECK_RECOMPUTE,
     RESULT_FAIL,
     RESULT_PASS,
     RESULT_REPORT,
@@ -461,18 +462,105 @@ class GuardHealth:
             ))
         return findings
 
+    def recompute_detection(self) -> list[dict]:
+        """T-0133 P3 / D-02 M4: 抽查复算检测。
+
+        读取 .ai/evidence/observability/recompute-events.jsonl（追加式，
+        {ts, task_id, report_ref, result: PASS|FAIL}），按任务粒度统计
+        末位连续 FAIL（24h 时间窗）：
+        - 单次 FAIL            → REPORT（只报告，不翻转 verdict）
+        - 连续 >= 3 次 FAIL    → BROKEN（升级 fail-closed：质量线程疑似
+          系统性虚报，暂停走恢复路径）
+        """
+        findings: list[dict] = []
+        source = self._registry_source()
+        events_path = self.root / ".ai" / "evidence" / "observability" / "recompute-events.jsonl"
+        if not events_path.is_file():
+            return findings
+        events: list[dict] = []
+        try:
+            for line in events_path.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    events.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        except OSError:
+            return findings
+        from datetime import timedelta
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        per_task: dict[str, list[dict]] = {}
+        for ev in events:
+            ts = ev.get("ts", "")
+            try:
+                ts_dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                ts_dt = None
+            if ts_dt is not None and ts_dt < cutoff:
+                continue
+            per_task.setdefault(str(ev.get("task_id", "?")), []).append(ev)
+        for task_id, evs in per_task.items():
+            evs.sort(key=lambda e: str(e.get("ts", "")))
+            trailing_fail = 0
+            for ev in reversed(evs):
+                if ev.get("result") == "FAIL":
+                    trailing_fail += 1
+                else:
+                    break
+            if trailing_fail >= 3:
+                findings.append({
+                    "finding": "RECOMPUTE_BROKEN",
+                    "severity": "fail-closed",
+                    "provider_id": "recompute",
+                    "capability_id": task_id,
+                    "implementation_path": "recompute-events.jsonl",
+                    "message": (
+                        f"quality thread '{task_id}' failed recompute "
+                        f"{trailing_fail} consecutive times within 24h — "
+                        "systematic misreport suspected, pause for recovery"
+                    ),
+                })
+                self._observe(GuardCheckEvent(
+                    guard_id=f"recompute:{task_id}",
+                    capability_id=task_id,
+                    check_type=CHECK_RECOMPUTE,
+                    result=RESULT_FAIL,
+                    duration_ms=0.0,
+                    failure_reason=findings[-1]["message"],
+                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    source=source,
+                ))
+            elif trailing_fail > 0:
+                findings.append({
+                    "finding": "RECOMPUTE_REPORT",
+                    "severity": "report",
+                    "provider_id": "recompute",
+                    "capability_id": task_id,
+                    "implementation_path": "recompute-events.jsonl",
+                    "message": f"recompute failed {trailing_fail} time(s) — report level",
+                })
+        return findings
+
     def integrity_check(self) -> dict:
         """Three-way integrity: death (fail-closed) + missing + drift (report).
 
         The overall verdict is driven by DEATH ONLY (BROKEN/DORMANT -> FAIL,
         unchanged fail-closed semantics). MISSING/DRIFT findings are attached as
         REPORT-level evidence — they inform but never block (T-0087 AC-02).
+        T-0133: RECOMPUTE joins as a fourth dimension — single failure reports,
+        >=3 consecutive failures escalates to fail-closed (quality thread pause).
         """
         t0 = time.perf_counter()
         death = self.summary()
         missing = self.missing_detection()
         drift = self.drift_detection()
+        recompute = self.recompute_detection()
         overall = death["overall"]
+        # T-0133: RECOMPUTE_BROKEN（连续 >=3 次复算失败）升级 fail-closed
+        if overall == "PASS" and any(f["severity"] == "fail-closed" for f in recompute):
+            overall = "FAIL"
         # T-0089 U8: one integrity event per check — side channel, never
         # blocks.  The overall verdict above is unchanged by the recording.
         dead_guards = [r["guard"] for r in death["results"] if r["status"] != "ALIVE"]
@@ -491,8 +579,9 @@ class GuardHealth:
             "death": death,
             "missing": missing,
             "drift": drift,
+            "recompute": recompute,
             # missing/drift are report-level: overall must NOT flip because of
-            # them — only a dead guard fails the loop.
+            # them — only a dead guard fails the loop (recompute BROKEN counts).
             "overall": overall,
             "checked_at": death["checked_at"],
         }

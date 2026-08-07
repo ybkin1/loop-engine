@@ -1503,7 +1503,7 @@ tasks:
     id: T-0129
     title: 防御演练（P2）— gate 拒绝路径 + 锁死恢复演练
     phase: S6-delivery
-    status: in_progress
+    status: completed
     description: >-
       拒绝路径端到端演练（≥6 用例）+ 锁死恢复演练 E1~E5（回滚不无脑删断言）+
       gate_rejection_rate 语义修正（rejected_requests / defense_drill_pass_rate）；
@@ -1516,7 +1516,7 @@ tasks:
     id: T-0133
     title: 三层质量线程落地（P3）— quality_pair + eval 桥接 + CHECK_RECOMPUTE
     phase: S6-delivery
-    status: pending
+    status: in_progress
     description: >-
       D-01/D-02 落地：SubagentSpec.quality_pair 强制配对 + agent 判定断言化
       桥接（evals.py + evidence_ref）+ CHECK_RECOMPUTE（guard_health，比例

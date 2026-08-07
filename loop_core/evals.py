@@ -35,6 +35,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -270,6 +271,7 @@ class EvalCaseResult:
     rule_type: str
     version: str
     reason: str | None = None
+    evidence_ref: str | None = None   # T-0133 P3 / D-02 M5: 证据引用（无引用=FAIL）
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -281,6 +283,7 @@ class EvalCaseResult:
             "rule_type": self.rule_type,
             "version": self.version,
             "reason": self.reason,
+            "evidence_ref": self.evidence_ref,
         }
 
 
@@ -395,6 +398,35 @@ def default_executor(case: EvalCase) -> ExecResult:
 
 class EvalExecutionError(RuntimeError):
     """The executor could not run the case (timeout, start failure, ...)."""
+
+
+# ── T-0133 P3: agent 判定断言化桥接（D-01 §6.1 L2→L1）────────────────────
+def finding_to_eval_case(finding: dict[str, Any], artifact_path: str,
+                         root: str | Path | None = None) -> EvalCase:
+    """把 agent finding（title/line/severity）桥接为可复算 EvalCase。
+
+    断言：产物文件存在且行数 >= finding.line（证据引用有效性）。
+    由 EvalRunner 复算确认——agent 的话不是最终证据，eval 复算才是
+    （D-02 M1/M5）。无 evidence_ref 的判定不得直接进入报告。
+    """
+    line = int(finding.get("line") or 0)
+    case_id = f"QP-{finding.get('id') or 'FIND'}"
+    probe = (
+        "import sys; from pathlib import Path;"
+        f"p=Path({str(artifact_path)!r});"
+        "src=p.read_text(encoding='utf-8');"
+        f"ok=(len(src.splitlines()) >= {line});"
+        "sys.exit(0 if ok else 2)"
+    )
+    return EvalCase(
+        case_id=case_id,
+        title=f"bridge: {str(finding.get('title') or 'agent finding')[:60]}",
+        input={"command": [sys.executable, "-c", probe],
+               "cwd": str(root or Path.cwd())},
+        rule={"type": "exit_code", "params": {"expected": 0}},
+        severity=str(finding.get("severity") or "medium"),
+        tags=["quality-pair", "assertion-bridge"],
+    )
 
 
 def _navigate_json(data: Any, path: str) -> Any:
