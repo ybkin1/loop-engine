@@ -5486,6 +5486,182 @@ gates:
   notes:
   - Part of T-0136 decision packet option A (user chose full landing, P0->P1->P2 batches).
 
+- id: G-T-0144-REQUIREMENTS
+  task_id: T-0144
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:30:00+08:00'
+  scope: >-
+    T-0144 repro_norm 规范化规则实现（legacy 4.3）：run_sampled_recompute 消费 repro_norm（strip-timestamps/strip-absolute-paths），规范化后哈希稳定；无 repro_norm 向后兼容。
+  allowed_paths:
+  - loop_core/guard_health.py
+  - loop_core/observability.py
+  - loop_core/governance_metrics.py
+  - loop_core/dora_metrics.py
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of legacy-issues-summary follow-up batch (4.3 / 7.1 / 7.2 / 3.5).
+  - Execution via delegation chain C-002 (approved once, chain-internal autonomy).
+
+- id: G-T-0145-REQUIREMENTS
+  task_id: T-0145
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:30:00+08:00'
+  scope: >-
+    T-0145 metrics-report 生成器接入（legacy 7.1）：mutation_metrics/gate_defense 由生成器从 guard-events/mutation 报告实时聚合，替代手写快照；schema 向后兼容。
+  allowed_paths:
+  - loop_core/guard_health.py
+  - loop_core/observability.py
+  - loop_core/governance_metrics.py
+  - loop_core/dora_metrics.py
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of legacy-issues-summary follow-up batch (4.3 / 7.1 / 7.2 / 3.5).
+  - Execution via delegation chain C-002 (approved once, chain-internal autonomy).
+
+- id: G-T-0146-REQUIREMENTS
+  task_id: T-0146
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:30:00+08:00'
+  scope: >-
+    T-0146 guard-events 词表 BLOCK + 拦截计数（legacy 7.2）：RESULT_BLOCK/RESULT_REJECTED 新增；rejected_requests 真实计数；与 T-0145 生成器联动；hooks/ 零改动。
+  allowed_paths:
+  - loop_core/guard_health.py
+  - loop_core/observability.py
+  - loop_core/governance_metrics.py
+  - loop_core/dora_metrics.py
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of legacy-issues-summary follow-up batch (4.3 / 7.1 / 7.2 / 3.5).
+  - Execution via delegation chain C-002 (approved once, chain-internal autonomy).
+
+- id: G-T-0147-REQUIREMENTS
+  task_id: T-0147
+  gate_type: user-approval
+  status: pending
+  decision: pending
+  requested_at: '2026-08-07T18:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T18:30:00+08:00'
+  scope: >-
+    T-0147 委托链 C-002 端到端验证（legacy 3.5）：真实任务链 C-002（覆盖 T-0144~T-0146）闭环，登记→链内自治→结论包；3.2 锚定反例实测；规则层不豁免。
+  allowed_paths:
+  - loop_core/guard_health.py
+  - loop_core/observability.py
+  - loop_core/governance_metrics.py
+  - loop_core/dora_metrics.py
+  - scripts/
+  - tests/
+  - docs/
+  - .ai/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Part of legacy-issues-summary follow-up batch (4.3 / 7.1 / 7.2 / 3.5).
+  - Execution via delegation chain C-002 (approved once, chain-internal autonomy).
+
 delegations:
 - chain_id: C-001
   task_ids:
