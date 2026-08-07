@@ -1755,6 +1755,42 @@ tasks:
       - T-0150
     gates:
       - G-T-0151-REQUIREMENTS
+  -
+    id: T-0152
+    title: P3 观察收尾批 2（治理记录完整性）
+    phase: S6-delivery
+    status: in_progress
+    description: >-
+      legacy gate execution_status 补全（10 条）+ G-T-0103/0106 证据接线 +
+      release-checklist 金字塔检查点 + Debt Register 语义修正 + 口径文档化。
+    depends_on:
+      - T-0151
+    gates:
+      - G-T-0152-REQUIREMENTS
+  -
+    id: T-0153
+    title: 手机 PWA 叠加层原型（T-0001 延续，candidate）
+    phase: S6-delivery
+    status: pending
+    description: >-
+      PWA 骨架 + mock API 客户端（sessions/发消息/abort/切模型）+ SSE 消费 +
+      设备配对映射设计；真实 NordRelay/公网属外部边界需单独 gate。
+    depends_on:
+      - T-0152
+    gates:
+      - G-T-0153-REQUIREMENTS
+  -
+    id: T-0154
+    title: loop x 对比研究（candidate-only）
+    phase: S6-delivery
+    status: pending
+    description: >-
+      subagents 深读 GitHub loop x 代码文档 → 对比差距报告 + 分级提升建议；
+      只读研究，零产品代码改动，保 loop 稳定。
+    depends_on:
+      - T-0153
+    gates:
+      - G-T-0154-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1872,3 +1908,9 @@ edges:
       to: T-0150
     - from: T-0150
       to: T-0151
+    - from: T-0151
+      to: T-0152
+    - from: T-0152
+      to: T-0153
+    - from: T-0153
+      to: T-0154

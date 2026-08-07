@@ -1,11 +1,14 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0148
-current_gate_id: G-T-0148-REQUIREMENTS
+current_task_id: T-0152
+current_gate_id: G-T-0152-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-07T00:00:00+08:00'
 notes:
+- 'T-0152~T-0154 ACTIVE 2026-08-07: 用户指令批（登记即执行）— T-0152 P3
+  收尾批 2/T-0153 手机 PWA 叠加层原型（外部边界单独 gate）/T-0154 loop x
+  对比研究（candidate-only）。C-003 链内执行。'
 - 'T-0148~T-0151 COMPLETED 2026-08-07: 漂移/未完成项全部闭环 — T-0148
   gate 漂移清理（55 条回填 0 剩余 + 审计测试 + C-002 revoke）/T-0149 P3
   收尾包（render_markdown/defense_drill 动态/repro_norm 边界/manifest

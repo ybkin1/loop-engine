@@ -1,0 +1,11 @@
+{
+  "task_id": "T-0152",
+  "gate_id": "G-T-0152-REQUIREMENTS",
+  "status": "in_progress",
+  "started_at": "2026-08-07T20:00:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "P3 观察收尾批 2（治理记录完整性）"
+  ],
+  "notes": "链 C-003 内执行（用户指令批）。"
+}

@@ -1,0 +1,11 @@
+{
+  "gate_id": "G-T-0152-REQUIREMENTS",
+  "task_id": "T-0152",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "把剩余项也排布下形成新的任务，执行任务",
+  "recorded_at": "2026-08-07T20:00:00+08:00"
+}

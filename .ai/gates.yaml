@@ -5888,6 +5888,159 @@ gates:
   notes:
   - Drift cleanup / P3 closeout / KNOWN_ISSUES hygiene / backlog batch.
   - Execution via delegation chain C-003 (approved once, chain-internal autonomy).
+- id: G-T-0152-REQUIREMENTS
+  task_id: T-0152
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T20:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T20:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 把剩余项也排布下形成新的任务，执行任务
+  approval_evidence: .ai/evidence/T-0152/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0152/execution-evidence.json
+  scope: >-
+    T-0152 P3 观察收尾批 2：legacy gate 补 execution_status；G-T-0103/0106 证据接线；release-checklist 金字塔检查点；Debt Register 语义修正；口径文档化。
+  allowed_paths:
+  - .ai/
+  - tests/
+  - docs/
+  - web/
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - skills/loop-governance/templates/testing/test-strategy.md
+  - loop_core/governance_metrics.py
+  - loop_core/guard_health.py
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - connect to real NordRelay instance / public reverse proxy / WSS relay / deploy
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - User-directed batch (T-0152 closeout / T-0153 PWA prototype / T-0154 loopx study).
+  - Execution via delegation chain C-003.
+
+- id: G-T-0153-REQUIREMENTS
+  task_id: T-0153
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T20:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T20:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 把剩余项也排布下形成新的任务，执行任务
+  approval_evidence: .ai/evidence/T-0153/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0153/execution-evidence.json
+  scope: >-
+    T-0153 手机 PWA 叠加层原型（T-0001 延续）：PWA 骨架 + mock API + SSE + 设备配对设计；真实 NordRelay/公网属外部边界需单独 gate。
+  allowed_paths:
+  - .ai/
+  - tests/
+  - docs/
+  - web/
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - skills/loop-governance/templates/testing/test-strategy.md
+  - loop_core/governance_metrics.py
+  - loop_core/guard_health.py
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - connect to real NordRelay instance / public reverse proxy / WSS relay / deploy
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - User-directed batch (T-0152 closeout / T-0153 PWA prototype / T-0154 loopx study).
+  - Execution via delegation chain C-003.
+
+- id: G-T-0154-REQUIREMENTS
+  task_id: T-0154
+  gate_type: user-approval
+  status: approved
+  execution_status: in_progress
+  decision: approved
+  requested_at: '2026-08-07T20:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-07T20:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 把剩余项也排布下形成新的任务，执行任务
+  approval_evidence: .ai/evidence/T-0154/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0154/execution-evidence.json
+  scope: >-
+    T-0154 loop x 对比研究：subagents 深读 → 差距报告 + 分级建议；candidate-only 零产品改动。
+  allowed_paths:
+  - .ai/
+  - tests/
+  - docs/
+  - web/
+  - skills/loop-governance/templates/deployment/release-checklist.md
+  - skills/loop-governance/templates/testing/test-strategy.md
+  - loop_core/governance_metrics.py
+  - loop_core/guard_health.py
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change guard verdict semantics
+  - connect to real NordRelay instance / public reverse proxy / WSS relay / deploy
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - User-directed batch (T-0152 closeout / T-0153 PWA prototype / T-0154 loopx study).
+  - Execution via delegation chain C-003.
+
 delegations:
 - chain_id: C-001
   task_ids:
