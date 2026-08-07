@@ -25,7 +25,7 @@
       "migration"
     ]
   },
-  "persisted_file_sha256": "3415756AD54F1BE5919E0B59AF605B75603EC5533368ED7B139E8C632F63347B",
+  "persisted_file_sha256": "0202E0BDC81B4B85DB8F5CB4149281C0DB5333786AE9A52746BB10C627DBAD02",
   "product_identity": {
     "north_star": "每个非技术用户都能借助AI交付可用软件",
     "one_sentence_outcome": "帮助无代码能力的用户以Loop工程方式从需求到可交付软件",
@@ -69,7 +69,7 @@
   ],
   "schema": "ProjectContinuityProjection/v1",
   "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-  "source_sha256": "360292076EAADA9C4E35B2FED63ACA931E1B3A9AD80DB9FA476DFB05836D322D",
+  "source_sha256": "FDA071ED02E05739B37D2CC801CC0C6EBB6DCFEDFC19627534F3FFC4B49D3D2F",
   "user_origin": {
     "audience": "单人AI辅助软件研发",
     "capability_assumptions": [
@@ -194,7 +194,7 @@ Use $project-governor, validate structured state, and continue only inside the a
 {
   "authority_hash": "207C6798641AEFE9B47DD845B3D256195808AA34B368B59D53F4FC1647A7E4AD",
   "blockers": [],
-  "checkpoint_id": "CP-5D7A5691B5815A26374B76FC",
+  "checkpoint_id": "CP-469D5CA716CD57A8609C8AD4",
   "checkpoint_status": "PENDING_SUCCESSOR_ACK",
   "contract_id": "PCC-2026-07-16-R1",
   "controller_generation": 1,
@@ -207,11 +207,11 @@ Use $project-governor, validate structured state, and continue only inside the a
   },
   "fixture_only": false,
   "project_continuity_hashes": {
-    "file_sha256": "3415756AD54F1BE5919E0B59AF605B75603EC5533368ED7B139E8C632F63347B",
+    "file_sha256": "0202E0BDC81B4B85DB8F5CB4149281C0DB5333786AE9A52746BB10C627DBAD02",
     "semantic_sha256": "4A628D77A09C427695A4CADA20E21A8E91A5C311CCB92D278B4990B0A1D4DE9C",
-    "source_sha256": "360292076EAADA9C4E35B2FED63ACA931E1B3A9AD80DB9FA476DFB05836D322D"
+    "source_sha256": "FDA071ED02E05739B37D2CC801CC0C6EBB6DCFEDFC19627534F3FFC4B49D3D2F"
   },
-  "recovered_state_sha256": "55453CBE7722AF74ED3B9BD65C8BBAB3EE0C137392B0B53F95132876E4936003",
+  "recovered_state_sha256": "6FF2F1BD01E3F3D16A437D64F507C07A69CD6E9C9113FDF0496DCCD6448A3EA1",
   "requirements_revision": "T-0034-REQ-2026-07-16-R1",
   "schema": "Checkpoint/v1.0",
   "task_scope_hash": "F72DA08DFB1BE1ACB722980490D3EAFD26B0E7AF676A2F25752DB73DC7D77E9E",
