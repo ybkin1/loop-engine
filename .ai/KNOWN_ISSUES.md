@@ -3,7 +3,7 @@
 ## Open
 
 - [session-source-disabled Medium] Qoder 工作区会话证据源未启用或源根配置不可用：分析报告出现 `disabled-source-root` / `missing-optional-root`，仅 1/5 个 enabled source roots 存在；即使有会话也无法读取，任务理解、可控执行、改动验证、可靠交付持续处于 Unobserved，评分被证据上限锁死，学习捕获也无法验证。→ 记录保留，不立项修复（T-0112 已撤销：Qoder 为外部会话宿主，其数据不作 ZCode 验收证据；T-0121 已落地 ZCode 原生会话存在性核验（呈现层 session_source 标注），如需进一步走 ZCode 原生会话证据路径按 T-0120 决策包评估）
-- [execution-delegation Medium] 执行委派演进方向（用户观察 2026-08-07）：Loop 工程当前执行拓扑 = **主会话编排 + 子代理审查**（T-0062 仅强制 quality checkpoint 派发子代理；委托链 C-001~C-005 解决的是授权拓扑，非执行拓扑）。主任务（设计/编码/测试/收口）全部由主会话执行。**这是 ZCode 宿主约束下的合理现状**（子代理不能拉子孙代理、上下文不跨会话共享、无持久状态），非治理缺陷；但对照 loopx 对等代理模型（claim/lease/typed continuation），执行委派（executor: subagent 标记 + 上下文打包派发 + 产物回收校验）是明确的演进方向。**ZCode 上为 P2 候选（candidate-only 设计，需 gate）；Pi agent（支持 3 层子代理递归）可先行试点** —— 引导见 docs/designs/T-0159-pi-agent-onboarding.md。→ 记录留档，不立项（待用户发起）。
+- [execution-delegation Medium] 执行委派演进方向（用户观察 2026-08-07）：Loop 工程当前执行拓扑 = **主会话编排 + 子代理审查**（T-0062 仅强制 quality checkpoint 派发子代理；委托链 C-001~C-005 解决的是授权拓扑，非执行拓扑）。主任务（设计/编码/测试/收口）全部由主会话执行。**这是 ZCode 宿主约束下的合理现状**（子代理不能拉子孙代理、上下文不跨会话共享、无持久状态），非治理缺陷；但对照 loopx 对等代理模型（claim/lease/typed continuation），执行委派（executor: subagent 标记 + 上下文打包派发 + 产物回收校验）是明确的演进方向。**ZCode 上为 P2 候选（candidate-only 设计，需 gate）；Pi agent（支持 3 层子代理递归）可先行试点** —— 引导见 docs/designs/T-0159-pi-agent-onboarding.md。→ 记录留档，不立项（待用户发起）。**2026-08-08 更新：Pi 侧 loop 工程治理升级已由 T-0160 启动**（gate 生命周期/状态校验闸/证据 SHA256 锚定/事件溯源/HANDOFF 投影/反幻觉补漏/升级协议/旧数据迁移，Pi mini-loop 对齐 ZCode 核心治理机制）；执行委派（executor: subagent 标记）本身仍为 Pi 侧后续候选。
 
 ## Recently Closed
 

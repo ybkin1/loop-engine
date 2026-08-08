@@ -1,0 +1,18 @@
+{
+  "task_id": "T-0160",
+  "gate_id": "G-T-0160-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-08T09:00:00+08:00",
+  "completed_at": "2026-08-08T09:10:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "Pi agent Loop 工程升级（对齐 ZCode 治理核心机制）"
+  ],
+  "results": [
+    "mini-loop v2 整合：执行委派试点（P0-A/C，用户 2026-08-08 雏形）+ 治理核心机制（T-0160）",
+    "govern.ts：gate 生命周期 + /validate 校验链 + 证据 SHA256 锚定 + HANDOFF 投影 + 迁移器 + 反幻觉补漏 + 升级协议 + scope 拦截",
+    "测试 17/17 全绿 + tsc 通过；pi-test-lab 迁移实测（T-001/T-010/T-011 保留 + evidence 锚定）",
+    "两仓库提交：pi-agent-extensions ad56377 + loop-engine（本提交）"
+  ],
+  "notes": "发现用户运行时 v2 雏形（delegate/quota/spawn/events/state/artifacts，T-0159 执行委派试点），整合而非覆盖；hooks/loop_core 零触碰。"
+}

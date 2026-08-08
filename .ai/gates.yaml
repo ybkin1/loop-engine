@@ -6263,6 +6263,66 @@ gates:
   notes:
   - Remaining P3 observations + DR-004 closeout batch.
   - Execution via delegation chain C-005.
+- id: G-T-0160-REQUIREMENTS
+  task_id: T-0160
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-08T09:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-08T09:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 基于zcode最新的loop工程的详细实现、设计文档，升级当前pi agent已有的loop工程
+  approval_evidence: .ai/evidence/T-0160/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0160/execution-evidence.json
+  scope: >-
+    基于 ZCode v3.12.67 治理体系升级 Pi agent mini-loop 扩展：gate 生命周期
+    （gates.json + allowed_paths/forbidden_actions）+ 状态校验闸（/validate
+    + validate_state 工具）+ 证据 SHA256 锚定 + 事件溯源（events.jsonl）+
+    HANDOFF 投影 + 反幻觉闸门补漏 + 升级协议 + 旧数据自动迁移。TS 原生，
+    不触碰 ZCode hooks/loop_core。
+  allowed_paths:
+  - .ai/tasks/T-0160.md
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/state.yaml
+  - .ai/evidence/T-0160/
+  - .ai/KNOWN_ISSUES.md
+  - .ai/HANDOFF.md
+  - docs/designs/T-0159-pi-agent-onboarding.md
+  - C:/Users/Administrator/pi-agent-extensions/**
+  - C:/Users/Administrator/.pi/agent/extensions/mini-loop/**
+  - C:/Users/Administrator/.pi/agent/loop/**
+  - C:/Users/Administrator/pi-test-lab/**
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - modify loop_core/ (any file)
+  - modify pi extensions other than mini-loop (subagent-v2 / memory /
+    quality-actions / agent-bridge)
+  - delete historical evidence / task cards / legacy loop data
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - Pi agent loop 工程升级（T-0159 引导的自然落地），用户明确指示 + 计划批准。
+  - 范围为核心治理集（gate/validate/证据锚定/事件溯源/HANDOFF/反幻觉补漏/升级协议/迁移）。
 delegations:
 - chain_id: C-001
   task_ids:

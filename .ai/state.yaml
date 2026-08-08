@@ -1,11 +1,20 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0158
-current_gate_id: G-T-0158-REQUIREMENTS
+current_task_id: T-0160
+current_gate_id: G-T-0160-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-07T00:00:00+08:00'
+last_handoff_at: '2026-08-08T09:00:00+08:00'
 notes:
+- 'T-0160 COMPLETED 2026-08-08: Pi agent Loop 工程升级 — mini-loop v2 整合
+  （执行委派试点 P0-A/C 用户雏形 + 治理核心机制：gate 生命周期/validate
+  校验闸/证据 SHA256 锚定/事件溯源/HANDOFF 投影/反幻觉补漏/升级协议/
+  旧数据迁移）。测试 17/17 + tsc 通过；pi-test-lab 迁移实测；hooks/loop_core
+  零触碰；独立审查 PASS（P2×2/P3×1 留档）。'
+- 'T-0160 ACTIVE 2026-08-08: Pi agent Loop 工程升级（用户明确指示：基于
+  ZCode 最新实现/设计文档升级 Pi 侧 loop 工程 + 计划批准）— gate 生命周期/
+  状态校验闸/证据 SHA256 锚定/事件溯源/HANDOFF 投影/反幻觉补漏/升级协议/
+  旧数据自动迁移。TS 原生，hooks/loop_core 零触碰。'
 - 'T-0158 COMPLETED 2026-08-07: 遗留收尾包 — pyproject 注册 loop-quota/
   loop-risk + risk_accepted 事件 + is_skippable 仅 LIGHT + auto-sync 状态
   检测 + 顶层 loop_engine 迁入 src（import 无二义）+ repro_norm 生产方

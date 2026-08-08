@@ -1,0 +1,11 @@
+{
+  "gate_id": "G-T-0160-REQUIREMENTS",
+  "task_id": "T-0160",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "1、zcode的loop工程还有没提交的？2、基于zcode最新的loop工程的详细实现、设计文档，升级当前pi agent已有的loop工程（用户明确指示 + 计划批准 ExitPlanMode）",
+  "recorded_at": "2026-08-08T09:00:00+08:00"
+}

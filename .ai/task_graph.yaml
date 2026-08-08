@@ -1841,6 +1841,20 @@ tasks:
       - T-0157
     gates:
       - G-T-0158-REQUIREMENTS
+  -
+    id: T-0160
+    title: Pi agent Loop 工程升级（对齐 ZCode 治理核心机制）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      基于 ZCode v3.12.67 治理体系升级 Pi agent mini-loop：gate 生命周期
+      （gates.json + allowed_paths/forbidden_actions）+ 状态校验闸 +
+      证据 SHA256 锚定 + 事件溯源 + HANDOFF 投影 + 反幻觉补漏 + 升级协议 +
+      旧数据自动迁移。TS 原生实现，不触碰 loop_core/hooks。
+    depends_on:
+      - T-0158
+    gates:
+      - G-T-0160-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1972,3 +1986,5 @@ edges:
       to: T-0157
     - from: T-0157
       to: T-0158
+    - from: T-0158
+      to: T-0160
