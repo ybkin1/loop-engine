@@ -6323,6 +6323,53 @@ gates:
   notes:
   - Pi agent loop 工程升级（T-0159 引导的自然落地），用户明确指示 + 计划批准。
   - 范围为核心治理集（gate/validate/证据锚定/事件溯源/HANDOFF/反幻觉补漏/升级协议/迁移）。
+- id: G-T-0166-REQUIREMENTS
+  task_id: T-0166
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-09T09:30:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-09T09:30:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 可以的（同意同步 mcp_client clientInfo 版本号为 3.12.67）
+  approval_evidence: .ai/evidence/T-0166/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0166/execution-evidence.json
+  scope: >-
+    loop_core/mcp_client.py clientInfo.version 同步为 3.12.67（一行改动，
+    无协议语义变更；MCP 协议版本升级属 P2 观察项另行评估）。
+  allowed_paths:
+  - loop_core/mcp_client.py
+  - tests/test_mcp_client.py
+  - tests/mcp_mock_server.py
+  - .ai/
+  - docs/
+  forbidden_actions:
+  - modify hooks/ (any file)
+  - change MCP protocol semantics / protocol version
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - user explicitly approves, rejects, or requests repair of this gate
+  - no implementation work occurs while this gate is pending
+  notes:
+  - P3 观察项：clientInfo 版本号过时（3.11.2 → 3.12.67），T-0160 收口后核查
+    MCP 2026-07-28 无状态规范时顺手发现，用户批准即执行。
 delegations:
 - chain_id: C-001
   task_ids:

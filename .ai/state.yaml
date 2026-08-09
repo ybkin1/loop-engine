@@ -1,11 +1,16 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0160
-current_gate_id: G-T-0160-REQUIREMENTS
+current_task_id: T-0166
+current_gate_id: G-T-0166-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-08T09:00:00+08:00'
+last_handoff_at: '2026-08-09T09:30:00+08:00'
 notes:
+- 'T-0166 COMPLETED 2026-08-09: mcp_client clientInfo 版本号同步 — clientInfo.version
+  3.11.2 → 3.12.67（与 pyproject 一致）。test_mcp_client + test_tool_executor 50
+  passed；release check 通过；hooks/ 零改动。'
+- 'T-0166 ACTIVE 2026-08-09: mcp_client clientInfo 版本号同步（P3 观察项，
+  用户批准）— clientInfo.version 3.11.2 → 3.12.67，一行改动无协议语义变更。'
 - 'T-0160 COMPLETED 2026-08-08: Pi agent Loop 工程升级 — mini-loop v2 整合
   （执行委派试点 P0-A/C 用户雏形 + 治理核心机制：gate 生命周期/validate
   校验闸/证据 SHA256 锚定/事件溯源/HANDOFF 投影/反幻觉补漏/升级协议/

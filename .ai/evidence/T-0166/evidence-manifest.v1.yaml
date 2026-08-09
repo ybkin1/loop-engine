@@ -1,0 +1,36 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0166-03171864
+task_id: T-0166
+gate_id: G-T-0166-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0166
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0166/approval-evidence.json
+  role: result
+  required: true
+  sha256: 2ABFDB42198A658443075B467EB9C474E943ADBDCA089F934F0841A64C262EF7
+  size: 364
+  mtime_ns: 1786261096333763300
+- path: .ai/evidence/T-0166/compile-evidence.json
+  role: result
+  required: true
+  sha256: 2F5625ADA048AE03F78DFD6ED2089449662C3A55803F1021EBC7566357A2173D
+  size: 181
+  mtime_ns: 1786261125520800900
+- path: .ai/evidence/T-0166/execution-evidence.json
+  role: result
+  required: true
+  sha256: 7F2A990AF34BF2A842615B9872D2AB47AE76680D9AF601BB522C8F4CF8A353E5
+  size: 672
+  mtime_ns: 1786261157584750900
+file_count: 3
+total_bytes: 1217
+ordered_entries_sha256: 0317186495F521CAE05B3A6A934E18A4BFFAB325F22427D7CFF2426AB57BB64B
+semantic_sha256: 632EC878459C7BB7185F6E44B75FAFD76C086214986D2A370C20A5CFA8B2D1C9
+created_at: '2026-08-09T09:40:00+08:00'
+created_by: governance-controller

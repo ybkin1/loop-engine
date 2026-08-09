@@ -1855,6 +1855,18 @@ tasks:
       - T-0158
     gates:
       - G-T-0160-REQUIREMENTS
+  -
+    id: T-0166
+    title: mcp_client clientInfo 版本号同步（P3 观察项）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      loop_core/mcp_client.py 握手 clientInfo.version 硬编码 3.11.2 过时，
+      与当前版本 3.12.67 不一致；同步为当前版本（一行改动，无协议语义变更）。
+    depends_on:
+      - T-0160
+    gates:
+      - G-T-0166-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -1988,3 +2000,5 @@ edges:
       to: T-0158
     - from: T-0158
       to: T-0160
+    - from: T-0160
+      to: T-0166

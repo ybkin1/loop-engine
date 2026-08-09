@@ -1,0 +1,11 @@
+{
+  "gate_id": "G-T-0166-REQUIREMENTS",
+  "task_id": "T-0166",
+  "decision": "approved",
+  "status": "approved",
+  "execution_status": "in_progress",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "可以的（同意同步 mcp_client clientInfo 版本号为 3.12.67）",
+  "recorded_at": "2026-08-09T09:30:00+08:00"
+}

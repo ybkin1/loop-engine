@@ -334,7 +334,7 @@ class MCPSession:
             {
                 "protocolVersion": self.protocol_version,
                 "capabilities": {},
-                "clientInfo": {"name": "loop-engine", "version": "3.11.2"},
+                "clientInfo": {"name": "loop-engine", "version": "3.12.67"},
             },
             timeout=self.request_timeout,
         )

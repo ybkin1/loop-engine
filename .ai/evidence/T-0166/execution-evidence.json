@@ -1,0 +1,16 @@
+{
+  "task_id": "T-0166",
+  "gate_id": "G-T-0166-REQUIREMENTS",
+  "status": "completed",
+  "started_at": "2026-08-09T09:30:00+08:00",
+  "completed_at": "2026-08-09T09:40:00+08:00",
+  "evidence_type": "execution",
+  "workstreams": [
+    "clientInfo 版本号同步（3.11.2 → 3.12.67）"
+  ],
+  "results": [
+    "mcp_client.py clientInfo.version 同步为 3.12.67（与 pyproject 一致）",
+    "test_mcp_client + test_tool_executor 50 passed；release check 通过（compile/version_sync/key_tests/mutation_gate）"
+  ],
+  "notes": "一行改动，无协议语义变更；MCP 协议版本升级（2024-11-05 → 2026-07-28 无状态规范）留档为 P2 观察项。"
+}
