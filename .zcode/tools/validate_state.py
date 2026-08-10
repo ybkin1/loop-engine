@@ -402,6 +402,15 @@ def check_state_view_freshness(root: Path, base: Path) -> list[str]:
     return warns
 
 
+def emergency_mode_active() -> bool:
+    """逃生模式（人触发自救后门，T-0168）：env LOOP_ENGINE_EMERGENCY=1
+    或逃生文件 ~/.loop-engine-emergency 存在 → 治理降级（不阻断）。
+    仅人可触发（env 为宿主进程级；文件在治理范围外）。"""
+    if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
+        return True
+    return (Path.home() / ".loop-engine-emergency").exists()
+
+
 def main() -> int:
     args = project_root_arg().parse_args()
     # Normalize the path defensively: os.path.normpath handles any shell-level
@@ -440,10 +449,18 @@ def main() -> int:
     # 3. Check pending gates (BLOCKER)
     pending = pending_gates(root)
     if pending:
-        errors.append(
-            "Pending gate(s) require user decision before continuing: "
-            + ", ".join(str(item.get("id")) for item in pending)
-        )
+        # 逃生模式（人触发，T-0168 自救后门）：pending gate 降级为警告不阻断
+        emergency = emergency_mode_active()
+        if emergency:
+            print(
+                "[info] [emergency] 逃生模式激活（人触发）——pending gate 降级为警告，"
+                "不阻断。修复后请删除逃生文件/取消环境变量。"
+            )
+        else:
+            errors.append(
+                "Pending gate(s) require user decision before continuing: "
+                + ", ".join(str(item.get("id")) for item in pending)
+            )
 
     # 4. Governance invariants (skip ProjectContinuity check for S0-init)
     errors.extend(governance_invariant_errors(root))

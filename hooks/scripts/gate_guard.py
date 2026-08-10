@@ -19,6 +19,7 @@ gate_guard.py — ZCode PreToolUse hook：pending gate 存在时阻断写入操�
 """
 
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -122,7 +123,24 @@ def _check_gate_lifecycle(root, current_gate_id, state):
         return "block_missing"
 
 
+
+
+def _emergency_active() -> bool:
+    """逃生模式（人触发）：env 或 ~/.loop-engine-emergency 文件"""
+    if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
+        return True
+    try:
+        return (Path.home() / ".loop-engine-emergency").exists()
+    except OSError:
+        return False
+
+
 def main():
+    # 逃生模式（人触发自救后门，T-0168）：全放行 + 留痕（仅人可触发：
+    # env LOOP_ENGINE_EMERGENCY=1 为宿主进程级，文件在治理范围外）
+    if _emergency_active():
+        print(json.dumps({"allow": True, "reason": "emergency bypass (human-triggered)"}))
+        return EXIT_PASS
     hook_input = read_stdin_json()
     root = project_root(hook_input)
 

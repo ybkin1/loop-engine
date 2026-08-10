@@ -594,7 +594,23 @@ def build_hard_constraints_context(
     }
 
 
+
+
+def _emergency_active() -> bool:
+    """逃生模式（人触发）：env 或 ~/.loop-engine-emergency 文件"""
+    if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
+        return True
+    try:
+        return (Path.home() / ".loop-engine-emergency").exists()
+    except OSError:
+        return False
+
+
 def main():
+    # 逃生模式（人触发自救后门，T-0168）：全放行（仅人可触发）
+    if _emergency_active():
+        print(json.dumps({"allow": True, "reason": "emergency bypass (human-triggered)"}))
+        return EXIT_PASS
     hook_input = _read_hook_input()
     root = project_root(hook_input)
 
