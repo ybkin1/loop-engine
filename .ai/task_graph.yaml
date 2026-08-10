@@ -1947,6 +1947,18 @@ tasks:
       已登记（7→8）+ 补丁工具 register_plugin_registry.py + 端到端模拟验证。
     gates:
       - G-T-0174-REQUIREMENTS
+  -
+    id: T-0176
+    title: 第一性原理 + 对抗式审查引入（Pi 双 agent + 评审注入 + 模板；ZCode 对齐）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户文案指令（2026-08-10）：两个 web coding 技巧引入 loop 工程。
+      Pi：adversarial-tester（动态攻防 /adversarial）+ root-cause-analyst
+      （第一性原理 /root-cause）+ 评审注入 + ADR/S5 模板节；ZCode：ADR 否决
+      理由 + reviewer 第一性原理职责。
+    gates:
+      - G-T-0176-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041

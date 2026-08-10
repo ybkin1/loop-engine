@@ -6670,3 +6670,11 @@ delegations:
   approved_gate: G-T-0174-REQUIREMENTS
   approved_at: '2026-08-10T12:45:00.000000+00:00'
   note: hooks 根因定位与修复（用户指令"在zcode侧是无法修复了么"）；插件登记 bundled-marketplace.json
+- chain_id: C-008
+  task_ids:
+  - T-0176
+  status: active
+  approved_by: user
+  approved_gate: G-T-0176-REQUIREMENTS
+  approved_at: '2026-08-10T13:10:00.000000+00:00'
+  note: 第一性原理 + 对抗式审查引入（用户文案指令）；Pi 双 agent + 评审注入 + 模板；ZCode 对齐
