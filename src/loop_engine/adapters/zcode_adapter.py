@@ -168,7 +168,8 @@ class ZCodeAdapter(HostAdapter):
         """
         # In practice, the main-thread presents this to the user
         # and records the decision. This method just checks the current status.
-        return gate.get("status", "pending")
+        # mypy 门禁（A1）：dict.get 返回 Any → 显式 str（no-any-return 消解）
+        return str(gate.get("status", "pending"))
 
     def ask_user(self, question: str, context: str) -> str:
         """Ask user a question. In ZCode, via chat interface."""
@@ -219,7 +220,8 @@ class ZCodeAdapter(HostAdapter):
             if p.exists():
                 hasher.update(p.read_bytes())
 
-        return hasher.hexdigest() == record.get("sha256", "")
+        # mypy 门禁（A1）：record.get 返回 Any → 显式 str（no-any-return 消解）
+        return hasher.hexdigest() == str(record.get("sha256", ""))
 
     # ── Internal Helpers ──
 

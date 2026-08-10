@@ -413,8 +413,57 @@ def step_key_tests(root: Path) -> tuple[bool, str]:
 
 PREFLIGHT_STEPS = (
     "version_sync", "validate_state", "compile", "guard_health",
-    "slo_gate", "key_tests", "mutation_gate",
+    "slo_gate", "key_tests", "mutation_gate", "mypy_gate",
 )
+
+
+def step_mypy_gate(root: Path) -> tuple[bool, str]:
+    """A1 mypy 门禁（T-0168，fail-closed）。
+
+    双模式：
+      - src/（产品代码，12 文件）：全量硬门禁，必须 0 错误。
+      - loop_core/.zcode/tools/hooks/scripts（治理/运行时，存量 95 key）：
+        增量门禁——错误 key（path|code|msg 去行号）对比
+        .ai/checkers/mypy-incremental-baseline.json 基线，**新增 key → FAIL**；
+        存量错误允许逐步清理（基线文件缺失 → FAIL，没跑过就当不合格）。
+    """
+    import json
+    import re
+
+    # 1) src 全量硬门禁
+    proc_src = subprocess.run(
+        [sys.executable, "-m", "mypy", "src"],
+        cwd=str(root), capture_output=True, text=True, timeout=300,
+    )
+    if proc_src.returncode != 0:
+        tail = (proc_src.stdout or proc_src.stderr).strip().splitlines()[-3:]
+        return False, "mypy src 失败（产品代码必须 0 错误）: " + " | ".join(tail)
+
+    # 2) 增量门禁（存量目录）
+    baseline_path = root / ".ai" / "checkers" / "mypy-incremental-baseline.json"
+    try:
+        baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
+        baseline_keys = set(baseline.get("baseline_keys", []))
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        return False, f"mypy 增量基线缺失/不可解析（fail-closed）: {exc}"
+
+    pat = re.compile(r"^([^\s:]+\.py):\d+:\s*error:\s*(\S+)\s*(?:\[([^\]]+)\])?")
+    current: set[str] = set()
+    for t in baseline.get("targets", []):
+        proc = subprocess.run(
+            [sys.executable, "-m", "mypy", t],
+            cwd=str(root), capture_output=True, text=True, timeout=300,
+        )
+        for line in (proc.stdout or "").splitlines():
+            m = pat.match(line)
+            if m:
+                current.add(f"{m.group(1)}|{m.group(2)}|{m.group(3) or ''}")
+
+    new_keys = current - baseline_keys
+    if new_keys:
+        sample = sorted(new_keys)[:5]
+        return False, f"mypy 新增错误 {len(new_keys)} 个（基线 {len(baseline_keys)}）: " + " | ".join(sample)
+    return True, f"mypy 门禁 PASS（src 0 错误；存量目录 {len(current)} key ≤ 基线 {len(baseline_keys)}）"
 
 
 def step_mutation_gate(root: Path) -> tuple[bool, str]:

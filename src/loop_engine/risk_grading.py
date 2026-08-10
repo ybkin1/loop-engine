@@ -120,9 +120,12 @@ def accepted_risk(root: Path, task_id: str, level: str, reason: str) -> bool:
         _sys.path.insert(0, str(repo_root / ".zcode" / "tools"))
         from event_log import append
         # T-0158: 独立 risk_accepted 事件类型（审计语义纯净，不复用 gate_approved）
-        return append(root, "risk_accepted",
-                      task_id=task_id, actor="user",
-                      detail={"accepted_risk": True, "level": level, "reason": reason})
+        # mypy 门禁（A1）：event_log.append 返回 Any → 显式 bool（no-any-return 消解）
+        return bool(
+            append(root, "risk_accepted",
+                   task_id=task_id, actor="user",
+                   detail={"accepted_risk": True, "level": level, "reason": reason})
+        )
     except Exception:  # noqa: BLE001 — 记录失败不阻断
         return False
 
