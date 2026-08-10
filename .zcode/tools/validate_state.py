@@ -411,6 +411,78 @@ def emergency_mode_active() -> bool:
     return (Path.home() / ".loop-engine-emergency").exists()
 
 
+# ── T-0173 任务依赖图检查（对齐 Pi 审计 P2-10：依赖只声明不解阻塞）──────
+# 只读、advisory：依赖未满足仅告警（不阻断——用户是唯一批准者）；
+# 依赖环 → error（fail-closed，永远不该发生）。
+TERMINAL_TASK_STATUSES = {"completed", "rejected"}
+
+
+def _task_dep_list(task: dict) -> list[str]:
+    deps = task.get("depends_on") or []
+    if isinstance(deps, str):
+        deps = [deps]
+    return [str(d) for d in deps if str(d)]
+
+
+def check_task_dependencies(root: Path, base: Path) -> list[str]:
+    """task_graph 依赖检查：未满足/未登记依赖 → warn；依赖环 → error。"""
+    entries: list[str] = []
+    graph_path = base / "task_graph.yaml"
+    if not graph_path.exists():
+        return entries
+    try:
+        graph = load_yaml(graph_path) or {}
+    except Exception as e:  # noqa: BLE001 — 解析失败显式降级为 warn
+        entries.append(f"[warn] task_graph.yaml 不可解析: {e}")
+        return entries
+    raw_tasks = graph.get("tasks", [])
+    if not isinstance(raw_tasks, list):
+        return entries
+    by_id: dict[str, dict] = {str(t["id"]): t for t in raw_tasks if isinstance(t, dict) and t.get("id")}
+
+    def dfs(node: str, visiting: set[str], visited: set[str], stack: list[str]) -> str | None:
+        if node in visiting:
+            start = stack.index(node)
+            return " → ".join(stack[start:] + [node])
+        if node in visited:
+            return None
+        visiting.add(node)
+        stack.append(node)
+        for dep in _task_dep_list(by_id.get(node, {})):
+            if dep not in by_id:
+                continue  # 未知依赖由未满足分支提示
+            cycle = dfs(dep, visiting, visited, stack)
+            if cycle:
+                return cycle
+        stack.pop()
+        visiting.discard(node)
+        visited.add(node)
+        return None
+
+    for t in raw_tasks:
+        if not isinstance(t, dict) or not t.get("id"):
+            continue
+        tid = str(t["id"])
+        cycle = dfs(tid, set(), set(), [])
+        if cycle:
+            entries.append(f"[error] 依赖环: {cycle}（task_graph.yaml）")
+            break
+        deps = _task_dep_list(t)
+        if not deps:
+            continue
+        tstatus = str(t.get("status", ""))
+        unknown = [d for d in deps if d not in by_id]
+        if unknown:
+            entries.append(f"[warn] task {tid} 依赖未登记: {', '.join(unknown)}")
+        unmet = [d for d in deps if by_id.get(d, {}).get("status") not in TERMINAL_TASK_STATUSES]
+        if unmet and tstatus in ("pending", "in_progress", "blocked"):
+            entries.append(
+                f"[warn] task {tid} 依赖未满足: {', '.join(unmet)} — 等待其终态（completed/rejected）"
+                "后再执行，或显式解除依赖"
+            )
+    return entries
+
+
 def main() -> int:
     args = project_root_arg().parse_args()
     # Normalize the path defensively: os.path.normpath handles any shell-level
@@ -461,6 +533,9 @@ def main() -> int:
                 "Pending gate(s) require user decision before continuing: "
                 + ", ".join(str(item.get("id")) for item in pending)
             )
+
+    # 3.5 Task dependency graph check (T-0173：依赖未满足显式提示 + 环检测 fail-closed)
+    errors.extend(check_task_dependencies(root, base))
 
     # 4. Governance invariants (skip ProjectContinuity check for S0-init)
     errors.extend(governance_invariant_errors(root))
