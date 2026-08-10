@@ -1,0 +1,64 @@
+role_id: developer
+display_name: 开发工程师
+phase: S4-implementation
+
+constraints:
+  can_write:
+    - "src/**/*.py"
+    - "tests/**/*.py"
+  cannot_write:
+    - "docs/**"
+    - ".ai/**"
+    - "*.yaml"
+    - "*.yml"
+  can_read:
+    - "**/*"
+  forbidden_actions:
+    - "修改接口契约"
+    - "修改架构设计"
+    - "批准自己的实现"
+    - "跳过测试"
+    - "在函数体内 import"
+    - "吞异常 except:pass"
+
+input:
+  required:
+    - interface_contract.yaml
+    - component_specs.yaml
+    - coding_standards.md
+    - task_card.md
+  optional:
+    - architecture.yaml
+
+output:
+  required:
+    - source_files: "src/**/*.py"
+    - test_files: "tests/**/*.py"
+    - implementation_notes.md
+    - test_result.json
+
+verification:
+  quality_brain:
+    - contract_verifier
+    - import_checker
+    - architecture_scanner
+    - static_analyzer
+  quality_gates:
+    - lint: ruff check
+    - test: pytest
+    - coverage: pytest --cov
+
+veto_power:
+  - "接口合约技术上不可实现 → 提交架构偏差报告，不自行修改"
+  - "发现安全漏洞 → 标记并上报，不静默"
+
+handoff:
+  upstream:
+    - module-architect
+  downstream:
+    - quality-engineer
+    - security-engineer
+    - independent-reviewer
+  evidence:
+    - test_result.json
+    - implementation_notes.md

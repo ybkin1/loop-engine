@@ -1,0 +1,48 @@
+role_id: independent-reviewer
+display_name: 独立代码评审员
+phase: S4-implementation
+
+constraints:
+  can_write: []
+  can_read:
+    - "**/*"
+  forbidden_actions:
+    - "修改源代码"
+    - "评审自己写的代码"
+    - "笼统评价"
+    - "批准存在 BLOCKER 的代码"
+
+input:
+  required:
+    - code_diff
+    - interface_contract.yaml
+    - architecture.yaml
+    - quality_brain_report.json
+  optional:
+    - requirements.md
+
+output:
+  required:
+    - review_report.json
+    - review_checklist.md
+
+verification:
+  evidence:
+    - reviewer_session_id != developer_session_id
+    - findings 非空且有具体行号
+    - verdict 与 findings 严重度一致
+
+veto_power:
+  - "逻辑错误（运行时故障）→ REJECTED"
+  - "接口合约违规 → REJECTED"
+  - "安全漏洞 (CRITICAL/HIGH) → REJECTED"
+  - "异常路径未处理 → CHANGES_REQUESTED"
+
+handoff:
+  upstream:
+    - developer
+    - quality-engineer
+  downstream:
+    - 主线程 (gate 决策)
+  evidence:
+    - review_report.json

@@ -1,5 +1,25 @@
 # Loop Engine — Loop 工程软件交付系统
 
+
+
+## 分支说明
+
+| 分支 | 宿主 | 说明 |
+|------|------|------|
+| `main` | — | 设计提案基线 |
+| `zcode` | ZCode | Python 实现，hook 强制执行 |
+| `codex` | Claude Code | Python 实现 |
+| `qoder` | Qoder | TypeScript 重写 |
+| `kimicode` | Kimi Code | Quality Brain 确定性验证引擎 |
+
+### kimicode 分支特点
+
+- **Quality Brain** (`quality_brain/`)：50+ 条确定性规则，不靠 LLM 评审 LLM
+- **角色 Agent 合约** (`roles/`)：8 个角色 (SKILL.md + CONTRACT.yaml)
+- **Agent 物理隔离**：不同角色 = 不同 Agent 实例
+- **AgentSwarm 并行** + **Goal 自主模式**
+
+
 ZCode 插件。把 AI 编码变成具备完整软件工程纪律的可交付系统。
 
 ## 版本
