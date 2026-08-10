@@ -119,3 +119,42 @@ Pi = 执行引擎 + 质量环
    记忆——这是 zcode 没有的，也是"防 90% 屎山"的主力
 4. **下一步最优投入**：把 Pi 的验证证据（verification-evidence）回灌 zcode
    验收流程（ZCode 收口时引用），形成"Pi 执行→质量证据→ZCode 验收"闭环
+
+---
+
+## 第四部分：ZCode 与 Pi 联动指南（2026-08-10 补充）
+
+> 回答"两者能否联动 / 是否只能各自开会话"——**能联动，三条通道**：
+
+### 通道 1：git 中转（异步，已在用）
+双方操作同一 git 仓库（loop-engine / pi-agent-extensions），提交即交接：
+Pi 完成 → push → ZCode 会话拉取验收；反之亦然。零成本，人工切换会话时自动接上。
+
+### 通道 2：文件握手（异步，闭环载体）
+Pi 侧质量环证据（verification-evidence / audit 记录 / 追溯矩阵）落盘
+`~/.pi/agent/loop/<project>/` → ZCode 侧跑
+`.zcode/tools/pi_evidence_import.py` 导入 `.ai/evidence/<task>/`
+（防篡改校验 + 格式对齐）→ ZCode 收口引用。**已实现并演示**（`5442de7`）。
+
+### 通道 3：进程互调（实时，双向）
+- **Pi → ZCode 治理**：Pi 的 Bash 工具可直接运行 zcode 治理 CLI（纯 Python）：
+  `C:/Python312/python.exe <loop-engine>/.zcode/tools/validate_state.py <root>`
+  （先例：sync_configs.py 已由 Pi 侧调用，把 ~/.pi/agent 镜像回 pi-agent-config）
+- **ZCode → Pi 执行**：ZCode 的 Bash 可调 pi headless 模式：
+  `pi --mode json -p --append-system-prompt <prompt.md> "<任务>"`
+  （pi 支持无交互执行——spawnPiJson 内部就是这种调用；ZCode 把 pi 当外部执行器，
+  用于"深度执行"委派：ZCode 定范围 → pi 递归执行 → 证据回灌验收）
+
+### 推荐工作流（无需手动切会话的联动形态）
+```
+1. ZCode 会话：登记任务 + gate 批准 → 生成任务包（AC/验证要求/范围）
+2. （可选）ZCode 调 pi CLI 派发执行，或用户到 pi 会话执行（--session 持久化）
+3. Pi 质量环：L1/L2/L3 自动闭环 → 证据落盘 Pi 侧
+4. ZCode 会话（下次启动）：pi_evidence_import.py 导入证据 → 收口验收
+5. git push/pull 保持两侧同步
+```
+
+### 限制（诚实）
+- 实时互调（通道 3）目前是"命令行级"（zcode 调 pi 无 UI/交互确认；pi 调
+  zcode 只有治理工具 CLI）——完整双向 agent 协议需另行设计（P2 候选）
+- 通道 2 的 import 是"证据复制"，不是"状态同步"——ZCode 侧状态仍以 .ai/ 为准
