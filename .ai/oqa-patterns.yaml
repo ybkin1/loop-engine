@@ -1,0 +1,56 @@
+# OQA 模式库 — AI 偷懒/幻觉/编造模式（T-0171）
+# 项目级可编辑：引擎加载后与内置模式合并（项目级覆盖同名内置）。
+# 格式：每个模式含 id / dimension / severity / patterns（正则列表）/ message / remediation
+
+version: 1
+modes:
+  # ── 偷懒：返回假数据冒充实现 ──
+  - id: LAZY-FAKE-DATA
+    dimension: CODING
+    severity: WARNING
+    patterns:
+      - "return\\s+\\[\\s*\\]\\s*;?\\s*//\\s*(TODO|stub|fake)"
+      - "return\\s+\\{\\s*\\}\\s*;?\\s*//\\s*(TODO|stub|fake)"
+      - "return\\s+null\\s*;?\\s*//\\s*(TODO|stub|fake)"
+    message: "可能返回假数据冒充实现"
+    remediation: "实现真实逻辑或明确标记未完成（不得静默返回假数据）"
+
+  # ── 偷懒：吞异常 ──
+  - id: LAZY-SWALLOW-EXCEPTION
+    dimension: CODING
+    severity: WARNING
+    patterns:
+      - "except\\s+(Exception|Error)\\s*:\\s*\\n\\s*(pass|return\\s+None|return\\s+null)"
+      - "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+    message: "吞掉异常不处理不记录"
+    remediation: "记录异常或显式降级，不得静默吞掉"
+
+  # ── 偷懒：空实现函数 ──
+  - id: LAZY-EMPTY-FUNCTION
+    dimension: CODING
+    severity: WARNING
+    patterns:
+      - "def\\s+\\w+\\s*\\([^)]*\\)\\s*:\\s*\\n\\s*(pass|return)"
+      - "function\\s+\\w+\\s*\\([^)]*\\)\\s*\\{\\s*\\}"
+    message: "空实现函数"
+    remediation: "实现函数体或移除"
+
+  # ── 幻觉：注释声称但无实现 ──
+  - id: HALLUCINATE-COMMENT-CLAIM
+    dimension: AUTHENTICITY
+    severity: BLOCKER
+    patterns:
+      - "//\\s*(实现|implemented|done|完成).{0,30}(TODO|待实现|not implemented)"
+      - "#\\s*(实现|implemented|done|完成).{0,30}(TODO|待实现|not implemented)"
+    message: "注释声称完成但同处含未实现标记"
+    remediation: "清理矛盾注释或完成实现"
+
+  # ── 编造：硬编码测试期望 ──
+  - id: FABRICATE-HARDCODED-EXPECT
+    dimension: AUTHENTICITY
+    severity: WARNING
+    patterns:
+      - "expect\\s*\\([^)]*\\).{0,20}toBe\\s*\\(\\s*\\d+\\s*\\)\\s*;?\\s*//\\s*(fake|hardcode)"
+      - "assert\\s+\\w+\\s*==\\s*\\d+\\s*#\\s*(fake|hardcode)"
+    message: "硬编码测试期望（可能编造）"
+    remediation: "用真实计算/输入构造期望值"

@@ -1867,6 +1867,86 @@ tasks:
       - T-0160
     gates:
       - G-T-0166-REQUIREMENTS
+  -
+    id: T-0167
+    title: Qoder Loop 工程四维产出质量保障体系（OQA-4D）深度实现
+    phase: S6-delivery
+    status: completed
+    description: >-
+      核心引擎 output_quality.ts + MCP 工具 loop_output_quality/loop_quality_gate
+      + hook 预检 output_quality_guard.js + 标准文档 + 测试；仅 .qoder-cn 资产
+      与 .ai/ 收口。
+    depends_on:
+      - T-0166
+    gates:
+      - G-T-0167-REQUIREMENTS
+  -
+    id: T-0168
+    title: OQA-5D 扩展 — AUTHENTICITY 真实性维度（AI 行为验证）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      新增第五维真实性（幻觉/编造/偷懒/过度设计/前后偏差）10 检查器；
+      仅 .qoder-cn 资产与 .ai/ 收口。
+    depends_on:
+      - T-0167
+    gates:
+      - G-T-0168-REQUIREMENTS
+  -
+    id: T-0171
+    title: 语义级验证扩展：AC 实现真实性 + AI 偷懒模式库
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户指令批（三项后续全部执行）。
+    depends_on:
+      - T-0168
+    gates:
+      - G-T-0171-REQUIREMENTS
+  -
+    id: T-0170
+    title: Python Parity：OQA-5D 语义对齐 ZCode 侧
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户指令批（三项后续全部执行）。
+    depends_on:
+      - T-0168
+    gates:
+      - G-T-0170-REQUIREMENTS
+  -
+    id: T-0169
+    title: Qoder 接线：loop hooks + MCP 注册进 Qoder 真实配置
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户指令批（三项后续全部执行）。
+    depends_on:
+      - T-0168
+    gates:
+      - G-T-0169-REQUIREMENTS
+  -
+    id: T-0173
+    title: ZCode 同类问题修复：任务依赖图检查（对齐 Pi 审计 P2-10）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户指令（2026-08-10）：检查 zcode loop agent 是否存在 Pi 审计同类问题并修复。
+      已确认缺失项：depends_on 只声明不检查（真实案例 T-0154 依赖 T-0153 从未提示）→
+      validate_state 新增依赖检查（未满足 warn / 环 error / 未登记 warn）。
+    gates:
+      - G-T-0173-REQUIREMENTS
+  -
+    id: T-0174
+    title: hooks 不接管根因定位与修复：loop-governance 插件登记（逆向 zcode.cjs）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      用户指令（2026-08-10）：逆向 ZCode 加载源码定位 hooks 不加载根因——
+      bundled-marketplace.json 清单缺 loop-governance 导致 lGr 短路发现链；
+      已登记（7→8）+ 补丁工具 register_plugin_registry.py + 端到端模拟验证。
+    gates:
+      - G-T-0174-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -2002,3 +2082,14 @@ edges:
       to: T-0160
     - from: T-0160
       to: T-0166
+    - from: T-0166
+      to: T-0167
+    - from: T-0167
+      to: T-0168
+    - from: T-0168
+      to: T-0169
+    - from: T-0168
+      to: T-0170
+    - from: T-0168
+      to: T-0171
+

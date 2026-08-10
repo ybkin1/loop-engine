@@ -1,0 +1,9 @@
+{
+  "gate_id": "G-T-0170-REQUIREMENTS",
+  "task_id": "T-0170",
+  "status": "approved",
+  "approved_at": "2026-08-10T15:00:00+08:00",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "排布下，只要是要做的就都要走（批准 T-0170 Python Parity）"
+}

@@ -1,0 +1,26 @@
+{
+  "task_id": "T-0169",
+  "title": "Qoder 接线 — loop hooks + MCP 注册进 Qoder 真实配置并验证生效",
+  "status": "implemented",
+  "implemented_at": "2026-08-10T16:00:00+08:00",
+  "gate": "G-T-0169-REQUIREMENTS",
+  "verification": {
+    "AC-01": "loop 6 hooks 注册进 PreToolUse + clawd 保留（verify_wire.py PASS）",
+    "AC-02": "loop-engineering MCP 注册指向 dist + constraint-enforcer 保留（verify_wire.py PASS）",
+    "AC-03a": "output_quality_guard 密钥 → exit 2 deny（实测 PASS）",
+    "AC-03b": "gate-guard 任务范围外写入 → exit 2 拦截（实测 PASS，证明 gate 防护生效）",
+    "AC-03c": "import-guard 裸包渐进升级：fire#1 exit 0 warn → fire#2 exit 2 硬阻断（实测 PASS）",
+    "AC-04": "MCP tools/list 返回 37 工具含 loop_output_quality/loop_quality_gate/loop_state（verify_mcp.py PASS）",
+    "AC-05": "HANDOFF-qoder-loop.md 接线说明追加 + settings.json.bak-loop-20260810 备份存在"
+  },
+  "key_fix": "hook_common.js loadGates 解析缺陷：顶格 `- id:` 列表无法解析 → isLoopActive=false → 所有 JS hooks 在真实项目失效。修复 listRegex 兼容顶格 + 列表项识别 /^\\s*-\\s+/，修复后全部 hooks 生效",
+  "backup": "C:\\Users\\Administrator\\AppData\\Roaming\\QoderCN\\User\\settings.json.bak-loop-20260810",
+  "evidence_files": [
+    ".ai/staging/T-0169/verify_wire.py",
+    ".ai/staging/T-0169/verify_behaviour.py",
+    ".ai/staging/T-0169/verify_mcp.py",
+    ".ai/staging/T-0169/fix_hook_common_gates.py",
+    ".ai/staging/T-0169/fix_hook_common_listitems.py",
+    ".ai/staging/T-0169/wire_qoder_config.py"
+  ]
+}

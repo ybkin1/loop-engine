@@ -1,11 +1,20 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0166
-current_gate_id: G-T-0166-REQUIREMENTS
+current_task_id: T-0171
+current_gate_id: G-T-0171-REQUIREMENTS
 loop_mode: FULL
-last_handoff_at: '2026-08-09T09:30:00+08:00'
+last_handoff_at: '2026-08-10T15:00:00+08:00'
 notes:
+- 'T-0171 COMPLETED 2026-08-10: 语义级验证扩展收口 — AI-03 + 模式库接入引擎；两轮审查修复后 PASS（P0=0,P1=0）；634 测试全过。'
+- 'T-0170 COMPLETED 2026-08-10: Python Parity 落地 — 五维 12 检查器 + CLI + 22/22 测试；与 TS 语义对齐。'
+- 'T-0169 COMPLETED 2026-08-10: Qoder 接线收口 — 三轮审查修复后 PASS（P0=0,P1=0）；gates 119/tasks 150/3 场景阻断/37 tools；clawd 保留。'
+- 'T-0169~T-0171 ACTIVE 2026-08-10: 用户指令批（三项后续全部执行）— T-0169 Qoder 接线 / T-0170 Python Parity / T-0171 语义级验证扩展；按序执行，每任务独立审查。'
+- 'T-0168 COMPLETED 2026-08-10: OQA-5D AUTHENTICITY 维度收口 — 独立审查第 2 轮 PASS（P0=0, P1=0）；tsc 0 / vitest 619 passed / e2e 全捕获。'
+- 'T-0168 IMPLEMENTED 2026-08-10: OQA-5D AUTHENTICITY 维度落地 — 10 检查器（AH/AF/AL/AO/AI）+ 30 测试；tsc 0 / vitest 615 passed / e2e 实测幻觉偷懒过度设计全捕获；待独立审查。'
+- 'T-0168 ACTIVE 2026-08-10: OQA-5D 扩展 — AUTHENTICITY 真实性维度（用户批准）— 10 检查器防 AI 幻觉/编造/偷懒/过度设计/前后偏差；仅 .qoder-cn 资产。'
+- 'T-0167 COMPLETED 2026-08-10: OQA-4D 四维产出质量保障落地 — 引擎 17 检查器 + MCP 工具×2 + hook 预检 + 标准文档；两轮独立审查 REJECT 后 F1~F9 全部修复；tsc 0 / vitest 585 passed / guard 三场景 PASS；用户批准收口。'
+- 'T-0167 ACTIVE 2026-08-10: Qoder Loop 工程四维产出质量保障体系（OQA-4D）深度实现（用户指令，gate 已批）— 核心引擎 output_quality.ts + MCP 工具 + hook 预检 + 标准文档 + 测试；仅 .qoder-cn 资产与 .ai/ 收口。'
 - 'T-0166 COMPLETED 2026-08-09: mcp_client clientInfo 版本号同步 — clientInfo.version
   3.11.2 → 3.12.67（与 pyproject 一致）。test_mcp_client + test_tool_executor 50
   passed；release check 通过；hooks/ 零改动。'

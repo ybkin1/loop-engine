@@ -1,0 +1,10 @@
+{
+  "gate_id": "G-T-0167-REQUIREMENTS",
+  "task_id": "T-0167",
+  "status": "approved",
+  "approved_at": "2026-08-10T10:00:00+08:00",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "做深度实现，让 qoder 的 loop 工程能保证任意产出质量符合需求标准、编码规范、设计理念与软件工程",
+  "recorded_by": "loop-governance"
+}

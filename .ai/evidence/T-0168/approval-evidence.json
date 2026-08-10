@@ -1,0 +1,10 @@
+{
+  "gate_id": "G-T-0168-REQUIREMENTS",
+  "task_id": "T-0168",
+  "status": "approved",
+  "approved_at": "2026-08-10T13:00:00+08:00",
+  "approval_actor": "user",
+  "approval_source": "explicit_user_message",
+  "approval_text": "可以的（批准 T-0167 收口 + T-0168 OQA-5D 真实性维度扩展）",
+  "recorded_by": "loop-governance"
+}

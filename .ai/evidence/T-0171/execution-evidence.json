@@ -1,0 +1,29 @@
+{
+  "task_id": "T-0171",
+  "title": "语义级验证扩展 — AC 实现真实性 + AI 偷懒模式库",
+  "status": "implemented",
+  "implemented_at": "2026-08-10T16:30:00+08:00",
+  "gate": "G-T-0171-REQUIREMENTS",
+  "verification": {
+    "AC-01": "AI-03 checkAcImplementation：AC 关键词缺失→BLOCKER / 无实现文件→WARNING（15 测试含正反例）",
+    "AC-02": ".ai/oqa-patterns.yaml 项目级模式库：加载合并/同名覆盖/损坏回退（测试覆盖）",
+    "AC-03": "loop_oqa_patterns MCP 工具：注册（38 tools）+ list 返回 5 模式（e2e PASS）",
+    "AC-04": "15 新增测试全通过；全量 634/634 通过",
+    "AC-05": "standards.md AI-03 行 + 模式库节更新",
+    "AC-06": "待独立审查"
+  },
+  "deliverables": [
+    "loop-engine-lab/src/core/oqa_patterns.ts (模式库 + AI-03)",
+    "loop-engine-lab/src/core/index.ts (导出)",
+    "loop-engine-lab/src/server/tools.ts (loop_oqa_patterns 工具)",
+    "loop-engine-lab/tests/oqa_patterns.test.ts (15 用例)",
+    ".ai/oqa-patterns.yaml (项目级模式库)",
+    "skills/loop-engineering/references/output-quality-standards.md (AI-03 + 模式库)"
+  ],
+  "evidence_files": [
+    ".ai/staging/T-0171/oqa_patterns.ts",
+    ".ai/staging/T-0171/oqa_patterns.test.ts",
+    ".ai/staging/T-0171/verify_mcp_t171.py",
+    ".ai/oqa-patterns.yaml"
+  ]
+}

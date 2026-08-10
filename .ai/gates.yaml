@@ -6370,6 +6370,225 @@ gates:
   notes:
   - P3 观察项：clientInfo 版本号过时（3.11.2 → 3.12.67），T-0160 收口后核查
     MCP 2026-07-28 无状态规范时顺手发现，用户批准即执行。
+- id: G-T-0167-REQUIREMENTS
+  task_id: T-0167
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-10T10:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-10T10:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 做深度实现，让 qoder 的 loop 工程能保证任意产出质量符合需求标准、编码规范、设计理念与软件工程
+  approval_evidence: .ai/evidence/T-0167/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0167/execution-evidence.json
+  scope: >-
+    Qoder Loop 工程四维产出质量保障体系（OQA-4D）深度实现：核心引擎
+    output_quality.ts + MCP 工具 loop_output_quality/loop_quality_gate +
+    hook 预检 output_quality_guard.js + 标准文档 output-quality-standards.md
+    + 测试。范围限定 C:\Users\Administrator\.qoder-cn\ 资产与 .ai/ 治理收口。
+  allowed_paths:
+  - C:\Users\Administrator\.qoder-cn\loop-engine-lab\src\core\output_quality.ts
+  - C:\Users\Administrator\.qoder-cn\loop-engine-lab\src\core\index.ts
+  - C:\Users\Administrator\.qoder-cn\loop-engine-lab\src\server\tools.ts
+  - C:\Users\Administrator\.qoder-cn\loop-engine-lab\tests\output_quality.test.ts
+  - C:\Users\Administrator\.qoder-cn\hooks\scripts\output_quality_guard.js
+  - C:\Users\Administrator\.qoder-cn\skills\loop-engineering\references\output-quality-standards.md
+  - C:\Users\Administrator\.qoder-cn\skills\loop-engineering\SKILL.md
+  - C:\Users\Administrator\.qoder-cn\skills\loop-engineering\roles\R06-developer.md
+  - .ai/
+  - docs/
+  forbidden_actions:
+  - modify loop-engine zcode 分支产品代码（loop_core/hooks/agents 任何文件）
+  - modify Qoder 全局 User settings.json（hooks 接线属独立 gate）
+  - modify .qoder-cn 既有 hook 脚本语义（只新增不修改）
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  - install or enable new skill/MCP/agent/automation/protocol（工具注册在既有 server 内）
+  - weaken rule layer (AGENTS.md / forbidden semantics / EVIDENCE_ONLY_BOUNDARY)
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - AC-01~AC-07 全部达成
+  - 独立审查 P0/P1 = 0
+  notes:
+  - 用户指令（2026-08-10）：深度实现 Qoder loop 工程四维产出质量保障
+  - 基于 T-0165 全模块分析缺口；仅 .qoder-cn 资产 + .ai/ 收口
+- id: G-T-0168-REQUIREMENTS
+  task_id: T-0168
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-10T13:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-10T13:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 可以的（批准 T-0167 收口 + T-0168 OQA-5D 真实性维度扩展）
+  approval_evidence: .ai/evidence/T-0168/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0168/execution-evidence.json
+  scope: >-
+    OQA-5D 扩展：AUTHENTICITY 真实性维度 10 检查器（AH-01/02 引用存在性、
+    AF-01/02 证据与完成声明真实性、AL-01/02 占位符与测试质量、AO-01/02
+    死代码与幽灵接口、AI-01/02 文档与状态漂移）+ 边界测试 + 标准文档第五维
+    + guard 占位符预检。范围限定 .qoder-cn 资产与 .ai/ 收口。
+  allowed_paths:
+  - C:\\Users\\Administrator\\.qoder-cn\\loop-engine-lab\\src\\core\\output_quality.ts
+  - C:\\Users\\Administrator\\.qoder-cn\\loop-engine-lab\\tests\\output_quality.test.ts
+  - C:\\Users\\Administrator\\.qoder-cn\\skills\\loop-engineering\\references\\output-quality-standards.md
+  - C:\\Users\\Administrator\\.qoder-cn\\skills\\loop-engineering\\SKILL.md
+  - C:\\Users\\Administrator\\.qoder-cn\\hooks\\scripts\\output_quality_guard.js
+  - .ai/staging/T-0168/
+  - .ai/
+  - docs/
+  forbidden_actions:
+  - modify loop-engine zcode 分支产品代码（loop_core/hooks/agents 任何文件）
+  - modify Qoder 全局 User settings.json
+  - modify .qoder-cn 既有 hook 语义（只新增）
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - AC-01~AC-07 全部达成
+  - 独立审查 P0/P1 = 0
+  notes:
+  - 用户批准（2026-08-10）：OQA-5D 真实性维度扩展，防 AI 幻觉/编造/偷懒/过度设计/漂移
+- id: G-T-0169-REQUIREMENTS
+  task_id: T-0169
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-10T15:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-10T15:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 排布下，只要是要做的就都要走（批准 T-0169）
+  approval_evidence: .ai/evidence/T-0169/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0169/execution-evidence.json
+  scope: >-
+    Qoder 接线：loop hooks + MCP 注册进 Qoder 真实配置（保留 clawd-on-desk），验证写入拦截/上下文注入/MCP 工具生效。
+  allowed_paths:
+  - C:\\Users\\Administrator\\AppData\\Roaming\\QoderCN\\User\\settings.json 等（见任务卡）
+  forbidden_actions:
+  - modify loop-engine zcode 分支产品代码（loop_core/hooks/agents 任何文件，T-0170 仅限 .zcode/tools 新增）
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - AC-01~AC-06 全部达成
+  - 独立审查 P0/P1 = 0
+  notes:
+  - 用户指令（2026-08-10）：三项后续方向全部执行
+- id: G-T-0170-REQUIREMENTS
+  task_id: T-0170
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-10T15:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-10T15:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 排布下，只要是要做的就都要走（批准 T-0170）
+  approval_evidence: .ai/evidence/T-0170/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0170/execution-evidence.json
+  scope: >-
+    Python Parity：OQA-5D 语义对齐 ZCode 侧（.zcode/tools/output_quality.py + validate_state --oqa + 测试）。
+  allowed_paths:
+  - .zcode/tools/output_quality.py 等（见任务卡）
+  forbidden_actions:
+  - modify loop-engine zcode 分支产品代码（loop_core/hooks/agents 任何文件，T-0170 仅限 .zcode/tools 新增）
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - AC-01~AC-06 全部达成
+  - 独立审查 P0/P1 = 0
+  notes:
+  - 用户指令（2026-08-10）：三项后续方向全部执行
+- id: G-T-0171-REQUIREMENTS
+  task_id: T-0171
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-10T15:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-10T15:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 排布下，只要是要做的就都要走（批准 T-0171）
+  approval_evidence: .ai/evidence/T-0171/approval-evidence.json
+  execution_evidence: .ai/evidence/T-0171/execution-evidence.json
+  scope: >-
+    语义级验证扩展：AI-03 AC 实现真实性检查器 + AI 偷懒模式库（.ai/oqa-patterns.yaml + loop_oqa_patterns MCP 工具）。
+  allowed_paths:
+  - .qoder-cn 引擎/工具/标准 + .ai/oqa-patterns.yaml（见任务卡）
+  forbidden_actions:
+  - modify loop-engine zcode 分支产品代码（loop_core/hooks/agents 任何文件，T-0170 仅限 .zcode/tools 新增）
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration / real business project entry
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: false
+  exit_criteria:
+  - AC-01~AC-06 全部达成
+  - 独立审查 P0/P1 = 0
+  notes:
+  - 用户指令（2026-08-10）：三项后续方向全部执行
 delegations:
 - chain_id: C-001
   task_ids:
@@ -6434,3 +6653,20 @@ delegations:
   revoked_at: '2026-08-07T18:04:48.486726+00:00'
   note: 遗留收尾包（P3 观察 + DR-004）
 
+- chain_id: C-006
+  task_ids:
+  - T-0173
+  status: active
+  approved_by: user
+  approved_gate: G-T-0173-REQUIREMENTS
+  approved_at: '2026-08-10T12:20:00.000000+00:00'
+  note: ZCode 同类问题修复（用户指令"看下zcode的loop agent是否存在类似的问题，也做修复"）；依赖图检查落地
+
+- chain_id: C-007
+  task_ids:
+  - T-0174
+  status: active
+  approved_by: user
+  approved_gate: G-T-0174-REQUIREMENTS
+  approved_at: '2026-08-10T12:45:00.000000+00:00'
+  note: hooks 根因定位与修复（用户指令"在zcode侧是无法修复了么"）；插件登记 bundled-marketplace.json

@@ -1,0 +1,29 @@
+{
+  "task_id": "T-0168",
+  "title": "OQA-5D 扩展 — AUTHENTICITY 真实性维度（AI 行为验证）",
+  "status": "implemented",
+  "implemented_at": "2026-08-10T14:00:00+08:00",
+  "gate": "G-T-0168-REQUIREMENTS",
+  "verification": {
+    "tsc": "0 errors",
+    "vitest": "615 passed (25 files, incl. 30 new authenticity tests)",
+    "build": "npm run build success",
+    "guard_syntax": "node -c passed",
+    "guard_behaviour": "3/3 scenarios PASS (secret-deny / debug-warn / clean-pass)",
+    "e2e": "hallucination import → AH-01 BLOCKER; TODO/NotImplemented → AL-01 BLOCKER; dead exports → AO-01 WARNING"
+  },
+  "deliverables": [
+    "loop-engine-lab/src/core/authenticity.ts (AUTHENTICITY dimension, 10 checkers)",
+    "loop-engine-lab/src/core/output_quality.ts (OQA-5D wiring)",
+    "loop-engine-lab/tests/authenticity.test.ts (30 cases)",
+    "skills/loop-engineering/references/output-quality-standards.md (dimension 5)",
+    "skills/loop-engineering/SKILL.md (OQA-5D row)",
+    "hooks/scripts/output_quality_guard.js (placeholder pre-check)"
+  ],
+  "evidence_files": [
+    ".ai/staging/T-0168/authenticity.ts",
+    ".ai/staging/T-0168/authenticity.test.ts",
+    ".ai/staging/T-0168/e2e_auth.py",
+    ".ai/staging/T-0168/wire_authenticity.py"
+  ]
+}

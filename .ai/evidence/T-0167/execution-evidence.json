@@ -1,0 +1,34 @@
+{
+  "task_id": "T-0167",
+  "title": "Qoder Loop 工程四维产出质量保障体系（OQA-4D）深度实现",
+  "status": "implemented",
+  "implemented_at": "2026-08-10T11:50:00+08:00",
+  "gate": "G-T-0167-REQUIREMENTS",
+  "verification": {
+    "tsc": "0 errors",
+    "vitest": "581 passed (24 files, incl. 26 new OQA tests)",
+    "build": "npm run build success, dist generated",
+    "guard_syntax": "node -c passed",
+    "guard_behaviour": "3/3 scenarios PASS (secret-deny exit2 / debug-warn / clean-pass)",
+    "deploy_idempotent": "repeat run all [same]",
+    "e2e": "real project 4-dimension report generated; RQ-01 blocks out-of-scope path"
+  },
+  "deliverables": [
+    "loop-engine-lab/src/core/output_quality.ts (OQA-4D engine, 17 checkers)",
+    "loop-engine-lab/src/core/index.ts (exports)",
+    "loop-engine-lab/src/server/tools.ts (loop_output_quality + loop_quality_gate)",
+    "hooks/scripts/output_quality_guard.js (PreToolUse pre-check)",
+    "skills/loop-engineering/references/output-quality-standards.md",
+    "skills/loop-engineering/SKILL.md (OQA section)",
+    "skills/loop-engineering/roles/R06-developer.md (self-check section)",
+    "loop-engine-lab/tests/output_quality.test.ts (26 cases)"
+  ],
+  "evidence_files": [
+    ".ai/staging/T-0167/deploy_t0167.py",
+    ".ai/staging/T-0167/test_guard_behaviour.py",
+    ".ai/staging/T-0167/e2e_engine.py",
+    ".ai/staging/T-0167/output_quality.ts",
+    ".ai/staging/T-0167/output_quality.test.ts",
+    ".ai/staging/T-0167/output-quality-standards.md"
+  ]
+}
