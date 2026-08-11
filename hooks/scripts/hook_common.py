@@ -14,6 +14,8 @@ import os
 import re
 import shlex
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -27,6 +29,12 @@ except ImportError:  # pragma: no cover - 取决于运行环境
 SKILL_REL_DIR = Path(".zcode") / "skills" / "loop-governance"
 STATE_REL = Path(".ai") / "state.yaml"
 GATES_REL = Path(".ai") / "gates.yaml"
+
+# ── 统一退出码（T-0177 P3-7 / 评审 L1：批 C wiring）─────────────────────
+# 各 hook 脚本原先各自定义 EXIT_PASS/EXIT_BLOCK（6 处重复，wiring 未完成）。
+# 统一从此处导入：0 = 放行；2 = 阻断（ZCode PreToolUse deny 语义）。
+EXIT_PASS = 0
+EXIT_BLOCK = 2
 
 # ── Read-only exemption (T-0095 unified predicate) ───────────────────────
 # Single decision source shared by path_guard.py and loop_enforcement.py —
@@ -617,6 +625,17 @@ def auto_sync_to_plugin_cache(project_root_path: Path) -> bool:
     for py_file in sorted(local_scripts.glob("*.py")):
         cache_copy = current_dir / py_file.name
         if not cache_copy.exists():
+            # T-0177 独立审查 P0：新模块（如 _hook_emergency.py）也必须传播
+            # 到插件缓存——否则缓存版 hook_common re-export 失败导致
+            # gate_guard/loop_enforcement 导入期崩溃（部署断裂）。
+            try:
+                shutil.copy2(str(py_file), str(cache_copy))
+                logger.warning(
+                    "[auto-sync] %s → plugin cache (new module)", py_file.name
+                )
+                synced = True
+            except OSError as e:
+                logger.warning("[auto-sync] FAILED to copy new %s: %s", py_file.name, e)
             continue
 
         try:
@@ -725,3 +744,45 @@ try:
     _SPLIT_SYNC_AVAILABLE = True
 except ImportError:
     _SPLIT_SYNC_AVAILABLE = False
+
+try:
+    from _hook_emergency import (  # noqa: E402, F401
+        EMERGENCY_FILE,
+        EMERGENCY_TTL_SECONDS,
+        EMERGENCY_AUDIT_LOG,
+        _EMERGENCY_VALID_CONTENT,
+        _emergency_last_audit,
+        _emergency_audit,
+        _emergency_file_active,
+        emergency_active,
+    )
+    _SPLIT_EMERGENCY_AVAILABLE = True
+except ImportError:
+    # T-0177 独立审查 P0：re-export 失败时必须提供回退符号——插件缓存
+    # 可能没有 _hook_emergency.py（auto-sync 只同步缓存中已存在的文件，
+    # 新文件不会自动传播），若符号缺失，gate_guard/loop_enforcement 的
+    # `from hook_common import emergency_active` 会在导入期 ImportError
+    # 崩溃，整个守卫链失效。回退采用 T-0168 原语义（env + 文件存在），
+    # 失败时 fail-open（逃生不可被阻断）。
+    _SPLIT_EMERGENCY_AVAILABLE = False
+
+    EMERGENCY_FILE = Path.home() / ".loop-engine-emergency"
+    EMERGENCY_TTL_SECONDS = 24 * 3600
+    EMERGENCY_AUDIT_LOG = Path.home() / ".loop-engine-emergency.log"
+    _EMERGENCY_VALID_CONTENT = {"1", "active", "on"}
+    _emergency_last_audit: float = 0.0
+
+    def _emergency_audit(event: str, detail: str = "") -> None:
+        pass  # 回退版不审计（尽力而为）
+
+    def _emergency_file_active() -> bool:
+        """回退版：仅检查文件存在（T-0168 原语义）；读取异常 fail-open。"""
+        try:
+            return EMERGENCY_FILE.exists()
+        except OSError:
+            return True
+
+    def emergency_active() -> bool:
+        if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
+            return True
+        return _emergency_file_active()

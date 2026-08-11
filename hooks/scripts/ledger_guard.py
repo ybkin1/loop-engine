@@ -32,6 +32,8 @@ logging.basicConfig(
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from hook_common import (
+    EXIT_PASS,
+    EXIT_BLOCK,
     extract_target_path,
     normalize_rel,
     project_root,
@@ -39,8 +41,6 @@ from hook_common import (
     should_fail_closed,
 )
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 LEDGER_DIR = ".ai/ledger"
 

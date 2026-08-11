@@ -42,6 +42,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / ".zcode" / "tools"))
 from hook_common import (  # noqa: E402 — 必须先完成 sys.path 就绪
     DEFAULT_CONFIG,
+    emergency_active,
     extract_target_path,
     is_governance_project,
     is_path_safe,
@@ -597,13 +598,40 @@ def build_hard_constraints_context(
 
 
 def _emergency_active() -> bool:
-    """逃生模式（人触发）：env 或 ~/.loop-engine-emergency 文件"""
-    if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
-        return True
+    """逃生模式（人触发）：共享实现（hook_common.emergency_active）。
+
+    T-0177 H2 加固：内容校验 + 24h TTL + 审计留痕 + fail-open。
+    """
+    return emergency_active()
+
+
+def _host_enforcement_diagnostic(root: Path) -> None:
+    """T-0177 H1: 退化框架接线 — 启动时输出宿主 enforcement level 诚实声明。
+
+    degradation.py（DEGRADATION_TABLE / get_adapter_info）原先零调用者（死代码）。
+    接线语义：不改变拦截行为（fail-safe，仍按现有 FULL 语义执行），仅在
+    stderr 输出当前宿主可强制的约束比例，供审计/诊断。loop_engine 不可
+    导入时静默降级（不阻断 hook 主流程）。
+    """
     try:
-        return (Path.home() / ".loop-engine-emergency").exists()
-    except OSError:
-        return False
+        import sys as _sys
+        # 优先 hook 所在仓库的 src（loop-engine 自身），后备目标项目 src
+        repo_src = Path(__file__).resolve().parent.parent.parent / "src"
+        for d in (repo_src, root / "src"):
+            s = str(d)
+            if s not in _sys.path:
+                _sys.path.insert(0, s)
+        from loop_engine.degradation import get_adapter_info
+        info = get_adapter_info("zcode")
+        enforced = sum(1 for c in info["constraints"].values() if c.get("can_enforce"))
+        total = len(info["constraints"])
+        logger.warning(
+            "[enforcement-degradation] host=%s level=%s constraints=%d/%d enforceable "
+            "(T-0177 H1 wiring; behavior unchanged)",
+            info["host"], info["enforcement_level"], enforced, total,
+        )
+    except Exception:  # noqa: BLE001 — 诊断失败不阻断
+        pass
 
 
 def main():
@@ -613,6 +641,9 @@ def main():
         return EXIT_PASS
     hook_input = _read_hook_input()
     root = project_root(hook_input)
+
+    # T-0177 H1: 宿主能力诊断（逃生后、任何拦截前；不改变行为）
+    _host_enforcement_diagnostic(root)
 
     # ── 自愈：自动同步本地 hook → 插件缓存（解决"改本地不改缓存"的死锁）──
     auto_sync_to_plugin_cache(root)
@@ -833,19 +864,39 @@ def main():
 
         # ── Git 版本控制豁免 ──
         # 无任务时：只允许 git add/commit/diff（提交治理记录必须）
-        # 有任务时：所有本地 git 操作放行
+        # 有任务时：本地 git 操作放行，但破坏性操作除外
         # git push/pull/fetch/clone 等网络操作始终需 task scope 检查
+        # T-0177 C3 收窄：git reset（--hard 丢弃工作区）、git checkout <path>
+        # （覆盖文件）、git restore（等价 checkout --）、git rm/mv（删除/移动
+        # 文件）、merge/rebase（覆盖/改写历史）可绕过逐文件保护，不再随
+        # task_id 无条件放行 —— 落入下方 task scope 判定。
+        # T-0177 独立审查 P1：is_destructive 改为段级判定——`cd x && git
+        # reset --hard`、`git -C . restore` 等复合/参数形态不得借"整体
+        # startswith"绕过。
         if command:
             cmd_stripped = (command or "").strip()
             _GIT_COMMIT_OPS = ("git add", "git commit", "git diff")  # noqa: N806 — 主流程原样保留
+            _GIT_DESTRUCTIVE_OPS = (  # noqa: N806 — T-0177 C3 + 审查 P2-1
+                "git reset", "git checkout", "git restore",
+                "git rm", "git mv", "git merge", "git rebase",
+            )
             _GIT_ALL_LOCAL = _GIT_COMMIT_OPS + (  # noqa: N806 — 主流程原样保留
-                "git status", "git log", "git branch", "git checkout",
-                "git switch", "git restore", "git stash", "git tag",
-                "git show", "git config", "git rm", "git mv", "git reset",
-                "git merge", "git rebase",
+                "git status", "git log", "git branch", "git switch",
+                "git stash", "git tag", "git show", "git config",
+                "git merge-base",  # T-0177 复审 P2-1：只读查询（merge 移出后防止误伤）
+            )
+            # 段级破坏性判定：匹配 "git <子命令>" 或 "git -C <dir> <子命令>"
+            #（引号感知段切分后逐段检查，防复合命令绕过）
+            _GIT_DESTRUCTIVE_RE = re.compile(
+                r"\bgit(?: -[a-zA-Z]\s+\S+)*\s+("
+                + "|".join(re.escape(op.split(" ", 1)[1]) for op in _GIT_DESTRUCTIVE_OPS)
+                + r")(?:\s|$)"
             )
             is_commit_op = any(cmd_stripped.startswith(p) for p in _GIT_COMMIT_OPS)
             is_local_op = any(cmd_stripped.startswith(p) for p in _GIT_ALL_LOCAL)
+            is_destructive = any(
+                _GIT_DESTRUCTIVE_RE.search(seg) for seg in _split_command_segments(cmd_stripped)
+            )
             # Compound commands: cd /x && git ...
             has_git = " git " in cmd_stripped
             is_network = any(
@@ -853,11 +904,11 @@ def main():
                 for suffix in (" push", " pull", " fetch", " clone")
             )
             if not is_network:
-                if task_id and is_local_op:
+                if task_id and is_local_op and not is_destructive:
                     return EXIT_PASS
                 if not task_id and is_commit_op:
                     return EXIT_PASS
-                if has_git and "cd " in cmd_stripped and not is_network:
+                if has_git and "cd " in cmd_stripped and not is_network and not is_destructive:
                     return EXIT_PASS
 
         # ── Read 治理：无任务时只允许治理元数据读取 ──

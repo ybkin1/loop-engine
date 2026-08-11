@@ -27,6 +27,8 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from hook_common import (
+    EXIT_PASS,
+    EXIT_BLOCK,
     extract_target_path,
     is_governance_project,
     load_config,
@@ -35,8 +37,6 @@ from hook_common import (
     read_stdin_json,
 )
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 # —— 硬编码密钥检测模式 ——————————————————————————————
 _SECRET_PATTERNS = [
@@ -95,7 +95,6 @@ def _run_ruff_check(file_path):
         return False, ["ruff 检查超时：语法/质量检查无法执行（fail-closed）"]
     except Exception as _e:
         # T-0083 (AC-06): fail-closed（was fail-open）。执行异常 → 阻断。
-        import logging
         logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
         return False, [f"ruff 检查执行异常：{_e}（fail-closed）"]
 
@@ -116,7 +115,7 @@ def _check_architecture_compliance(root, target_rel):
     try:
         arch_content = arch_doc.read_text(encoding="utf-8")
     except Exception as _e:
-        import logging; logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
+        logging.getLogger("content_guard").warning("%s check failed: %s", "content_guard", _e)
         return True, []
     known_modules = set()
     mod_pat = re.compile(r'[\-*]\s+`?([a-zA-Z_][\w/]*\.py)`?')
@@ -141,7 +140,7 @@ def main():
     try:
         hook_input = read_stdin_json()
     except Exception as _e:
-        import logging; logging.getLogger("content_guard").warning("%s fatal: %s", "content_guard", _e)
+        logging.getLogger("content_guard").warning("%s fatal: %s", "content_guard", _e)
         return EXIT_PASS
 
     # T-0082 Phase 5 GAP-1: 原代码 project_root() 缺少 hook_input 实参，

@@ -1,0 +1,48 @@
+schema: EvidenceManifest/v1
+manifest_id: EM-T-0177-3D07BDED
+task_id: T-0177
+gate_id: G-T-0177-REQUIREMENTS
+authority_ref: user
+evidence_root: .ai/evidence/T-0177
+limits:
+  max_file_count: 256
+  max_per_file_bytes: 16777216
+  max_total_bytes: 268435456
+  stream_chunk_bytes: 1048576
+files:
+- path: .ai/evidence/T-0177/approval-record.G-T-0177-REQUIREMENTS.v0.1.md
+  role: result
+  required: true
+  sha256: 60E060FBF6DEFA1A063423DDCC65A77056A4D59C98F064EFA809233DEE0F64B6
+  size: 1233
+  mtime_ns: 1786418412984987700
+- path: .ai/evidence/T-0177/execution-evidence.md
+  role: result
+  required: true
+  sha256: 59D0017914741A7B556377D9175831486006936A6A6736FAB9ACFD8F4A30D411
+  size: 3028
+  mtime_ns: 1786419956481767700
+- path: .ai/evidence/T-0177/gate-request.G-T-0177-REQUIREMENTS.v0.1.md
+  role: command
+  required: true
+  sha256: 66FDE37928A286B9AE5088E5460258CBE9B5B8E134A9F6A831F0600AEC692101
+  size: 2943
+  mtime_ns: 1786418193228334500
+- path: .ai/evidence/T-0177/m6-m7-assessment.md
+  role: result
+  required: true
+  sha256: 1ED9E1209EBA3B8C98F56C0C586CC466E6CD4A7474196D2F91F2A78276193DAF
+  size: 2780
+  mtime_ns: 1786419081119213700
+- path: .ai/evidence/T-0177/root-cause-analysis.md
+  role: result
+  required: true
+  sha256: 1044D9AD25032CD55F0C165241AEEA613FD9F1EB66E455149F444B0D999CE5B5
+  size: 8837
+  mtime_ns: 1786418445431578500
+file_count: 5
+total_bytes: 18821
+ordered_entries_sha256: 3D07BDED96A86576AC16D303E9809A3BFD02CB6D4E942F9D7BB1DC699572FA04
+semantic_sha256: 2A02308B729C70CDE07FC27C1A60FE465A43C7AFF88B14EE48A9470DB963C0A1
+created_at: '2026-08-11T00:00:00+08:00'
+created_by: governance-controller

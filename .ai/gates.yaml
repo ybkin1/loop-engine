@@ -6589,6 +6589,82 @@ gates:
   - 独立审查 P0/P1 = 0
   notes:
   - 用户指令（2026-08-10）：三项后续方向全部执行
+- id: G-T-0177-REQUIREMENTS
+  task_id: T-0177
+  gate_type: user-approval
+  status: approved
+  execution_status: completed
+  decision: approved
+  requested_at: '2026-08-11T00:00:00+08:00'
+  requested_by: ai
+  approval_required_from: user
+  recorded_at: '2026-08-11T00:00:00+08:00'
+  approval_actor: user
+  approval_source: explicit_user_message
+  approval_text: 批准 T-0177 全量执行 (Recommended)
+  execution_evidence: .ai/evidence/T-0177/execution-evidence.md
+  scope: >-
+    五路深度评审全量修复 + 根因分析：P0（C1 import json / C2 验证提醒）+ P1
+    （H3 边界匹配 / H4 去 sys.path 污染 / H2 逃生开关加固 / C3 git 豁免收窄）+
+    P2（H1 退化框架接线 / M1 ClaudeCodeAdapter 独立 / M4 死代码清理 / M6-M7 评估）+
+    P3（PROGRESS 同步 / 角色数量 / test-engineer SKILL.md / 假通过测试 / .bak /
+    CONTRACTS 路径 / L1 wiring / L2-L4 文档 / docs 编号）+ D-00 根因分析文档。
+  allowed_paths:
+  - .ai/tasks/T-0177.md
+  - .ai/evidence/T-0177/
+  - .ai/state.yaml
+  - .ai/task_graph.yaml
+  - .ai/gates.yaml
+  - .ai/HANDOFF.md
+  - .ai/PROGRESS.md
+  - .ai/KNOWN_ISSUES.md
+  - .ai/DECISIONS.md
+  - .ai/CONTRACTS.md
+  - .ai/CODING_STANDARDS.md
+  - .ai/CONVENTIONS.md
+  - hooks/scripts/gate_guard.py
+  - hooks/scripts/loop_enforcement.py
+  - hooks/scripts/session_brief.py
+  - hooks/scripts/enforcement_degradation.py
+  - hooks/scripts/hook_common.py
+  - loop_core/state_machine.py
+  - src/loop_engine/quota_decision.py
+  - src/loop_engine/degradation.py
+  - src/loop_engine/enforcement_degradation.py
+  - src/loop_engine/adapters/claude_adapter.py
+  - agents/test-engineer/SKILL.md
+  - tests/
+  - docs/
+  - 删除 hooks/scripts/loop_enforcement.py.bak
+  forbidden_actions:
+  - modify AGENTS.md
+  - modify .zcode/config.json
+  - modify bundled-marketplace.json（T-0174 已处理）
+  - install or enable skill, MCP, agent, automation, protocol, or tool behavior
+  - enter a real business project
+  - deploy / rollback / database / permission / secret / payment / production
+    data / migration
+  - redo T-0174 hooks fix（仅收口提醒用户重启验证）
+  high_risk_flags:
+    deployment: false
+    rollback: false
+    database: false
+    permission: false
+    secret: false
+    payment: false
+    production_data: false
+    migration: false
+    runtime_behavior: true
+  exit_criteria:
+  - AC-D00 + AC-P0~P3 全部达成（见任务卡）
+  - 全量回归 0 新增失败（基线 25 failed 先与评审对齐确认性质）
+  - 独立审查 P0/P1 = 0
+  - 用户验收确认
+  notes:
+  - 用户指令（2026-08-11）："1、要做全量升级；2、但也要分析，设计了这么久，
+    为什么 loop agent 会有这么多的大漏洞，ai 的可信度在哪里"
+  - C2（hookCount 0）根因已由 T-0174 修复，本任务只做收口验证提醒，不重做
+  - 评审报告已验证：10/12 完全确认，C3/H1 定位修正（详见任务卡）
 delegations:
 - chain_id: C-001
   task_ids:

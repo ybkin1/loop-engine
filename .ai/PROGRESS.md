@@ -2,12 +2,14 @@
 
 ## Current Status
 
-T-0086 ACTIVE (2026-08-01): 治理清障 + StaffDeck 对标落地 + 任务计划编排。
-G-T-0086-REQUIREMENTS 已批准。执行中：PROGRESS 漂移修复、hook 只读误伤修复、
-staffdeck-benchmark 证据落盘、T-0087~T-0090 任务计划编排。
+T-0177 ACTIVE (2026-08-11): 五路深度评审全量修复 + 根因分析。
+G-T-0177-REQUIREMENTS 已批准。P0~P2 已完成（C1/H1/H2/H3/H4/C3/M1/M4/M6-7），
+P3 文档同步执行中。修复内容与证据见 `.ai/evidence/T-0177/`。
 
 > ⚠️ 存档说明：下方 T-0020 及更早时代的内容为历史存档，非当前状态。
-> 权威状态以 state.yaml 为准（T-0085 已完成 v3.12.24；当前任务 T-0086）。
+> 权威状态以 state.yaml 为准（当前任务 T-0177；历史任务里程碑见 state.yaml
+> notes 列表，最新：T-0176 第一性原理+对抗式审查 / T-0174 hooks 根因修复 /
+> T-0171 语义级验证扩展）。
 
 S0-method-repair. Current task is T-0020: Real Project Governance Enforcement
 Architecture Review.
@@ -401,7 +403,7 @@ No real product project was created. No real business project root was entered. 
 
 ### T-0028: Requirements Repair (07-22)
 - Independent reviewer found 3 P0 gaps → fixed in docs/01-requirements.md
-- Added: 11 roles, 12 phases, role certification
+- Added: 12 roles, 12 phases, role certification（T-0177 修正：11→12，agents/ 实际 12 角色）
 
 ### T-0029: Execution Layer Hardening (07-22)
 - Rewrote main-thread SKILL.md (Agent isolation + veto chain + input freezing)

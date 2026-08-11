@@ -72,6 +72,18 @@ def get_action_for_level(constraint_id: str, level: EnforcementLevel) -> Degrada
 
 # ── Multi-Host Adapter Capability Declarations ──
 
+# ZCode capabilities — T-0174 插件 hooks 已登记（bundled-marketplace.json），
+# PreToolUse 拦截 Write/Edit/Bash/ApplyPatch/Agent，exit 2 = deny 语义真实生效
+# （T-0177 H1 统一：与 src/loop_engine/adapters/zcode_adapter.py 声明一致，消除
+# 两处能力声明互斥的"诚实性债务"）。
+ZCODE_CAPABILITIES = HostCapabilities(
+    can_intercept_writes=True,
+    can_intercept_commands=True,
+    can_isolate_agents=True,
+    can_enforce_exit_codes=True,
+    has_hooks_api=True,
+)
+
 # Claude Code capabilities (estimated)
 CLAUDE_CODE_CAPABILITIES = HostCapabilities(
     can_intercept_writes=True,       # Claude Code has hooks
@@ -103,7 +115,7 @@ STANDALONE_CAPABILITIES = HostCapabilities(
 def get_adapter_info(host_name: str) -> dict:
     """Get capability and enforcement info for a known host."""
     caps = {
-        "zcode": HostCapabilities(True, False, True, True, True),
+        "zcode": ZCODE_CAPABILITIES,
         "claude_code": CLAUDE_CODE_CAPABILITIES,
         "qoder": QODER_CAPABILITIES,
         "standalone": STANDALONE_CAPABILITIES,

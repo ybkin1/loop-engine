@@ -159,23 +159,3 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 
-
-# Dashboard Summary (AutoPlan product layer)
-try:
-    from loop_core.status_dashboard import Dashboard
-    import os as _os
-    _proj_root = _os.environ.get("LOOP_PROJECT_ROOT", project_root)
-    dashboard = Dashboard(_proj_root)
-    status = dashboard.generate()
-    brief_lines.append("")
-    brief_lines.append("## 📊 Project Dashboard")
-    brief_lines.append(f"- Health: {status.health_indicator}")
-    brief_lines.append(f"- Tasks: {status.task_stats['completed']}/{status.task_stats['total']} completed, {status.task_stats['blocked']} blocked")
-    brief_lines.append(f"- Inbox: {status.inbox_count} requirements")
-    if status.ready_tasks:
-        brief_lines.append(f"- Ready: {', '.join(status.ready_tasks[:3])}")
-    if status.next_recommended:
-        brief_lines.append(f"- Next: {status.next_recommended}")
-    brief_lines.append(f"- Action: {status.next_action}")
-except Exception:
-    pass  # Dashboard unavailable — not a blocker

@@ -18,6 +18,7 @@ gate_guard.py — ZCode PreToolUse hook：pending gate 存在时阻断写入操�
 退出码：0 = 放行；2 = 阻断（ZCode 对 PreToolUse 的 deny 语义）。
 """
 
+import json
 import logging
 import os
 import sys
@@ -32,7 +33,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # Also add loop-engine project root so loop_core is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from hook_common import (  # noqa: E402
+    EXIT_PASS,
+    EXIT_BLOCK,
     DEFAULT_CONFIG,
+    emergency_active,
     extract_target_path,
     is_governance_project,
     load_config,
@@ -50,8 +54,6 @@ from hook_common import (  # noqa: E402
 _HardConstraints, _Severity = try_import_hard_constraints()
 _HARD_CONSTRAINTS_AVAILABLE = _HardConstraints is not None
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 
 def _load_gate_data(root):
@@ -126,13 +128,11 @@ def _check_gate_lifecycle(root, current_gate_id, state):
 
 
 def _emergency_active() -> bool:
-    """逃生模式（人触发）：env 或 ~/.loop-engine-emergency 文件"""
-    if os.environ.get("LOOP_ENGINE_EMERGENCY") == "1":
-        return True
-    try:
-        return (Path.home() / ".loop-engine-emergency").exists()
-    except OSError:
-        return False
+    """逃生模式（人触发）：共享实现（hook_common.emergency_active）。
+
+    T-0177 H2 加固：内容校验 + 24h TTL + 审计留痕 + fail-open。
+    """
+    return emergency_active()
 
 
 def main():

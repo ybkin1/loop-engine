@@ -2,10 +2,10 @@
 
 | 目录 | 职责 | 关键文件 |
 |------|------|---------|
-| `hooks/` | ZCode 执行层（4 hook） | gate_guard.py, loop_enforcement.py, path_guard.py, session_brief.py |
+| `hooks/` | ZCode 执行层（4 hook + 拆分模块） | gate_guard.py, loop_enforcement.py, path_guard.py, session_brief.py, _hook_emergency.py（T-0177 H2） |
 | `loop_core/` | 宿主无关控制内核 | state_machine.py, router.py, enforcement.py, contracts.py |
-| `src/loop_engine/` | Python 核心库 + 适配器（T-0158 迁入 src 布局） | adapters/, cost_tracker, degradation, enforcement_degradation, quota_decision, risk_grading |
-| `agents/` | 11 角色合同 | */SKILL.md（12 字段合同） |
+| `src/loop_engine/` | Python 核心库 + 适配器（T-0158 迁入 src 布局） | adapters/, cost_tracker, degradation, quota_decision, risk_grading（T-0177 删除重叠死代码 enforcement_degradation） |
+| `agents/` | 12 角色合同 | */SKILL.md（12 字段合同，T-0177 修正 11→12） |
 | `tools/` | MCP 工具 | server.py + 7 tool_*.py |
 | `scripts/` | CLI 工具 | install, uninstall, certification, auto_mutation, perf, security, regression |
 | `skills/` | 治理技能 | SKILL.md, config.yaml, chain.yaml |

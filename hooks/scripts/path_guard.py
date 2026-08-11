@@ -38,6 +38,8 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (  # noqa: E402
+    EXIT_PASS,
+    EXIT_BLOCK,
     DEFAULT_CONFIG,
     extract_target_path,
     is_execution_command,
@@ -53,8 +55,6 @@ from hook_common import (  # noqa: E402
     should_fail_closed,
 )
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 
 def emit_ask(rule, rel):

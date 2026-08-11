@@ -12,6 +12,7 @@ invokes them (process + stdin JSON + ZCODE_PROJECT_DIR env var).
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -110,9 +111,16 @@ def _make_project(
     return root
 
 
-def _run_hook(script_name: str, root: Path, hook_input: dict | None = None) -> subprocess.CompletedProcess:
-    """Run a hook script as a subprocess, similar to ZCode's invocation."""
-    env = dict(os.environ)
+def _run_hook(script_name: str, root: Path, hook_input: dict | None = None, env: dict | None = None) -> subprocess.CompletedProcess:
+    """Run a hook script as a subprocess, similar to ZCode's invocation.
+
+    env 覆盖：默认继承当前环境；传入 env 时整体替换（用于清除
+    PYTEST_CURRENT_TEST 模拟真实宿主运行时，T-0177 C3）。
+    """
+    if env is None:
+        env = dict(os.environ)
+    else:
+        env = dict(env)
     env["ZCODE_PROJECT_DIR"] = str(root)
     payload = json.dumps(hook_input or {})
     return subprocess.run(
@@ -1008,6 +1016,121 @@ class LoopEnforcementGovernanceToolInvocation(unittest.TestCase):
                 r = self._run_bash(root, cmd)
                 self.assertEqual(r.returncode, 2,
                                  f"cmd={cmd} stderr: {r.stderr[-800:]}")
+
+
+class LoopEnforcementGitExemptNarrowing(unittest.TestCase):
+    """T-0177 C3: git 豁免收窄 — 破坏性 git 操作不再随 task_id 无条件放行。
+
+    原实现：有 task_id 时所有本地 git 操作（含 git reset --hard / git checkout
+    <path> / git restore）全豁免 → 可覆盖 .ai/、hooks/ 等受保护文件绕过逐文件
+    保护。收窄后仅治理必需操作（add/commit/diff/status 等）保持豁免。
+    """
+
+    def _full_project(self, stack):
+        tmp = stack.enter_context(tempfile.TemporaryDirectory())
+        root = _make_project(tmp, state_content=STATE_FULL,
+                             task_files={"T-0001.md": TASK_IN_SCOPE},
+                             gates_content=GATES_APPROVED,
+                             review_evidence=REVIEW_EVIDENCE)
+        return root
+
+    def _run_bash(self, root, command):
+        # 清除 PYTEST_CURRENT_TEST：pytest 会让子进程命中
+        # is_legacy_synthetic_hook_fixture 旁路（LEGACY_SYNTHETIC_FIXTURE 放行），
+        # 无法验证真实宿主行为。C3 测试必须模拟真实运行时。
+        env = dict(os.environ)
+        env.pop("PYTEST_CURRENT_TEST", None)
+        return _run_hook("loop_enforcement.py", root,
+                         {"tool_name": "Bash", "tool_input": {"command": command}},
+                         env=env)
+
+    def test_git_add_allowed_with_task(self):
+        """git add（治理记录必需）保持豁免。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git add file.txt")
+            self.assertEqual(r.returncode, 0, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_commit_allowed_with_task(self):
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git commit -m 'record'")
+            self.assertEqual(r.returncode, 0, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_status_allowed_with_task(self):
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git status")
+            self.assertEqual(r.returncode, 0, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_reset_hard_blocked_with_task(self):
+        """C3 核心：git reset --hard 可丢弃工作区改动，不得再随 task_id 放行。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git reset --hard HEAD~1")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_checkout_path_blocked_with_task(self):
+        """C3 核心：git checkout -- <path> 可覆盖受保护文件。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git checkout -- .ai/state.yaml")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_restore_blocked_with_task(self):
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git restore .ai/state.yaml")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_compound_git_reset_blocked(self):
+        """复合命令 cd /x && git reset --hard 同样拦截（原实现全放行）。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, f"cd {_msys(str(root))} && git reset --hard")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_compound_git_reset_blocked_without_task(self):
+        """T-0177 审查 P1 回归：无 task 的 FULL 项目复合命令不得放行。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL_NO_TASK)
+            r = self._run_bash(root, f"cd {_msys(tmp)} && git reset --hard")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_c_option_restore_blocked(self):
+        """T-0177 审查 P1 回归：git -C <dir> restore 参数形态不得绕过段级判定。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git -C . restore src/main.py")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_rm_blocked_with_task(self):
+        """T-0177 审查 P2-1：git rm 删除文件纳入破坏性收窄（不再随 task 全豁免）。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git rm .ai/state.yaml")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_merge_blocked_with_task(self):
+        """T-0177 审查 P2-1：git merge 纳入破坏性收窄。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git merge feature")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_push_blocked_with_task(self):
+        """网络操作保持原有拦截（回归）。"""
+        with contextlib.ExitStack() as stack:
+            root = self._full_project(stack)
+            r = self._run_bash(root, "git push origin main")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
+
+    def test_git_reset_blocked_without_task(self):
+        """无 task 时 destructive git 亦拦截（fail-closed 一致性）。"""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = _make_project(tmp, state_content=STATE_FULL_NO_TASK)
+            r = self._run_bash(root, "git reset --hard")
+            self.assertEqual(r.returncode, 2, f"stderr: {r.stderr[-800:]}")
 
 
 if __name__ == "__main__":

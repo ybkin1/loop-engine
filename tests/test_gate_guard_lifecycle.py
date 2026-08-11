@@ -196,3 +196,42 @@ class TestGateScopeConstraint:
         result = _check_gate_lifecycle(temp_project, "G-TEST", state)
         # gate_guard allows execution; path_guard constrains which files
         assert result == "allow"
+
+
+class TestEmergencyBypassC1:
+    """T-0177 C1 回归：逃生分支不得因缺失 import json 而 NameError（fail-closed 反噬）。
+
+    bug: gate_guard.py 模块级无 import json，逃生分支 json.dumps 抛 NameError，
+    宿主捕获后 fail-closed exit 2 —— 逃生反而加重阻断。
+    """
+
+    def test_emergency_env_bypass_exits_pass_with_valid_json(self, capsys, monkeypatch):
+        """LOOP_ENGINE_EMERGENCY=1 时必须 exit 0 且输出合法 JSON（C1 修复验证）。"""
+        from gate_guard import main
+        monkeypatch.setenv("LOOP_ENGINE_EMERGENCY", "1")
+        rc = main()
+        captured = capsys.readouterr()
+        assert rc == EXIT_PASS
+        import json as _json
+        payload = _json.loads(captured.out.strip())
+        assert payload["allow"] is True
+        assert "emergency" in payload["reason"]
+
+    def test_emergency_file_bypass_exits_pass(self, capsys, monkeypatch):
+        """~/.loop-engine-emergency 文件存在时必须 exit 0（不依赖 json 导入）。"""
+        import json as _json
+        from pathlib import Path as _Path
+        from gate_guard import main
+        home_file = _Path.home() / ".loop-engine-emergency"
+        existed = home_file.exists()
+        try:
+            home_file.write_text("1", encoding="utf-8")
+            monkeypatch.delenv("LOOP_ENGINE_EMERGENCY", raising=False)
+            rc = main()
+            captured = capsys.readouterr()
+            assert rc == EXIT_PASS
+            payload = _json.loads(captured.out.strip())
+            assert payload["allow"] is True
+        finally:
+            if not existed:
+                home_file.unlink(missing_ok=True)

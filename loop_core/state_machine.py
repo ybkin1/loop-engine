@@ -6,6 +6,7 @@ the host adapter to validate state transitions before they are executed.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
@@ -520,6 +521,23 @@ def check_phase_constraints(
     )
 
 
+def _gate_matches_phase(gate_id: str, required: str) -> bool:
+    """T-0177 H3: gate 约束段边界匹配。
+
+    原实现为子串匹配（required in gate_id），"S1-requirements-backup" 或
+    "notes-archive-S1-requirements-x" 等近似 ID 会错误通过 "S1-requirements"
+    约束。修复后 required 必须作为 gate_id 的完整段出现（段分隔符为 "-"），
+    且备份/遗留后缀（-backup/-bak/-legacy/-archive/-copy）不视为阶段 gate。
+    """
+    pattern = re.compile(rf"(^|-){re.escape(required)}(-|$)")
+    if not pattern.search(gate_id):
+        return False
+    for suffix in ("-backup", "-bak", "-legacy", "-archive", "-copy"):
+        if gate_id.endswith(suffix):
+            return False
+    return True
+
+
 def _check_single_constraint(
     constraint: PhaseConstraint,
     approved_gate_ids: set[str],
@@ -548,8 +566,10 @@ def _check_single_constraint(
 
     if cid in gate_constraint_map:
         required = gate_constraint_map[cid]
-        # Check if any approved gate ID contains the required phase prefix
-        return any(required in gate_id for gate_id in approved_gate_ids)
+        # T-0177 H3: 段边界匹配（原为子串匹配，"S1-requirements-backup" 会错误
+        # 通过 "S1-requirements" 约束）。required 必须作为完整段出现（前后为
+        # "-" 或字符串边界），且备份/遗留后缀不算阶段 gate。
+        return any(_gate_matches_phase(gate_id, required) for gate_id in approved_gate_ids)
 
     if cid == "C3-no-task-package":
         return task_has_active
@@ -559,7 +579,7 @@ def _check_single_constraint(
 
     if cid == "C6-no-independent-review":
         return "independent-review" in approved_gate_ids or any(
-            "independent-review" in gid for gid in approved_gate_ids
+            _gate_matches_phase(gid, "independent-review") for gid in approved_gate_ids
         )
 
     if cid == "C7-blocker-exists":

@@ -15,9 +15,12 @@
 - Real business projects must not be entered without a separate real-project-application gate.
 - Deployment, rollback, database, permission, secret, payment, production data, and migration actions require separate explicit user approval.
 - Evidence history should be superseded rather than deleted unless the user approves a destructive action.
-- Loop Core (`loop_core/`) defines host-independent protocols. Host Adapter (`src/loop_engine/adapters/`) implements them for ZCode (MEDIUM enforcement level, T-0158 迁入 src 布局).
+- Loop Core (`loop_core/`) defines host-independent protocols. Host Adapter (`src/loop_engine/adapters/`) implements them for ZCode (STRONG enforcement level；T-0158 迁入 src 布局；T-0177 修正 MEDIUM→STRONG)。
 - Role isolation is enforced: developer != reviewer, each role via isolated Agent call.
-- Bash command interception is NOT available via ZCode hooks — enforcement level is honestly MEDIUM.
+- ZCode 插件 hooks 已登记（T-0174 bundled-marketplace.json），PreToolUse 拦截
+  Write/Edit/Bash/ApplyPatch/Agent + exit 2 deny 语义 → enforcement level = STRONG
+  （与 zcode_adapter.py / degradation.py 声明一致，T-0177 H1 统一）。
+  前提：重启 ZCode 验证 hookCount > 0 后为机器级确认（T-0177 收口项）。
 
 ## Completion Flow Conventions
 
@@ -30,5 +33,5 @@
 
 - T-0022~T-0030 completed the full S0~S6 lifecycle. Project is at S6-delivery.
 - Seeded defect validation confirmed independent review catches P0 defects (3/3 planted + 6 bonus).
-- Bash command bypass (echo > file, cp) is a known limitation per ENFORCEMENT_LEVEL: MEDIUM.
+- Bash 命令拦截由 loop_enforcement PreToolUse 全命令文本检查覆盖（T-0177 C3 已收窄 git 破坏性操作豁免）；enforcement level = STRONG（T-0177 修正，原 MEDIUM 留档为历史）。
 - No real-project discovery gate has been approved.

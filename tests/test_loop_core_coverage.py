@@ -31,14 +31,24 @@ class TestRoleLoader(unittest.TestCase):
 
 class TestContextLoader(unittest.TestCase):
     def test_imports(self):
+        """T-0177 P3-4：原 assertTrue(True) 假通过 → 真实断言。"""
         from loop_core.context_loader import ContextLoader
-        self.assertTrue(True)
+        loader = ContextLoader(str(ROOT))
+        # 核心契约方法必须存在且可调用
+        for method in ("load_for_role", "load_role_context", "estimate_tokens",
+                       "load_document_section", "build_document_index"):
+            self.assertTrue(hasattr(loader, method), f"ContextLoader 缺方法 {method}")
 
 
 class TestContracts(unittest.TestCase):
     def test_imports(self):
+        """T-0177 P3-4：原 assertTrue(True) 假通过 → 真实断言。"""
         from loop_core import contracts
-        self.assertTrue(True)
+        from loop_core.contracts import HostAdapter
+        self.assertTrue(hasattr(contracts, "HostAdapter"))
+        # HostAdapter 必须是抽象基类（宿主契约强制）
+        self.assertTrue(getattr(HostAdapter, "__abstractmethods__", None),
+                        "HostAdapter 应为 ABC（含抽象方法）")
 
 
 if __name__ == "__main__":

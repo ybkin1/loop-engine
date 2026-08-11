@@ -162,6 +162,31 @@ class QuotaFailSafeTest(unittest.TestCase):
             self.assertEqual(r["decision"], "quiet")
             self.assertEqual(r["factors"]["budget_ratio"], 0.9)
 
+    def test_same_name_module_in_root_not_imported(self):
+        """T-0177 H4 回归：目标项目根存在同名 loop_engine 模块时不得被导入。
+
+        原实现 sys.path.insert(0, root) 会让 root 下的 loop_engine.py 劫持
+        cost_tracker 导入（H4 评审发现）。修复后使用包内相对导入，仅同包
+        cost_tracker 可被使用。
+        """
+        import loop_engine.quota_decision as qd
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".ai").mkdir(parents=True)
+            (root / ".ai" / "gates.yaml").write_text("gates: []\n", encoding="utf-8")
+            # 在目标项目根放置同名模块（劫持向量）
+            (root / "loop_engine.py").write_text(
+                "class CostTracker:\n"
+                "    def __init__(self, _root): raise ImportError('hijacked')\n",
+                encoding="utf-8",
+            )
+            self._stub_cost_tracker(root, {
+                "total_tokens": 100, "budget_tokens": 1000, "rework_ratio": 0.1,
+            })
+            r = qd.decide_quota_safe(root)
+            # 不被 root 下同名文件劫持：正常走注入的 stub（deliver）
+            self.assertEqual(r["decision"], "deliver")
+
 
 if __name__ == "__main__":
     unittest.main()

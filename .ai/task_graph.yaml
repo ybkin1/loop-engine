@@ -1959,6 +1959,20 @@ tasks:
       理由 + reviewer 第一性原理职责。
     gates:
       - G-T-0176-REQUIREMENTS
+  -
+    id: T-0177
+    title: 五路深度评审全量修复 + 根因分析（P0~P3 全部项 + AI 可信度元问题）
+    phase: S6-delivery
+    status: completed
+    description: >-
+      外部五路并行深度评审（2026-08-11）21 项发现验证后全量立项修复：
+      P0（C1 import json + C2 验证提醒）/ P1（H3 边界匹配 + H4 去 sys.path
+      污染 + H2 逃生开关加固 + C3 git 豁免收窄）/ P2（H1 退化框架接线 +
+      M1 ClaudeCodeAdapter 独立 + M4 死代码清理 + M6-M7 评估）/ P3（文档
+      同步九项）+ D-00 根因分析（用户元问题：AI 可信度）。C2 根因已由
+      T-0174 修复，本任务仅收口提醒重启验证。
+    gates:
+      - G-T-0177-REQUIREMENTS
 edges:
     - from: T-0040
       to: T-0041
@@ -2104,4 +2118,6 @@ edges:
       to: T-0170
     - from: T-0168
       to: T-0171
+    - from: T-0171
+      to: T-0177
 

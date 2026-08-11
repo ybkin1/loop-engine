@@ -36,6 +36,7 @@ _SPLIT_MODULES = (
     "loop_command_utils.py",
     "gate_evidence_checks.py",
     "loop_enforcement_constants.py",
+    "_hook_emergency.py",  # T-0177 H2: 逃生开关独立模块（hook_common 硬依赖）
 )
 
 
@@ -564,6 +565,7 @@ class GateGuardHardConstraintsIntegration(unittest.TestCase):
             shutil.copy(str(SCRIPTS / "hook_common.py"), str(tmp_dir / "hook_common.py"))
 
             shutil.copy(str(SCRIPTS / "_hook_bash.py"), str(tmp_dir / "_hook_bash.py"))
+            shutil.copy(str(SCRIPTS / "_hook_emergency.py"), str(tmp_dir / "_hook_emergency.py"))
             env = dict(os.environ)
             env["ZCODE_PROJECT_DIR"] = str(root)
             payload = json.dumps(_write_input(str(root / "src" / "main.py")))

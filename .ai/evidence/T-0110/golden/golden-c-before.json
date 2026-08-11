@@ -34,9 +34,11 @@
   "__spec__",
   "_check_phase_evidence_file",
   "_command_references_outside",
+  "_emergency_active",
   "_front_matter_parser",
   "_get_file_write_count_file",
   "_hook_files_changed_since_load",
+  "_host_enforcement_diagnostic",
   "_import_loop_core_gate",
   "_increment_file_write_count",
   "_is_governance_tool_segment",
@@ -68,6 +70,7 @@
   "check_security_gate_evidence",
   "check_slo_gate_evidence",
   "datetime",
+  "emergency_active",
   "extract_target_path",
   "hashlib",
   "importlib",
@@ -1268,242 +1271,242 @@
  "hook_entry_matrix": {
   "c11_first_write_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
    "stdout": ""
   },
   "c11_second_write_blocks_limit": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: Task 'T-0001' has reached its file write limit (1/1 files written). Update the task contract's max_files or split the task.\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: Task 'T-0001' has reached its file write limit (1/1 files written). Update the task contract's max_files or split the task.\n",
    "stdout": ""
   },
   "full_no_task_blocks_business_write": {
    "rc": 2,
-   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "full_task_in_scope_write_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
    "stdout": ""
   },
   "full_task_out_of_scope_write_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: Path 'docs/readme.md' is outside allowed scope\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: Path 'docs/readme.md' is outside allowed scope\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "git_commit_exempt_with_task": {
    "rc": 0,
-   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
    "stdout": ""
   },
   "git_local_op_with_task_passes": {
    "rc": 0,
-   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
    "stdout": ""
   },
   "governance_evidence_exempt": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "governance_gates_yaml_exempt": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "governance_handoff_exempt": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "governance_state_yaml_exempt": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "governance_task_graph_exempt": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "governance_tool_compound_main_session_passes": {
    "rc": 0,
-   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
    "stdout": ""
   },
   "governance_tool_compound_with_write_segment_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
    "stdout": ""
   },
   "governance_tool_outside_target_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Target 'C:/Windows/Temp/evil.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: Target 'C:/Windows/Temp/evil.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
    "stdout": ""
   },
   "governance_tool_python_c_snippet_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
    "stdout": ""
   },
   "governance_tool_validate_state_passes": {
    "rc": 0,
-   "stderr": "[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n",
    "stdout": ""
   },
   "legacy_synthetic_fixture_uses_task_scope": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.subagent_evidence_verifier] WARNING: Suspicious: PASS verdict with empty findings list\n[HOOK_LOGGER] WARNING: EVIDENCE_TRACE: .ai/evidence/T-0001/review-evidence.json: Evidence appears to be simulated/fabricated\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
    "stdout": ""
   },
   "lightweight_write_anywhere": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "mcp_in_allowlist_with_identity": {
    "rc": 2,
-   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "mcp_no_task_blocks_dispatch_required": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: mcp__node_repl__js; MCP side-effect tools require an active task (DISPATCH_REQUIRED)\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: mcp__node_repl__js; MCP side-effect tools require an active task (DISPATCH_REQUIRED)\n",
    "stdout": ""
   },
   "mcp_not_in_allowlist_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: mcp__ tool mcp__node_repl__js not in task T-0001 allowed list\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: mcp__ tool mcp__node_repl__js not in task T-0001 allowed list\n",
    "stdout": ""
   },
   "non_governance_project_write": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "orchestration_agent_no_target_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: DISPATCH_REQUIRED: Agent/Skill/Task orchestration allowed; no execution takeover evidence; this is not a dispatch receipt\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: DISPATCH_REQUIRED: Agent/Skill/Task orchestration allowed; no execution takeover evidence; this is not a dispatch receipt\n",
    "stdout": ""
   },
   "read_no_task_business_file_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Read tool without active task. Only governance metadata reads (.ai/*, AGENTS.md, .zcode/*) are allowed. Target: src/main.py\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: Read tool without active task. Only governance metadata reads (.ai/*, AGENTS.md, .zcode/*) are allowed. Target: src/main.py\n",
    "stdout": ""
   },
   "read_no_task_governance_metadata_passes": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "read_only_external_read_passes": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "readonly_bash_no_task_exploration_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Readonly Bash command without active task. Project-level exploration requires a task. Command: grep -r TODO src/\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: Readonly Bash command without active task. Project-level exploration requires a task. Command: grep -r TODO src/\n",
    "stdout": ""
   },
   "readonly_bash_no_task_gov_ref_passes": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "runtime_projection_governance_recovery_controller_passes": {
    "rc": 0,
-   "stderr": "",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n",
    "stdout": ""
   },
   "runtime_projection_governance_write_controller_only_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED by RuntimeController: GOVERNANCE_CONTROLLER_ONLY\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED by RuntimeController: GOVERNANCE_CONTROLLER_ONLY\n",
    "stdout": ""
   },
   "runtime_projection_missing_setup_incomplete": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: SETUP_INCOMPLETE: runtime projection missing; DISPATCH_REQUIRED for active task T-0001\n",
    "stdout": ""
   },
   "runtime_projection_valid_identity_missing_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: IDENTITY_REQUIRED; runtime projection requires caller identity\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: IDENTITY_REQUIRED; runtime projection requires caller identity\n",
    "stdout": ""
   },
   "s11_no_evidence_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S11-maintenance 需要门禁证据，但证据不完整。S11-maintenance 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/maintenance-report.json。详情：.ai/evidence/T-0001/maintenance-report.json 不存在\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S11-maintenance 需要门禁证据，但证据不完整。S11-maintenance 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/maintenance-report.json。详情：.ai/evidence/T-0001/maintenance-report.json 不存在\n",
    "stdout": ""
   },
   "s4_baselines_without_review_blocks_c6": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 1 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "s4_no_baselines_blocks_c1c2c6": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 3 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "s5_quality_no_security_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。S5/S6 需要安全审计证据：.ai/evidence/security/security_audit.json 不存在，且 .ai/evidence/{task_id}/phase-3/security-engineer-report.md 不存在。\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。S5/S6 需要安全审计证据：.ai/evidence/security/security_audit.json 不存在，且 .ai/evidence/{task_id}/phase-3/security-engineer-report.md 不存在。\n",
    "stdout": ""
   },
   "s5_quality_with_security_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
    "stdout": ""
   },
   "s5_security_verdict_blocked_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。安全审计 verdict=BLOCKED：存在阻断级安全缺陷\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S5-quality 需要门禁证据，但证据不完整。安全审计 verdict=BLOCKED：存在阻断级安全缺陷\n",
    "stdout": ""
   },
   "s6_slo_disabled_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
    "stdout": ""
   },
   "s6_slo_sources_missing_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S6-delivery 需要门禁证据，但证据不完整。SLO 门禁阻断：data insufficient (fail-closed): cannot determine the error budget — missing or unparseable required source(s): gates register (.ai/gates.yaml): gates register missing: <ROOT>/.ai/gates.yaml; task graph (.ai/task_graph.yaml): task graph missing: <ROOT>/.ai/task_graph.yaml; guard events (.ai/evidence/observability/guard-events.jsonl): guard events missing: <ROOT>/.ai/evidence/observability/guard-events.jsonl\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S6-delivery 需要门禁证据，但证据不完整。SLO 门禁阻断：data insufficient (fail-closed): cannot determine the error budget — missing or unparseable required source(s): gates register (.ai/gates.yaml): gates register missing: <ROOT>/.ai/gates.yaml; task graph (.ai/task_graph.yaml): task graph missing: <ROOT>/.ai/task_graph.yaml; guard events (.ai/evidence/observability/guard-events.jsonl): guard events missing: <ROOT>/.ai/evidence/observability/guard-events.jsonl\n",
    "stdout": ""
   },
   "s7_no_evidence_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S7-integration 需要门禁证据，但证据不完整。S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json; .ai/evidence/integration/integration_report.json。详情：.ai/evidence/T-0001/integration-report.json 不存在; .ai/evidence/integration/integration_report.json 不存在\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: BLOCKED: 当前阶段 S7-integration 需要门禁证据，但证据不完整。S7-integration 阶段证据不完整，以下文件均需存在且 overall=PASS：.ai/evidence/T-0001/integration-report.json; .ai/evidence/integration/integration_report.json。详情：.ai/evidence/T-0001/integration-report.json 不存在; .ai/evidence/integration/integration_report.json 不存在\n",
    "stdout": ""
   },
   "s7_with_integration_report_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
    "stdout": ""
   },
   "s8_regression_baseline_no_regression_passes": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n",
    "stdout": ""
   },
   "self_review_evidence_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[HOOK_LOGGER] WARNING: BLOCKED: SELF_REVIEW evidence detected (reviewer==developer session) for task T-0001 — independent review required\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[HOOK_LOGGER] WARNING: BLOCKED: SELF_REVIEW evidence detected (reviewer==developer session) for task T-0001 — independent review required\n",
    "stdout": ""
   },
   "self_review_opt_out_trace_only": {
    "rc": 0,
-   "stderr": "[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: LEGACY_SYNTHETIC_FIXTURE: runtime projection absent; using task scope only\n[HOOK_LOGGER] WARNING: SELF_REVIEW_TRACE: .ai/evidence/T-0001/review-evidence.json: reviewer_session_id == developer_session_id (session-dev-same-001)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n",
    "stdout": ""
   },
   "standard_no_task_blocks": {
    "rc": 2,
-   "stderr": "[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[loop_core.import_checker] WARNING: No pyproject.toml or requirements.txt found in project root. All third-party imports will be flagged as undeclared. Root: <ROOT>\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C1-no-requirements: Cannot enter next phase without approved requirements baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C2-no-architecture: Cannot enter next phase without approved architecture baseline\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C3-no-task-package: No active task found — cannot write code without an active task package\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C4-path-out-of-scope: No allowed_paths defined — all write operations are out of scope\n[HOOK_LOGGER] WARNING: [HardConstraints] BLOCKER by C6-no-independent-review: Cannot advance implementation gate: no independent review submitted\n[HOOK_LOGGER] WARNING: BLOCKED: HardConstraints 检测到 5 个 BLOCKER 违规\n",
    "stdout": ""
   },
   "write_outside_project_root_blocks": {
    "rc": 2,
-   "stderr": "[HOOK_LOGGER] WARNING: BLOCKED: Target '<ROOT>/outside.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
+   "stderr": "[HOOK_LOGGER] WARNING: [enforcement-degradation] host=zcode level=STRONG constraints=8/8 enforceable (T-0177 H1 wiring; behavior unchanged)\n[HOOK_LOGGER] WARNING: BLOCKED: Target '<ROOT>/outside.txt' is outside the project root. Writing outside the project boundary is not allowed.\n",
    "stdout": ""
   }
  },
@@ -1527,6 +1530,7 @@
   "check_security_gate_evidence",
   "check_slo_gate_evidence",
   "datetime",
+  "emergency_active",
   "extract_target_path",
   "hashlib",
   "importlib",

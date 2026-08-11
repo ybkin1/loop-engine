@@ -193,6 +193,7 @@ class TestReexportCompleteness:
 _HOOK_FILES = [
     "loop_enforcement.py", "hook_common.py", "_hook_bash.py",
     "_hook_state.py", "_hook_path.py", "_hook_config.py", "_hook_sync.py",
+    "_hook_emergency.py",  # T-0177 H2: 逃生开关独立模块（hook_common 硬依赖）
     "loop_contract_parser.py", "loop_command_utils.py",
     "gate_evidence_checks.py", "loop_enforcement_constants.py",
 ]

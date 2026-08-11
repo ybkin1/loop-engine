@@ -400,7 +400,21 @@ class TestWhitelistConsistency:
             "hooks/scripts/hook_common.py",         # T-0125 拆分授权
             "hooks/scripts/_hook_common_paths.py",  # T-0125 新增外部模块
             "hooks/scripts/loop_enforcement.py",    # T-0134 P4 委托上下文授权
+            # T-0177 五路深度评审修复授权（G-T-0177-REQUIREMENTS，2026-08-11）：
+            # EXIT 常量统一导入（L1）+ 逃生开关共享实现（H2）+ C1 import json +
+            # session_brief 死代码清理（M4）+ .bak 删除（L6）
+            "hooks/scripts/gate_guard.py",
+            "hooks/scripts/path_guard.py",
+            "hooks/scripts/role_isolation.py",
+            "hooks/scripts/content_guard.py",
+            "hooks/scripts/bash_content_guard.py",
+            "hooks/scripts/ledger_guard.py",
+            "hooks/scripts/session_brief.py",
+            "hooks/scripts/_hook_emergency.py",  # T-0177 H2 新增模块（独立审查 P3-2）
+            "hooks/scripts/loop_enforcement.py.bak",  # T-0177 L6 授权删除
         }
+        # .bak 删除（L6）属 T-0177 授权清理；git diff --name-only 不含状态前缀，
+        # 删除文件仍会列出，白名单已覆盖
         disallowed = [p for p in changed if p not in allowed]
         assert disallowed == [], f"hooks/ 仅允许白名单文件改动: {disallowed}"
         if "hooks/scripts/loop_enforcement_constants.py" in changed:

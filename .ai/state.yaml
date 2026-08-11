@@ -1,11 +1,14 @@
 schema_version: 1
 project_name: Loop Engine
 current_phase: S6-delivery
-current_task_id: T-0171
-current_gate_id: G-T-0171-REQUIREMENTS
+current_task_id: T-0177
+current_gate_id: G-T-0177-REQUIREMENTS
 loop_mode: FULL
 last_handoff_at: '2026-08-10T15:00:00+08:00'
 notes:
+- 'T-0177 COMPLETED 2026-08-11: 五路深度评审全量修复 + 根因分析收口 — P0~P3 全部 21 项落地；独立审查第 1 轮 REJECT（P0 部署断裂 + P1 复合命令绕过）→ 修复实证 → 第 2 轮 PASS（P0/P1=0）；全量 4468+ passed / 4 failed（全部 HEAD 既有）；backlog 登记 4 观察项；C2 待用户重启 ZCode 验证 hookCount>0。'
+- 'T-0177 ACTIVE 2026-08-11: G-T-0177-REQUIREMENTS 已由用户批准（"批准 T-0177 全量执行"）。执行中：D-00 根因分析 → P0（C1 import json + C2 验证提醒）→ P1（H3/H4/H2/C3）→ P2（退化框架接线等）→ P3（文档同步）→ 全量回归 + 独立审查 + 验收。'
+- 'T-0177 REGISTERED 2026-08-11: 五路深度评审全量修复 + 根因分析（用户指令"要做全量升级；但也要分析为什么 loop agent 会有这么多大漏洞，ai 可信度在哪"）— P0~P3 全部项 + D-00 根因分析；G-T-0177-REQUIREMENTS pending，待用户批准。'
 - 'T-0171 COMPLETED 2026-08-10: 语义级验证扩展收口 — AI-03 + 模式库接入引擎；两轮审查修复后 PASS（P0=0,P1=0）；634 测试全过。'
 - 'T-0170 COMPLETED 2026-08-10: Python Parity 落地 — 五维 12 检查器 + CLI + 22/22 测试；与 TS 语义对齐。'
 - 'T-0169 COMPLETED 2026-08-10: Qoder 接线收口 — 三轮审查修复后 PASS（P0=0,P1=0）；gates 119/tasks 150/3 场景阻断/37 tools；clawd 保留。'

@@ -32,6 +32,8 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hook_common import (  # noqa: E402
+    EXIT_PASS,
+    EXIT_BLOCK,
     DEFAULT_CONFIG,
     is_governance_project,
     load_config,
@@ -50,8 +52,6 @@ GOVERNANCE_EXEMPT = [
     ".ai/project_continuity.yaml",
 ]
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 
 def load_task_contract_roles(root: Path, task_id: str) -> dict:

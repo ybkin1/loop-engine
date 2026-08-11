@@ -31,10 +31,11 @@ logging.basicConfig(level=logging.WARNING, format='[%(name)s] %(levelname)s: %(m
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from hook_common import is_governance_project, load_config, project_root, read_stdin_json
+from hook_common import (
+    EXIT_PASS, EXIT_BLOCK,
+    is_governance_project, load_config, project_root, read_stdin_json,
+)
 
-EXIT_PASS = 0
-EXIT_BLOCK = 2
 
 # Dangerous write patterns — grouped by severity
 # T-0082 Phase 4: rebuilt with correct escapes (previously every `\b` was a

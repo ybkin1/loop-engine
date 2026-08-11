@@ -75,10 +75,10 @@ def decide_quota_safe(root: Path) -> dict:
         budget_tokens = 0
         rework_ratio = 0.0
         try:
-            import sys as _sys
-            _sys.path.insert(0, str(root))
-            _sys.path.insert(0, str(root / "src"))
-            from loop_engine.cost_tracker import CostTracker
+            # T-0177 H4: 去除 sys.path.insert(root) 污染（目标项目根的模块
+            # 可能覆盖 loop_engine 自身）。cost_tracker 与 quota_decision 同包，
+            # 相对导入不依赖 sys.path，src 布局与顶层命名空间包均兼容。
+            from .cost_tracker import CostTracker  # noqa: PLC0415 — 延迟导入保持 fail-safe 语义
             summary = CostTracker(root).summary()
             cost_tokens = int(summary.get("total_tokens") or summary.get("tokens") or 0)
             # T-0156 审查 P2-1 方案 A：summary 无独立 budget_tokens 键时
